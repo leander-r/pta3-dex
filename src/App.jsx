@@ -2101,7 +2101,9 @@ return (
                                     zIndex: 999
                                 }}
                             />
-                            <div style={{
+                            <div 
+                                className="header-menu-dropdown"
+                                style={{
                                 position: 'absolute',
                                 top: 'calc(100% + 8px)',
                                 right: 0,
@@ -2445,9 +2447,9 @@ return (
                                     <span>👤</span> Profile
                                 </h3>
                                 
-                                <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+                                <div className="trainer-profile-row" style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
                                     {/* Avatar */}
-                                    <div style={{ flexShrink: 0 }}>
+                                    <div className="trainer-avatar-container" style={{ flexShrink: 0 }}>
                                         {trainer.avatar ? (
                                             <img 
                                                 src={trainer.avatar} 
@@ -2490,11 +2492,11 @@ return (
                                     </div>
                                     
                                     {/* Name, Gender, Age */}
-                                    <div style={{ flex: 1 }}>
+                                    <div className="trainer-info-inputs" style={{ flex: 1 }}>
                                         <div className="form-group" className="mb-10">
                                             <input type="text" value={trainer.name} onChange={(e) => setTrainer(prev => ({ ...prev, name: e.target.value }))} placeholder="Trainer Name..." style={{ fontSize: '18px', fontWeight: 'bold' }} />
                                         </div>
-                                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        <div className="trainer-info-grid" style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
                                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
                                                     <input type="radio" name="trainerGender" checked={trainer.gender === 'male'} onChange={() => setTrainer(prev => ({ ...prev, gender: 'male' }))} />
@@ -2614,7 +2616,7 @@ return (
                                 </button>
                                 
                                 {/* Quick Stats Display */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '15px' }}>
+                                <div className="trainer-quick-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '15px' }}>
                                     <div style={{ textAlign: 'center', padding: '10px', background: '#fff', borderRadius: '8px' }}>
                                         <div style={{ fontSize: '10px', color: '#666' }}>MAX HP</div>
                                         <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e53935' }}>{calculateMaxHP()}</div>
