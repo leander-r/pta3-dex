@@ -2319,7 +2319,7 @@ return (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
                             
                             {/* Left Column: Profile */}
-                            <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '12px', border: '1px solid #e0e0e0' }}>
+                            <div className="section-card-purple">
                                 <h3 className="section-title-purple">
                                     <span>👤</span> Profile
                                 </h3>
@@ -2632,7 +2632,7 @@ return (
                             </div>
                             
                             {/* Right Column: Stats */}
-                            <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '12px', border: '1px solid #e0e0e0' }}>
+                            <div className="section-card-purple">
                                 <h3 className="section-title-purple">
                                     <span>📊</span> Stats
                                     <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal', color: '#666' }}>
@@ -2681,7 +2681,7 @@ return (
                         </div>
                         
                         {/* Classes Section */}
-                        <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '12px', border: '1px solid #e0e0e0', marginBottom: '20px' }}>
+                        <div className="section-card-purple" style={{ marginBottom: '20px' }}>
                             <h3 className="section-title-purple">
                                 <span>🎓</span> Classes
                                 <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal', color: '#666' }}>
@@ -2760,8 +2760,8 @@ return (
                             )}
                             
                             {/* Add Class */}
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <select id="classSelectCombined" style={{ flex: 1 }}>
+                            <div className="input-row input-row-purple">
+                                <select id="classSelectCombined">
                                     <option value="">Add a class...</option>
                                     <optgroup label="━━ Base Classes ━━">
                                         {Object.entries(GAME_DATA.trainerClasses || {}).filter(([_, data]) => data.type === 'base').map(([cls, _]) => (
@@ -2849,7 +2849,7 @@ return (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             
                             {/* Features */}
-                            <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '12px', border: '1px solid #e0e0e0' }}>
+                            <div className="section-card-purple">
                                 <h3 className="section-title-purple">
                                     <span>⚡</span> Features
                                     {(trainer.featPoints || 0) > 0 && (
@@ -3242,7 +3242,7 @@ return (
                             </div>
                             
                             {/* Skills */}
-                            <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '12px', border: '1px solid #e0e0e0' }}>
+                            <div className="section-card-purple">
                                 <h3 className="section-title-purple">
                                     <span>🎯</span> Skills
                                     <span style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: 'normal', color: '#666' }}>
@@ -3251,8 +3251,8 @@ return (
                                 </h3>
                                 
                                 {/* Add Skill */}
-                                <div style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
-                                    <select id="skillSelectCombined" style={{ flex: 1, fontSize: '12px' }}>
+                                <div className="input-row input-row-purple">
+                                    <select id="skillSelectCombined">
                                         <option value="">Add skill...</option>
                                         <optgroup label="HP (Passive)">{Object.entries(GAME_DATA.skills || {}).filter(([_, d]) => d.stat === 'HP').map(([s, _]) => <option key={s} value={s}>{s}</option>)}</optgroup>
                                         <optgroup label="ATK">{Object.entries(GAME_DATA.skills || {}).filter(([_, d]) => d.stat === 'ATK').map(([s, _]) => <option key={s} value={s}>{s}</option>)}</optgroup>
@@ -3261,7 +3261,7 @@ return (
                                         <optgroup label="SDEF">{Object.entries(GAME_DATA.skills || {}).filter(([_, d]) => d.stat === 'SDEF').map(([s, _]) => <option key={s} value={s}>{s}</option>)}</optgroup>
                                         <optgroup label="SPD">{Object.entries(GAME_DATA.skills || {}).filter(([_, d]) => d.stat === 'SPD').map(([s, _]) => <option key={s} value={s}>{s}</option>)}</optgroup>
                                     </select>
-                                    <button className="btn btn-primary" className="input-compact" onClick={() => {
+                                    <button className="btn-add" onClick={() => {
                                         const select = document.getElementById('skillSelectCombined');
                                         if (select.value) { setTrainer(prev => ({ ...prev, skills: [...prev.skills, select.value] })); select.value = ''; }
                                     }}>+</button>
@@ -5264,7 +5264,7 @@ return (
                         
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             {/* Left Panel - Roll Setup */}
-                            <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                            <div className="section-card">
                                 
                                 {/* Pokémon Move Mode */}
                                 {diceRoller.mode === 'pokemon' && (
@@ -6453,7 +6453,7 @@ return (
                             </div>
                             
                             {/* Right Panel - Roll History */}
-                            <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                            <div className="section-card">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                                     <h3 className="text-purple">Roll History</h3>
                                     <button
@@ -6640,7 +6640,7 @@ return (
                         </div>
                         
                         {/* Quick Reference */}
-                        <div style={{ marginTop: '20px', background: '#f8f9fa', padding: '15px', borderRadius: '10px' }}>
+                        <div className="section-card" style={{ marginTop: '20px' }}>
                             <h4>P:TA Dice Reference</h4>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px', marginTop: '10px', fontSize: '13px' }}>
                                 <div>
@@ -6760,7 +6760,7 @@ return (
                                 <h3 style={{ marginBottom: '15px' }}>Moves Database ({Object.keys(GAME_DATA.moves).length} moves)</h3>
                                 
                                 {/* Search and Filters */}
-                                <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
+                                <div className="section-card" style={{ marginBottom: '15px' }}>
                                     {/* Search Bar */}
                                     <div style={{ marginBottom: '12px' }}>
                                         <input
@@ -6998,7 +6998,7 @@ return (
                                 <h3 style={{ marginBottom: '15px' }}>Abilities Database ({Object.keys(GAME_DATA.abilities).length} abilities)</h3>
                                 
                                 {/* Search and Filters */}
-                                <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
+                                <div className="section-card" style={{ marginBottom: '15px' }}>
                                     {/* Search Bar */}
                                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                                         <input
@@ -7407,7 +7407,7 @@ return (
                             />
                         </div>
                         
-                        <div style={{ marginTop: '20px', padding: '15px', background: '#f8f9fa', borderRadius: '8px' }}>
+                        <div className="section-card" style={{ marginTop: '20px' }}>
                             <h4>Quick Tips</h4>
                             <ul style={{ marginLeft: '20px', lineHeight: '1.8', fontSize: '14px' }}>
                                 <li>Track NPC relationships and their Pokémon teams</li>
