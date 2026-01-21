@@ -2316,7 +2316,7 @@ return (
                         <h2 className="section-title">Trainer</h2>
                         
                         {/* Top Section: Profile + Stats side by side */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+                        <div className="grid-responsive-2 mb-lg">
                             
                             {/* Left Column: Profile */}
                             <div className="section-card-purple">
@@ -2640,7 +2640,7 @@ return (
                                     </span>
                                 </h3>
                                 
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                                <div className="grid-responsive-3 trainer-stats-grid">
                                     {[
                                         { key: 'hp', label: 'HP', color: '#e53935' },
                                         { key: 'atk', label: 'ATK', color: '#ff5722' },
@@ -2663,7 +2663,7 @@ return (
                                 </div>
                                 
                                 {/* Evasion Display */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '15px' }}>
+                                <div className="grid-responsive-3" style={{ marginTop: '15px' }}>
                                     <div style={{ textAlign: 'center', padding: '8px', background: '#e3f2fd', borderRadius: '6px' }}>
                                         <div style={{ fontSize: '10px', color: '#1565c0' }}>Phys Eva</div>
                                         <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1565c0' }}>+{Math.floor(trainer.stats.def / 5)}</div>
@@ -2846,7 +2846,7 @@ return (
                         </div>
                         
                         {/* Features & Skills Side by Side */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div className="grid-responsive-2">
                             
                             {/* Features */}
                             <div className="section-card-purple">
@@ -5262,7 +5262,7 @@ return (
                             </button>
                         </div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div className="grid-responsive-2">
                             {/* Left Panel - Roll Setup */}
                             <div className="section-card">
                                 
@@ -7551,7 +7551,7 @@ return (
                             />
                         </div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div className="grid-responsive-2 gap-sm">
                             <div className="form-group">
                                 <label>Type</label>
                                 <select
@@ -7577,7 +7577,7 @@ return (
                             </div>
                         </div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div className="grid-responsive-2 gap-sm">
                             <div className="form-group">
                                 <label>Frequency</label>
                                 <select
@@ -7609,7 +7609,7 @@ return (
                             </div>
                         </div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div className="grid-responsive-2 gap-sm">
                             <div className="form-group">
                                 <label>Damage Dice</label>
                                 <input

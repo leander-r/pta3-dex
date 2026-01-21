@@ -1663,6 +1663,47 @@
             animation: fadeIn 0.3s ease;
         }
         
+        /* ========== RESPONSIVE GRID LAYOUTS ========== */
+        /* These grids stack to single column on mobile */
+        
+        .grid-responsive-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .grid-responsive-2.gap-sm {
+            gap: 10px;
+        }
+        
+        .grid-responsive-2.mb-lg {
+            margin-bottom: 30px;
+        }
+        
+        .grid-responsive-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        /* Trainer stats grid - 2 columns on mobile */
+        .trainer-stats-grid {
+            gap: 10px;
+        }
+        
+        /* Mobile-optimized section cards */
+        .section-card-purple,
+        .section-card,
+        .section-card-accent {
+            margin-bottom: 15px;
+        }
+        
+        /* Scroll containers - taller on mobile for better UX */
+        .scroll-container-mobile {
+            max-height: none;
+            overflow-y: visible;
+        }
+
         /* ========== RESPONSIVE ADJUSTMENTS ========== */
         
         @media (max-width: 768px) {
@@ -1690,7 +1731,7 @@
             }
             
             .content-area {
-                padding: 15px;
+                padding: 12px;
             }
             
             .modal-content {
@@ -1706,14 +1747,54 @@
                 padding: 12px 15px;
             }
             
-            /* Section cards */
+            /* ===== MOBILE GRID STACKING ===== */
+            /* Stack 2-column grids to single column on mobile */
+            .grid-responsive-2 {
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+            }
+            
+            .grid-responsive-3 {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px;
+            }
+            
+            /* Trainer stats - 2 columns on mobile works well for 6 stats */
+            .trainer-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px;
+            }
+            
+            /* ===== MOBILE SECTION CARDS ===== */
             .section-card,
             .section-card-accent,
             .section-card-purple {
                 padding: 15px;
+                margin-bottom: 12px;
             }
             
-            /* Stat boxes */
+            /* Remove inner scroll containers on mobile - let page scroll naturally */
+            .scroll-container-sm,
+            .scroll-container-md {
+                max-height: none;
+                overflow-y: visible;
+            }
+            
+            /* ===== MOBILE SECTION TITLES ===== */
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+            
+            .section-title-purple,
+            .section-title-orange {
+                font-size: 15px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            
+            /* ===== MOBILE STATS ===== */
             .stat-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
@@ -1727,16 +1808,82 @@
                 font-size: 22px;
             }
             
-            /* Input rows */
+            .stat-box label {
+                font-size: 10px;
+            }
+            
+            /* Trainer stat inputs - 2 columns */
+            .trainer-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            /* ===== MOBILE INPUT ROWS ===== */
             .input-row {
                 flex-direction: column;
             }
             
             .input-row .btn-add {
                 width: 100%;
+                padding: 12px;
             }
             
-            /* Pokemon cards */
+            /* ===== MOBILE FORM ELEMENTS ===== */
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 12px;
+                font-size: 16px; /* Prevent iOS zoom on focus */
+            }
+            
+            select {
+                padding: 12px;
+                font-size: 16px; /* Prevent iOS zoom */
+            }
+            
+            /* ===== MOBILE BUTTONS ===== */
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .btn-primary,
+            .btn-secondary,
+            .btn-danger {
+                min-height: 44px; /* Touch-friendly minimum */
+            }
+            
+            /* Button groups stack vertically */
+            .button-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            /* ===== MOBILE FEATURE/SKILL LISTS ===== */
+            .list-item {
+                padding: 12px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .feature-item {
+                padding: 12px;
+            }
+            
+            .feature-name {
+                font-size: 14px;
+            }
+            
+            .feature-description {
+                font-size: 13px;
+            }
+            
+            /* ===== MOBILE POKEMON CARDS ===== */
             .pokemon-card {
                 padding: 15px;
             }
@@ -1747,14 +1894,20 @@
             }
             
             .pokemon-list .pokemon-card::after {
-                display: none; /* Hide separator line on mobile, using gap instead */
+                display: none;
             }
             
             .pokemon-name {
                 font-size: 16px;
             }
             
-            /* Moves list */
+            .pokemon-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            /* ===== MOBILE MOVES LIST ===== */
             .moves-list {
                 grid-template-columns: 1fr;
                 gap: 6px;
@@ -1764,7 +1917,7 @@
                 padding: 12px;
             }
             
-            /* Modals */
+            /* ===== MOBILE MODALS ===== */
             .modal-overlay .modal {
                 width: 95%;
                 max-width: none;
@@ -1791,21 +1944,22 @@
                 font-size: 16px;
             }
             
-            /* Reference grids */
+            /* ===== MOBILE REFERENCE GRIDS ===== */
             .reference-grid {
                 grid-template-columns: 1fr;
             }
             
-            /* Tables - horizontal scroll */
+            /* ===== MOBILE TABLES ===== */
             table {
                 display: block;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
             }
             
-            /* Level controls */
+            /* ===== MOBILE LEVEL CONTROLS ===== */
             .level-controls {
                 padding: 12px;
+                flex-wrap: wrap;
             }
             
             .level-btn {
@@ -1814,21 +1968,60 @@
                 font-size: 24px;
             }
             
-            /* Dropdown selects in tight spaces */
-            select {
-                max-width: 100%;
-            }
-            
-            /* Feature/skill lists */
-            .list-item {
-                padding: 12px;
-            }
-            
-            /* Close buttons */
+            /* ===== MOBILE CLOSE BUTTONS ===== */
             .close {
                 width: 40px;
                 height: 40px;
                 font-size: 24px;
+            }
+            
+            /* ===== MOBILE TABS ===== */
+            .tabs {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            
+            .tab {
+                padding: 10px 14px;
+                font-size: 12px;
+                flex: 1;
+                min-width: 80px;
+                text-align: center;
+            }
+            
+            /* ===== MOBILE TYPE BADGES ===== */
+            .type-badge {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+            
+            /* ===== MOBILE BADGES ===== */
+            .badge {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+            
+            /* ===== MOBILE AVATAR ===== */
+            .trainer-avatar {
+                width: 60px !important;
+                height: 60px !important;
+            }
+            
+            /* ===== MOBILE MONEY/BADGES DISPLAY ===== */
+            .trainer-info-row {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            
+            /* ===== MOBILE EMPTY STATES ===== */
+            .empty-state {
+                padding: 30px 15px;
+                font-size: 14px;
+            }
+            
+            /* ===== MOBILE TOOLTIPS - Hide on touch ===== */
+            .info-tooltip .tooltip-text {
+                display: none;
             }
         }
         
