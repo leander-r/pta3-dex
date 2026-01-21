@@ -33,8 +33,5 @@ AI tools were used as a productivity aid during development (iteration, refactor
 
 This project does not require a build step or server.
 
-### Run locally
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/leander-r/pta-dex.git
-2. Run pokemon-pta-tool.html
+### Run
+Just enter this site: https://leander-r.github.io/pta-dex/
