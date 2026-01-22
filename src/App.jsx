@@ -100,6 +100,12 @@ const [showCustomFeatureModal, setShowCustomFeatureModal] = useState(false);
 const [showCustomMoveModal, setShowCustomMoveModal] = useState(false);
 const [customMoveForPokemon, setCustomMoveForPokemon] = useState(null);
 
+// --- Move Learning Modal State ---
+const [showMoveLearnModal, setShowMoveLearnModal] = useState(false);
+const [moveLearnData, setMoveLearnData] = useState(null);
+// moveLearnData structure: { pokemonId, pokemonName, newMove, currentMoves, inParty }
+const [pendingMoveLearn, setPendingMoveLearn] = useState([]);
+
 // --- Pokédex State ---
 const [pokedex, setPokedex] = useState([]);
 const [pokedexLoading, setPokedexLoading] = useState(true);
@@ -706,6 +712,10 @@ const handleSpeciesSelect = (speciesName, pokemonId) => {
     const speciesData = pokedex.find(p => p.species === speciesName);
     if (!speciesData) return;
     
+    // Get the current Pokemon to check its level
+    const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
+    const currentLevel = currentPoke?.level || 1;
+    
     const updates = {
         species: speciesData.species,
         types: [...speciesData.types],
@@ -773,6 +783,39 @@ const handleSpeciesSelect = (speciesName, pokemonId) => {
         }
     }
     updates.pokemonSkills = pokemonSkills;
+    
+    // Add starting moves based on current level (moves at level 0 and 1, plus any up to current level)
+    if (speciesData.levelUpMoves && speciesData.levelUpMoves.length > 0) {
+        const startingMoves = speciesData.levelUpMoves
+            .filter(m => m.level <= currentLevel)
+            .slice(0, 4) // Max 4 natural moves
+            .map(m => {
+                const moveData = GAME_DATA.moves[m.move] || {};
+                return {
+                    name: m.move,
+                    type: moveData.type || m.type || 'Normal',
+                    category: moveData.category || 'Physical',
+                    frequency: moveData.frequency || 'At-Will',
+                    damage: moveData.damage || '',
+                    range: moveData.range || 'Melee',
+                    effect: moveData.effect || '',
+                    source: 'natural',
+                    learnedAtLevel: m.level
+                };
+            });
+        
+        // Set moves when:
+        // - Pokemon has no moves yet (new Pokemon)
+        // - Pokemon has no species yet (first time setting species)
+        // - Species is changing to a different one
+        const hasNoMoves = !currentPoke?.moves || currentPoke.moves.length === 0;
+        const hasNoSpecies = !currentPoke?.species;
+        const speciesIsChanging = currentPoke?.species && currentPoke.species !== speciesName;
+        
+        if (hasNoMoves || hasNoSpecies || speciesIsChanging) {
+            updates.moves = startingMoves;
+        }
+    }
     
     // Call updatePokemon (defined later in component, but accessible due to JS hoisting behavior with function scope)
     updatePokemon(pokemonId, updates);
@@ -1785,20 +1828,161 @@ const addPokemon = () => {
     setEditingPokemon(newPokemon.id);
 };
 
+// Helper function to get level-up moves from pokedex for a species
+const getLevelUpMovesForSpecies = (species) => {
+    if (!species || !pokedex || pokedex.length === 0) return [];
+    const speciesData = pokedex.find(p => 
+        p.species?.toLowerCase() === species.toLowerCase()
+    );
+    return speciesData?.levelUpMoves || [];
+};
+
+// Helper function to check moves learned between two levels
+const getMovesForLevelRange = (species, fromLevel, toLevel) => {
+    const levelUpMoves = getLevelUpMovesForSpecies(species);
+    if (fromLevel < toLevel) {
+        // Level UP: get moves learned between old level (exclusive) and new level (inclusive)
+        return levelUpMoves.filter(m => m.level > fromLevel && m.level <= toLevel);
+    } else {
+        // Level DOWN: get moves that were learned above the new level
+        return levelUpMoves.filter(m => m.level > toLevel && m.level <= fromLevel);
+    }
+};
+
+// Process pending move learns one at a time
+useEffect(() => {
+    if (pendingMoveLearn.length > 0 && !showMoveLearnModal) {
+        const nextMove = pendingMoveLearn[0];
+        
+        // Fetch fresh pokemon data to get current moves
+        const freshPokemon = nextMove.inParty 
+            ? party.find(p => p.id === nextMove.pokemonId)
+            : reserve.find(p => p.id === nextMove.pokemonId);
+        
+        if (freshPokemon) {
+            const freshMoves = freshPokemon.moves || [];
+            const naturalMoves = freshMoves.filter(m => m.source === 'natural');
+            const alreadyKnows = freshMoves.some(m => 
+                m.name.toLowerCase() === nextMove.newMove.move.toLowerCase()
+            );
+            
+            if (alreadyKnows) {
+                // Already knows this move, skip to next
+                setPendingMoveLearn(prev => prev.slice(1));
+            } else if (naturalMoves.length < 4) {
+                // Has room now, learn directly and move to next
+                learnMove(nextMove.pokemonId, nextMove.newMove, null, nextMove.inParty);
+                setPendingMoveLearn(prev => prev.slice(1));
+            } else {
+                // Still needs to replace, show modal with fresh moves
+                setMoveLearnData({
+                    ...nextMove,
+                    currentMoves: freshMoves,
+                    pokemonName: freshPokemon.name
+                });
+                setShowMoveLearnModal(true);
+                setPendingMoveLearn(prev => prev.slice(1));
+            }
+        } else {
+            // Pokemon not found, skip
+            setPendingMoveLearn(prev => prev.slice(1));
+        }
+    }
+}, [pendingMoveLearn, showMoveLearnModal, party, reserve]);
+
+// Function to handle learning a new move (called after modal confirmation or auto-learn)
+const learnMove = (pokemonId, newMove, replaceIndex = null, inParty = true) => {
+    const updateFn = (prev) => prev.map(p => {
+        if (p.id !== pokemonId) return p;
+        
+        const moveData = GAME_DATA.moves[newMove.move] || {};
+        const newMoveObj = {
+            name: newMove.move,
+            type: moveData.type || newMove.type || 'Normal',
+            category: moveData.category || 'Physical',
+            frequency: moveData.frequency || 'At-Will',
+            damage: moveData.damage || '',
+            range: moveData.range || 'Melee',
+            effect: moveData.effect || '',
+            source: 'natural',
+            learnedAtLevel: newMove.level
+        };
+        
+        let newMoves;
+        if (replaceIndex !== null && replaceIndex >= 0) {
+            // Replace existing move
+            newMoves = [...p.moves];
+            newMoves[replaceIndex] = newMoveObj;
+        } else {
+            // Add new move
+            newMoves = [...p.moves, newMoveObj];
+        }
+        
+        return { ...p, moves: newMoves };
+    });
+    
+    if (inParty) {
+        setParty(updateFn);
+    } else {
+        setReserve(updateFn);
+    }
+};
+
+// Function to forget moves when leveling down
+const forgetMovesAboveLevel = (pokemonId, newLevel, inParty = true) => {
+    const updateFn = (prev) => prev.map(p => {
+        if (p.id !== pokemonId) return p;
+        
+        // Remove natural moves that were learned above the new level
+        const filteredMoves = p.moves.filter(move => {
+            // Keep all taught moves
+            if (move.source !== 'natural') return true;
+            // Keep natural moves without learnedAtLevel tracking (legacy or manual)
+            if (!move.learnedAtLevel) return true;
+            // Keep natural moves learned at or below new level
+            return move.learnedAtLevel <= newLevel;
+        });
+        
+        return { ...p, moves: filteredMoves };
+    });
+    
+    if (inParty) {
+        setParty(updateFn);
+    } else {
+        setReserve(updateFn);
+    }
+};
+
 // Update Pokemon (works on both party and reserve)
 const updatePokemon = (id, updates) => {
     // Check if pokemon is in party or reserve
     const inParty = party.some(p => p.id === id);
+    const currentPokemon = inParty 
+        ? party.find(p => p.id === id) 
+        : reserve.find(p => p.id === id);
+    
     const updateFn = (prev) => prev.map(p => {
         if (p.id !== id) return p;
         
-        // Handle experience updates
+        // Determine if we have a level change (either from exp or direct level update)
+        let newLevel = p.level;
+        let hasLevelChange = false;
+        
         if (updates.exp !== undefined) {
-            const newLevel = calculatePokemonLevel(updates.exp);
+            newLevel = calculatePokemonLevel(updates.exp);
+            updates.level = newLevel;
+            hasLevelChange = newLevel !== p.level;
+        } else if (updates.level !== undefined && updates.level !== p.level) {
+            newLevel = updates.level;
+            hasLevelChange = true;
+            // When level is changed directly, set exp to the minimum for that level
+            updates.exp = GAME_DATA.pokemonExpChart[newLevel] || 0;
+        }
+        
+        // Handle level changes (stat points)
+        if (hasLevelChange) {
             const oldLevel = p.level;
             const highestLevelReached = p.highestLevelReached || oldLevel;
-            
-            updates.level = newLevel;
             
             // Calculate total stat points that SHOULD be available based on level progression
             const totalAddedStats = Object.values(p.addedStats || {}).reduce((sum, val) => sum + (val || 0), 0);
@@ -1864,6 +2048,85 @@ const updatePokemon = (id, updates) => {
         setParty(updateFn);
     } else {
         setReserve(updateFn);
+    }
+    
+    // Handle move learning/forgetting after state update
+    // Trigger on either exp change OR direct level change
+    const oldLevel = currentPokemon?.level;
+    let newLevel = oldLevel;
+    
+    if (updates.exp !== undefined) {
+        newLevel = calculatePokemonLevel(updates.exp);
+    } else if (updates.level !== undefined) {
+        newLevel = updates.level;
+    }
+    
+    if (currentPokemon?.species && newLevel !== oldLevel) {
+        // Process moves synchronously using current pokemon data
+        // We use currentPokemon which was captured before state update
+        const pokemonId = id;
+        const pokemonName = currentPokemon.name;
+        const pokemonInParty = inParty;
+        const species = currentPokemon.species;
+        const startingMoves = currentPokemon.moves || [];
+        
+        if (newLevel > oldLevel) {
+            // Level UP - check for new moves to learn
+            const movesToLearn = getMovesForLevelRange(species, oldLevel, newLevel);
+            
+            if (movesToLearn.length > 0) {
+                const naturalMoves = startingMoves.filter(m => m.source === 'natural');
+                let currentNaturalCount = naturalMoves.length;
+                const movesToQueue = [];
+                const movesToLearnDirectly = [];
+                
+                movesToLearn.forEach(newMove => {
+                    // Check if pokemon already knows this move
+                    const alreadyKnows = startingMoves.some(m => 
+                        m.name.toLowerCase() === newMove.move.toLowerCase()
+                    );
+                    
+                    if (!alreadyKnows) {
+                        if (currentNaturalCount < 4) {
+                            // Can learn directly
+                            movesToLearnDirectly.push(newMove);
+                            currentNaturalCount++;
+                        } else {
+                            // Need to ask user to replace a move
+                            movesToQueue.push({
+                                pokemonId: pokemonId,
+                                pokemonName: pokemonName,
+                                newMove: newMove,
+                                currentMoves: startingMoves,
+                                inParty: pokemonInParty,
+                                needsReplacement: true
+                            });
+                        }
+                    }
+                });
+                
+                // Learn moves that fit directly (use setTimeout to ensure state is updated)
+                if (movesToLearnDirectly.length > 0) {
+                    setTimeout(() => {
+                        movesToLearnDirectly.forEach(move => {
+                            learnMove(pokemonId, move, null, pokemonInParty);
+                        });
+                    }, 10);
+                }
+                
+                // Queue up moves that need replacement
+                if (movesToQueue.length > 0) {
+                    setTimeout(() => {
+                        setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
+                    }, 20);
+                }
+            }
+        } else {
+            // Level DOWN - forget moves learned above new level
+            setTimeout(() => {
+                forgetMovesAboveLevel(pokemonId, newLevel, pokemonInParty);
+            }, 10);
+        }
     }
 };
 
@@ -4354,6 +4617,24 @@ return (
                                                                         const select = document.getElementById(`moveSelect-${poke.id}`);
                                                                         const sourceSelect = document.getElementById(`moveSource-${poke.id}`);
                                                                         if (select.value) {
+                                                                            // Check move limits
+                                                                            const naturalMoves = poke.moves.filter(m => m.source === 'natural').length;
+                                                                            const taughtMoves = poke.moves.filter(m => m.source === 'taught').length;
+                                                                            const source = sourceSelect.value;
+                                                                            
+                                                                            if (poke.moves.length >= 8) {
+                                                                                alert('Maximum 8 moves allowed (4 Natural + 4 Taught).');
+                                                                                return;
+                                                                            }
+                                                                            if (source === 'natural' && naturalMoves >= 4) {
+                                                                                alert('Maximum 4 Natural moves allowed. Remove a Natural move first or add as Taught.');
+                                                                                return;
+                                                                            }
+                                                                            if (source === 'taught' && taughtMoves >= 4) {
+                                                                                alert('Maximum 4 Taught moves allowed. Remove a Taught move first or add as Natural.');
+                                                                                return;
+                                                                            }
+                                                                            
                                                                             const moveData = GAME_DATA.moves[select.value];
                                                                             updatePokemon(poke.id, {
                                                                                 moves: [...poke.moves, {
@@ -4364,13 +4645,39 @@ return (
                                                                                     damage: moveData.damage,
                                                                                     range: moveData.range,
                                                                                     effect: moveData.effect,
-                                                                                    source: sourceSelect.value
+                                                                                    source: source
                                                                                 }]
                                                                             });
                                                                             select.value = '';
                                                                         }
                                                                     }}
                                                                 >+ Add</button>
+                                                            </div>
+                                                            
+                                                            {/* Move Count Display */}
+                                                            <div style={{ 
+                                                                display: 'flex', 
+                                                                gap: '10px', 
+                                                                marginBottom: '12px',
+                                                                fontSize: '11px',
+                                                                color: '#666'
+                                                            }}>
+                                                                <span style={{ 
+                                                                    padding: '2px 8px', 
+                                                                    background: poke.moves.filter(m => m.source === 'natural').length >= 4 ? '#ffebee' : '#e8f5e9',
+                                                                    borderRadius: '4px',
+                                                                    border: `1px solid ${poke.moves.filter(m => m.source === 'natural').length >= 4 ? '#f44336' : '#4caf50'}`
+                                                                }}>
+                                                                    Natural: {poke.moves.filter(m => m.source === 'natural').length}/4
+                                                                </span>
+                                                                <span style={{ 
+                                                                    padding: '2px 8px', 
+                                                                    background: poke.moves.filter(m => m.source === 'taught').length >= 4 ? '#ffebee' : '#e3f2fd',
+                                                                    borderRadius: '4px',
+                                                                    border: `1px solid ${poke.moves.filter(m => m.source === 'taught').length >= 4 ? '#f44336' : '#2196f3'}`
+                                                                }}>
+                                                                    Taught: {poke.moves.filter(m => m.source === 'taught').length}/4
+                                                                </span>
                                                             </div>
                                                             
                                                             {/* Custom Move Button */}
@@ -5505,7 +5812,7 @@ return (
                         </div>
                         
                         {/* Mode Selection */}
-                        <div className="tabs" className="mb-20">
+                        <div className="tabs mb-20">
                             <button 
                                 className={`tab ${diceRoller.mode === 'pokemon' ? 'active' : ''}`}
                                 onClick={() => setDiceRoller(prev => ({ ...prev, mode: 'pokemon' }))}
@@ -7967,6 +8274,171 @@ return (
                                 }}
                             >
                                 Add Move
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+        
+        {/* Move Learn Modal - Appears when Pokemon levels up and learns a new move */}
+        {showMoveLearnModal && moveLearnData && (
+            <div className="modal-overlay" onClick={() => {}}>
+                <div className="modal" style={{ maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-header" style={{ background: 'linear-gradient(135deg, #4caf50, #2e7d32)' }}>
+                        <h3>🎉 New Move Available!</h3>
+                    </div>
+                    
+                    <div style={{ padding: '20px' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
+                                {moveLearnData.pokemonName} wants to learn
+                            </div>
+                            <div style={{ 
+                                fontSize: '24px', 
+                                fontWeight: 'bold', 
+                                color: '#4caf50',
+                                padding: '10px 20px',
+                                background: '#e8f5e9',
+                                borderRadius: '10px',
+                                display: 'inline-block',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => {
+                                const moveData = GAME_DATA.moves[moveLearnData.newMove.move] || {};
+                                showDetail('move', moveLearnData.newMove.move, { ...moveData, type: moveLearnData.newMove.type });
+                            }}
+                            title="Tap to view move details"
+                            >
+                                {moveLearnData.newMove.move}
+                                <span style={{ fontSize: '12px', marginLeft: '8px', opacity: 0.7 }}>ℹ️</span>
+                            </div>
+                            {(() => {
+                                const moveData = GAME_DATA.moves[moveLearnData.newMove.move] || {};
+                                return (
+                                    <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
+                                        <span className={`type-badge type-${(moveData.type || moveLearnData.newMove.type || 'Normal').toLowerCase()}`} style={{ marginRight: '8px' }}>
+                                            {moveData.type || moveLearnData.newMove.type || 'Normal'}
+                                        </span>
+                                        <span>{moveData.category || 'Physical'}</span>
+                                        {moveData.damage && <span> • {moveData.damage}</span>}
+                                    </div>
+                                );
+                            })()}
+                            <div style={{ fontSize: '12px', color: '#888', marginTop: '6px' }}>
+                                Learned at Level {moveLearnData.newMove.level}
+                            </div>
+                        </div>
+                        
+                        <div style={{ 
+                            background: '#fff3cd', 
+                            border: '1px solid #ffc107',
+                            borderRadius: '8px', 
+                            padding: '12px',
+                            marginBottom: '20px',
+                            textAlign: 'center'
+                        }}>
+                            <strong>⚠️ {moveLearnData.pokemonName} already knows 4 Natural moves!</strong>
+                            <div style={{ fontSize: '13px', marginTop: '4px' }}>
+                                Tap a move to view details. Choose a move to forget, or skip learning.
+                            </div>
+                        </div>
+                        
+                        <div style={{ marginBottom: '20px' }}>
+                            <div style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '14px' }}>
+                                Current Natural Moves:
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {(moveLearnData.currentMoves || [])
+                                    .map((move, index) => ({ move, index }))
+                                    .filter(({ move }) => move.source === 'natural')
+                                    .map(({ move, index }) => {
+                                        const moveData = GAME_DATA.moves[move.name] || move;
+                                        return (
+                                            <div 
+                                                key={index}
+                                                style={{ 
+                                                    display: 'flex', 
+                                                    justifyContent: 'space-between', 
+                                                    alignItems: 'center',
+                                                    padding: '10px 12px',
+                                                    background: '#f8f9fa',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #dee2e6',
+                                                    cursor: 'pointer',
+                                                    transition: 'background 0.15s ease'
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = '#e9ecef'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = '#f8f9fa'}
+                                            >
+                                                <div 
+                                                    style={{ flex: 1 }}
+                                                    onClick={() => showDetail('move', move.name, { ...moveData, ...move })}
+                                                >
+                                                    <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                                                        {move.name}
+                                                        <span style={{ fontSize: '11px', marginLeft: '6px', opacity: 0.6 }}>ℹ️</span>
+                                                        {move.learnedAtLevel && (
+                                                            <span style={{ 
+                                                                fontSize: '10px', 
+                                                                color: '#888',
+                                                                marginLeft: '8px'
+                                                            }}>
+                                                                (Lv.{move.learnedAtLevel})
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ fontSize: '12px', color: '#666' }}>
+                                                        <span className={`type-badge type-${(moveData.type || 'Normal').toLowerCase()}`} style={{ fontSize: '10px', padding: '1px 6px', marginRight: '6px' }}>
+                                                            {moveData.type || 'Normal'}
+                                                        </span>
+                                                        {moveData.category}
+                                                        {moveData.damage && ` • ${moveData.damage}`}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    className="btn"
+                                                    style={{ 
+                                                        background: 'linear-gradient(135deg, #f44336, #d32f2f)',
+                                                        color: 'white',
+                                                        padding: '3px 8px',
+                                                        fontSize: '10px',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        whiteSpace: 'nowrap',
+                                                        marginLeft: '8px'
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        learnMove(
+                                                            moveLearnData.pokemonId, 
+                                                            moveLearnData.newMove, 
+                                                            index,
+                                                            moveLearnData.inParty
+                                                        );
+                                                        setShowMoveLearnModal(false);
+                                                        setMoveLearnData(null);
+                                                    }}
+                                                >
+                                                    Forget
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                            <button
+                                className="btn btn-secondary"
+                                style={{ padding: '10px 24px' }}
+                                onClick={() => {
+                                    setShowMoveLearnModal(false);
+                                    setMoveLearnData(null);
+                                }}
+                            >
+                                Don't Learn Move
                             </button>
                         </div>
                     </div>
