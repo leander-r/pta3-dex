@@ -62,6 +62,430 @@ Tooltip
 // Context
 import { AppContext } from './contexts/AppContext.js';
 
+// ============================================================
+// EVOLUTION CHAIN DATA
+// ============================================================
+// Format: { species: { evolvesTo: [{species, method, requirement, regionalForm?}], evolvesFrom: {species, method, requirement, regionalForm?} } }
+// Methods: 'level' (minimum level), 'stone' (evolution stone), 'trade', 'happiness', 'other'
+
+const EVOLUTION_STONES = [
+    'Fire Stone', 'Water Stone', 'Thunder Stone', 'Leaf Stone', 'Moon Stone',
+    'Sun Stone', 'Shiny Stone', 'Dusk Stone', 'Dawn Stone', 'Ice Stone'
+];
+
+const EVOLUTION_CHAINS = {
+    // Gen 1 Starters
+    'Bulbasaur': { evolvesTo: [{ species: 'Ivysaur', method: 'level', requirement: 16 }] },
+    'Ivysaur': { evolvesFrom: { species: 'Bulbasaur', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Venusaur', method: 'level', requirement: 32 }] },
+    'Venusaur': { evolvesFrom: { species: 'Ivysaur', method: 'level', requirement: 32 } },
+    
+    'Charmander': { evolvesTo: [{ species: 'Charmeleon', method: 'level', requirement: 16 }] },
+    'Charmeleon': { evolvesFrom: { species: 'Charmander', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Charizard', method: 'level', requirement: 36 }] },
+    'Charizard': { evolvesFrom: { species: 'Charmeleon', method: 'level', requirement: 36 } },
+    
+    'Squirtle': { evolvesTo: [{ species: 'Wartortle', method: 'level', requirement: 16 }] },
+    'Wartortle': { evolvesFrom: { species: 'Squirtle', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Blastoise', method: 'level', requirement: 36 }] },
+    'Blastoise': { evolvesFrom: { species: 'Wartortle', method: 'level', requirement: 36 } },
+    
+    // Pikachu line (with Alolan)
+    'Pichu': { evolvesTo: [{ species: 'Pikachu', method: 'happiness', requirement: 'High Happiness' }] },
+    'Pikachu': { evolvesFrom: { species: 'Pichu', method: 'happiness', requirement: 'High Happiness' }, evolvesTo: [
+        { species: 'Raichu', method: 'stone', requirement: 'Thunder Stone' },
+        { species: 'Raichu', method: 'stone', requirement: 'Thunder Stone', regionalForm: 'Alolan', note: 'In Alola' }
+    ]},
+    'Raichu': { evolvesFrom: { species: 'Pikachu', method: 'stone', requirement: 'Thunder Stone' } },
+    
+    // Sandshrew line (with Alolan)
+    'Sandshrew': { evolvesTo: [{ species: 'Sandslash', method: 'level', requirement: 22 }] },
+    'Sandslash': { evolvesFrom: { species: 'Sandshrew', method: 'level', requirement: 22 } },
+    
+    // Vulpix line (with Alolan)
+    'Vulpix': { evolvesTo: [
+        { species: 'Ninetales', method: 'stone', requirement: 'Fire Stone' },
+        { species: 'Ninetales', method: 'stone', requirement: 'Ice Stone', regionalForm: 'Alolan', note: 'Alolan Vulpix' }
+    ]},
+    'Ninetales': { evolvesFrom: { species: 'Vulpix', method: 'stone', requirement: 'Fire Stone' } },
+    
+    // Clefairy line
+    'Cleffa': { evolvesTo: [{ species: 'Clefairy', method: 'happiness', requirement: 'High Happiness' }] },
+    'Clefairy': { evolvesFrom: { species: 'Cleffa', method: 'happiness', requirement: 'High Happiness' }, evolvesTo: [{ species: 'Clefable', method: 'stone', requirement: 'Moon Stone' }] },
+    'Clefable': { evolvesFrom: { species: 'Clefairy', method: 'stone', requirement: 'Moon Stone' } },
+    
+    // Jigglypuff line
+    'Igglybuff': { evolvesTo: [{ species: 'Jigglypuff', method: 'happiness', requirement: 'High Happiness' }] },
+    'Jigglypuff': { evolvesFrom: { species: 'Igglybuff', method: 'happiness', requirement: 'High Happiness' }, evolvesTo: [{ species: 'Wigglytuff', method: 'stone', requirement: 'Moon Stone' }] },
+    'Wigglytuff': { evolvesFrom: { species: 'Jigglypuff', method: 'stone', requirement: 'Moon Stone' } },
+    
+    // Oddish line
+    'Oddish': { evolvesTo: [{ species: 'Gloom', method: 'level', requirement: 21 }] },
+    'Gloom': { evolvesFrom: { species: 'Oddish', method: 'level', requirement: 21 }, evolvesTo: [
+        { species: 'Vileplume', method: 'stone', requirement: 'Leaf Stone' },
+        { species: 'Bellossom', method: 'stone', requirement: 'Sun Stone' }
+    ]},
+    'Vileplume': { evolvesFrom: { species: 'Gloom', method: 'stone', requirement: 'Leaf Stone' } },
+    'Bellossom': { evolvesFrom: { species: 'Gloom', method: 'stone', requirement: 'Sun Stone' } },
+    
+    // Growlithe line
+    'Growlithe': { evolvesTo: [{ species: 'Arcanine', method: 'stone', requirement: 'Fire Stone' }] },
+    'Arcanine': { evolvesFrom: { species: 'Growlithe', method: 'stone', requirement: 'Fire Stone' } },
+    
+    // Poliwag line
+    'Poliwag': { evolvesTo: [{ species: 'Poliwhirl', method: 'level', requirement: 25 }] },
+    'Poliwhirl': { evolvesFrom: { species: 'Poliwag', method: 'level', requirement: 25 }, evolvesTo: [
+        { species: 'Poliwrath', method: 'stone', requirement: 'Water Stone' },
+        { species: 'Politoed', method: 'trade', requirement: "King's Rock" }
+    ]},
+    'Poliwrath': { evolvesFrom: { species: 'Poliwhirl', method: 'stone', requirement: 'Water Stone' } },
+    'Politoed': { evolvesFrom: { species: 'Poliwhirl', method: 'trade', requirement: "King's Rock" } },
+    
+    // Abra line
+    'Abra': { evolvesTo: [{ species: 'Kadabra', method: 'level', requirement: 16 }] },
+    'Kadabra': { evolvesFrom: { species: 'Abra', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Alakazam', method: 'trade', requirement: 'Trade' }] },
+    'Alakazam': { evolvesFrom: { species: 'Kadabra', method: 'trade', requirement: 'Trade' } },
+    
+    // Machop line
+    'Machop': { evolvesTo: [{ species: 'Machoke', method: 'level', requirement: 28 }] },
+    'Machoke': { evolvesFrom: { species: 'Machop', method: 'level', requirement: 28 }, evolvesTo: [{ species: 'Machamp', method: 'trade', requirement: 'Trade' }] },
+    'Machamp': { evolvesFrom: { species: 'Machoke', method: 'trade', requirement: 'Trade' } },
+    
+    // Geodude line (with Alolan)
+    'Geodude': { evolvesTo: [{ species: 'Graveler', method: 'level', requirement: 25 }] },
+    'Graveler': { evolvesFrom: { species: 'Geodude', method: 'level', requirement: 25 }, evolvesTo: [{ species: 'Golem', method: 'trade', requirement: 'Trade' }] },
+    'Golem': { evolvesFrom: { species: 'Graveler', method: 'trade', requirement: 'Trade' } },
+    
+    // Ponyta line
+    'Ponyta': { evolvesTo: [{ species: 'Rapidash', method: 'level', requirement: 40 }] },
+    'Rapidash': { evolvesFrom: { species: 'Ponyta', method: 'level', requirement: 40 } },
+    
+    // Slowpoke line
+    'Slowpoke': { evolvesTo: [
+        { species: 'Slowbro', method: 'level', requirement: 37 },
+        { species: 'Slowking', method: 'trade', requirement: "King's Rock" }
+    ]},
+    'Slowbro': { evolvesFrom: { species: 'Slowpoke', method: 'level', requirement: 37 } },
+    'Slowking': { evolvesFrom: { species: 'Slowpoke', method: 'trade', requirement: "King's Rock" } },
+    
+    // Magnemite line
+    'Magnemite': { evolvesTo: [{ species: 'Magneton', method: 'level', requirement: 30 }] },
+    'Magneton': { evolvesFrom: { species: 'Magnemite', method: 'level', requirement: 30 }, evolvesTo: [{ species: 'Magnezone', method: 'other', requirement: 'Magnetic Field' }] },
+    'Magnezone': { evolvesFrom: { species: 'Magneton', method: 'other', requirement: 'Magnetic Field' } },
+    
+    // Grimer line (with Alolan)
+    'Grimer': { evolvesTo: [{ species: 'Muk', method: 'level', requirement: 38 }] },
+    'Muk': { evolvesFrom: { species: 'Grimer', method: 'level', requirement: 38 } },
+    
+    // Shellder line
+    'Shellder': { evolvesTo: [{ species: 'Cloyster', method: 'stone', requirement: 'Water Stone' }] },
+    'Cloyster': { evolvesFrom: { species: 'Shellder', method: 'stone', requirement: 'Water Stone' } },
+    
+    // Gastly line
+    'Gastly': { evolvesTo: [{ species: 'Haunter', method: 'level', requirement: 25 }] },
+    'Haunter': { evolvesFrom: { species: 'Gastly', method: 'level', requirement: 25 }, evolvesTo: [{ species: 'Gengar', method: 'trade', requirement: 'Trade' }] },
+    'Gengar': { evolvesFrom: { species: 'Haunter', method: 'trade', requirement: 'Trade' } },
+    
+    // Drowzee line
+    'Drowzee': { evolvesTo: [{ species: 'Hypno', method: 'level', requirement: 26 }] },
+    'Hypno': { evolvesFrom: { species: 'Drowzee', method: 'level', requirement: 26 } },
+    
+    // Exeggcute line (with Alolan)
+    'Exeggcute': { evolvesTo: [
+        { species: 'Exeggutor', method: 'stone', requirement: 'Leaf Stone' },
+        { species: 'Exeggutor', method: 'stone', requirement: 'Leaf Stone', regionalForm: 'Alolan', note: 'In Alola' }
+    ]},
+    'Exeggutor': { evolvesFrom: { species: 'Exeggcute', method: 'stone', requirement: 'Leaf Stone' } },
+    
+    // Cubone line (with Alolan Marowak)
+    'Cubone': { evolvesTo: [
+        { species: 'Marowak', method: 'level', requirement: 28 },
+        { species: 'Marowak', method: 'level', requirement: 28, regionalForm: 'Alolan', note: 'In Alola at night' }
+    ]},
+    'Marowak': { evolvesFrom: { species: 'Cubone', method: 'level', requirement: 28 } },
+    
+    // Koffing line
+    'Koffing': { evolvesTo: [{ species: 'Weezing', method: 'level', requirement: 35 }] },
+    'Weezing': { evolvesFrom: { species: 'Koffing', method: 'level', requirement: 35 } },
+    
+    // Rhyhorn line
+    'Rhyhorn': { evolvesTo: [{ species: 'Rhydon', method: 'level', requirement: 42 }] },
+    'Rhydon': { evolvesFrom: { species: 'Rhyhorn', method: 'level', requirement: 42 }, evolvesTo: [{ species: 'Rhyperior', method: 'trade', requirement: 'Protector' }] },
+    'Rhyperior': { evolvesFrom: { species: 'Rhydon', method: 'trade', requirement: 'Protector' } },
+    
+    // Chansey line
+    'Happiny': { evolvesTo: [{ species: 'Chansey', method: 'other', requirement: 'Oval Stone (Day)' }] },
+    'Chansey': { evolvesFrom: { species: 'Happiny', method: 'other', requirement: 'Oval Stone (Day)' }, evolvesTo: [{ species: 'Blissey', method: 'happiness', requirement: 'High Happiness' }] },
+    'Blissey': { evolvesFrom: { species: 'Chansey', method: 'happiness', requirement: 'High Happiness' } },
+    
+    // Horsea line
+    'Horsea': { evolvesTo: [{ species: 'Seadra', method: 'level', requirement: 32 }] },
+    'Seadra': { evolvesFrom: { species: 'Horsea', method: 'level', requirement: 32 }, evolvesTo: [{ species: 'Kingdra', method: 'trade', requirement: 'Dragon Scale' }] },
+    'Kingdra': { evolvesFrom: { species: 'Seadra', method: 'trade', requirement: 'Dragon Scale' } },
+    
+    // Staryu line
+    'Staryu': { evolvesTo: [{ species: 'Starmie', method: 'stone', requirement: 'Water Stone' }] },
+    'Starmie': { evolvesFrom: { species: 'Staryu', method: 'stone', requirement: 'Water Stone' } },
+    
+    // Scyther line
+    'Scyther': { evolvesTo: [{ species: 'Scizor', method: 'trade', requirement: 'Metal Coat' }] },
+    'Scizor': { evolvesFrom: { species: 'Scyther', method: 'trade', requirement: 'Metal Coat' } },
+    
+    // Magikarp line
+    'Magikarp': { evolvesTo: [{ species: 'Gyarados', method: 'level', requirement: 20 }] },
+    'Gyarados': { evolvesFrom: { species: 'Magikarp', method: 'level', requirement: 20 } },
+    
+    // Eevee line
+    'Eevee': { evolvesTo: [
+        { species: 'Vaporeon', method: 'stone', requirement: 'Water Stone' },
+        { species: 'Jolteon', method: 'stone', requirement: 'Thunder Stone' },
+        { species: 'Flareon', method: 'stone', requirement: 'Fire Stone' },
+        { species: 'Espeon', method: 'happiness', requirement: 'High Happiness (Day)' },
+        { species: 'Umbreon', method: 'happiness', requirement: 'High Happiness (Night)' },
+        { species: 'Leafeon', method: 'stone', requirement: 'Leaf Stone' },
+        { species: 'Glaceon', method: 'stone', requirement: 'Ice Stone' },
+        { species: 'Sylveon', method: 'other', requirement: 'Affection + Fairy Move' }
+    ]},
+    'Vaporeon': { evolvesFrom: { species: 'Eevee', method: 'stone', requirement: 'Water Stone' } },
+    'Jolteon': { evolvesFrom: { species: 'Eevee', method: 'stone', requirement: 'Thunder Stone' } },
+    'Flareon': { evolvesFrom: { species: 'Eevee', method: 'stone', requirement: 'Fire Stone' } },
+    'Espeon': { evolvesFrom: { species: 'Eevee', method: 'happiness', requirement: 'High Happiness (Day)' } },
+    'Umbreon': { evolvesFrom: { species: 'Eevee', method: 'happiness', requirement: 'High Happiness (Night)' } },
+    'Leafeon': { evolvesFrom: { species: 'Eevee', method: 'stone', requirement: 'Leaf Stone' } },
+    'Glaceon': { evolvesFrom: { species: 'Eevee', method: 'stone', requirement: 'Ice Stone' } },
+    'Sylveon': { evolvesFrom: { species: 'Eevee', method: 'other', requirement: 'Affection + Fairy Move' } },
+    
+    // Porygon line
+    'Porygon': { evolvesTo: [{ species: 'Porygon2', method: 'trade', requirement: 'Up-Grade' }] },
+    'Porygon2': { evolvesFrom: { species: 'Porygon', method: 'trade', requirement: 'Up-Grade' }, evolvesTo: [{ species: 'Porygon-Z', method: 'trade', requirement: 'Dubious Disc' }] },
+    'Porygon-Z': { evolvesFrom: { species: 'Porygon2', method: 'trade', requirement: 'Dubious Disc' } },
+    
+    // Dratini line
+    'Dratini': { evolvesTo: [{ species: 'Dragonair', method: 'level', requirement: 30 }] },
+    'Dragonair': { evolvesFrom: { species: 'Dratini', method: 'level', requirement: 30 }, evolvesTo: [{ species: 'Dragonite', method: 'level', requirement: 55 }] },
+    'Dragonite': { evolvesFrom: { species: 'Dragonair', method: 'level', requirement: 55 } },
+    
+    // Gen 2 Starters
+    'Chikorita': { evolvesTo: [{ species: 'Bayleef', method: 'level', requirement: 16 }] },
+    'Bayleef': { evolvesFrom: { species: 'Chikorita', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Meganium', method: 'level', requirement: 32 }] },
+    'Meganium': { evolvesFrom: { species: 'Bayleef', method: 'level', requirement: 32 } },
+    
+    'Cyndaquil': { evolvesTo: [{ species: 'Quilava', method: 'level', requirement: 14 }] },
+    'Quilava': { evolvesFrom: { species: 'Cyndaquil', method: 'level', requirement: 14 }, evolvesTo: [{ species: 'Typhlosion', method: 'level', requirement: 36 }] },
+    'Typhlosion': { evolvesFrom: { species: 'Quilava', method: 'level', requirement: 36 } },
+    
+    'Totodile': { evolvesTo: [{ species: 'Croconaw', method: 'level', requirement: 18 }] },
+    'Croconaw': { evolvesFrom: { species: 'Totodile', method: 'level', requirement: 18 }, evolvesTo: [{ species: 'Feraligatr', method: 'level', requirement: 30 }] },
+    'Feraligatr': { evolvesFrom: { species: 'Croconaw', method: 'level', requirement: 30 } },
+    
+    // Togepi line
+    'Togepi': { evolvesTo: [{ species: 'Togetic', method: 'happiness', requirement: 'High Happiness' }] },
+    'Togetic': { evolvesFrom: { species: 'Togepi', method: 'happiness', requirement: 'High Happiness' }, evolvesTo: [{ species: 'Togekiss', method: 'stone', requirement: 'Shiny Stone' }] },
+    'Togekiss': { evolvesFrom: { species: 'Togetic', method: 'stone', requirement: 'Shiny Stone' } },
+    
+    // Mareep line
+    'Mareep': { evolvesTo: [{ species: 'Flaaffy', method: 'level', requirement: 15 }] },
+    'Flaaffy': { evolvesFrom: { species: 'Mareep', method: 'level', requirement: 15 }, evolvesTo: [{ species: 'Ampharos', method: 'level', requirement: 30 }] },
+    'Ampharos': { evolvesFrom: { species: 'Flaaffy', method: 'level', requirement: 30 } },
+    
+    // Marill line
+    'Azurill': { evolvesTo: [{ species: 'Marill', method: 'happiness', requirement: 'High Happiness' }] },
+    'Marill': { evolvesFrom: { species: 'Azurill', method: 'happiness', requirement: 'High Happiness' }, evolvesTo: [{ species: 'Azumarill', method: 'level', requirement: 18 }] },
+    'Azumarill': { evolvesFrom: { species: 'Marill', method: 'level', requirement: 18 } },
+    
+    // Hoppip line
+    'Hoppip': { evolvesTo: [{ species: 'Skiploom', method: 'level', requirement: 18 }] },
+    'Skiploom': { evolvesFrom: { species: 'Hoppip', method: 'level', requirement: 18 }, evolvesTo: [{ species: 'Jumpluff', method: 'level', requirement: 27 }] },
+    'Jumpluff': { evolvesFrom: { species: 'Skiploom', method: 'level', requirement: 27 } },
+    
+    // Sunkern line
+    'Sunkern': { evolvesTo: [{ species: 'Sunflora', method: 'stone', requirement: 'Sun Stone' }] },
+    'Sunflora': { evolvesFrom: { species: 'Sunkern', method: 'stone', requirement: 'Sun Stone' } },
+    
+    // Murkrow line
+    'Murkrow': { evolvesTo: [{ species: 'Honchkrow', method: 'stone', requirement: 'Dusk Stone' }] },
+    'Honchkrow': { evolvesFrom: { species: 'Murkrow', method: 'stone', requirement: 'Dusk Stone' } },
+    
+    // Misdreavus line
+    'Misdreavus': { evolvesTo: [{ species: 'Mismagius', method: 'stone', requirement: 'Dusk Stone' }] },
+    'Mismagius': { evolvesFrom: { species: 'Misdreavus', method: 'stone', requirement: 'Dusk Stone' } },
+    
+    // Sneasel line
+    'Sneasel': { evolvesTo: [{ species: 'Weavile', method: 'other', requirement: 'Razor Claw (Night)' }] },
+    'Weavile': { evolvesFrom: { species: 'Sneasel', method: 'other', requirement: 'Razor Claw (Night)' } },
+    
+    // Teddiursa line
+    'Teddiursa': { evolvesTo: [{ species: 'Ursaring', method: 'level', requirement: 30 }] },
+    'Ursaring': { evolvesFrom: { species: 'Teddiursa', method: 'level', requirement: 30 } },
+    
+    // Swinub line
+    'Swinub': { evolvesTo: [{ species: 'Piloswine', method: 'level', requirement: 33 }] },
+    'Piloswine': { evolvesFrom: { species: 'Swinub', method: 'level', requirement: 33 }, evolvesTo: [{ species: 'Mamoswine', method: 'other', requirement: 'Ancient Power' }] },
+    'Mamoswine': { evolvesFrom: { species: 'Piloswine', method: 'other', requirement: 'Ancient Power' } },
+    
+    // Larvitar line
+    'Larvitar': { evolvesTo: [{ species: 'Pupitar', method: 'level', requirement: 30 }] },
+    'Pupitar': { evolvesFrom: { species: 'Larvitar', method: 'level', requirement: 30 }, evolvesTo: [{ species: 'Tyranitar', method: 'level', requirement: 55 }] },
+    'Tyranitar': { evolvesFrom: { species: 'Pupitar', method: 'level', requirement: 55 } },
+    
+    // Gen 3 Starters
+    'Treecko': { evolvesTo: [{ species: 'Grovyle', method: 'level', requirement: 16 }] },
+    'Grovyle': { evolvesFrom: { species: 'Treecko', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Sceptile', method: 'level', requirement: 36 }] },
+    'Sceptile': { evolvesFrom: { species: 'Grovyle', method: 'level', requirement: 36 } },
+    
+    'Torchic': { evolvesTo: [{ species: 'Combusken', method: 'level', requirement: 16 }] },
+    'Combusken': { evolvesFrom: { species: 'Torchic', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Blaziken', method: 'level', requirement: 36 }] },
+    'Blaziken': { evolvesFrom: { species: 'Combusken', method: 'level', requirement: 36 } },
+    
+    'Mudkip': { evolvesTo: [{ species: 'Marshtomp', method: 'level', requirement: 16 }] },
+    'Marshtomp': { evolvesFrom: { species: 'Mudkip', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Swampert', method: 'level', requirement: 36 }] },
+    'Swampert': { evolvesFrom: { species: 'Marshtomp', method: 'level', requirement: 36 } },
+    
+    // Lotad line
+    'Lotad': { evolvesTo: [{ species: 'Lombre', method: 'level', requirement: 14 }] },
+    'Lombre': { evolvesFrom: { species: 'Lotad', method: 'level', requirement: 14 }, evolvesTo: [{ species: 'Ludicolo', method: 'stone', requirement: 'Water Stone' }] },
+    'Ludicolo': { evolvesFrom: { species: 'Lombre', method: 'stone', requirement: 'Water Stone' } },
+    
+    // Ralts line
+    'Ralts': { evolvesTo: [{ species: 'Kirlia', method: 'level', requirement: 20 }] },
+    'Kirlia': { evolvesFrom: { species: 'Ralts', method: 'level', requirement: 20 }, evolvesTo: [
+        { species: 'Gardevoir', method: 'level', requirement: 30 },
+        { species: 'Gallade', method: 'stone', requirement: 'Dawn Stone', note: 'Male only' }
+    ]},
+    'Gardevoir': { evolvesFrom: { species: 'Kirlia', method: 'level', requirement: 30 } },
+    'Gallade': { evolvesFrom: { species: 'Kirlia', method: 'stone', requirement: 'Dawn Stone' } },
+    
+    // Slakoth line
+    'Slakoth': { evolvesTo: [{ species: 'Vigoroth', method: 'level', requirement: 18 }] },
+    'Vigoroth': { evolvesFrom: { species: 'Slakoth', method: 'level', requirement: 18 }, evolvesTo: [{ species: 'Slaking', method: 'level', requirement: 36 }] },
+    'Slaking': { evolvesFrom: { species: 'Vigoroth', method: 'level', requirement: 36 } },
+    
+    // Aron line
+    'Aron': { evolvesTo: [{ species: 'Lairon', method: 'level', requirement: 32 }] },
+    'Lairon': { evolvesFrom: { species: 'Aron', method: 'level', requirement: 32 }, evolvesTo: [{ species: 'Aggron', method: 'level', requirement: 42 }] },
+    'Aggron': { evolvesFrom: { species: 'Lairon', method: 'level', requirement: 42 } },
+    
+    // Roselia line
+    'Budew': { evolvesTo: [{ species: 'Roselia', method: 'happiness', requirement: 'High Happiness (Day)' }] },
+    'Roselia': { evolvesFrom: { species: 'Budew', method: 'happiness', requirement: 'High Happiness (Day)' }, evolvesTo: [{ species: 'Roserade', method: 'stone', requirement: 'Shiny Stone' }] },
+    'Roserade': { evolvesFrom: { species: 'Roselia', method: 'stone', requirement: 'Shiny Stone' } },
+    
+    // Feebas line
+    'Feebas': { evolvesTo: [{ species: 'Milotic', method: 'other', requirement: 'High Beauty / Prism Scale' }] },
+    'Milotic': { evolvesFrom: { species: 'Feebas', method: 'other', requirement: 'High Beauty / Prism Scale' } },
+    
+    // Snorunt line
+    'Snorunt': { evolvesTo: [
+        { species: 'Glalie', method: 'level', requirement: 42 },
+        { species: 'Froslass', method: 'stone', requirement: 'Dawn Stone', note: 'Female only' }
+    ]},
+    'Glalie': { evolvesFrom: { species: 'Snorunt', method: 'level', requirement: 42 } },
+    'Froslass': { evolvesFrom: { species: 'Snorunt', method: 'stone', requirement: 'Dawn Stone' } },
+    
+    // Bagon line
+    'Bagon': { evolvesTo: [{ species: 'Shelgon', method: 'level', requirement: 30 }] },
+    'Shelgon': { evolvesFrom: { species: 'Bagon', method: 'level', requirement: 30 }, evolvesTo: [{ species: 'Salamence', method: 'level', requirement: 50 }] },
+    'Salamence': { evolvesFrom: { species: 'Shelgon', method: 'level', requirement: 50 } },
+    
+    // Beldum line
+    'Beldum': { evolvesTo: [{ species: 'Metang', method: 'level', requirement: 20 }] },
+    'Metang': { evolvesFrom: { species: 'Beldum', method: 'level', requirement: 20 }, evolvesTo: [{ species: 'Metagross', method: 'level', requirement: 45 }] },
+    'Metagross': { evolvesFrom: { species: 'Metang', method: 'level', requirement: 45 } },
+    
+    // Gen 4 Starters
+    'Turtwig': { evolvesTo: [{ species: 'Grotle', method: 'level', requirement: 18 }] },
+    'Grotle': { evolvesFrom: { species: 'Turtwig', method: 'level', requirement: 18 }, evolvesTo: [{ species: 'Torterra', method: 'level', requirement: 32 }] },
+    'Torterra': { evolvesFrom: { species: 'Grotle', method: 'level', requirement: 32 } },
+    
+    'Chimchar': { evolvesTo: [{ species: 'Monferno', method: 'level', requirement: 14 }] },
+    'Monferno': { evolvesFrom: { species: 'Chimchar', method: 'level', requirement: 14 }, evolvesTo: [{ species: 'Infernape', method: 'level', requirement: 36 }] },
+    'Infernape': { evolvesFrom: { species: 'Monferno', method: 'level', requirement: 36 } },
+    
+    'Piplup': { evolvesTo: [{ species: 'Prinplup', method: 'level', requirement: 16 }] },
+    'Prinplup': { evolvesFrom: { species: 'Piplup', method: 'level', requirement: 16 }, evolvesTo: [{ species: 'Empoleon', method: 'level', requirement: 36 }] },
+    'Empoleon': { evolvesFrom: { species: 'Prinplup', method: 'level', requirement: 36 } },
+    
+    // Shinx line
+    'Shinx': { evolvesTo: [{ species: 'Luxio', method: 'level', requirement: 15 }] },
+    'Luxio': { evolvesFrom: { species: 'Shinx', method: 'level', requirement: 15 }, evolvesTo: [{ species: 'Luxray', method: 'level', requirement: 30 }] },
+    'Luxray': { evolvesFrom: { species: 'Luxio', method: 'level', requirement: 30 } },
+    
+    // Gible line
+    'Gible': { evolvesTo: [{ species: 'Gabite', method: 'level', requirement: 24 }] },
+    'Gabite': { evolvesFrom: { species: 'Gible', method: 'level', requirement: 24 }, evolvesTo: [{ species: 'Garchomp', method: 'level', requirement: 48 }] },
+    'Garchomp': { evolvesFrom: { species: 'Gabite', method: 'level', requirement: 48 } },
+    
+    // Riolu line
+    'Riolu': { evolvesTo: [{ species: 'Lucario', method: 'happiness', requirement: 'High Happiness (Day)' }] },
+    'Lucario': { evolvesFrom: { species: 'Riolu', method: 'happiness', requirement: 'High Happiness (Day)' } },
+    
+    // Snover line
+    'Snover': { evolvesTo: [{ species: 'Abomasnow', method: 'level', requirement: 40 }] },
+    'Abomasnow': { evolvesFrom: { species: 'Snover', method: 'level', requirement: 40 } },
+    
+    // Pansage/Simisage line
+    'Pansage': { evolvesTo: [{ species: 'Simisage', method: 'stone', requirement: 'Leaf Stone' }] },
+    'Simisage': { evolvesFrom: { species: 'Pansage', method: 'stone', requirement: 'Leaf Stone' } },
+    
+    // Pansear/Simisear line
+    'Pansear': { evolvesTo: [{ species: 'Simisear', method: 'stone', requirement: 'Fire Stone' }] },
+    'Simisear': { evolvesFrom: { species: 'Pansear', method: 'stone', requirement: 'Fire Stone' } },
+    
+    // Panpour/Simipour line
+    'Panpour': { evolvesTo: [{ species: 'Simipour', method: 'stone', requirement: 'Water Stone' }] },
+    'Simipour': { evolvesFrom: { species: 'Panpour', method: 'stone', requirement: 'Water Stone' } },
+    
+    // Munna line
+    'Munna': { evolvesTo: [{ species: 'Musharna', method: 'stone', requirement: 'Moon Stone' }] },
+    'Musharna': { evolvesFrom: { species: 'Munna', method: 'stone', requirement: 'Moon Stone' } },
+    
+    // Minccino line
+    'Minccino': { evolvesTo: [{ species: 'Cinccino', method: 'stone', requirement: 'Shiny Stone' }] },
+    'Cinccino': { evolvesFrom: { species: 'Minccino', method: 'stone', requirement: 'Shiny Stone' } },
+    
+    // Litwick line
+    'Litwick': { evolvesTo: [{ species: 'Lampent', method: 'level', requirement: 41 }] },
+    'Lampent': { evolvesFrom: { species: 'Litwick', method: 'level', requirement: 41 }, evolvesTo: [{ species: 'Chandelure', method: 'stone', requirement: 'Dusk Stone' }] },
+    'Chandelure': { evolvesFrom: { species: 'Lampent', method: 'stone', requirement: 'Dusk Stone' } },
+    
+    // Axew line
+    'Axew': { evolvesTo: [{ species: 'Fraxure', method: 'level', requirement: 38 }] },
+    'Fraxure': { evolvesFrom: { species: 'Axew', method: 'level', requirement: 38 }, evolvesTo: [{ species: 'Haxorus', method: 'level', requirement: 48 }] },
+    'Haxorus': { evolvesFrom: { species: 'Fraxure', method: 'level', requirement: 48 } },
+    
+    // Deino line
+    'Deino': { evolvesTo: [{ species: 'Zweilous', method: 'level', requirement: 50 }] },
+    'Zweilous': { evolvesFrom: { species: 'Deino', method: 'level', requirement: 50 }, evolvesTo: [{ species: 'Hydreigon', method: 'level', requirement: 64 }] },
+    'Hydreigon': { evolvesFrom: { species: 'Zweilous', method: 'level', requirement: 64 } },
+    
+    // Skitty line
+    'Skitty': { evolvesTo: [{ species: 'Delcatty', method: 'stone', requirement: 'Moon Stone' }] },
+    'Delcatty': { evolvesFrom: { species: 'Skitty', method: 'stone', requirement: 'Moon Stone' } },
+    
+    // Helioptile line
+    'Helioptile': { evolvesTo: [{ species: 'Heliolisk', method: 'stone', requirement: 'Sun Stone' }] },
+    'Heliolisk': { evolvesFrom: { species: 'Helioptile', method: 'stone', requirement: 'Sun Stone' } },
+    
+    // Flabebe line
+    'Flabébé': { evolvesTo: [{ species: 'Floette', method: 'level', requirement: 19 }] },
+    'Floette': { evolvesFrom: { species: 'Flabébé', method: 'level', requirement: 19 }, evolvesTo: [{ species: 'Florges', method: 'stone', requirement: 'Shiny Stone' }] },
+    'Florges': { evolvesFrom: { species: 'Floette', method: 'stone', requirement: 'Shiny Stone' } },
+    
+    // Goomy line
+    'Goomy': { evolvesTo: [{ species: 'Sliggoo', method: 'level', requirement: 40 }] },
+    'Sliggoo': { evolvesFrom: { species: 'Goomy', method: 'level', requirement: 40 }, evolvesTo: [{ species: 'Goodra', method: 'level', requirement: 50, note: 'In rain' }] },
+    'Goodra': { evolvesFrom: { species: 'Sliggoo', method: 'level', requirement: 50 } },
+    
+    // Rattata line (with Alolan)
+    'Rattata': { evolvesTo: [{ species: 'Raticate', method: 'level', requirement: 20 }] },
+    'Raticate': { evolvesFrom: { species: 'Rattata', method: 'level', requirement: 20 } },
+    
+    // Meowth line (with Alolan)
+    'Meowth': { evolvesTo: [{ species: 'Persian', method: 'level', requirement: 28 }] },
+    'Persian': { evolvesFrom: { species: 'Meowth', method: 'level', requirement: 28 } },
+    
+    // Diglett line (with Alolan)
+    'Diglett': { evolvesTo: [{ species: 'Dugtrio', method: 'level', requirement: 26 }] },
+    'Dugtrio': { evolvesFrom: { species: 'Diglett', method: 'level', requirement: 26 } },
+};
+
 const PTAManager = () => {
 // ============================================================
 // STATE DECLARATIONS
@@ -99,6 +523,11 @@ const [showReferenceModal, setShowReferenceModal] = useState(false);
 const [showCustomFeatureModal, setShowCustomFeatureModal] = useState(false);
 const [showCustomMoveModal, setShowCustomMoveModal] = useState(false);
 const [customMoveForPokemon, setCustomMoveForPokemon] = useState(null);
+
+// --- Regional Form Selector State ---
+const [showRegionalFormModal, setShowRegionalFormModal] = useState(false);
+const [regionalFormData, setRegionalFormData] = useState(null);
+// regionalFormData structure: { pokemonId, speciesData, forms: [{name, types, ...}] }
 
 // --- Move Learning Modal State ---
 const [showMoveLearnModal, setShowMoveLearnModal] = useState(false);
@@ -706,37 +1135,567 @@ const filteredSpecies = useMemo(() => {
     );
 }, [pokedex, speciesSearch]);
 
+// ============================================================
+// EVOLUTION HELPER FUNCTIONS
+// ============================================================
+
+// Get evolution options for a Pokemon
+const getEvolutionOptions = (pokemon) => {
+    if (!pokemon?.species) return { canEvolve: [], canDevolve: null };
+    
+    const species = pokemon.species;
+    const level = pokemon.level || 1;
+    const regionalForm = pokemon.regionalForm || null;
+    
+    const evolutionData = EVOLUTION_CHAINS[species];
+    if (!evolutionData) return { canEvolve: [], canDevolve: null };
+    
+    const canEvolve = [];
+    let canDevolve = null;
+    
+    // Check evolution options
+    if (evolutionData.evolvesTo) {
+        evolutionData.evolvesTo.forEach(evo => {
+            // Filter by regional form if applicable
+            if (evo.regionalForm && evo.regionalForm !== regionalForm) {
+                // This evolution is for a different regional form
+                // Only show if the Pokemon IS that regional form
+                if (regionalForm !== evo.regionalForm) return;
+            }
+            
+            // For non-regional evolutions, show if Pokemon has no regional form or matches
+            if (!evo.regionalForm && regionalForm) {
+                // Normal evolution but Pokemon is regional - check if regional form has same evo
+                // Allow it as the regional forms typically follow same pattern
+            }
+            
+            let canEvolveNow = false;
+            let reason = '';
+            let needsItem = null;
+            
+            switch (evo.method) {
+                case 'level':
+                    canEvolveNow = level >= evo.requirement;
+                    reason = canEvolveNow ? '' : `Needs Level ${evo.requirement}`;
+                    break;
+                case 'stone':
+                    needsItem = evo.requirement;
+                    canEvolveNow = true; // Will check inventory separately
+                    reason = `Requires ${evo.requirement}`;
+                    break;
+                case 'trade':
+                    canEvolveNow = true;
+                    reason = evo.requirement === 'Trade' ? 'Trade Evolution' : `Trade with ${evo.requirement}`;
+                    if (evo.requirement !== 'Trade') needsItem = evo.requirement;
+                    break;
+                case 'happiness':
+                    canEvolveNow = true; // Assume happiness is met if player wants to evolve
+                    reason = evo.requirement;
+                    break;
+                case 'other':
+                    canEvolveNow = true;
+                    reason = evo.requirement;
+                    break;
+            }
+            
+            canEvolve.push({
+                species: evo.species,
+                method: evo.method,
+                requirement: evo.requirement,
+                regionalForm: evo.regionalForm || null,
+                note: evo.note || null,
+                canEvolveNow,
+                reason,
+                needsItem
+            });
+        });
+    }
+    
+    // Check devolution option
+    if (evolutionData.evolvesFrom) {
+        const devo = evolutionData.evolvesFrom;
+        canDevolve = {
+            species: devo.species,
+            method: devo.method,
+            requirement: devo.requirement
+        };
+    }
+    
+    return { canEvolve, canDevolve };
+};
+
+// Check if inventory has a specific item
+const hasItemInInventory = (itemName) => {
+    if (!itemName) return true;
+    return inventory.some(item => 
+        item.name.toLowerCase() === itemName.toLowerCase() && 
+        (item.quantity || 1) > 0
+    );
+};
+
+// Remove item from inventory
+const removeItemFromInventory = (itemName) => {
+    setInventory(prev => {
+        const idx = prev.findIndex(item => 
+            item.name.toLowerCase() === itemName.toLowerCase()
+        );
+        if (idx === -1) return prev;
+        
+        const newInventory = [...prev];
+        if ((newInventory[idx].quantity || 1) <= 1) {
+            newInventory.splice(idx, 1);
+        } else {
+            newInventory[idx] = {
+                ...newInventory[idx],
+                quantity: (newInventory[idx].quantity || 1) - 1
+            };
+        }
+        return newInventory;
+    });
+};
+
+// Handle Pokemon evolution
+const handleEvolution = (pokemonId, targetSpecies, targetRegionalForm, consumeItem) => {
+    // Find Pokemon
+    const inParty = party.some(p => p.id === pokemonId);
+    const pokemon = inParty 
+        ? party.find(p => p.id === pokemonId)
+        : reserve.find(p => p.id === pokemonId);
+    
+    if (!pokemon) return;
+    
+    // Find target species in Pokedex
+    const targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
+    if (!targetPokedexEntry) {
+        alert(`Could not find ${targetSpecies} in the Pokédex!`);
+        return;
+    }
+    
+    // Consume item if needed
+    if (consumeItem) {
+        if (!hasItemInInventory(consumeItem)) {
+            alert(`You don't have a ${consumeItem} in your inventory!`);
+            return;
+        }
+        removeItemFromInventory(consumeItem);
+    }
+    
+    // Determine the regional form to use
+    // Priority: 1) Explicitly specified targetRegionalForm, 2) Current Pokemon's regional form if target has it
+    let finalRegionalForm = null;
+    
+    if (targetRegionalForm) {
+        // Explicit regional form specified (e.g., evolving to specifically Alolan Raichu)
+        const matchingForm = targetPokedexEntry.regionalForms?.find(rf => rf.name === targetRegionalForm);
+        if (matchingForm) {
+            finalRegionalForm = { name: targetRegionalForm, isBase: false, ...matchingForm };
+        }
+    } else if (pokemon.regionalForm) {
+        // Preserve current Pokemon's regional form if target species has the same form
+        const matchingForm = targetPokedexEntry.regionalForms?.find(rf => rf.name === pokemon.regionalForm);
+        if (matchingForm) {
+            finalRegionalForm = { name: pokemon.regionalForm, isBase: false, ...matchingForm };
+        }
+    }
+    
+    // Apply evolution - this updates species data but PRESERVES moves
+    // Also store the consumed item for potential refund on devolution
+    applyEvolutionToPokemon(pokemonId, targetPokedexEntry, finalRegionalForm, inParty, consumeItem, pokemon.species);
+    
+    // Show notification
+    const formName = finalRegionalForm?.name || targetRegionalForm;
+    setLevelUpNotification({
+        pokemon: pokemon.name || pokemon.species,
+        message: `evolved into ${formName ? formName + ' ' : ''}${targetSpecies}!`,
+        type: 'evolution'
+    });
+    setTimeout(() => setLevelUpNotification(null), 3000);
+};
+
+// Apply evolution to a Pokemon - preserves moves and only adds evolution (E) moves
+const applyEvolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty, consumedItem = null, previousSpecies = null) => {
+    // Get the current Pokemon
+    const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
+    if (!currentPoke) return;
+    
+    // Determine which data to use (base or regional form)
+    const isRegional = regionalForm && !regionalForm.isBase;
+    const formData = isRegional ? regionalForm : null;
+    
+    // Determine which move lists to use based on form
+    const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
+    const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
+    const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
+    
+    // Build updates - similar to applySpeciesToPokemon but WITHOUT replacing moves
+    const updates = {
+        species: speciesData.species,
+        types: formData ? [...formData.types] : [...speciesData.types],
+        baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
+        availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
+        pokedexId: speciesData.id,
+        regionalForm: isRegional ? regionalForm.name : null,
+        availableLevelUpMoves: levelUpMoves,
+        availableEggMoves: eggMoves,
+        availableTutorMoves: tutorMoves,
+        // Store evolution info for potential refund on devolution
+        evolvedFrom: previousSpecies || currentPoke.species,
+        evolutionStoneUsed: consumedItem || null
+    };
+    
+    // Update abilities - keep current ability if it's still valid, otherwise set default
+    const newAbilities = formData?.abilities || speciesData.abilities;
+    if (newAbilities) {
+        const allValidAbilities = [
+            ...(newAbilities.basic || []),
+            ...(newAbilities.adv || []),
+            ...(newAbilities.high || [])
+        ];
+        
+        // Check if current ability is still valid for evolved form
+        if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
+            // Set first basic ability as default
+            if (newAbilities.basic && newAbilities.basic.length > 0) {
+                updates.ability = newAbilities.basic[0];
+            }
+        }
+        // Keep ability2 and ability3 only if they're still valid
+        if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
+            updates.ability2 = '';
+        }
+        if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
+            updates.ability3 = '';
+        }
+    }
+    
+    // Build Pokemon skills array from Pokédex skills object
+    const pokemonSkills = [];
+    if (speciesData.skills) {
+        const skillMappings = [
+            ['overland', 'Overland'], 
+            ['surface', 'Surface'], 
+            ['sky', 'Sky'],
+            ['burrow', 'Burrow'], 
+            ['jump', 'Jump'], 
+            ['power', 'Power'],
+            ['intelligence', 'Intelligence']
+        ];
+        
+        skillMappings.forEach(([key, name]) => {
+            if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
+                pokemonSkills.push({ name, value: speciesData.skills[key] });
+            }
+        });
+        
+        const capabilities = [
+            'phasing', 'invisibility', 'zapper', 'firestarter', 
+            'gilled', 'tracker', 'threaded', 'Pokemon education',
+            'mindlock', 'telepath', 'telekinetic', 'aura reader'
+        ];
+        capabilities.forEach(cap => {
+            if (speciesData.skills[cap]) {
+                pokemonSkills.push({ name: cap.charAt(0).toUpperCase() + cap.slice(1) });
+            }
+        });
+        
+        if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
+            speciesData.skills.naturewalk.forEach(terrain => {
+                pokemonSkills.push({ name: `Naturewalk (${terrain})` });
+            });
+        }
+    }
+    updates.pokemonSkills = pokemonSkills;
+    
+    // DO NOT replace moves - keep current moveset
+    // Apply the species updates first
+    updatePokemon(pokemonId, updates);
+    
+    // Now check for evolution moves (moves at level 0) and queue them
+    const evolutionMoves = levelUpMoves.filter(m => m.level === 0);
+    const currentMoves = currentPoke.moves || [];
+    
+    if (evolutionMoves.length > 0) {
+        // Build queue of evolution moves to learn
+        const movesToQueue = [];
+        
+        evolutionMoves.forEach(evoMove => {
+            // Check if Pokemon already knows this move
+            const alreadyKnows = currentMoves.some(m => 
+                m.name?.toLowerCase() === evoMove.move?.toLowerCase()
+            );
+            
+            if (!alreadyKnows) {
+                movesToQueue.push({
+                    pokemonId: pokemonId,
+                    pokemonName: currentPoke.name || speciesData.species,
+                    newMove: {
+                        move: evoMove.move,
+                        type: evoMove.type || 'Normal',
+                        level: 0
+                    },
+                    inParty: inParty,
+                    isEvolutionMove: true
+                });
+            }
+        });
+        
+        // Add to pending move learn queue - the useEffect will handle showing modals
+        if (movesToQueue.length > 0) {
+            setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
+        }
+    }
+};
+
+// Handle Pokemon devolution
+const handleDevolution = (pokemonId, targetSpecies) => {
+    // Find Pokemon
+    const inParty = party.some(p => p.id === pokemonId);
+    const pokemon = inParty 
+        ? party.find(p => p.id === pokemonId)
+        : reserve.find(p => p.id === pokemonId);
+    
+    if (!pokemon) return;
+    
+    // Find target species in Pokedex
+    const targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
+    if (!targetPokedexEntry) {
+        alert(`Could not find ${targetSpecies} in the Pokédex!`);
+        return;
+    }
+    
+    // Check if regional form should carry over
+    const currentRegionalForm = pokemon.regionalForm;
+    let targetRegionalForm = null;
+    
+    // If the target has the same regional form available, keep it
+    if (currentRegionalForm && targetPokedexEntry.regionalForms) {
+        const matchingForm = targetPokedexEntry.regionalForms.find(rf => rf.name === currentRegionalForm);
+        if (matchingForm) {
+            targetRegionalForm = { name: currentRegionalForm, isBase: false, ...matchingForm };
+        }
+    }
+    
+    // Build display name for confirmation
+    const devolveTargetName = targetRegionalForm ? `${targetRegionalForm.name} ${targetSpecies}` : targetSpecies;
+    
+    // Check if there's an evolution stone to refund
+    const stoneToRefund = pokemon.evolutionStoneUsed;
+    const evolvedFromSpecies = pokemon.evolvedFrom;
+    
+    // Build confirmation message
+    let confirmMsg = `Are you sure you want to devolve ${pokemon.name || pokemon.species} back to ${devolveTargetName}?`;
+    if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+        confirmMsg += `\n\nYou will receive back: 1x ${stoneToRefund}`;
+    }
+    
+    // Confirm devolution
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+    
+    // Refund evolution stone if devolving to the species it evolved from
+    if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+        addItemToInventory(stoneToRefund);
+    }
+    
+    // Apply devolution (this will also clear the evolution tracking fields)
+    applyDevolutionToPokemon(pokemonId, targetPokedexEntry, targetRegionalForm, inParty);
+    
+    // Show notification
+    let notificationMsg = `devolved back to ${targetRegionalForm ? targetRegionalForm.name + ' ' : ''}${targetSpecies}!`;
+    if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+        notificationMsg += ` (${stoneToRefund} refunded)`;
+    }
+    
+    setLevelUpNotification({
+        pokemon: pokemon.name || pokemon.species,
+        message: notificationMsg,
+        type: 'devolution'
+    });
+    setTimeout(() => setLevelUpNotification(null), 3000);
+};
+
+// Add item to inventory (for refunding evolution stones)
+const addItemToInventory = (itemName) => {
+    setInventory(prev => {
+        const existingIdx = prev.findIndex(item => 
+            item.name.toLowerCase() === itemName.toLowerCase()
+        );
+        
+        if (existingIdx >= 0) {
+            // Item exists, increment quantity
+            const newInventory = [...prev];
+            newInventory[existingIdx] = {
+                ...newInventory[existingIdx],
+                quantity: (newInventory[existingIdx].quantity || 1) + 1
+            };
+            return newInventory;
+        } else {
+            // New item, add to inventory
+            return [...prev, { name: itemName, quantity: 1 }];
+        }
+    });
+};
+
+// Apply devolution to a Pokemon - similar to applySpeciesToPokemon but clears evolution tracking
+const applyDevolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty) => {
+    // Get the current Pokemon
+    const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
+    if (!currentPoke) return;
+    const currentLevel = currentPoke?.level || 1;
+    
+    // Determine which data to use (base or regional form)
+    const isRegional = regionalForm && !regionalForm.isBase;
+    const formData = isRegional ? regionalForm : null;
+    
+    // Determine which move lists to use based on form
+    const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
+    const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
+    const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
+    
+    // Build updates
+    const updates = {
+        species: speciesData.species,
+        types: formData ? [...formData.types] : [...speciesData.types],
+        baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
+        availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
+        pokedexId: speciesData.id,
+        regionalForm: isRegional ? regionalForm.name : null,
+        availableLevelUpMoves: levelUpMoves,
+        availableEggMoves: eggMoves,
+        availableTutorMoves: tutorMoves,
+        // Clear evolution tracking on devolution
+        evolvedFrom: null,
+        evolutionStoneUsed: null
+    };
+    
+    // Update abilities - keep current ability if it's still valid, otherwise set default
+    const newAbilities = formData?.abilities || speciesData.abilities;
+    if (newAbilities) {
+        const allValidAbilities = [
+            ...(newAbilities.basic || []),
+            ...(newAbilities.adv || []),
+            ...(newAbilities.high || [])
+        ];
+        
+        if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
+            if (newAbilities.basic && newAbilities.basic.length > 0) {
+                updates.ability = newAbilities.basic[0];
+            }
+        }
+        if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
+            updates.ability2 = '';
+        }
+        if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
+            updates.ability3 = '';
+        }
+    }
+    
+    // Build Pokemon skills
+    const pokemonSkills = [];
+    if (speciesData.skills) {
+        const skillMappings = [
+            ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
+            ['burrow', 'Burrow'], ['jump', 'Jump'], ['power', 'Power'],
+            ['intelligence', 'Intelligence']
+        ];
+        
+        skillMappings.forEach(([key, name]) => {
+            if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
+                pokemonSkills.push({ name, value: speciesData.skills[key] });
+            }
+        });
+        
+        const capabilities = [
+            'phasing', 'invisibility', 'zapper', 'firestarter', 
+            'gilled', 'tracker', 'threaded', 'Pokemon education',
+            'mindlock', 'telepath', 'telekinetic', 'aura reader'
+        ];
+        capabilities.forEach(cap => {
+            if (speciesData.skills[cap]) {
+                pokemonSkills.push({ name: cap.charAt(0).toUpperCase() + cap.slice(1) });
+            }
+        });
+        
+        if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
+            speciesData.skills.naturewalk.forEach(terrain => {
+                pokemonSkills.push({ name: `Naturewalk (${terrain})` });
+            });
+        }
+    }
+    updates.pokemonSkills = pokemonSkills;
+    
+    // Keep current moves (don't reset on devolution)
+    // But we could optionally remove moves that the devolved form can't learn
+    
+    // Apply updates
+    updatePokemon(pokemonId, updates);
+};
+
 // Handle species selection from Pokédex
 // Handle species selection - regular function to ensure updatePokemon is accessible
 const handleSpeciesSelect = (speciesName, pokemonId) => {
     const speciesData = pokedex.find(p => p.species === speciesName);
     if (!speciesData) return;
     
+    // Check if this species has regional forms
+    if (speciesData.regionalForms && speciesData.regionalForms.length > 0) {
+        // Show regional form selector modal
+        setRegionalFormData({
+            pokemonId,
+            speciesData,
+            forms: [
+                { name: 'Normal', isBase: true },
+                ...speciesData.regionalForms
+            ]
+        });
+        setShowRegionalFormModal(true);
+        setSpeciesSearch('');
+        return;
+    }
+    
+    // No regional forms, apply species directly
+    applySpeciesToPokemon(pokemonId, speciesData, null);
+    setSpeciesSearch('');
+};
+
+// Apply species data to a Pokemon (called directly or after regional form selection)
+const applySpeciesToPokemon = (pokemonId, speciesData, regionalForm) => {
     // Get the current Pokemon to check its level
     const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
     const currentLevel = currentPoke?.level || 1;
     
+    // Determine which data to use (base or regional form)
+    const isRegional = regionalForm && !regionalForm.isBase;
+    const formData = isRegional ? regionalForm : null;
+    
+    // Determine which move lists to use based on form
+    const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
+    const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
+    const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
+    
     const updates = {
         species: speciesData.species,
-        types: [...speciesData.types],
-        baseStats: { ...speciesData.baseStats },
+        types: formData ? [...formData.types] : [...speciesData.types],
+        baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
         // Store available abilities for reference
-        availableAbilities: speciesData.abilities ? { ...speciesData.abilities } : null,
+        availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
         // Store Pokédex reference data
-        pokedexId: speciesData.id
+        pokedexId: speciesData.id,
+        // Store regional form info
+        regionalForm: isRegional ? regionalForm.name : null,
+        // Store available move lists for this form (used for move learning/validation)
+        availableLevelUpMoves: levelUpMoves,
+        availableEggMoves: eggMoves,
+        availableTutorMoves: tutorMoves
     };
     
     // Set abilities using the correct field names (ability, ability2, ability3)
-    if (speciesData.abilities) {
-        const allAbilities = [
-            ...(speciesData.abilities.basic || []),
-            ...(speciesData.abilities.adv || []),
-            ...(speciesData.abilities.high || [])
-        ];
-        
+    const abilities = formData?.abilities || speciesData.abilities;
+    if (abilities) {
         // Set first basic ability as default
-        if (speciesData.abilities.basic && speciesData.abilities.basic.length > 0) {
-            updates.ability = speciesData.abilities.basic[0];
+        if (abilities.basic && abilities.basic.length > 0) {
+            updates.ability = abilities.basic[0];
         }
         // Clear the other ability slots (user can add them manually)
         updates.ability2 = '';
@@ -785,9 +1744,17 @@ const handleSpeciesSelect = (speciesName, pokemonId) => {
     updates.pokemonSkills = pokemonSkills;
     
     // Add starting moves based on current level (moves at level 0 and 1, plus any up to current level)
-    if (speciesData.levelUpMoves && speciesData.levelUpMoves.length > 0) {
-        const startingMoves = speciesData.levelUpMoves
+    if (levelUpMoves && levelUpMoves.length > 0) {
+        // Filter to moves at or below current level, then deduplicate by move name
+        const seenMoves = new Set();
+        const startingMoves = levelUpMoves
             .filter(m => m.level <= currentLevel)
+            .filter(m => {
+                const moveLower = m.move?.toLowerCase();
+                if (seenMoves.has(moveLower)) return false;
+                seenMoves.add(moveLower);
+                return true;
+            })
             .slice(0, 4) // Max 4 natural moves
             .map(m => {
                 const moveData = GAME_DATA.moves[m.move] || {};
@@ -810,16 +1777,29 @@ const handleSpeciesSelect = (speciesName, pokemonId) => {
         // - Species is changing to a different one
         const hasNoMoves = !currentPoke?.moves || currentPoke.moves.length === 0;
         const hasNoSpecies = !currentPoke?.species;
-        const speciesIsChanging = currentPoke?.species && currentPoke.species !== speciesName;
+        const speciesIsChanging = currentPoke?.species && currentPoke.species !== speciesData.species;
         
         if (hasNoMoves || hasNoSpecies || speciesIsChanging) {
             updates.moves = startingMoves;
         }
     }
     
-    // Call updatePokemon (defined later in component, but accessible due to JS hoisting behavior with function scope)
+    // Call updatePokemon
     updatePokemon(pokemonId, updates);
-    setSpeciesSearch('');
+};
+
+// Handle regional form selection
+const handleRegionalFormSelect = (form) => {
+    if (!regionalFormData) return;
+    
+    applySpeciesToPokemon(
+        regionalFormData.pokemonId,
+        regionalFormData.speciesData,
+        form
+    );
+    
+    setShowRegionalFormModal(false);
+    setRegionalFormData(null);
 };
 
 // Auto-save functionality
@@ -1828,7 +2808,37 @@ const addPokemon = () => {
     setEditingPokemon(newPokemon.id);
 };
 
-// Helper function to get level-up moves from pokedex for a species
+// Helper function to get level-up moves for a Pokemon (supports regional forms)
+// If pokemon object is passed and has availableLevelUpMoves, use those (for regional forms)
+// Otherwise fall back to looking up the species in the pokedex
+const getLevelUpMovesForPokemon = (pokemon) => {
+    // If Pokemon has stored available moves (from regional form selection), use those
+    if (pokemon?.availableLevelUpMoves && pokemon.availableLevelUpMoves.length > 0) {
+        return pokemon.availableLevelUpMoves;
+    }
+    
+    // Fall back to looking up species in pokedex
+    const species = pokemon?.species;
+    if (!species || !pokedex || pokedex.length === 0) return [];
+    
+    const speciesData = pokedex.find(p => 
+        p.species?.toLowerCase() === species.toLowerCase()
+    );
+    
+    // If Pokemon has a regional form but no stored moves, try to get form-specific moves
+    if (pokemon?.regionalForm && speciesData?.regionalForms) {
+        const regionalFormData = speciesData.regionalForms.find(
+            rf => rf.name === pokemon.regionalForm
+        );
+        if (regionalFormData?.levelUpMoves) {
+            return regionalFormData.levelUpMoves;
+        }
+    }
+    
+    return speciesData?.levelUpMoves || [];
+};
+
+// Legacy function for backwards compatibility (when we only have species name)
 const getLevelUpMovesForSpecies = (species) => {
     if (!species || !pokedex || pokedex.length === 0) return [];
     const speciesData = pokedex.find(p => 
@@ -1838,8 +2848,12 @@ const getLevelUpMovesForSpecies = (species) => {
 };
 
 // Helper function to check moves learned between two levels
-const getMovesForLevelRange = (species, fromLevel, toLevel) => {
-    const levelUpMoves = getLevelUpMovesForSpecies(species);
+// Now accepts Pokemon object to support regional forms
+const getMovesForLevelRange = (pokemon, fromLevel, toLevel) => {
+    const levelUpMoves = typeof pokemon === 'object' 
+        ? getLevelUpMovesForPokemon(pokemon)
+        : getLevelUpMovesForSpecies(pokemon); // backwards compat if string passed
+        
     if (fromLevel < toLevel) {
         // Level UP: get moves learned between old level (exclusive) and new level (inclusive)
         return levelUpMoves.filter(m => m.level > fromLevel && m.level <= toLevel);
@@ -1895,9 +2909,22 @@ const learnMove = (pokemonId, newMove, replaceIndex = null, inParty = true) => {
     const updateFn = (prev) => prev.map(p => {
         if (p.id !== pokemonId) return p;
         
-        const moveData = GAME_DATA.moves[newMove.move] || {};
+        // Check for duplicate move (unless we're replacing at the same index)
+        const moveName = newMove.move || newMove.name;
+        const alreadyKnows = p.moves.some((m, idx) => 
+            m.name?.toLowerCase() === moveName?.toLowerCase() && 
+            (replaceIndex === null || idx !== replaceIndex)
+        );
+        
+        if (alreadyKnows) {
+            // Pokemon already knows this move, skip
+            console.log(`${p.name || p.species} already knows ${moveName}, skipping`);
+            return p;
+        }
+        
+        const moveData = GAME_DATA.moves[moveName] || {};
         const newMoveObj = {
-            name: newMove.move,
+            name: moveName,
             type: moveData.type || newMove.type || 'Normal',
             category: moveData.category || 'Physical',
             frequency: moveData.frequency || 'At-Will',
@@ -2067,12 +3094,11 @@ const updatePokemon = (id, updates) => {
         const pokemonId = id;
         const pokemonName = currentPokemon.name;
         const pokemonInParty = inParty;
-        const species = currentPokemon.species;
         const startingMoves = currentPokemon.moves || [];
         
         if (newLevel > oldLevel) {
-            // Level UP - check for new moves to learn
-            const movesToLearn = getMovesForLevelRange(species, oldLevel, newLevel);
+            // Level UP - check for new moves to learn (pass full Pokemon for regional form support)
+            const movesToLearn = getMovesForLevelRange(currentPokemon, oldLevel, newLevel);
             
             if (movesToLearn.length > 0) {
                 const naturalMoves = startingMoves.filter(m => m.source === 'natural');
@@ -3926,7 +4952,14 @@ return (
                                                                 }}
                                                             />
                                                             <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>
-                                                                <strong>{poke.species || 'Unknown'}</strong>
+                                                                <strong>
+                                                                    {poke.regionalForm && (
+                                                                        <span style={{ color: '#9c27b0', marginRight: '4px' }}>
+                                                                            {poke.regionalForm}
+                                                                        </span>
+                                                                    )}
+                                                                    {poke.species || 'Unknown'}
+                                                                </strong>
                                                                 {poke.types.length > 0 && (
                                                                     <span style={{ marginLeft: '8px' }}>
                                                                         {poke.types.map(type => (
@@ -4080,6 +5113,171 @@ return (
                                                                     />
                                                                 )}
                                                             </div>
+                                                            
+                                                            {/* Evolution Buttons */}
+                                                            {poke.species && (() => {
+                                                                const { canEvolve, canDevolve } = getEvolutionOptions(poke);
+                                                                const hasEvolutions = canEvolve.length > 0 || canDevolve;
+                                                                
+                                                                if (!hasEvolutions) return null;
+                                                                
+                                                                return (
+                                                                    <div style={{ 
+                                                                        marginBottom: '12px', 
+                                                                        padding: '10px', 
+                                                                        background: 'linear-gradient(135deg, #f5f7fa, #e4e8ec)',
+                                                                        borderRadius: '8px',
+                                                                        border: '1px solid #ddd'
+                                                                    }}>
+                                                                        <label style={{ fontWeight: 'bold', fontSize: '12px', marginBottom: '8px', display: 'block', color: '#555' }}>
+                                                                            🔄 Evolution
+                                                                        </label>
+                                                                        
+                                                                        {/* Evolve Options */}
+                                                                        {canEvolve.length > 0 && (
+                                                                            <div style={{ marginBottom: canDevolve ? '8px' : '0' }}>
+                                                                                {canEvolve.map((evo, idx) => {
+                                                                                    const hasRequiredItem = !evo.needsItem || hasItemInInventory(evo.needsItem);
+                                                                                    const canDoEvolution = evo.canEvolveNow && hasRequiredItem;
+                                                                                    
+                                                                                    // Determine what regional form will be used
+                                                                                    // If evolution specifies a form, use that; otherwise inherit from current Pokemon
+                                                                                    const targetPokedexEntry = pokedex.find(p => p.species === evo.species);
+                                                                                    const inheritedForm = !evo.regionalForm && poke.regionalForm && 
+                                                                                        targetPokedexEntry?.regionalForms?.some(rf => rf.name === poke.regionalForm);
+                                                                                    const displayForm = evo.regionalForm || (inheritedForm ? poke.regionalForm : null);
+                                                                                    
+                                                                                    return (
+                                                                                        <div key={idx} style={{ 
+                                                                                            display: 'flex', 
+                                                                                            alignItems: 'center', 
+                                                                                            gap: '8px',
+                                                                                            marginBottom: idx < canEvolve.length - 1 ? '6px' : '0'
+                                                                                        }}>
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    if (canDoEvolution) {
+                                                                                                        const confirmMsg = evo.needsItem 
+                                                                                                            ? `Evolve ${poke.name || poke.species} into ${displayForm ? displayForm + ' ' : ''}${evo.species}?\n\nThis will consume 1x ${evo.needsItem} from your inventory.`
+                                                                                                            : `Evolve ${poke.name || poke.species} into ${displayForm ? displayForm + ' ' : ''}${evo.species}?`;
+                                                                                                        if (confirm(confirmMsg)) {
+                                                                                                            handleEvolution(poke.id, evo.species, evo.regionalForm, evo.needsItem);
+                                                                                                        }
+                                                                                                    }
+                                                                                                }}
+                                                                                                disabled={!canDoEvolution}
+                                                                                                style={{
+                                                                                                    padding: '6px 12px',
+                                                                                                    background: canDoEvolution 
+                                                                                                        ? (displayForm ? 'linear-gradient(135deg, #9c27b0, #7b1fa2)' : 'linear-gradient(135deg, #4caf50, #45a049)')
+                                                                                                        : '#ccc',
+                                                                                                    color: 'white',
+                                                                                                    border: 'none',
+                                                                                                    borderRadius: '6px',
+                                                                                                    cursor: canDoEvolution ? 'pointer' : 'not-allowed',
+                                                                                                    fontSize: '11px',
+                                                                                                    fontWeight: 'bold',
+                                                                                                    display: 'flex',
+                                                                                                    alignItems: 'center',
+                                                                                                    gap: '4px'
+                                                                                                }}
+                                                                                            >
+                                                                                                <span>⬆️</span>
+                                                                                                <span>Evolve → {displayForm ? `${displayForm} ` : ''}{evo.species}</span>
+                                                                                            </button>
+                                                                                            <span style={{ fontSize: '10px', color: '#666' }}>
+                                                                                                {evo.method === 'stone' && (
+                                                                                                    <span style={{ 
+                                                                                                        color: hasRequiredItem ? '#4caf50' : '#f44336',
+                                                                                                        fontWeight: 'bold'
+                                                                                                    }}>
+                                                                                                        {hasRequiredItem ? '✓' : '✗'} {evo.requirement}
+                                                                                                    </span>
+                                                                                                )}
+                                                                                                {evo.method === 'level' && !evo.canEvolveNow && (
+                                                                                                    <span style={{ color: '#f44336' }}>
+                                                                                                        {evo.reason}
+                                                                                                    </span>
+                                                                                                )}
+                                                                                                {evo.method === 'level' && evo.canEvolveNow && (
+                                                                                                    <span style={{ color: '#4caf50' }}>
+                                                                                                        ✓ Level {evo.requirement}+
+                                                                                                    </span>
+                                                                                                )}
+                                                                                                {evo.method === 'happiness' && (
+                                                                                                    <span style={{ color: '#9c27b0' }}>
+                                                                                                        💕 {evo.requirement}
+                                                                                                    </span>
+                                                                                                )}
+                                                                                                {evo.method === 'trade' && (
+                                                                                                    <span style={{ color: '#2196f3' }}>
+                                                                                                        🔄 {evo.reason}
+                                                                                                        {evo.needsItem && !hasRequiredItem && (
+                                                                                                            <span style={{ color: '#f44336', marginLeft: '4px' }}>
+                                                                                                                (Missing {evo.needsItem})
+                                                                                                            </span>
+                                                                                                        )}
+                                                                                                    </span>
+                                                                                                )}
+                                                                                                {evo.method === 'other' && (
+                                                                                                    <span style={{ color: '#ff9800' }}>
+                                                                                                        ⚡ {evo.requirement}
+                                                                                                    </span>
+                                                                                                )}
+                                                                                                {evo.note && (
+                                                                                                    <span style={{ marginLeft: '4px', fontStyle: 'italic' }}>
+                                                                                                        ({evo.note})
+                                                                                                    </span>
+                                                                                                )}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        )}
+                                                                        
+                                                                        {/* Devolve Option */}
+                                                                        {canDevolve && (() => {
+                                                                            // Check if regional form will be preserved
+                                                                            const devolveTargetEntry = pokedex.find(p => p.species === canDevolve.species);
+                                                                            const willPreserveForm = poke.regionalForm && 
+                                                                                devolveTargetEntry?.regionalForms?.some(rf => rf.name === poke.regionalForm);
+                                                                            const devolveDisplayName = willPreserveForm 
+                                                                                ? `${poke.regionalForm} ${canDevolve.species}` 
+                                                                                : canDevolve.species;
+                                                                            
+                                                                            return (
+                                                                                <div style={{ 
+                                                                                    paddingTop: canEvolve.length > 0 ? '8px' : '0',
+                                                                                    borderTop: canEvolve.length > 0 ? '1px dashed #ccc' : 'none'
+                                                                                }}>
+                                                                                    <button
+                                                                                        onClick={() => handleDevolution(poke.id, canDevolve.species)}
+                                                                                        style={{
+                                                                                            padding: '5px 10px',
+                                                                                            background: willPreserveForm 
+                                                                                                ? 'linear-gradient(135deg, #9c27b0, #7b1fa2)'
+                                                                                                : 'linear-gradient(135deg, #ff9800, #f57c00)',
+                                                                                            color: 'white',
+                                                                                            border: 'none',
+                                                                                            borderRadius: '6px',
+                                                                                            cursor: 'pointer',
+                                                                                            fontSize: '10px',
+                                                                                            fontWeight: 'bold',
+                                                                                            display: 'flex',
+                                                                                            alignItems: 'center',
+                                                                                            gap: '4px'
+                                                                                        }}
+                                                                                    >
+                                                                                        <span>⬇️</span>
+                                                                                        <span>Devolve → {devolveDisplayName}</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            );
+                                                                        })()}
+                                                                    </div>
+                                                                );
+                                                            })()}
                                                             
                                                             {/* Level & EXP */}
                                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
@@ -4635,6 +5833,15 @@ return (
                                                                                 return;
                                                                             }
                                                                             
+                                                                            // Check for duplicate move
+                                                                            const alreadyKnows = poke.moves.some(m => 
+                                                                                m.name?.toLowerCase() === select.value?.toLowerCase()
+                                                                            );
+                                                                            if (alreadyKnows) {
+                                                                                alert(`${poke.name || poke.species} already knows ${select.value}!`);
+                                                                                return;
+                                                                            }
+                                                                            
                                                                             const moveData = GAME_DATA.moves[select.value];
                                                                             updatePokemon(poke.id, {
                                                                                 moves: [...poke.moves, {
@@ -4804,6 +6011,15 @@ return (
                                                                     )}
                                                                 </div>
                                                                 <div style={{ fontSize: '14px', color: '#666' }}>
+                                                                    {poke.regionalForm && (
+                                                                        <span style={{ 
+                                                                            color: '#9c27b0', 
+                                                                            fontWeight: 'bold',
+                                                                            marginRight: '4px'
+                                                                        }}>
+                                                                            {poke.regionalForm}
+                                                                        </span>
+                                                                    )}
                                                                     {poke.species || 'Unknown Species'} 
                                                                     {poke.nature && (
                                                                         <>
@@ -8248,6 +9464,15 @@ return (
                                     if (customMove.name && customMoveForPokemon) {
                                         const targetPoke = pokemon.find(p => p.id === customMoveForPokemon);
                                         if (targetPoke) {
+                                            // Check for duplicate move
+                                            const alreadyKnows = targetPoke.moves.some(m => 
+                                                m.name?.toLowerCase() === customMove.name?.toLowerCase()
+                                            );
+                                            if (alreadyKnows) {
+                                                alert(`${targetPoke.name || targetPoke.species} already knows ${customMove.name}!`);
+                                                return;
+                                            }
+                                            
                                             // Check move limits
                                             const naturalMoves = targetPoke.moves.filter(m => m.source === 'natural').length;
                                             const taughtMoves = targetPoke.moves.filter(m => m.source === 'taught').length;
@@ -8440,6 +9665,148 @@ return (
                             >
                                 Don't Learn Move
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+        
+        {/* Regional Form Selector Modal */}
+        {showRegionalFormModal && regionalFormData && (
+            <div className="modal-overlay" onClick={() => { setShowRegionalFormModal(false); setRegionalFormData(null); }}>
+                <div className="modal" style={{ maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
+                    <div className="modal-header" style={{ background: 'linear-gradient(135deg, #9c27b0, #7b1fa2)' }}>
+                        <h3>🌍 Choose Form</h3>
+                        <button 
+                            onClick={() => { setShowRegionalFormModal(false); setRegionalFormData(null); }} 
+                            style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'white' }}
+                        >×</button>
+                    </div>
+                    
+                    <div style={{ padding: '20px' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '4px' }}>
+                                {regionalFormData.speciesData.species}
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#666' }}>
+                                This Pokémon has regional variants. Choose which form to use:
+                            </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {regionalFormData.forms.map((form, index) => {
+                                const isBase = form.isBase;
+                                const types = isBase ? regionalFormData.speciesData.types : form.types;
+                                const abilities = isBase 
+                                    ? regionalFormData.speciesData.abilities 
+                                    : form.abilities;
+                                const stats = isBase
+                                    ? regionalFormData.speciesData.baseStats
+                                    : form.baseStats;
+                                
+                                return (
+                                    <div
+                                        key={index}
+                                        onClick={() => handleRegionalFormSelect(form)}
+                                        style={{
+                                            padding: '16px',
+                                            background: isBase 
+                                                ? 'linear-gradient(135deg, #f5f5f5, #e0e0e0)' 
+                                                : 'linear-gradient(135deg, #e3f2fd, #bbdefb)',
+                                            borderRadius: '12px',
+                                            border: isBase 
+                                                ? '2px solid #9e9e9e' 
+                                                : '2px solid #2196f3',
+                                            cursor: 'pointer',
+                                            transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1.02)';
+                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between', 
+                                            alignItems: 'center',
+                                            marginBottom: '10px'
+                                        }}>
+                                            <div style={{ 
+                                                fontSize: '18px', 
+                                                fontWeight: 'bold',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px'
+                                            }}>
+                                                {isBase ? '🔵' : '🌴'} {form.name} Form
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                {types.map((t, i) => (
+                                                    <span 
+                                                        key={i} 
+                                                        className={`type-badge type-${t.toLowerCase()}`}
+                                                        style={{ fontSize: '11px', padding: '2px 8px' }}
+                                                    >
+                                                        {t}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        
+                                        {abilities && (
+                                            <div style={{ fontSize: '12px', color: '#555', marginBottom: '8px' }}>
+                                                <strong>Abilities:</strong> {[
+                                                    ...(abilities.basic || []),
+                                                    ...(abilities.adv || []),
+                                                    ...(abilities.high || [])
+                                                ].slice(0, 3).join(', ')}
+                                                {[...(abilities.basic || []), ...(abilities.adv || []), ...(abilities.high || [])].length > 3 && '...'}
+                                            </div>
+                                        )}
+                                        
+                                        {stats && (
+                                            <div style={{ 
+                                                display: 'flex', 
+                                                gap: '8px', 
+                                                fontSize: '11px',
+                                                flexWrap: 'wrap'
+                                            }}>
+                                                <span style={{ background: '#ffcdd2', padding: '2px 6px', borderRadius: '4px' }}>
+                                                    HP {stats.hp}
+                                                </span>
+                                                <span style={{ background: '#ffe0b2', padding: '2px 6px', borderRadius: '4px' }}>
+                                                    Atk {stats.atk}
+                                                </span>
+                                                <span style={{ background: '#fff9c4', padding: '2px 6px', borderRadius: '4px' }}>
+                                                    Def {stats.def}
+                                                </span>
+                                                <span style={{ background: '#c8e6c9', padding: '2px 6px', borderRadius: '4px' }}>
+                                                    SpA {stats.satk}
+                                                </span>
+                                                <span style={{ background: '#b3e5fc', padding: '2px 6px', borderRadius: '4px' }}>
+                                                    SpD {stats.sdef}
+                                                </span>
+                                                <span style={{ background: '#e1bee7', padding: '2px 6px', borderRadius: '4px' }}>
+                                                    Spd {stats.spd}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        
+                        <div style={{ 
+                            marginTop: '16px', 
+                            textAlign: 'center',
+                            fontSize: '12px',
+                            color: '#888'
+                        }}>
+                            Click a form to select it
                         </div>
                     </div>
                 </div>
