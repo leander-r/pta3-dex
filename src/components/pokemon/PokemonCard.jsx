@@ -47,14 +47,50 @@ const PokemonCard = ({
         ).slice(0, 20);
     }, [pokedex, speciesSearch]);
 
+    // Get all available abilities from species data
+    const getAvailableAbilities = (speciesData) => {
+        const abilities = [];
+        if (speciesData?.abilities) {
+            if (speciesData.abilities.basic) {
+                speciesData.abilities.basic.forEach(a => abilities.push({ name: a, type: 'Basic' }));
+            }
+            if (speciesData.abilities.adv) {
+                speciesData.abilities.adv.forEach(a => abilities.push({ name: a, type: 'Advanced' }));
+            }
+            if (speciesData.abilities.high) {
+                speciesData.abilities.high.forEach(a => abilities.push({ name: a, type: 'High' }));
+            }
+        }
+        return abilities;
+    };
+
+    // Derive available abilities from pokedex if not stored on pokemon
+    const derivedAbilities = useMemo(() => {
+        if (pokemon.availableAbilities && pokemon.availableAbilities.length > 0) {
+            return pokemon.availableAbilities;
+        }
+        if (pokedex && pokemon.species) {
+            const speciesData = pokedex.find(p => p.species === pokemon.species);
+            if (speciesData) {
+                return getAvailableAbilities(speciesData);
+            }
+        }
+        return [];
+    }, [pokemon.availableAbilities, pokemon.species, pokedex]);
+
     const handleSelectSpecies = (speciesData) => {
+        const availableAbilities = getAvailableAbilities(speciesData);
+        // Start with first basic ability selected
+        const initialAbilities = availableAbilities.length > 0 ? [availableAbilities[0].name] : [];
         updatePokemon({
             species: speciesData.species,
             name: pokemon.name === 'New Pokemon' || !pokemon.name ? speciesData.species : pokemon.name,
             types: speciesData.types || [],
             baseStats: speciesData.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
-            ability: speciesData.abilities?.basic?.[0] || '',
-            availableLevelUpMoves: speciesData.levelUpMoves || []
+            abilities: initialAbilities,
+            availableAbilities: availableAbilities,
+            availableLevelUpMoves: speciesData.levelUpMoves || [],
+            pokemonSkills: speciesData.skills ? Object.entries(speciesData.skills).map(([name, value]) => ({ name, value })) : []
         });
         setSpeciesSearch('');
     };
@@ -123,17 +159,62 @@ const PokemonCard = ({
                         </div>
 
                         <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                            HP: {currentHP}/{maxHP} | {pokemon.nature || 'Hardy'} | {pokemon.ability || 'No Ability'}
+                            HP: {currentHP}/{maxHP} | {pokemon.nature || 'Hardy'} | {
+                                (pokemon.abilities && pokemon.abilities.length > 0)
+                                    ? pokemon.abilities.join(', ')
+                                    : (pokemon.ability || 'No Ability')
+                            }
                         </div>
+
+                        {/* Moves Preview */}
+                        {(pokemon.moves || []).length > 0 && (
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '6px', flexWrap: 'wrap' }}>
+                                {(pokemon.moves || []).slice(0, 4).map((move, idx) => (
+                                    <span
+                                        key={idx}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (showDetail) {
+                                                const moveData = GAME_DATA?.moves?.[move.name] || move;
+                                                showDetail('move', move.name, { ...moveData, type: move.type });
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '2px 8px',
+                                            borderRadius: '10px',
+                                            background: getTypeColor(move.type),
+                                            color: 'white',
+                                            fontSize: '10px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {move.name}
+                                    </span>
+                                ))}
+                                {(pokemon.moves || []).length > 4 && (
+                                    <span style={{ fontSize: '10px', color: '#999', alignSelf: 'center' }}>
+                                        +{(pokemon.moves || []).length - 4} more
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Quick Actions */}
-                    <div style={{ display: 'flex', gap: '4px' }}>
+                    <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
                         {canMoveUp && (
-                            <button onClick={(e) => { e.stopPropagation(); onMoveUp(); }} style={quickBtnStyle}></button>
+                            <button onClick={(e) => { e.stopPropagation(); onMoveUp(); }} style={quickBtnStyle}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </button>
                         )}
                         {canMoveDown && (
-                            <button onClick={(e) => { e.stopPropagation(); onMoveDown(); }} style={quickBtnStyle}></button>
+                            <button onClick={(e) => { e.stopPropagation(); onMoveDown(); }} style={quickBtnStyle}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
                         )}
                     </div>
                 </div>
@@ -196,7 +277,7 @@ const PokemonCard = ({
 
             {/* Edit Tabs */}
             <div className="tabs" style={{ padding: '0 15px', background: '#f8f9fa' }}>
-                {['info', 'stats', 'moves', 'evolution'].map(tab => (
+                {['info', 'stats', 'moves', 'skills', 'evolution'].map(tab => (
                     <button
                         key={tab}
                         className={`tab ${editTab === tab ? 'active' : ''}`}
@@ -286,30 +367,274 @@ const PokemonCard = ({
                             </div>
                         </div>
 
-                        {/* Gender & Ability */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-                            <div>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Gender</label>
-                                <select
-                                    value={pokemon.gender || ''}
-                                    onChange={(e) => updatePokemon({ gender: e.target.value })}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                >
-                                    <option value="">Unknown</option>
-                                    <option value="male">Male ♂</option>
-                                    <option value="female">Female ♀</option>
-                                    <option value="genderless">Genderless</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Ability</label>
-                                <input
-                                    type="text"
-                                    value={pokemon.ability || ''}
-                                    onChange={(e) => updatePokemon({ ability: e.target.value })}
-                                    placeholder="Enter ability..."
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                />
+                        {/* Gender */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Gender</label>
+                            <select
+                                value={pokemon.gender || ''}
+                                onChange={(e) => updatePokemon({ gender: e.target.value })}
+                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                            >
+                                <option value="">Unknown</option>
+                                <option value="male">Male ♂</option>
+                                <option value="female">Female ♀</option>
+                                <option value="genderless">Genderless</option>
+                            </select>
+                        </div>
+
+                        {/* Abilities Section - Up to 3 */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Abilities</span>
+                                <span style={{ fontWeight: 'normal', color: '#666' }}>
+                                    {(pokemon.abilities || []).length}/3 selected
+                                </span>
+                            </label>
+
+                            {/* Selected Abilities */}
+                            {(pokemon.abilities || []).length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+                                    {(pokemon.abilities || []).map((abilityName, idx) => {
+                                        const abilityData = GAME_DATA.abilities?.[abilityName];
+                                        return (
+                                            <div
+                                                key={idx}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    padding: '6px 10px',
+                                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                                    color: 'white',
+                                                    borderRadius: '16px',
+                                                    fontSize: '12px'
+                                                }}
+                                            >
+                                                <span
+                                                    onClick={() => {
+                                                        if (showDetail && abilityData) {
+                                                            showDetail('ability', abilityName, abilityData);
+                                                        }
+                                                    }}
+                                                    style={{ cursor: showDetail ? 'pointer' : 'default' }}
+                                                >
+                                                    {abilityName}
+                                                </span>
+                                                <button
+                                                    onClick={() => {
+                                                        const newAbilities = (pokemon.abilities || []).filter(a => a !== abilityName);
+                                                        updatePokemon({ abilities: newAbilities });
+                                                    }}
+                                                    style={{
+                                                        background: 'rgba(255,255,255,0.3)',
+                                                        border: 'none',
+                                                        borderRadius: '50%',
+                                                        width: '18px',
+                                                        height: '18px',
+                                                        color: 'white',
+                                                        cursor: 'pointer',
+                                                        fontSize: '12px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {/* Available Abilities to Add */}
+                            {derivedAbilities.length > 0 ? (
+                                <div style={{ padding: '10px', background: '#f0f4ff', borderRadius: '8px' }}>
+                                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '8px' }}>
+                                        Tap to add (tap name for details):
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                        {derivedAbilities.map((ab, idx) => {
+                                            const isSelected = (pokemon.abilities || []).includes(ab.name);
+                                            const canAdd = (pokemon.abilities || []).length < 3;
+                                            const abilityData = GAME_DATA.abilities?.[ab.name];
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '12px',
+                                                        fontSize: '11px',
+                                                        background: isSelected ? '#e8f5e9' : 'white',
+                                                        color: isSelected ? '#4caf50' : '#333',
+                                                        border: `1px solid ${isSelected ? '#4caf50' : '#ddd'}`,
+                                                        opacity: isSelected || canAdd ? 1 : 0.5
+                                                    }}
+                                                >
+                                                    <span
+                                                        onClick={() => {
+                                                            if (showDetail && abilityData) {
+                                                                showDetail('ability', ab.name, abilityData);
+                                                            }
+                                                        }}
+                                                        style={{ cursor: showDetail ? 'pointer' : 'default' }}
+                                                    >
+                                                        {ab.name}
+                                                    </span>
+                                                    <span style={{ marginLeft: '4px', marginRight: '6px', opacity: 0.7, fontSize: '10px' }}>
+                                                        {ab.type === 'Basic' ? '●' : ab.type === 'Advanced' ? '★' : '◆'}
+                                                    </span>
+                                                    {!isSelected && canAdd && (
+                                                        <button
+                                                            onClick={() => {
+                                                                const newAbilities = [...(pokemon.abilities || []), ab.name];
+                                                                updatePokemon({ abilities: newAbilities });
+                                                            }}
+                                                            style={{
+                                                                background: '#4caf50',
+                                                                border: 'none',
+                                                                borderRadius: '50%',
+                                                                width: '16px',
+                                                                height: '16px',
+                                                                color: 'white',
+                                                                cursor: 'pointer',
+                                                                fontSize: '12px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center'
+                                                            }}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    )}
+                                                    {isSelected && (
+                                                        <span style={{ color: '#4caf50', fontSize: '12px' }}>✓</span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div style={{ fontSize: '10px', color: '#999', marginTop: '8px' }}>
+                                        ● Basic  ★ Advanced  ◆ High
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter ability name and press Enter..."
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && e.target.value.trim()) {
+                                                const newAbilities = [...(pokemon.abilities || [])];
+                                                if (newAbilities.length < 3 && !newAbilities.includes(e.target.value.trim())) {
+                                                    newAbilities.push(e.target.value.trim());
+                                                    updatePokemon({ abilities: newAbilities });
+                                                }
+                                                e.target.value = '';
+                                            }
+                                        }}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Pokemon Image */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                Pokemon Image
+                            </label>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                {pokemon.avatar ? (
+                                    <div style={{ position: 'relative' }}>
+                                        <img
+                                            src={pokemon.avatar}
+                                            alt={pokemon.name || pokemon.species}
+                                            style={{
+                                                width: '80px',
+                                                height: '80px',
+                                                borderRadius: '8px',
+                                                objectFit: 'cover',
+                                                border: '2px solid #ddd'
+                                            }}
+                                        />
+                                        <button
+                                            onClick={() => updatePokemon({ avatar: '' })}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '-8px',
+                                                right: '-8px',
+                                                width: '22px',
+                                                height: '22px',
+                                                borderRadius: '50%',
+                                                background: '#f44336',
+                                                color: 'white',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                fontSize: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        width: '80px',
+                                        height: '80px',
+                                        borderRadius: '8px',
+                                        background: '#f0f0f0',
+                                        border: '2px dashed #ccc',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#999'
+                                    }}>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                        </svg>
+                                    </div>
+                                )}
+                                <div style={{ flex: 1 }}>
+                                    <label
+                                        style={{
+                                            display: 'inline-block',
+                                            padding: '10px 20px',
+                                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                            color: 'white',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontSize: '13px',
+                                            fontWeight: 'bold'
+                                        }}
+                                    >
+                                        Choose Image
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = (event) => {
+                                                        updatePokemon({ avatar: event.target.result });
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            style={{ display: 'none' }}
+                                        />
+                                    </label>
+                                    <div style={{ fontSize: '11px', color: '#999', marginTop: '6px' }}>
+                                        Upload an image file (PNG, JPG, etc.)
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -369,9 +694,16 @@ const PokemonCard = ({
                                         <button
                                             onClick={() => {
                                                 if ((pokemon.addedStats?.[stat] || 0) > 0) {
+                                                    // Remove last occurrence of this stat from history
+                                                    const history = [...(pokemon.statAllocationHistory || [])];
+                                                    const lastIdx = history.lastIndexOf(stat);
+                                                    if (lastIdx !== -1) {
+                                                        history.splice(lastIdx, 1);
+                                                    }
                                                     updatePokemon({
                                                         addedStats: { ...pokemon.addedStats, [stat]: (pokemon.addedStats?.[stat] || 0) - 1 },
-                                                        statPointsAvailable: (pokemon.statPointsAvailable || 0) + 1
+                                                        statPointsAvailable: (pokemon.statPointsAvailable || 0) + 1,
+                                                        statAllocationHistory: history
                                                     });
                                                 }
                                             }}
@@ -385,7 +717,8 @@ const PokemonCard = ({
                                                 if ((pokemon.statPointsAvailable || 0) > 0) {
                                                     updatePokemon({
                                                         addedStats: { ...pokemon.addedStats, [stat]: (pokemon.addedStats?.[stat] || 0) + 1 },
-                                                        statPointsAvailable: (pokemon.statPointsAvailable || 0) - 1
+                                                        statPointsAvailable: (pokemon.statPointsAvailable || 0) - 1,
+                                                        statAllocationHistory: [...(pokemon.statAllocationHistory || []), stat]
                                                     });
                                                 }
                                             }}
@@ -421,7 +754,7 @@ const PokemonCard = ({
                 {editTab === 'moves' && (
                     <div>
                         <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
-                            Moves: {(pokemon.moves || []).length}/6 (4 natural + 2 taught)
+                            Moves: {(pokemon.moves || []).length}/8 (4 natural + 4 taught)
                         </div>
 
                         {(pokemon.moves || []).map((move, idx) => (
@@ -435,7 +768,14 @@ const PokemonCard = ({
                                     marginBottom: '6px',
                                     background: 'white',
                                     borderRadius: '6px',
-                                    borderLeft: `4px solid ${getTypeColor(move.type)}`
+                                    borderLeft: `4px solid ${getTypeColor(move.type)}`,
+                                    cursor: showDetail ? 'pointer' : 'default'
+                                }}
+                                onClick={() => {
+                                    if (showDetail) {
+                                        const moveData = GAME_DATA?.moves?.[move.name] || move;
+                                        showDetail('move', move.name, { ...moveData, type: move.type });
+                                    }
                                 }}
                             >
                                 <div>
@@ -445,7 +785,8 @@ const PokemonCard = ({
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         const newMoves = [...(pokemon.moves || [])];
                                         newMoves.splice(idx, 1);
                                         updatePokemon({ moves: newMoves });
@@ -501,6 +842,53 @@ const PokemonCard = ({
                     </div>
                 )}
 
+                {editTab === 'skills' && (
+                    <div>
+                        <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
+                            Pokemon Skills (from species data)
+                        </div>
+
+                        {(pokemon.pokemonSkills || []).length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                                No skills data for this species
+                            </div>
+                        ) : (
+                            <div style={{ display: 'grid', gap: '8px' }}>
+                                {(pokemon.pokemonSkills || []).map((skill, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '10px 12px',
+                                            background: 'white',
+                                            borderRadius: '6px',
+                                            borderLeft: `4px solid ${skill.value !== undefined ? '#9c27b0' : '#4caf50'}`
+                                        }}
+                                    >
+                                        <div style={{ fontWeight: 'bold', fontSize: '13px' }}>
+                                            {skill.name}
+                                        </div>
+                                        {skill.value !== undefined && (
+                                            <div style={{
+                                                padding: '4px 10px',
+                                                background: '#9c27b0',
+                                                color: 'white',
+                                                borderRadius: '12px',
+                                                fontSize: '12px',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                {skill.value}d6
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {editTab === 'evolution' && (
                     <div>
                         {getEvolutionOptions && (() => {
@@ -532,7 +920,7 @@ const PokemonCard = ({
                                                     </div>
                                                     {evo.canEvolveNow && evolvePokemon && (
                                                         <button
-                                                            onClick={() => evolvePokemon(pokemon.id, evo.species, isInParty)}
+                                                            onClick={() => evolvePokemon(pokemon.id, evo.species, evo.regionalForm, evo.needsItem)}
                                                             style={{
                                                                 padding: '6px 12px',
                                                                 background: 'linear-gradient(135deg, #667eea, #764ba2)',
@@ -543,7 +931,7 @@ const PokemonCard = ({
                                                                 fontSize: '12px'
                                                             }}
                                                         >
-                                                            Evolve
+                                                            Evolve{evo.needsItem ? ` (uses ${evo.needsItem})` : ''}
                                                         </button>
                                                     )}
                                                 </div>
@@ -569,7 +957,7 @@ const PokemonCard = ({
                                                     </div>
                                                 </div>
                                                 <button
-                                                    onClick={() => devolvePokemon(pokemon.id, canDevolve.species, isInParty)}
+                                                    onClick={() => devolvePokemon(pokemon.id, canDevolve.species)}
                                                     style={{
                                                         padding: '6px 12px',
                                                         background: '#f44336',
@@ -608,7 +996,11 @@ const quickBtnStyle = {
     borderRadius: '4px',
     background: 'white',
     cursor: 'pointer',
-    fontSize: '12px'
+    fontSize: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#666'
 };
 
 const statBtnStyle = {

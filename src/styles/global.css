@@ -161,8 +161,9 @@
             box-shadow: 0 4px 20px var(--poke-shadow);
             height: fit-content;
             position: sticky;
-            top: 15px;
+            top: 80px;
             border: 3px solid var(--poke-orange-light);
+            z-index: 50;
         }
         
         .content-area {
@@ -172,6 +173,8 @@
             box-shadow: 0 4px 20px var(--poke-shadow);
             min-height: 600px;
             border: 3px solid var(--poke-orange-light);
+            position: relative;
+            z-index: 1;
         }
         
         .nav-button {
@@ -448,6 +451,40 @@
             right: 0;
             height: 3px;
             background: linear-gradient(90deg, var(--color-purple), var(--color-purple-dark));
+        }
+
+        /* ========== GAME RULES CONTENT ========== */
+
+        .game-rules-content h4 {
+            margin-top: 12px;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .game-rules-content h4:first-child {
+            margin-top: 0;
+        }
+
+        .game-rules-content p {
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        .game-rules-content ul {
+            margin-left: 8px;
+            margin-bottom: 12px;
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        .game-rules-content li {
+            margin-bottom: 4px;
+            padding-left: 4px;
+        }
+
+        .game-rules-content li strong {
+            color: #667eea;
         }
 
         /* ========== ENHANCED SECTION TITLES ========== */

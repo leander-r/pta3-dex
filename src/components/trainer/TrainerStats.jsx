@@ -25,7 +25,7 @@ const TrainerStats = ({ trainer, updateTrainerStat, calculateModifier }) => {
 
             <div className="grid-responsive-3 trainer-stats-grid">
                 {STAT_CONFIG.map(stat => {
-                    const mod = calculateModifier(stat.key);
+                    const mod = calculateModifier(trainer.stats[stat.key]);
                     return (
                         <div
                             key={stat.key}

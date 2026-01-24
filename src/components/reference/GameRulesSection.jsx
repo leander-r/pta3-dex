@@ -184,11 +184,13 @@ const GameRulesSection = () => {
 
                         {expandedSection === section.id && (
                             <div style={{
-                                padding: '15px',
+                                padding: '15px 20px',
                                 background: 'white',
                                 fontSize: '13px',
                                 lineHeight: '1.6'
-                            }}>
+                            }}
+                            className="game-rules-content"
+                            >
                                 {section.content}
                             </div>
                         )}

@@ -101,8 +101,8 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
                     )}
 
                     {/* Feature Details */}
-                    {detailModal.type === 'feature' && detailModal.data && (
-                        <FeatureDetails data={detailModal.data} />
+                    {detailModal.type === 'feature' && (
+                        <FeatureDetails data={detailModal.data} name={detailModal.name} />
                     )}
 
                     {/* Ability Details */}
@@ -241,55 +241,75 @@ const MoveDetails = ({ data, getContestTypeColor }) => (
 );
 
 // Feature Details Sub-component
-const FeatureDetails = ({ data }) => (
-    <div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
-            {data.category && (
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: '#667eea', color: 'white' }}>
-                    {data.category}
-                </span>
+const FeatureDetails = ({ data, name }) => {
+    // Handle missing data gracefully
+    if (!data) {
+        return (
+            <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#666' }}>
+                    Feature data not found in database. This feature may be custom or from an external source.
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
+                {data.category && (
+                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: '#667eea', color: 'white' }}>
+                        {data.category}
+                    </span>
+                )}
+                {data.isBase && (
+                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: '#ff9800', color: 'white' }}>
+                        Base Feature
+                    </span>
+                )}
+                {data.frequency && (
+                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', background: '#4caf50', color: 'white' }}>
+                        {data.frequency}
+                    </span>
+                )}
+            </div>
+
+            {data.prerequisites && (
+                <div style={{ background: '#fff3e0', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
+                    <div style={{ fontSize: '11px', color: '#e65100', fontWeight: 'bold', marginBottom: '3px' }}>PREREQUISITES</div>
+                    <div className="text-13">{data.prerequisites}</div>
+                </div>
             )}
-            {data.isBase && (
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: '#ff9800', color: 'white' }}>
-                    Base Feature
-                </span>
+
+            {data.trigger && (
+                <div style={{ background: '#fce4ec', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
+                    <div style={{ fontSize: '11px', color: '#c2185b', fontWeight: 'bold', marginBottom: '3px' }}>TRIGGER</div>
+                    <div className="text-13">{data.trigger}</div>
+                </div>
             )}
-            {data.frequency && (
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', background: '#4caf50', color: 'white' }}>
-                    {data.frequency}
-                </span>
+
+            {data.target && (
+                <div style={{ background: '#e8eaf6', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
+                    <div style={{ fontSize: '11px', color: '#303f9f', fontWeight: 'bold', marginBottom: '3px' }}>TARGET</div>
+                    <div className="text-13">{data.target}</div>
+                </div>
+            )}
+
+            {data.effect && (
+                <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', marginBottom: '5px' }}>EFFECT</div>
+                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{data.effect}</div>
+                </div>
+            )}
+
+            {data.description && !data.effect && (
+                <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', marginBottom: '5px' }}>DESCRIPTION</div>
+                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{data.description}</div>
+                </div>
             )}
         </div>
-
-        {data.prerequisites && (
-            <div style={{ background: '#fff3e0', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
-                <div style={{ fontSize: '11px', color: '#e65100', fontWeight: 'bold', marginBottom: '3px' }}>PREREQUISITES</div>
-                <div className="text-13">{data.prerequisites}</div>
-            </div>
-        )}
-
-        {data.trigger && (
-            <div style={{ background: '#fce4ec', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
-                <div style={{ fontSize: '11px', color: '#c2185b', fontWeight: 'bold', marginBottom: '3px' }}>TRIGGER</div>
-                <div className="text-13">{data.trigger}</div>
-            </div>
-        )}
-
-        {data.target && (
-            <div style={{ background: '#e8eaf6', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
-                <div style={{ fontSize: '11px', color: '#303f9f', fontWeight: 'bold', marginBottom: '3px' }}>TARGET</div>
-                <div className="text-13">{data.target}</div>
-            </div>
-        )}
-
-        {data.effect && (
-            <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
-                <div style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', marginBottom: '5px' }}>EFFECT</div>
-                <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{data.effect}</div>
-            </div>
-        )}
-    </div>
-);
+    );
+};
 
 // Ability Details Sub-component
 const AbilityDetails = ({ data }) => (

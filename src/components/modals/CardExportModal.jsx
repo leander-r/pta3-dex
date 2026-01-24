@@ -641,7 +641,7 @@ const PokemonCard = ({ poke }) => {
             </div>
 
             {/* Abilities */}
-            {(poke.ability || poke.ability2 || poke.ability3) && (
+            {((poke.abilities && poke.abilities.length > 0) || poke.ability) && (
                 <div style={{
                     background: 'rgba(0,0,0,0.2)',
                     borderRadius: '8px',
@@ -650,9 +650,9 @@ const PokemonCard = ({ poke }) => {
                     fontSize: '12px'
                 }}>
                     <strong>Abilities:</strong>{' '}
-                    {[poke.ability, poke.ability2, poke.ability3]
-                        .filter(a => a)
-                        .join(' • ')
+                    {poke.abilities && poke.abilities.length > 0
+                        ? poke.abilities.join(' • ')
+                        : poke.ability
                     }
                 </div>
             )}

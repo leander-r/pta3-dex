@@ -175,8 +175,10 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                                     marginBottom: '4px',
                                     background: 'white',
                                     borderRadius: '6px',
-                                    borderLeft: `3px solid ${data.category === 'General (Free)' ? '#4caf50' : '#667eea'}`
+                                    borderLeft: `3px solid ${data.category === 'General (Free)' ? '#4caf50' : '#667eea'}`,
+                                    cursor: 'pointer'
                                 }}
+                                onClick={() => showDetail && showDetail('feature', name, data)}
                             >
                                 <div style={{ flex: 1, marginRight: '10px' }}>
                                     <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</div>
@@ -188,7 +190,7 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                                     )}
                                 </div>
                                 <button
-                                    onClick={() => handleAddFeature(name)}
+                                    onClick={(e) => { e.stopPropagation(); handleAddFeature(name); }}
                                     disabled={data.category !== 'General (Free)' && (trainer.featPoints || 0) <= 0}
                                     style={{
                                         padding: '4px 12px',

@@ -5,22 +5,66 @@
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 
-const ITEM_CATEGORIES = ['all', 'healing', 'ball', 'battle', 'berry', 'held', 'evolution', 'key', 'misc'];
-
-const InventoryTab = ({ inventory, setInventory }) => {
+const InventoryTab = ({ inventory, setInventory, showDetail }) => {
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddItem, setShowAddItem] = useState(false);
     const [itemSearch, setItemSearch] = useState('');
+    const [addQuantity, setAddQuantity] = useState(1);
+    const [expandedItem, setExpandedItem] = useState(null);
+
+    // Get unique item types from GAME_DATA dynamically
+    const availableTypes = useMemo(() => {
+        const types = new Set(['all']);
+        Object.values(GAME_DATA.items || {}).forEach(item => {
+            if (item.type) {
+                types.add(item.type.toLowerCase());
+            }
+        });
+        // Also include types from current inventory
+        inventory.forEach(item => {
+            if (item.type) {
+                types.add(item.type.toLowerCase());
+            }
+        });
+        return Array.from(types).sort((a, b) => {
+            if (a === 'all') return -1;
+            if (b === 'all') return 1;
+            return a.localeCompare(b);
+        });
+    }, [inventory]);
+
+    // Get type color
+    const getTypeColor = (type) => {
+        const t = (type || '').toLowerCase();
+        const colors = {
+            'healing': '#4caf50',
+            'medicine': '#4caf50',
+            'ball': '#f44336',
+            'pokeball': '#f44336',
+            'battle': '#ff9800',
+            'berry': '#e91e63',
+            'held': '#00bcd4',
+            'hold item': '#00bcd4',
+            'evolution': '#9c27b0',
+            'key': '#ffd700',
+            'tm': '#3f51b5',
+            'hm': '#3f51b5',
+            'food': '#8bc34a',
+            'misc': '#667eea'
+        };
+        return colors[t] || '#667eea';
+    };
 
     // Filtered inventory
     const filteredInventory = useMemo(() => {
         let result = inventory;
 
         if (filter !== 'all') {
-            result = result.filter(item =>
-                (item.type || item.category || 'misc').toLowerCase() === filter.toLowerCase()
-            );
+            result = result.filter(item => {
+                const itemType = (item.type || 'misc').toLowerCase();
+                return itemType === filter;
+            });
         }
 
         if (searchQuery.trim()) {
@@ -44,7 +88,8 @@ const InventoryTab = ({ inventory, setInventory }) => {
             .slice(0, 50);
     }, [itemSearch]);
 
-    const handleAddItem = (itemName, itemData = {}) => {
+    const handleAddItem = (itemName, itemData = {}, quantity = 1) => {
+        const qty = Math.max(1, parseInt(quantity) || 1);
         setInventory(prev => {
             const existingIndex = prev.findIndex(i =>
                 i.name.toLowerCase() === itemName.toLowerCase()
@@ -54,19 +99,20 @@ const InventoryTab = ({ inventory, setInventory }) => {
                 const newInventory = [...prev];
                 newInventory[existingIndex] = {
                     ...newInventory[existingIndex],
-                    quantity: (newInventory[existingIndex].quantity || 1) + 1
+                    quantity: (newInventory[existingIndex].quantity || 1) + qty
                 };
                 return newInventory;
             } else {
                 return [...prev, {
                     name: itemName,
-                    quantity: 1,
+                    quantity: qty,
                     type: itemData.type || 'misc',
                     effect: itemData.effect || '',
                     price: itemData.price || 0
                 }];
             }
         });
+        setAddQuantity(1); // Reset quantity after adding
     };
 
     const handleRemoveItem = (itemName) => {
@@ -142,7 +188,7 @@ const InventoryTab = ({ inventory, setInventory }) => {
                         onChange={(e) => setFilter(e.target.value)}
                         style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
                     >
-                        {ITEM_CATEGORIES.map(cat => (
+                        {availableTypes.map(cat => (
                             <option key={cat} value={cat}>
                                 {cat === 'all' ? 'All Items' : cat.charAt(0).toUpperCase() + cat.slice(1)}
                             </option>
@@ -152,7 +198,7 @@ const InventoryTab = ({ inventory, setInventory }) => {
                         onClick={() => setShowAddItem(!showAddItem)}
                         style={{
                             padding: '8px 16px',
-                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                            background: showAddItem ? '#f44336' : 'linear-gradient(135deg, #667eea, #764ba2)',
                             color: 'white',
                             border: 'none',
                             borderRadius: '6px',
@@ -160,58 +206,118 @@ const InventoryTab = ({ inventory, setInventory }) => {
                             fontWeight: 'bold'
                         }}
                     >
-                        + Add Item
+                        {showAddItem ? '✕ Close' : '+ Add Item'}
                     </button>
                 </div>
 
                 {/* Add Item Panel */}
                 {showAddItem && (
-                    <div style={{ marginBottom: '15px', padding: '15px', background: '#f8f9fa', borderRadius: '8px' }}>
-                        <input
-                            type="text"
-                            placeholder="Search items to add..."
-                            value={itemSearch}
-                            onChange={(e) => setItemSearch(e.target.value)}
-                            style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #ddd', marginBottom: '10px' }}
-                        />
+                    <div style={{ marginBottom: '15px', padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '2px solid #667eea' }}>
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                            <input
+                                type="text"
+                                placeholder="Search items to add..."
+                                value={itemSearch}
+                                onChange={(e) => setItemSearch(e.target.value)}
+                                style={{ flex: 1, padding: '10px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                            />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'white', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd' }}>
+                                <span style={{ fontSize: '12px', color: '#666' }}>Qty:</span>
+                                <input
+                                    type="number"
+                                    value={addQuantity}
+                                    onChange={(e) => setAddQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                                    min="1"
+                                    style={{ width: '50px', padding: '4px', borderRadius: '4px', border: '1px solid #ddd', textAlign: 'center', fontWeight: 'bold' }}
+                                />
+                            </div>
+                        </div>
 
-                        <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                            {availableItems.map(([name, data]) => (
-                                <div
-                                    key={name}
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '8px 10px',
-                                        marginBottom: '4px',
-                                        background: 'white',
-                                        borderRadius: '6px'
-                                    }}
-                                >
-                                    <div>
-                                        <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</div>
-                                        <div style={{ fontSize: '11px', color: '#666' }}>
-                                            {data.type && <span>{data.type}</span>}
-                                            {data.price && <span> | ₽{data.price}</span>}
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => handleAddItem(name, data)}
+                        <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                            {availableItems.map(([name, data]) => {
+                                const isExpanded = expandedItem === name;
+                                return (
+                                    <div
+                                        key={name}
                                         style={{
-                                            padding: '4px 12px',
-                                            background: '#4caf50',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            fontSize: '12px'
+                                            marginBottom: '6px',
+                                            background: 'white',
+                                            borderRadius: '8px',
+                                            borderLeft: `4px solid ${getTypeColor(data.type)}`,
+                                            overflow: 'hidden'
                                         }}
                                     >
-                                        Add
-                                    </button>
-                                </div>
-                            ))}
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                padding: '10px 12px',
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={() => setExpandedItem(isExpanded ? null : name)}
+                                        >
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    {name}
+                                                    <span style={{
+                                                        padding: '2px 6px',
+                                                        background: getTypeColor(data.type),
+                                                        color: 'white',
+                                                        borderRadius: '10px',
+                                                        fontSize: '10px',
+                                                        textTransform: 'capitalize'
+                                                    }}>
+                                                        {data.type || 'misc'}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+                                                    {data.price ? `₽${data.price}` : 'No price'}
+                                                    {data.effect && (
+                                                        <span style={{ marginLeft: '8px', color: '#999' }}>
+                                                            {isExpanded ? '▼' : '▶'} Details
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleAddItem(name, data, addQuantity);
+                                                }}
+                                                style={{
+                                                    padding: '6px 14px',
+                                                    background: '#4caf50',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px'
+                                                }}
+                                            >
+                                                <span>+{addQuantity}</span>
+                                            </button>
+                                        </div>
+
+                                        {/* Expanded details */}
+                                        {isExpanded && data.effect && (
+                                            <div style={{
+                                                padding: '10px 12px',
+                                                background: '#f0f4ff',
+                                                borderTop: '1px solid #e0e0e0',
+                                                fontSize: '12px',
+                                                color: '#333'
+                                            }}>
+                                                <strong>Effect:</strong> {data.effect}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
 
                             {/* Custom Item */}
                             {itemSearch && !availableItems.some(([name]) => name.toLowerCase() === itemSearch.toLowerCase()) && (
@@ -220,30 +326,38 @@ const InventoryTab = ({ inventory, setInventory }) => {
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
-                                        padding: '8px 10px',
+                                        padding: '12px',
                                         background: '#e8f5e9',
-                                        borderRadius: '6px',
-                                        marginTop: '8px'
+                                        borderRadius: '8px',
+                                        marginTop: '8px',
+                                        border: '2px dashed #4caf50'
                                     }}
                                 >
                                     <div>
-                                        <div style={{ fontWeight: 'bold', fontSize: '13px' }}>Add Custom: "{itemSearch}"</div>
-                                        <div style={{ fontSize: '11px', color: '#666' }}>Not in database</div>
+                                        <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Add Custom: "{itemSearch}"</div>
+                                        <div style={{ fontSize: '11px', color: '#666' }}>Not in database - will be added as misc item</div>
                                     </div>
                                     <button
-                                        onClick={() => handleAddItem(itemSearch, { type: 'misc' })}
+                                        onClick={() => handleAddItem(itemSearch, { type: 'misc' }, addQuantity)}
                                         style={{
-                                            padding: '4px 12px',
+                                            padding: '6px 14px',
                                             background: '#667eea',
                                             color: 'white',
                                             border: 'none',
-                                            borderRadius: '4px',
+                                            borderRadius: '6px',
                                             cursor: 'pointer',
-                                            fontSize: '12px'
+                                            fontSize: '12px',
+                                            fontWeight: 'bold'
                                         }}
                                     >
-                                        Add Custom
+                                        +{addQuantity} Custom
                                     </button>
+                                </div>
+                            )}
+
+                            {availableItems.length === 0 && !itemSearch && (
+                                <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                                    Start typing to search for items...
                                 </div>
                             )}
                         </div>
@@ -253,106 +367,121 @@ const InventoryTab = ({ inventory, setInventory }) => {
                 {/* Inventory List */}
                 {filteredInventory.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                        {inventory.length === 0 ? 'Inventory is empty' : 'No items match your search'}
+                        {inventory.length === 0 ? 'Inventory is empty' : 'No items match your filter'}
                     </div>
                 ) : (
                     <div style={{ display: 'grid', gap: '8px' }}>
-                        {filteredInventory.map((item, index) => (
-                            <div
-                                key={`${item.name}-${index}`}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    padding: '12px',
-                                    background: 'white',
-                                    borderRadius: '8px',
-                                    borderLeft: `4px solid ${
-                                        item.type === 'healing' ? '#4caf50' :
-                                        item.type === 'ball' ? '#f44336' :
-                                        item.type === 'battle' ? '#ff9800' :
-                                        item.type === 'berry' ? '#e91e63' :
-                                        item.type === 'evolution' ? '#9c27b0' :
-                                        '#667eea'
-                                    }`
-                                }}
-                            >
-                                {/* Item Info */}
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{item.name}</div>
-                                    {item.effect && (
-                                        <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
-                                            {item.effect}
+                        {filteredInventory.map((item, index) => {
+                            const itemType = (item.type || 'misc').toLowerCase();
+                            return (
+                                <div
+                                    key={`${item.name}-${index}`}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '12px',
+                                        background: 'white',
+                                        borderRadius: '8px',
+                                        borderLeft: `4px solid ${getTypeColor(itemType)}`
+                                    }}
+                                >
+                                    {/* Item Info */}
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            {item.name}
+                                            <span style={{
+                                                padding: '2px 6px',
+                                                background: getTypeColor(itemType),
+                                                color: 'white',
+                                                borderRadius: '10px',
+                                                fontSize: '10px',
+                                                textTransform: 'capitalize'
+                                            }}>
+                                                {itemType}
+                                            </span>
                                         </div>
-                                    )}
-                                    <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
-                                        {item.type && <span style={{ textTransform: 'capitalize' }}>{item.type}</span>}
-                                        {item.price && <span> | ₽{item.price}</span>}
+                                        {item.effect && (
+                                            <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                                                {item.effect}
+                                            </div>
+                                        )}
+                                        {item.price > 0 && (
+                                            <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
+                                                ₽{item.price} each
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Quantity Controls */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <button
+                                            onClick={() => handleRemoveItem(item.name)}
+                                            style={{
+                                                width: '28px',
+                                                height: '28px',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px',
+                                                background: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
+                                            −
+                                        </button>
+                                        <input
+                                            type="number"
+                                            value={item.quantity || 1}
+                                            onChange={(e) => handleSetQuantity(item.name, e.target.value)}
+                                            min="0"
+                                            style={{
+                                                width: '50px',
+                                                textAlign: 'center',
+                                                padding: '4px',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px',
+                                                fontSize: '14px',
+                                                fontWeight: 'bold'
+                                            }}
+                                        />
+                                        <button
+                                            onClick={() => handleAddItem(item.name, item, 1)}
+                                            style={{
+                                                width: '28px',
+                                                height: '28px',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px',
+                                                background: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
+                                            +
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteItem(item.name)}
+                                            style={{
+                                                padding: '4px 8px',
+                                                background: '#f44336',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontSize: '11px'
+                                            }}
+                                        >
+                                            ✕
+                                        </button>
                                     </div>
                                 </div>
-
-                                {/* Quantity Controls */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <button
-                                        onClick={() => handleRemoveItem(item.name)}
-                                        style={{
-                                            width: '28px',
-                                            height: '28px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            background: 'white',
-                                            cursor: 'pointer',
-                                            fontSize: '16px'
-                                        }}
-                                    >
-                                        −
-                                    </button>
-                                    <input
-                                        type="number"
-                                        value={item.quantity || 1}
-                                        onChange={(e) => handleSetQuantity(item.name, e.target.value)}
-                                        min="0"
-                                        style={{
-                                            width: '50px',
-                                            textAlign: 'center',
-                                            padding: '4px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '14px',
-                                            fontWeight: 'bold'
-                                        }}
-                                    />
-                                    <button
-                                        onClick={() => handleAddItem(item.name, item)}
-                                        style={{
-                                            width: '28px',
-                                            height: '28px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            background: 'white',
-                                            cursor: 'pointer',
-                                            fontSize: '16px'
-                                        }}
-                                    >
-                                        +
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteItem(item.name)}
-                                        style={{
-                                            padding: '4px 8px',
-                                            background: '#f44336',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            fontSize: '11px'
-                                        }}
-                                    >
-                                        ✕
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>

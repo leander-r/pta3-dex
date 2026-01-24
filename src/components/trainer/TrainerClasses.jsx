@@ -2,11 +2,38 @@
 // Trainer Classes Component
 // ============================================================
 
-import React from 'react';
+import React, { useState } from 'react';
 
 const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
     const maxClasses = trainer.level < 5 ? 1 : trainer.level < 12 ? 2 : trainer.level < 24 ? 3 : 4;
     const currentClasses = trainer.classes || [];
+
+    // State for skill selection when adding a class
+    const [pendingClass, setPendingClass] = useState(null);
+    const [selectedClassSkills, setSelectedClassSkills] = useState([]);
+
+    // Get skill pool for a class
+    const getClassSkillPool = (className) => {
+        const classData = GAME_DATA.trainerClasses?.[className];
+        if (!classData?.skillPool) {
+            // Default skill pools based on class type if not defined
+            return Object.keys(GAME_DATA.skills || {});
+        }
+        return classData.skillPool;
+    };
+
+    // Get how many skills a class grants
+    const getSkillCount = (className) => {
+        const classData = GAME_DATA.trainerClasses?.[className];
+        return classData?.type === 'base' ? 3 : 1;
+    };
+
+    // Check if a skill is already at max (trained twice, except HP which is once)
+    const isSkillMaxed = (skillName) => {
+        const count = (trainer.skills || []).filter(s => s === skillName).length;
+        const isHPSkill = skillName.toLowerCase().includes('hp');
+        return isHPSkill ? count >= 1 : count >= 2;
+    };
 
     const handleRemoveClass = (cls) => {
         const classData = GAME_DATA.trainerClasses[cls];
@@ -50,18 +77,17 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
         });
     };
 
-    const handleAddClass = () => {
+    const handleStartAddClass = () => {
         const select = document.getElementById('classSelectCombined');
         if (!select.value) return;
 
         const cls = select.value;
         const classData = GAME_DATA.trainerClasses[cls];
-        const isBaseClass = classData?.type === 'base';
         const isFirstClass = currentClasses.length === 0;
 
         // Determine feat point cost
         let featPointChange = 0;
-        if (isBaseClass && isFirstClass) {
+        if (classData?.type === 'base' && isFirstClass) {
             featPointChange = 2; // First base class grants 2 features
         } else if (currentClasses.length >= 1) {
             featPointChange = -1; // Additional classes cost 1 feat point
@@ -79,19 +105,61 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
             return;
         }
 
+        // Start skill selection process
+        setPendingClass(cls);
+        setSelectedClassSkills([]);
+        select.value = '';
+    };
+
+    const handleToggleSkillSelection = (skillName) => {
+        const maxSkills = getSkillCount(pendingClass);
+
+        if (selectedClassSkills.includes(skillName)) {
+            setSelectedClassSkills(prev => prev.filter(s => s !== skillName));
+        } else if (selectedClassSkills.length < maxSkills) {
+            setSelectedClassSkills(prev => [...prev, skillName]);
+        }
+    };
+
+    const handleConfirmClass = () => {
+        if (!pendingClass) return;
+
+        const classData = GAME_DATA.trainerClasses[pendingClass];
+        const isBaseClass = classData?.type === 'base';
+        const isFirstClass = currentClasses.length === 0;
+
+        // Determine feat point cost
+        let featPointChange = 0;
+        if (isBaseClass && isFirstClass) {
+            featPointChange = 2;
+        } else if (currentClasses.length >= 1) {
+            featPointChange = -1;
+        }
+
         // Get base features for this class
         const baseFeatures = isBaseClass ? Object.entries(GAME_DATA.features || {})
-            .filter(([_, f]) => f.category === cls && f.isBase)
+            .filter(([_, f]) => f.category === pendingClass && f.isBase)
             .map(([name, _]) => name) : [];
 
         setTrainer(prev => ({
             ...prev,
-            classes: [...(prev.classes || []), cls],
+            classes: [...(prev.classes || []), pendingClass],
             features: [...(prev.features || []), ...baseFeatures],
-            featPoints: (prev.featPoints || 0) + featPointChange
+            featPoints: (prev.featPoints || 0) + featPointChange,
+            skills: [...(prev.skills || []), ...selectedClassSkills],
+            classSkills: {
+                ...(prev.classSkills || {}),
+                [pendingClass]: selectedClassSkills
+            }
         }));
 
-        select.value = '';
+        setPendingClass(null);
+        setSelectedClassSkills([]);
+    };
+
+    const handleCancelClass = () => {
+        setPendingClass(null);
+        setSelectedClassSkills([]);
     };
 
     return (
@@ -142,29 +210,120 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
                 </div>
             )}
 
+            {/* Skill Selection Modal */}
+            {pendingClass && (
+                <div style={{
+                    marginBottom: '15px',
+                    padding: '15px',
+                    background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)',
+                    borderRadius: '8px',
+                    border: '2px solid #4caf50'
+                }}>
+                    <div style={{ marginBottom: '10px' }}>
+                        <strong style={{ fontSize: '14px' }}>Adding: {pendingClass}</strong>
+                        <span style={{
+                            marginLeft: '8px',
+                            padding: '2px 8px',
+                            background: GAME_DATA.trainerClasses[pendingClass]?.type === 'base' ? '#667eea' : '#9c27b0',
+                            color: 'white',
+                            borderRadius: '10px',
+                            fontSize: '11px'
+                        }}>
+                            {GAME_DATA.trainerClasses[pendingClass]?.type === 'base' ? 'Base' : 'Advanced'}
+                        </span>
+                    </div>
+                    <div style={{ fontSize: '12px', marginBottom: '10px', color: '#333' }}>
+                        Select {getSkillCount(pendingClass)} skill{getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:
+                        <span style={{ color: '#666', fontSize: '11px', display: 'block', marginTop: '4px' }}>
+                            Trained skills add +2 to rolls. Getting the same skill twice adds another +2. HP skills can only be taken once.
+                        </span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                        {getClassSkillPool(pendingClass).map(skillName => {
+                            const isSelected = selectedClassSkills.includes(skillName);
+                            const isMaxed = isSkillMaxed(skillName);
+                            const alreadyHas = (trainer.skills || []).includes(skillName);
+                            return (
+                                <button
+                                    key={skillName}
+                                    onClick={() => !isMaxed && handleToggleSkillSelection(skillName)}
+                                    disabled={isMaxed}
+                                    style={{
+                                        padding: '6px 12px',
+                                        background: isSelected ? '#4caf50' : isMaxed ? '#e0e0e0' : alreadyHas ? '#fff3e0' : 'white',
+                                        color: isSelected ? 'white' : isMaxed ? '#999' : '#333',
+                                        border: `2px solid ${isSelected ? '#4caf50' : isMaxed ? '#bdbdbd' : alreadyHas ? '#ff9800' : '#ddd'}`,
+                                        borderRadius: '20px',
+                                        cursor: isMaxed ? 'not-allowed' : 'pointer',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    {skillName}
+                                    {alreadyHas && !isMaxed && <span style={{ marginLeft: '4px' }}>+1</span>}
+                                    {isMaxed && <span style={{ marginLeft: '4px' }}>(max)</span>}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                            onClick={handleConfirmClass}
+                            disabled={selectedClassSkills.length < getSkillCount(pendingClass)}
+                            style={{
+                                flex: 1,
+                                padding: '10px',
+                                background: selectedClassSkills.length >= getSkillCount(pendingClass) ? '#4caf50' : '#ccc',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: selectedClassSkills.length >= getSkillCount(pendingClass) ? 'pointer' : 'not-allowed',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            Confirm ({selectedClassSkills.length}/{getSkillCount(pendingClass)} selected)
+                        </button>
+                        <button
+                            onClick={handleCancelClass}
+                            style={{
+                                padding: '10px 20px',
+                                background: '#f44336',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Add Class */}
-            <div className="input-row input-row-purple">
-                <select id="classSelectCombined">
-                    <option value="">Add a class...</option>
-                    <optgroup label="━━ Base Classes ━━">
-                        {Object.entries(GAME_DATA.trainerClasses || {})
-                            .filter(([_, data]) => data.type === 'base')
-                            .map(([cls, _]) => (
-                                <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
-                            ))}
-                    </optgroup>
-                    <optgroup label="━━ Advanced Classes ━━">
-                        {Object.entries(GAME_DATA.trainerClasses || {})
-                            .filter(([_, data]) => data.type === 'advanced')
-                            .map(([cls, _]) => (
-                                <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
-                            ))}
-                    </optgroup>
-                </select>
-                <button className="btn btn-primary" onClick={handleAddClass}>
-                    Add Class
-                </button>
-            </div>
+            {!pendingClass && (
+                <div className="input-row input-row-purple">
+                    <select id="classSelectCombined">
+                        <option value="">Add a class...</option>
+                        <optgroup label="━━ Base Classes ━━">
+                            {Object.entries(GAME_DATA.trainerClasses || {})
+                                .filter(([_, data]) => data.type === 'base')
+                                .map(([cls, _]) => (
+                                    <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
+                                ))}
+                        </optgroup>
+                        <optgroup label="━━ Advanced Classes ━━">
+                            {Object.entries(GAME_DATA.trainerClasses || {})
+                                .filter(([_, data]) => data.type === 'advanced')
+                                .map(([cls, _]) => (
+                                    <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
+                                ))}
+                        </optgroup>
+                    </select>
+                    <button className="btn btn-primary" onClick={handleStartAddClass}>
+                        Add Class
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
