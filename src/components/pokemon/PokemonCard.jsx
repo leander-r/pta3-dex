@@ -37,6 +37,9 @@ const PokemonCard = ({
     const [moveTypeFilter, setMoveTypeFilter] = useState('all');
     const [moveCategoryFilter, setMoveCategoryFilter] = useState('all');
     const [showMoveDropdown, setShowMoveDropdown] = useState(false);
+    // Regional form selection state
+    const [showRegionalFormSelect, setShowRegionalFormSelect] = useState(false);
+    const [pendingSpeciesData, setPendingSpeciesData] = useState(null);
 
     const actualStats = useMemo(() => getActualStats(pokemon), [pokemon]);
     const maxHP = useMemo(() => calculatePokemonHP(pokemon), [pokemon]);
@@ -62,19 +65,38 @@ const PokemonCard = ({
 
         let results = [...pokedex];
 
-        // Apply type filter
+        // Apply type filter (check both base form and regional forms)
         if (speciesTypeFilter !== 'all') {
-            results = results.filter(p =>
-                p.types && p.types.some(t => t.toLowerCase() === speciesTypeFilter.toLowerCase())
-            );
+            results = results.filter(p => {
+                // Check base form types
+                const baseMatch = p.types && p.types.some(t => t.toLowerCase() === speciesTypeFilter.toLowerCase());
+                if (baseMatch) return true;
+
+                // Check regional form types
+                if (p.regionalForms) {
+                    return p.regionalForms.some(form =>
+                        form.types && form.types.some(t => t.toLowerCase() === speciesTypeFilter.toLowerCase())
+                    );
+                }
+                return false;
+            });
         }
 
-        // Apply search filter
+        // Apply search filter (check species name and regional form names)
         if (speciesSearch) {
             const search = speciesSearch.toLowerCase();
-            results = results.filter(p =>
-                p.species.toLowerCase().includes(search)
-            );
+            results = results.filter(p => {
+                // Check species name
+                if (p.species.toLowerCase().includes(search)) return true;
+
+                // Check regional form names (e.g., "Alolan", "Galarian")
+                if (p.regionalForms) {
+                    return p.regionalForms.some(form =>
+                        form.name && form.name.toLowerCase().includes(search)
+                    );
+                }
+                return false;
+            });
         }
 
         // Apply sorting
@@ -163,21 +185,53 @@ const PokemonCard = ({
     }, [pokemon.availableAbilities, pokemon.species, pokedex]);
 
     const handleSelectSpecies = (speciesData) => {
-        const availableAbilities = getAvailableAbilities(speciesData);
-        // Start with first basic ability selected
+        // Check if species has regional forms - let user choose
+        if (speciesData.regionalForms && speciesData.regionalForms.length > 0) {
+            setPendingSpeciesData(speciesData);
+            setShowRegionalFormSelect(true);
+            setShowSpeciesDropdown(false);
+            return;
+        }
+
+        // No regional forms, apply directly
+        applySpeciesForm(speciesData, null);
+    };
+
+    const applySpeciesForm = (speciesData, regionalForm) => {
+        const isRegional = regionalForm && !regionalForm.isBase;
+        const formData = isRegional ? regionalForm : null;
+
+        // Use form-specific data if regional, otherwise use base species data
+        const types = formData?.types || speciesData.types || [];
+        const baseStats = formData?.baseStats || speciesData.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 };
+        const abilities = formData?.abilities || speciesData.abilities;
+        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
+
+        // Build available abilities from the correct form
+        const availableAbilities = [];
+        if (abilities) {
+            if (abilities.basic) abilities.basic.forEach(a => availableAbilities.push({ name: a, tier: 'Basic' }));
+            if (abilities.adv) abilities.adv.forEach(a => availableAbilities.push({ name: a, tier: 'Advanced' }));
+            if (abilities.high) abilities.high.forEach(a => availableAbilities.push({ name: a, tier: 'High' }));
+        }
+
         const initialAbilities = availableAbilities.length > 0 ? [availableAbilities[0].name] : [];
+
         updatePokemon({
             species: speciesData.species,
             name: pokemon.name === 'New Pokemon' || !pokemon.name ? speciesData.species : pokemon.name,
-            types: speciesData.types || [],
-            baseStats: speciesData.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
+            types: types,
+            baseStats: baseStats,
             abilities: initialAbilities,
             availableAbilities: availableAbilities,
-            availableLevelUpMoves: speciesData.levelUpMoves || [],
+            availableLevelUpMoves: levelUpMoves,
+            regionalForm: isRegional ? regionalForm.name : null,
             pokemonSkills: speciesData.skills ? Object.entries(speciesData.skills).map(([name, value]) => ({ name, value })) : []
         });
         setSpeciesSearch('');
         setShowSpeciesDropdown(false);
+        setShowRegionalFormSelect(false);
+        setPendingSpeciesData(null);
         setSpeciesTypeFilter('all');
     };
 
@@ -539,48 +593,78 @@ const PokemonCard = ({
                                         {/* Species List */}
                                         <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
                                             {filteredSpecies.length > 0 ? (
-                                                filteredSpecies.map(sp => (
-                                                    <div
-                                                        key={sp.id}
-                                                        onClick={() => handleSelectSpecies(sp)}
-                                                        style={{
-                                                            padding: '10px 12px',
-                                                            cursor: 'pointer',
-                                                            borderBottom: '1px solid #eee',
-                                                            display: 'flex',
-                                                            justifyContent: 'space-between',
-                                                            alignItems: 'center',
-                                                            transition: 'background 0.15s'
-                                                        }}
-                                                        onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                                                        onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                                                    >
-                                                        <div>
-                                                            <span style={{ fontWeight: 'bold' }}>{sp.species}</span>
-                                                            <span style={{ fontSize: '11px', color: '#999', marginLeft: '6px' }}>
-                                                                #{sp.id || '???'}
-                                                            </span>
+                                                filteredSpecies.map(sp => {
+                                                    const hasRegionalForms = sp.regionalForms && sp.regionalForms.length > 0;
+                                                    // Get all unique types from regional forms
+                                                    const regionalTypes = hasRegionalForms
+                                                        ? [...new Set(sp.regionalForms.flatMap(f => f.types || []))]
+                                                            .filter(t => !sp.types?.includes(t))
+                                                        : [];
+
+                                                    return (
+                                                        <div
+                                                            key={sp.id}
+                                                            onClick={() => handleSelectSpecies(sp)}
+                                                            style={{
+                                                                padding: '10px 12px',
+                                                                cursor: 'pointer',
+                                                                borderBottom: '1px solid #eee',
+                                                                display: 'flex',
+                                                                justifyContent: 'space-between',
+                                                                alignItems: 'center',
+                                                                transition: 'background 0.15s'
+                                                            }}
+                                                            onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                                                            onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                                        >
+                                                            <div>
+                                                                <span style={{ fontWeight: 'bold' }}>{sp.species}</span>
+                                                                <span style={{ fontSize: '11px', color: '#999', marginLeft: '6px' }}>
+                                                                    #{sp.id || '???'}
+                                                                </span>
+                                                                {hasRegionalForms && (
+                                                                    <span style={{ fontSize: '10px', color: '#9c27b0', marginLeft: '6px' }}>
+                                                                        🌍
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                                                                {sp.types?.map(t => (
+                                                                    <span
+                                                                        key={t}
+                                                                        style={{
+                                                                            padding: '2px 6px',
+                                                                            background: getTypeColor(t),
+                                                                            color: 'white',
+                                                                            borderRadius: '8px',
+                                                                            fontSize: '10px',
+                                                                            fontWeight: 'bold'
+                                                                        }}
+                                                                    >{t}</span>
+                                                                ))}
+                                                                {regionalTypes.map(t => (
+                                                                    <span
+                                                                        key={`regional-${t}`}
+                                                                        style={{
+                                                                            padding: '2px 6px',
+                                                                            background: getTypeColor(t),
+                                                                            color: 'white',
+                                                                            borderRadius: '8px',
+                                                                            fontSize: '10px',
+                                                                            fontWeight: 'bold',
+                                                                            opacity: 0.6,
+                                                                            border: '1px dashed white'
+                                                                        }}
+                                                                        title="Regional form type"
+                                                                    >{t}</span>
+                                                                ))}
+                                                                <span style={{ fontSize: '10px', color: '#999', marginLeft: '4px' }}>
+                                                                    BST: {getBaseStatTotal(sp)}
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                            {sp.types?.map(t => (
-                                                                <span
-                                                                    key={t}
-                                                                    style={{
-                                                                        padding: '2px 6px',
-                                                                        background: getTypeColor(t),
-                                                                        color: 'white',
-                                                                        borderRadius: '8px',
-                                                                        fontSize: '10px',
-                                                                        fontWeight: 'bold'
-                                                                    }}
-                                                                >{t}</span>
-                                                            ))}
-                                                            <span style={{ fontSize: '10px', color: '#999', marginLeft: '4px' }}>
-                                                                BST: {getBaseStatTotal(sp)}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                ))
+                                                    );
+                                                })
                                             ) : (
                                                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                                                     {speciesSearch || speciesTypeFilter !== 'all'
@@ -614,6 +698,136 @@ const PokemonCard = ({
                                                     cursor: 'pointer'
                                                 }}
                                             >Close</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Regional Form Selection Modal */}
+                                {showRegionalFormSelect && pendingSpeciesData && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: 0,
+                                        right: 0,
+                                        background: 'white',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                                        zIndex: 1001,
+                                        marginTop: '4px'
+                                    }}>
+                                        <div style={{
+                                            padding: '12px',
+                                            borderBottom: '1px solid #eee',
+                                            background: 'linear-gradient(135deg, #9c27b0, #7b1fa2)',
+                                            borderRadius: '8px 8px 0 0',
+                                            color: 'white'
+                                        }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                                                🌍 Choose Form for {pendingSpeciesData.species}
+                                            </div>
+                                            <div style={{ fontSize: '11px', opacity: 0.9 }}>
+                                                This Pokémon has regional variants
+                                            </div>
+                                        </div>
+
+                                        <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                            {/* Normal Form */}
+                                            <div
+                                                onClick={() => applySpeciesForm(pendingSpeciesData, { isBase: true })}
+                                                style={{
+                                                    padding: '12px',
+                                                    cursor: 'pointer',
+                                                    borderBottom: '1px solid #eee',
+                                                    transition: 'background 0.15s'
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                            >
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div>
+                                                        <span style={{ fontWeight: 'bold' }}>🔵 Normal Form</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '4px' }}>
+                                                        {pendingSpeciesData.types?.map(t => (
+                                                            <span
+                                                                key={t}
+                                                                style={{
+                                                                    padding: '2px 6px',
+                                                                    background: getTypeColor(t),
+                                                                    color: 'white',
+                                                                    borderRadius: '8px',
+                                                                    fontSize: '10px',
+                                                                    fontWeight: 'bold'
+                                                                }}
+                                                            >{t}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Regional Forms */}
+                                            {pendingSpeciesData.regionalForms.map((form, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => applySpeciesForm(pendingSpeciesData, form)}
+                                                    style={{
+                                                        padding: '12px',
+                                                        cursor: 'pointer',
+                                                        borderBottom: '1px solid #eee',
+                                                        transition: 'background 0.15s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = '#e3f2fd'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                                >
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <div>
+                                                            <span style={{ fontWeight: 'bold' }}>🌴 {form.name} Form</span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                                            {form.types?.map(t => (
+                                                                <span
+                                                                    key={t}
+                                                                    style={{
+                                                                        padding: '2px 6px',
+                                                                        background: getTypeColor(t),
+                                                                        color: 'white',
+                                                                        borderRadius: '8px',
+                                                                        fontSize: '10px',
+                                                                        fontWeight: 'bold'
+                                                                    }}
+                                                                >{t}</span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Cancel Button */}
+                                        <div style={{
+                                            padding: '8px',
+                                            borderTop: '1px solid #eee',
+                                            background: '#f8f9fa',
+                                            textAlign: 'center',
+                                            borderRadius: '0 0 8px 8px'
+                                        }}>
+                                            <button
+                                                onClick={() => {
+                                                    setShowRegionalFormSelect(false);
+                                                    setPendingSpeciesData(null);
+                                                }}
+                                                style={{
+                                                    padding: '6px 16px',
+                                                    background: '#f44336',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >Cancel</button>
                                         </div>
                                     </div>
                                 )}
