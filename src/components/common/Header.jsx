@@ -23,7 +23,43 @@ const Header = ({
 }) => {
     const [showCharacterMenu, setShowCharacterMenu] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
+    const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 360);
     const menuRef = useRef(null);
+
+    // Track window size for responsive layout
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 480);
+            setIsSmallMobile(window.innerWidth < 360);
+        };
+
+        window.addEventListener('resize', handleResize, { passive: true });
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Track scroll position for header effects (with hysteresis to prevent flickering)
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollY = window.scrollY;
+            setIsScrolled(prev => {
+                // Use different thresholds for scrolling down vs up to prevent flickering
+                if (prev) {
+                    // Currently scrolled - only unset when very close to top
+                    return scrollY > 5;
+                } else {
+                    // Currently not scrolled - only set when scrolled further down
+                    return scrollY > 30;
+                }
+            });
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll(); // Check initial position
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -49,101 +85,151 @@ const Header = ({
             onMouseLeave={() => setHoveredItem(null)}
             style={{
                 width: '100%',
-                padding: '12px 16px',
-                background: hoveredItem === id ? (danger ? '#ffebee' : '#f5f5f5') : 'none',
+                padding: '12px 18px',
+                background: hoveredItem === id ? (danger ? '#ffebee' : '#fff8e7') : 'transparent',
                 border: 'none',
                 textAlign: 'left',
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 fontSize: '14px',
+                fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                color: danger ? '#e53935' : (disabled ? '#bbb' : '#333'),
+                color: danger ? '#e53935' : (disabled ? '#bbb' : '#2d2d2d'),
                 opacity: disabled ? 0.5 : 1,
-                transition: 'background 0.15s'
+                transition: 'all 0.15s ease',
+                borderLeft: hoveredItem === id && !danger ? '3px solid #f5a623' : '3px solid transparent'
             }}
         >
-            <span style={{ width: '20px', display: 'flex', justifyContent: 'center' }}>{icon}</span>
+            <span style={{
+                width: '20px',
+                display: 'flex',
+                justifyContent: 'center',
+                color: hoveredItem === id && !danger ? '#f5a623' : 'inherit'
+            }}>{icon}</span>
             <span>{label}</span>
         </button>
     );
 
     return (
         <header style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            padding: '12px 20px',
+            background: isScrolled
+                ? 'linear-gradient(135deg, rgba(245, 166, 35, 0.97) 0%, rgba(232, 148, 28, 0.97) 100%)'
+                : 'linear-gradient(135deg, #f5a623 0%, #e8941c 100%)',
+            padding: isMobile
+                ? (isScrolled ? '8px 10px' : '10px 12px')
+                : (isScrolled ? '10px 20px' : '14px 20px'),
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            boxShadow: isScrolled
+                ? '0 4px 20px rgba(0,0,0,0.25), 0 2px 8px rgba(245, 166, 35, 0.3)'
+                : '0 4px 15px rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.3)',
             position: 'sticky',
             top: 0,
-            zIndex: 100
+            zIndex: 100,
+            borderBottom: isScrolled ? '2px solid #e8941c' : '3px solid #e8941c',
+            backdropFilter: isScrolled ? 'blur(10px)' : 'none',
+            WebkitBackdropFilter: isScrolled ? 'blur(10px)' : 'none',
+            transition: 'all 0.25s ease',
+            gap: isMobile ? '8px' : '12px'
         }}>
             {/* App Title */}
             <h1 style={{
                 margin: 0,
-                fontSize: '20px',
-                fontWeight: 'bold',
+                fontSize: isMobile ? '16px' : (isScrolled ? '18px' : '22px'),
+                fontWeight: 800,
                 color: 'white',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: isMobile ? '6px' : (isScrolled ? '8px' : '10px'),
+                textShadow: '1px 1px 0 rgba(0,0,0,0.2)',
+                transition: 'all 0.25s ease',
+                flexShrink: 0
             }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                    <circle cx="12" cy="12" r="10" fill="none" stroke="white" strokeWidth="2"/>
+                <svg
+                    width={isMobile ? "20" : (isScrolled ? "22" : "26")}
+                    height={isMobile ? "20" : (isScrolled ? "22" : "26")}
+                    viewBox="0 0 24 24"
+                    fill="white"
+                    style={{ transition: 'all 0.25s ease', flexShrink: 0 }}
+                >
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="white" strokeWidth="2.5"/>
                     <circle cx="12" cy="12" r="4" fill="white"/>
-                    <line x1="2" y1="12" x2="8" y2="12" stroke="white" strokeWidth="2"/>
-                    <line x1="16" y1="12" x2="22" y2="12" stroke="white" strokeWidth="2"/>
+                    <line x1="2" y1="12" x2="8" y2="12" stroke="white" strokeWidth="2.5"/>
+                    <line x1="16" y1="12" x2="22" y2="12" stroke="white" strokeWidth="2.5"/>
                 </svg>
-                <span>PTA Dex</span>
+                {!isSmallMobile && <span>PTA Dex</span>}
             </h1>
 
             {/* Right Section */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: isMobile ? '6px' : (isScrolled ? '8px' : '12px'),
+                transition: 'all 0.25s ease',
+                flexShrink: 1,
+                minWidth: 0
+            }}>
                 {/* Money Display */}
                 <div style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    padding: '8px 14px',
-                    borderRadius: '20px',
-                    fontWeight: 'bold',
-                    color: 'white',
-                    fontSize: '14px',
+                    background: 'rgba(255,255,255,0.95)',
+                    padding: isMobile ? '5px 8px' : (isScrolled ? '6px 12px' : '8px 16px'),
+                    borderRadius: isMobile ? '8px' : '12px',
+                    fontWeight: 700,
+                    color: '#2d2d2d',
+                    fontSize: isMobile ? '12px' : (isScrolled ? '13px' : '14px'),
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    backdropFilter: 'blur(10px)'
+                    gap: isMobile ? '4px' : '6px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    border: '2px solid rgba(255,255,255,0.5)',
+                    transition: 'all 0.25s ease',
+                    flexShrink: 0
                 }}>
-                    <span style={{ color: '#ffd700' }}>₽</span>
+                    <span style={{ color: '#f5a623', fontWeight: 800 }}>₽</span>
                     <span>{(trainer.money || 0).toLocaleString()}</span>
                 </div>
 
                 {/* Trainer Selector */}
                 <div style={{
                     background: 'rgba(255,255,255,0.95)',
-                    borderRadius: '10px',
+                    borderRadius: isMobile ? '8px' : '12px',
                     padding: '2px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    border: '2px solid rgba(255,255,255,0.5)',
+                    transition: 'all 0.25s ease',
+                    flexShrink: 1,
+                    minWidth: 0,
+                    maxWidth: isMobile ? '110px' : 'none'
                 }}>
                     <select
                         value={activeTrainerId || ''}
                         onChange={(e) => setActiveTrainerId(parseInt(e.target.value))}
                         style={{
-                            padding: '8px 12px',
-                            paddingRight: '30px',
-                            borderRadius: '8px',
+                            paddingTop: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
+                            paddingBottom: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
+                            paddingLeft: isMobile ? '8px' : (isScrolled ? '10px' : '12px'),
+                            paddingRight: isMobile ? '24px' : '32px',
+                            borderRadius: '10px',
                             border: 'none',
                             background: 'transparent',
-                            fontWeight: 'bold',
+                            fontWeight: 700,
                             cursor: 'pointer',
-                            fontSize: '14px',
-                            minWidth: '140px',
+                            fontSize: isMobile ? '12px' : (isScrolled ? '13px' : '14px'),
+                            minWidth: 0,
+                            width: '100%',
                             appearance: 'none',
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                            color: '#2d2d2d',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23f5a623' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                             backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'right 10px center'
+                            backgroundPosition: isMobile ? 'right 6px center' : 'right 10px center',
+                            transition: 'all 0.25s ease',
+                            textOverflow: 'ellipsis',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap'
                         }}
                     >
                         {trainers.map(t => (
@@ -155,23 +241,33 @@ const Header = ({
                 </div>
 
                 {/* Menu Button */}
-                <div style={{ position: 'relative' }} ref={menuRef}>
+                <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
                     <button
                         onClick={() => setShowCharacterMenu(!showCharacterMenu)}
                         style={{
-                            width: '42px',
-                            height: '42px',
-                            background: showCharacterMenu ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
-                            border: 'none',
-                            borderRadius: '10px',
+                            width: isMobile ? '34px' : (isScrolled ? '36px' : '42px'),
+                            height: isMobile ? '34px' : (isScrolled ? '36px' : '42px'),
+                            background: showCharacterMenu ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.9)',
+                            border: '2px solid rgba(255,255,255,0.5)',
+                            borderRadius: isMobile ? '8px' : '12px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            transition: 'background 0.2s'
+                            transition: 'all 0.25s ease',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                         }}
                     >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+                        <svg
+                            width={isMobile ? "16" : (isScrolled ? "18" : "20")}
+                            height={isMobile ? "16" : (isScrolled ? "18" : "20")}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke={showCharacterMenu ? '#e8941c' : '#f5a623'}
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            style={{ transition: 'all 0.25s ease' }}
+                        >
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -185,22 +281,25 @@ const Header = ({
                             right: 0,
                             top: 'calc(100% + 8px)',
                             background: 'white',
-                            borderRadius: '12px',
-                            boxShadow: '0 4px 25px rgba(0,0,0,0.15)',
-                            minWidth: '220px',
+                            borderRadius: '16px',
+                            boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+                            minWidth: isMobile ? '200px' : '230px',
+                            maxWidth: '280px',
                             zIndex: 1000,
                             overflow: 'hidden',
-                            animation: 'fadeIn 0.15s ease-out'
+                            animation: 'fadeIn 0.15s ease-out',
+                            border: '2px solid #ffc966'
                         }}>
                             {/* Header */}
                             <div style={{
-                                padding: '12px 16px',
-                                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                padding: '14px 18px',
+                                background: 'linear-gradient(135deg, #f5a623, #e8941c)',
                                 color: 'white',
                                 fontSize: '12px',
-                                fontWeight: 'bold',
+                                fontWeight: 700,
                                 textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
+                                letterSpacing: '0.5px',
+                                textShadow: '1px 1px 0 rgba(0,0,0,0.15)'
                             }}>
                                 Character Menu
                             </div>
@@ -237,7 +336,7 @@ const Header = ({
                                 />
                             </div>
 
-                            <hr style={{ margin: 0, border: 'none', borderTop: '1px solid #eee' }} />
+                            <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
 
                             {/* Card Export Section */}
                             <div style={{ padding: '8px 0' }}>
@@ -258,7 +357,7 @@ const Header = ({
                                 />
                             </div>
 
-                            <hr style={{ margin: 0, border: 'none', borderTop: '1px solid #eee' }} />
+                            <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
 
                             {/* Data Section */}
                             <div style={{ padding: '8px 0' }}>
@@ -297,21 +396,28 @@ const Header = ({
                                     onMouseLeave={() => setHoveredItem(null)}
                                     style={{
                                         width: '100%',
-                                        padding: '12px 16px',
-                                        background: hoveredItem === 'import' ? '#f5f5f5' : 'none',
+                                        padding: '12px 18px',
+                                        background: hoveredItem === 'import' ? '#fff8e7' : 'transparent',
                                         border: 'none',
                                         textAlign: 'left',
                                         cursor: 'pointer',
                                         fontSize: '14px',
+                                        fontWeight: 600,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '12px',
-                                        color: '#333',
-                                        transition: 'background 0.15s',
-                                        boxSizing: 'border-box'
+                                        color: '#2d2d2d',
+                                        transition: 'all 0.15s ease',
+                                        boxSizing: 'border-box',
+                                        borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent'
                                     }}
                                 >
-                                    <span style={{ width: '20px', display: 'flex', justifyContent: 'center' }}>
+                                    <span style={{
+                                        width: '20px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        color: hoveredItem === 'import' ? '#f5a623' : 'inherit'
+                                    }}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                             <polyline points="17 8 12 3 7 8"></polyline>
@@ -333,7 +439,7 @@ const Header = ({
                                 </label>
                             </div>
 
-                            <hr style={{ margin: 0, border: 'none', borderTop: '1px solid #eee' }} />
+                            <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
 
                             {/* Danger Zone */}
                             <div style={{ padding: '8px 0' }}>
