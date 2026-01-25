@@ -29,6 +29,7 @@ const BattleTab = ({
     const [applyStab, setApplyStab] = useState(true);
     const [showCombatStages, setShowCombatStages] = useState(false);
     const [selectedPokemonId, setSelectedPokemonId] = useState(null);
+    const [acOverride, setAcOverride] = useState('');
 
     // Get selected pokemon from party (synced with actual data)
     const selectedPokemon = useMemo(() => {
@@ -92,7 +93,7 @@ const BattleTab = ({
         const statKey = isPhysical ? 'atk' : 'satk';
         const baseStat = actualStats[statKey] || 0;
 
-        // Apply combat stages
+        // Apply combat stages to attack stat
         const stages = combatStages[statKey] || 0;
         let statMod = baseStat;
         if (stages > 0) {
@@ -101,12 +102,31 @@ const BattleTab = ({
             statMod = Math.ceil(baseStat * (1 - Math.abs(stages) * 0.10));
         }
 
-        // Roll accuracy
+        // Get accuracy check value (AC) from frequency field (e.g., "EOT - 2" means AC 2)
+        // Parse the number after the dash in the frequency string
+        const parseACFromFrequency = (freq) => {
+            if (!freq) return 2;
+            const match = freq.match(/[-–]\s*(\d+)/); // Match "- 2" or "– 2" (different dash types)
+            return match ? parseInt(match[1]) : 2;
+        };
+        const defaultAC = parseACFromFrequency(selectedMove.frequency || selectedMove.freq);
+        const moveAC = acOverride !== '' ? parseInt(acOverride) || defaultAC : defaultAC;
+
+        // Apply accuracy combat stages
+        const accStages = combatStages.acc || 0;
+        let accModifier = accStages; // Each stage is +1/-1 to the roll
+
+        // Roll accuracy (1d20)
         const accRoll = Math.floor(Math.random() * 20) + 1;
-        const isCrit = accRoll === 20;
+        const modifiedAccRoll = accRoll + accModifier;
+        const isCrit = accRoll === 20; // Natural 20 is always a crit
+        const isHit = accRoll === 20 || modifiedAccRoll >= moveAC; // Natural 20 always hits, otherwise compare to AC
 
         // Parse damage dice
         const diceData = parseDice(selectedMove.damage);
+
+        // Track if AC was overridden
+        const acWasOverridden = acOverride !== '';
 
         if (diceData.count === 0) {
             // Status move
@@ -117,6 +137,11 @@ const BattleTab = ({
                 moveType: selectedMove.type,
                 category: selectedMove.category,
                 accRoll,
+                accModifier,
+                modifiedAccRoll,
+                moveAC,
+                acWasOverridden,
+                isHit,
                 isCrit,
                 isStatus: true,
                 total: 0,
@@ -125,18 +150,26 @@ const BattleTab = ({
             return;
         }
 
-        // Roll damage
-        const diceCount = isCrit ? diceData.count * 2 : diceData.count;
-        const rolls = rollDice(diceCount, diceData.sides);
-        const diceTotal = rolls.reduce((sum, r) => sum + r, 0);
-
-        // STAB
+        // Only roll damage if the attack hits
+        let rolls = [];
+        let diceTotal = 0;
         let stabBonus = 0;
-        if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
-            stabBonus = calculateSTAB(selectedPokemon.level || 1);
-        }
+        let total = 0;
+        let diceCount = 0;
 
-        const total = diceTotal + diceData.bonus + statMod + stabBonus;
+        if (isHit) {
+            // Roll damage
+            diceCount = isCrit ? diceData.count * 2 : diceData.count;
+            rolls = rollDice(diceCount, diceData.sides);
+            diceTotal = rolls.reduce((sum, r) => sum + r, 0);
+
+            // STAB
+            if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
+                stabBonus = calculateSTAB(selectedPokemon.level || 1);
+            }
+
+            total = diceTotal + diceData.bonus + statMod + stabBonus;
+        }
 
         addToHistory({
             type: 'pokemon',
@@ -144,12 +177,17 @@ const BattleTab = ({
             move: selectedMove.name,
             moveType: selectedMove.type,
             category: selectedMove.category,
-            dice: `${diceCount}d${diceData.sides}+${diceData.bonus}`,
+            dice: isHit ? `${diceCount}d${diceData.sides}+${diceData.bonus}` : null,
             rolls,
             diceTotal,
             statBonus: statMod,
             stabBonus,
             accRoll,
+            accModifier,
+            modifiedAccRoll,
+            moveAC,
+            acWasOverridden,
+            isHit,
             isCrit,
             total,
             timestamp: Date.now()
@@ -424,9 +462,9 @@ const BattleTab = ({
                                 </div>
                             )}
 
-                            {/* STAB Toggle */}
+                            {/* STAB Toggle & AC Override */}
                             {selectedPokemon && (
-                                <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                                         <input
                                             type="checkbox"
@@ -438,6 +476,48 @@ const BattleTab = ({
                                     <span style={{ fontSize: '11px', color: '#666' }}>
                                         (+{calculateSTAB(selectedPokemon.level || 1)} for matching type)
                                     </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>AC Override:</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="20"
+                                            value={acOverride}
+                                            onChange={(e) => setAcOverride(e.target.value)}
+                                            placeholder={selectedMove ? (() => {
+                                                const freq = selectedMove.frequency || selectedMove.freq;
+                                                if (!freq) return '2';
+                                                const match = freq.match(/[-–]\s*(\d+)/);
+                                                return match ? match[1] : '2';
+                                            })() : '-'}
+                                            style={{
+                                                width: '50px',
+                                                padding: '4px 8px',
+                                                borderRadius: '4px',
+                                                border: acOverride !== '' ? '2px solid #667eea' : '1px solid #ddd',
+                                                fontSize: '12px',
+                                                textAlign: 'center',
+                                                background: acOverride !== '' ? '#e8eaf6' : 'white'
+                                            }}
+                                        />
+                                        {acOverride !== '' && (
+                                            <button
+                                                onClick={() => setAcOverride('')}
+                                                style={{
+                                                    padding: '4px 8px',
+                                                    background: '#f44336',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '10px'
+                                                }}
+                                                title="Clear AC override"
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             )}
 
@@ -475,7 +555,12 @@ const BattleTab = ({
                                                 >
                                                     <div style={{ fontWeight: 'bold' }}>{move.name}</div>
                                                     <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                                                        {move.type} | {move.category} | {move.damage || 'Status'}
+                                                        {move.type} | {move.category} | {move.damage || 'Status'} | AC {(() => {
+                                                            const freq = move.frequency || move.freq;
+                                                            if (!freq) return 2;
+                                                            const match = freq.match(/[-–]\s*(\d+)/);
+                                                            return match ? match[1] : 2;
+                                                        })()}
                                                     </div>
                                                 </button>
                                                 <button
@@ -937,15 +1022,46 @@ const BattleTab = ({
                                             <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
                                                 {roll.pokemon} - {roll.move}
                                                 {roll.isCrit && <span style={{ marginLeft: '8px', color: '#c62828' }}>CRITICAL!</span>}
+                                                {!roll.isHit && <span style={{ marginLeft: '8px', color: '#f44336', fontWeight: 'bold' }}>MISS!</span>}
                                             </div>
+                                            {/* Accuracy Roll */}
+                                            <div style={{
+                                                fontSize: '12px',
+                                                padding: '4px 8px',
+                                                background: roll.isHit ? (roll.isCrit ? '#fff3e0' : '#e8f5e9') : '#ffebee',
+                                                borderRadius: '4px',
+                                                marginBottom: '4px',
+                                                display: 'inline-block'
+                                            }}>
+                                                <span style={{ fontWeight: 'bold' }}>AC Roll: </span>
+                                                <span style={{
+                                                    fontWeight: 'bold',
+                                                    color: roll.isCrit ? '#ff6f00' : (roll.isHit ? '#2e7d32' : '#c62828')
+                                                }}>
+                                                    {roll.accRoll}
+                                                    {roll.accModifier !== 0 && (
+                                                        <span style={{ color: '#666' }}>
+                                                            {roll.accModifier > 0 ? '+' : ''}{roll.accModifier}={roll.modifiedAccRoll}
+                                                        </span>
+                                                    )}
+                                                </span>
+                                                <span style={{ color: '#666' }}> vs AC {roll.moveAC}</span>
+                                                {roll.acWasOverridden && <span style={{ color: '#667eea', marginLeft: '4px' }}>(DM)</span>}
+                                                {roll.isCrit && <span style={{ color: '#ff6f00', marginLeft: '4px' }}>(Natural 20!)</span>}
+                                            </div>
+                                            {/* Damage or Status */}
                                             <div style={{ fontSize: '12px', color: '#666' }}>
                                                 {roll.isStatus ? (
-                                                    <span>Status Move | Accuracy: {roll.accRoll}</span>
-                                                ) : (
+                                                    <span style={{ color: roll.isHit ? '#2e7d32' : '#c62828' }}>
+                                                        Status Move - {roll.isHit ? 'Effect applies!' : 'No effect'}
+                                                    </span>
+                                                ) : roll.isHit ? (
                                                     <>
                                                         <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#333' }}>{roll.total}</span>
                                                         <span> damage | [{roll.rolls?.join(', ')}] +{roll.statBonus} stat +{roll.stabBonus} STAB</span>
                                                     </>
+                                                ) : (
+                                                    <span style={{ color: '#999', fontStyle: 'italic' }}>Attack missed - no damage</span>
                                                 )}
                                             </div>
                                         </>

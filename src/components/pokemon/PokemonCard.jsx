@@ -29,6 +29,14 @@ const PokemonCard = ({
 }) => {
     const [editTab, setEditTab] = useState('info');
     const [speciesSearch, setSpeciesSearch] = useState('');
+    const [speciesTypeFilter, setSpeciesTypeFilter] = useState('all');
+    const [speciesSort, setSpeciesSort] = useState('name'); // 'name', 'bst-high', 'bst-low', 'id'
+    const [showSpeciesDropdown, setShowSpeciesDropdown] = useState(false);
+    // Move selection state
+    const [moveSearch, setMoveSearch] = useState('');
+    const [moveTypeFilter, setMoveTypeFilter] = useState('all');
+    const [moveCategoryFilter, setMoveCategoryFilter] = useState('all');
+    const [showMoveDropdown, setShowMoveDropdown] = useState(false);
 
     const actualStats = useMemo(() => getActualStats(pokemon), [pokemon]);
     const maxHP = useMemo(() => calculatePokemonHP(pokemon), [pokemon]);
@@ -38,14 +46,90 @@ const PokemonCard = ({
     const primaryType = pokemon.types?.[0] || 'Normal';
     const borderColor = getTypeColor(primaryType);
 
-    // Filter species for selection
+    // Pokemon type colors for filter chips
+    const pokemonTypes = ['Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
+
+    // Calculate base stat total
+    const getBaseStatTotal = (pokemon) => {
+        if (!pokemon.baseStats) return 0;
+        const stats = pokemon.baseStats;
+        return (stats.hp || 0) + (stats.atk || 0) + (stats.def || 0) + (stats.satk || 0) + (stats.sdef || 0) + (stats.spd || 0);
+    };
+
+    // Filter and sort species for selection
     const filteredSpecies = useMemo(() => {
-        if (!pokedex || !speciesSearch) return [];
-        const search = speciesSearch.toLowerCase();
-        return pokedex.filter(p =>
-            p.species.toLowerCase().includes(search)
-        ).slice(0, 20);
-    }, [pokedex, speciesSearch]);
+        if (!pokedex) return [];
+
+        let results = [...pokedex];
+
+        // Apply type filter
+        if (speciesTypeFilter !== 'all') {
+            results = results.filter(p =>
+                p.types && p.types.some(t => t.toLowerCase() === speciesTypeFilter.toLowerCase())
+            );
+        }
+
+        // Apply search filter
+        if (speciesSearch) {
+            const search = speciesSearch.toLowerCase();
+            results = results.filter(p =>
+                p.species.toLowerCase().includes(search)
+            );
+        }
+
+        // Apply sorting
+        results.sort((a, b) => {
+            switch (speciesSort) {
+                case 'name':
+                    return a.species.localeCompare(b.species);
+                case 'bst-high':
+                    return getBaseStatTotal(b) - getBaseStatTotal(a);
+                case 'bst-low':
+                    return getBaseStatTotal(a) - getBaseStatTotal(b);
+                case 'id':
+                    return (a.id || 0) - (b.id || 0);
+                default:
+                    return a.species.localeCompare(b.species);
+            }
+        });
+
+        return results.slice(0, 50); // Increased limit
+    }, [pokedex, speciesSearch, speciesTypeFilter, speciesSort]);
+
+    // Filter and sort moves for selection
+    const filteredMoves = useMemo(() => {
+        if (!GAME_DATA?.moves) return [];
+
+        let moves = Object.entries(GAME_DATA.moves);
+
+        // Apply type filter
+        if (moveTypeFilter !== 'all') {
+            moves = moves.filter(([_, data]) =>
+                data.type && data.type.toLowerCase() === moveTypeFilter.toLowerCase()
+            );
+        }
+
+        // Apply category filter
+        if (moveCategoryFilter !== 'all') {
+            moves = moves.filter(([_, data]) =>
+                data.category && data.category.toLowerCase() === moveCategoryFilter.toLowerCase()
+            );
+        }
+
+        // Apply search filter
+        if (moveSearch) {
+            const search = moveSearch.toLowerCase();
+            moves = moves.filter(([name, data]) =>
+                name.toLowerCase().includes(search) ||
+                (data.effect || '').toLowerCase().includes(search)
+            );
+        }
+
+        // Sort alphabetically by name
+        moves.sort((a, b) => a[0].localeCompare(b[0]));
+
+        return moves.slice(0, 100);
+    }, [moveSearch, moveTypeFilter, moveCategoryFilter, GAME_DATA]);
 
     // Get all available abilities from species data
     const getAvailableAbilities = (speciesData) => {
@@ -93,6 +177,8 @@ const PokemonCard = ({
             pokemonSkills: speciesData.skills ? Object.entries(speciesData.skills).map(([name, value]) => ({ name, value })) : []
         });
         setSpeciesSearch('');
+        setShowSpeciesDropdown(false);
+        setSpeciesTypeFilter('all');
     };
 
     // Collapsed view
@@ -201,21 +287,45 @@ const PokemonCard = ({
                     </div>
 
                     {/* Quick Actions */}
-                    <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', gap: '4px', flexDirection: 'column', alignItems: 'flex-end' }}>
                         {canMoveUp && (
-                            <button onClick={(e) => { e.stopPropagation(); onMoveUp(); }} style={quickBtnStyle}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <button onClick={(e) => { e.stopPropagation(); onMoveUp(); }} style={quickBtnLabelStyle}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <polyline points="18 15 12 9 6 15"></polyline>
                                 </svg>
+                                <span>Up</span>
                             </button>
                         )}
                         {canMoveDown && (
-                            <button onClick={(e) => { e.stopPropagation(); onMoveDown(); }} style={quickBtnStyle}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <button onClick={(e) => { e.stopPropagation(); onMoveDown(); }} style={quickBtnLabelStyle}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
+                                <span>Down</span>
                             </button>
                         )}
+                        {/* Move to Party/Reserve Button */}
+                        {isInParty ? (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMoveToReserve && onMoveToReserve(); }}
+                                style={{ ...quickBtnLabelStyle, background: '#fff3e0', borderColor: '#ff9800', color: '#e65100' }}
+                            >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e65100" strokeWidth="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                                <span>Reserve</span>
+                            </button>
+                        ) : canMoveToParty ? (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMoveToParty && onMoveToParty(); }}
+                                style={{ ...quickBtnLabelStyle, background: '#e8f5e9', borderColor: '#4caf50', color: '#2e7d32' }}
+                            >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                <span>Party</span>
+                            </button>
+                        ) : null}
                     </div>
                 </div>
             </div>
@@ -299,42 +409,212 @@ const PokemonCard = ({
                                 Species
                             </label>
                             <div style={{ position: 'relative' }}>
-                                <input
-                                    type="text"
-                                    value={speciesSearch || pokemon.species || ''}
-                                    onChange={(e) => setSpeciesSearch(e.target.value)}
-                                    placeholder="Search species..."
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                />
-                                {speciesSearch && filteredSpecies.length > 0 && (
+                                {/* Search Input */}
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="text"
+                                        value={speciesSearch || (showSpeciesDropdown ? '' : pokemon.species) || ''}
+                                        onChange={(e) => {
+                                            setSpeciesSearch(e.target.value);
+                                            setShowSpeciesDropdown(true);
+                                        }}
+                                        onFocus={() => setShowSpeciesDropdown(true)}
+                                        placeholder="Search species by name..."
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px',
+                                            paddingRight: speciesSearch ? '32px' : '10px',
+                                            borderRadius: '6px',
+                                            border: showSpeciesDropdown ? '2px solid #667eea' : '1px solid #ddd',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                    {speciesSearch && (
+                                        <button
+                                            onClick={() => setSpeciesSearch('')}
+                                            style={{
+                                                position: 'absolute',
+                                                right: '8px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                background: '#999',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '50%',
+                                                width: '20px',
+                                                height: '20px',
+                                                cursor: 'pointer',
+                                                fontSize: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >✕</button>
+                                    )}
+                                </div>
+
+                                {/* Species Dropdown */}
+                                {showSpeciesDropdown && (
                                     <div style={{
                                         position: 'absolute',
                                         top: '100%',
                                         left: 0,
                                         right: 0,
                                         background: 'white',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '6px',
-                                        maxHeight: '200px',
-                                        overflowY: 'auto',
-                                        zIndex: 10
+                                        border: '2px solid #667eea',
+                                        borderTop: 'none',
+                                        borderRadius: '0 0 8px 8px',
+                                        zIndex: 100,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                                     }}>
-                                        {filteredSpecies.map(sp => (
-                                            <div
-                                                key={sp.id}
-                                                onClick={() => handleSelectSpecies(sp)}
-                                                style={{
-                                                    padding: '10px',
-                                                    cursor: 'pointer',
-                                                    borderBottom: '1px solid #eee',
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between'
-                                                }}
-                                            >
-                                                <span style={{ fontWeight: 'bold' }}>{sp.species}</span>
-                                                <span style={{ fontSize: '12px', color: '#666' }}>{sp.types?.join('/')}</span>
+                                        {/* Filter & Sort Controls */}
+                                        <div style={{
+                                            padding: '10px',
+                                            background: '#f8f9fa',
+                                            borderBottom: '1px solid #eee'
+                                        }}>
+                                            {/* Type Filter Chips */}
+                                            <div style={{ marginBottom: '8px' }}>
+                                                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Filter by Type:</div>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                    <button
+                                                        onClick={() => setSpeciesTypeFilter('all')}
+                                                        style={{
+                                                            padding: '4px 8px',
+                                                            borderRadius: '12px',
+                                                            border: 'none',
+                                                            background: speciesTypeFilter === 'all' ? '#667eea' : '#e0e0e0',
+                                                            color: speciesTypeFilter === 'all' ? 'white' : '#666',
+                                                            fontSize: '10px',
+                                                            fontWeight: 'bold',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >All</button>
+                                                    {pokemonTypes.map(type => (
+                                                        <button
+                                                            key={type}
+                                                            onClick={() => setSpeciesTypeFilter(type)}
+                                                            style={{
+                                                                padding: '4px 8px',
+                                                                borderRadius: '12px',
+                                                                border: 'none',
+                                                                background: speciesTypeFilter === type ? getTypeColor(type) : '#e0e0e0',
+                                                                color: speciesTypeFilter === type ? 'white' : '#666',
+                                                                fontSize: '10px',
+                                                                fontWeight: 'bold',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >{type}</button>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        ))}
+
+                                            {/* Sort Controls */}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666' }}>Sort:</span>
+                                                    <select
+                                                        value={speciesSort}
+                                                        onChange={(e) => setSpeciesSort(e.target.value)}
+                                                        style={{
+                                                            padding: '4px 8px',
+                                                            borderRadius: '4px',
+                                                            border: '1px solid #ddd',
+                                                            fontSize: '11px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        <option value="name">Name (A-Z)</option>
+                                                        <option value="id">Dex Number</option>
+                                                        <option value="bst-high">BST (High → Low)</option>
+                                                        <option value="bst-low">BST (Low → High)</option>
+                                                    </select>
+                                                </div>
+                                                <span style={{ fontSize: '10px', color: '#999' }}>
+                                                    {filteredSpecies.length} results
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Species List */}
+                                        <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                            {filteredSpecies.length > 0 ? (
+                                                filteredSpecies.map(sp => (
+                                                    <div
+                                                        key={sp.id}
+                                                        onClick={() => handleSelectSpecies(sp)}
+                                                        style={{
+                                                            padding: '10px 12px',
+                                                            cursor: 'pointer',
+                                                            borderBottom: '1px solid #eee',
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center',
+                                                            transition: 'background 0.15s'
+                                                        }}
+                                                        onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                                    >
+                                                        <div>
+                                                            <span style={{ fontWeight: 'bold' }}>{sp.species}</span>
+                                                            <span style={{ fontSize: '11px', color: '#999', marginLeft: '6px' }}>
+                                                                #{sp.id || '???'}
+                                                            </span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                            {sp.types?.map(t => (
+                                                                <span
+                                                                    key={t}
+                                                                    style={{
+                                                                        padding: '2px 6px',
+                                                                        background: getTypeColor(t),
+                                                                        color: 'white',
+                                                                        borderRadius: '8px',
+                                                                        fontSize: '10px',
+                                                                        fontWeight: 'bold'
+                                                                    }}
+                                                                >{t}</span>
+                                                            ))}
+                                                            <span style={{ fontSize: '10px', color: '#999', marginLeft: '4px' }}>
+                                                                BST: {getBaseStatTotal(sp)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                    {speciesSearch || speciesTypeFilter !== 'all'
+                                                        ? 'No Pokemon match your search/filter'
+                                                        : 'Use filters or search to find Pokemon'}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Close Button */}
+                                        <div style={{
+                                            padding: '8px',
+                                            borderTop: '1px solid #eee',
+                                            background: '#f8f9fa',
+                                            textAlign: 'center'
+                                        }}>
+                                            <button
+                                                onClick={() => {
+                                                    setShowSpeciesDropdown(false);
+                                                    setSpeciesSearch('');
+                                                    setSpeciesTypeFilter('all');
+                                                }}
+                                                style={{
+                                                    padding: '6px 16px',
+                                                    background: '#f44336',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >Close</button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -807,36 +1087,200 @@ const PokemonCard = ({
                         ))}
 
                         {(pokemon.moves || []).length < 6 && (
-                            <div style={{ marginTop: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '6px' }}>
-                                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>Add Move</div>
-                                <select
-                                    onChange={(e) => {
-                                        if (e.target.value) {
-                                            const moveData = GAME_DATA.moves[e.target.value];
-                                            if (moveData) {
-                                                updatePokemon({
-                                                    moves: [...(pokemon.moves || []), {
-                                                        name: e.target.value,
-                                                        type: moveData.type,
-                                                        category: moveData.category,
-                                                        damage: moveData.damage,
-                                                        frequency: moveData.frequency,
-                                                        range: moveData.range,
-                                                        effect: moveData.effect,
-                                                        source: 'taught'
-                                                    }]
-                                                });
-                                            }
-                                            e.target.value = '';
-                                        }
+                            <div style={{ marginTop: '10px', padding: '12px', background: '#f8f9fa', borderRadius: '8px', border: '2px solid #667eea' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '10px', color: '#667eea' }}>Add Move</div>
+
+                                {/* Search Input */}
+                                <div style={{ position: 'relative', marginBottom: '10px' }}>
+                                    <input
+                                        type="text"
+                                        value={moveSearch}
+                                        onChange={(e) => {
+                                            setMoveSearch(e.target.value);
+                                            setShowMoveDropdown(true);
+                                        }}
+                                        onFocus={() => setShowMoveDropdown(true)}
+                                        placeholder="Search moves by name or effect..."
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px',
+                                            paddingRight: moveSearch ? '32px' : '10px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #ddd',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                    {moveSearch && (
+                                        <button
+                                            onClick={() => setMoveSearch('')}
+                                            style={{
+                                                position: 'absolute',
+                                                right: '8px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                background: '#999',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '50%',
+                                                width: '20px',
+                                                height: '20px',
+                                                cursor: 'pointer',
+                                                fontSize: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >✕</button>
+                                    )}
+                                </div>
+
+                                {/* Filter Controls */}
+                                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                    {/* Type Filter */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666' }}>Type:</span>
+                                        <select
+                                            value={moveTypeFilter}
+                                            onChange={(e) => setMoveTypeFilter(e.target.value)}
+                                            style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '4px',
+                                                border: '1px solid #ddd',
+                                                fontSize: '11px',
+                                                cursor: 'pointer',
+                                                background: moveTypeFilter !== 'all' ? getTypeColor(moveTypeFilter) : 'white',
+                                                color: moveTypeFilter !== 'all' ? 'white' : '#333'
+                                            }}
+                                        >
+                                            <option value="all">All</option>
+                                            {pokemonTypes.map(type => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Category Filter */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666' }}>Cat:</span>
+                                        <select
+                                            value={moveCategoryFilter}
+                                            onChange={(e) => setMoveCategoryFilter(e.target.value)}
+                                            style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '4px',
+                                                border: '1px solid #ddd',
+                                                fontSize: '11px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            <option value="all">All</option>
+                                            <option value="Physical">Physical</option>
+                                            <option value="Special">Special</option>
+                                            <option value="Status">Status</option>
+                                        </select>
+                                    </div>
+
+                                    <span style={{ fontSize: '10px', color: '#999', marginLeft: 'auto' }}>
+                                        {filteredMoves.length} moves
+                                    </span>
+                                </div>
+
+                                {/* Move List */}
+                                {showMoveDropdown && (
+                                    <div style={{
+                                        maxHeight: '200px',
+                                        overflowY: 'auto',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '6px',
+                                        background: 'white'
+                                    }}>
+                                        {filteredMoves.length > 0 ? (
+                                            filteredMoves.map(([name, data]) => (
+                                                <div
+                                                    key={name}
+                                                    onClick={() => {
+                                                        updatePokemon({
+                                                            moves: [...(pokemon.moves || []), {
+                                                                name: name,
+                                                                type: data.type,
+                                                                category: data.category,
+                                                                damage: data.damage,
+                                                                frequency: data.frequency,
+                                                                range: data.range,
+                                                                effect: data.effect,
+                                                                source: 'taught'
+                                                            }]
+                                                        });
+                                                        setMoveSearch('');
+                                                        setMoveTypeFilter('all');
+                                                        setMoveCategoryFilter('all');
+                                                    }}
+                                                    style={{
+                                                        padding: '8px 10px',
+                                                        cursor: 'pointer',
+                                                        borderBottom: '1px solid #eee',
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        transition: 'background 0.15s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                                >
+                                                    <div>
+                                                        <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</span>
+                                                        <div style={{ fontSize: '10px', color: '#666' }}>
+                                                            {data.damage || 'Status'} | {data.frequency || 'At-Will'}
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                        <span style={{
+                                                            padding: '2px 6px',
+                                                            background: getTypeColor(data.type),
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            fontSize: '9px',
+                                                            fontWeight: 'bold'
+                                                        }}>{data.type}</span>
+                                                        <span style={{
+                                                            padding: '2px 6px',
+                                                            background: data.category === 'Physical' ? '#e65100' : data.category === 'Special' ? '#1565c0' : '#616161',
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            fontSize: '9px',
+                                                            fontWeight: 'bold'
+                                                        }}>{data.category?.charAt(0) || '?'}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                {moveSearch || moveTypeFilter !== 'all' || moveCategoryFilter !== 'all'
+                                                    ? 'No moves match your filters'
+                                                    : 'Search or filter to find moves'}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Toggle Button */}
+                                <button
+                                    onClick={() => setShowMoveDropdown(!showMoveDropdown)}
+                                    style={{
+                                        width: '100%',
+                                        marginTop: '8px',
+                                        padding: '6px',
+                                        background: showMoveDropdown ? '#f44336' : '#667eea',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer'
                                     }}
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 >
-                                    <option value="">Select a move...</option>
-                                    {Object.entries(GAME_DATA.moves || {}).slice(0, 100).map(([name, data]) => (
-                                        <option key={name} value={name}>{name} ({data.type})</option>
-                                    ))}
-                                </select>
+                                    {showMoveDropdown ? '▲ Hide Moves' : '▼ Browse Moves'}
+                                </button>
                             </div>
                         )}
                     </div>
@@ -1001,6 +1445,21 @@ const quickBtnStyle = {
     alignItems: 'center',
     justifyContent: 'center',
     color: '#666'
+};
+
+const quickBtnLabelStyle = {
+    padding: '4px 8px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    background: 'white',
+    cursor: 'pointer',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    color: '#666',
+    whiteSpace: 'nowrap'
 };
 
 const statBtnStyle = {

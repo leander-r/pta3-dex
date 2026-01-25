@@ -61,7 +61,7 @@ const Header = ({
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Close menu when clicking outside
+    // Close menu when clicking/touching outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -71,9 +71,11 @@ const Header = ({
 
         if (showCharacterMenu) {
             document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside, { passive: true });
         }
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
         };
     }, [showCharacterMenu]);
 
@@ -83,9 +85,11 @@ const Header = ({
             disabled={disabled}
             onMouseEnter={() => setHoveredItem(id)}
             onMouseLeave={() => setHoveredItem(null)}
+            onTouchStart={() => setHoveredItem(id)}
+            onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
             style={{
                 width: '100%',
-                padding: '12px 18px',
+                padding: '14px 18px',
                 background: hoveredItem === id ? (danger ? '#ffebee' : '#fff8e7') : 'transparent',
                 border: 'none',
                 textAlign: 'left',
@@ -98,7 +102,9 @@ const Header = ({
                 color: danger ? '#e53935' : (disabled ? '#bbb' : '#2d2d2d'),
                 opacity: disabled ? 0.5 : 1,
                 transition: 'all 0.15s ease',
-                borderLeft: hoveredItem === id && !danger ? '3px solid #f5a623' : '3px solid transparent'
+                borderLeft: hoveredItem === id && !danger ? '3px solid #f5a623' : '3px solid transparent',
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation'
             }}
         >
             <span style={{
@@ -241,12 +247,15 @@ const Header = ({
                 </div>
 
                 {/* Menu Button */}
-                <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
+                <div style={{ position: 'relative', flexShrink: 0, zIndex: 101 }} ref={menuRef}>
                     <button
-                        onClick={() => setShowCharacterMenu(!showCharacterMenu)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowCharacterMenu(prev => !prev);
+                        }}
                         style={{
-                            width: isMobile ? '34px' : (isScrolled ? '36px' : '42px'),
-                            height: isMobile ? '34px' : (isScrolled ? '36px' : '42px'),
+                            width: isMobile ? '44px' : (isScrolled ? '36px' : '42px'),
+                            height: isMobile ? '44px' : (isScrolled ? '36px' : '42px'),
                             background: showCharacterMenu ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.9)',
                             border: '2px solid rgba(255,255,255,0.5)',
                             borderRadius: isMobile ? '8px' : '12px',
@@ -255,18 +264,23 @@ const Header = ({
                             alignItems: 'center',
                             justifyContent: 'center',
                             transition: 'all 0.25s ease',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            WebkitTapHighlightColor: 'transparent',
+                            touchAction: 'manipulation',
+                            pointerEvents: 'auto',
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none'
                         }}
                     >
                         <svg
-                            width={isMobile ? "16" : (isScrolled ? "18" : "20")}
-                            height={isMobile ? "16" : (isScrolled ? "18" : "20")}
+                            width={isMobile ? "18" : (isScrolled ? "18" : "20")}
+                            height={isMobile ? "18" : (isScrolled ? "18" : "20")}
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke={showCharacterMenu ? '#e8941c' : '#f5a623'}
                             strokeWidth="2.5"
                             strokeLinecap="round"
-                            style={{ transition: 'all 0.25s ease' }}
+                            style={{ transition: 'all 0.25s ease', pointerEvents: 'none' }}
                         >
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -394,9 +408,11 @@ const Header = ({
                                 <label
                                     onMouseEnter={() => setHoveredItem('import')}
                                     onMouseLeave={() => setHoveredItem(null)}
+                                    onTouchStart={() => setHoveredItem('import')}
+                                    onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
                                     style={{
                                         width: '100%',
-                                        padding: '12px 18px',
+                                        padding: '14px 18px',
                                         background: hoveredItem === 'import' ? '#fff8e7' : 'transparent',
                                         border: 'none',
                                         textAlign: 'left',
@@ -409,7 +425,9 @@ const Header = ({
                                         color: '#2d2d2d',
                                         transition: 'all 0.15s ease',
                                         boxSizing: 'border-box',
-                                        borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent'
+                                        borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent',
+                                        WebkitTapHighlightColor: 'transparent',
+                                        touchAction: 'manipulation'
                                     }}
                                 >
                                     <span style={{

@@ -12,6 +12,9 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
     const [itemSearch, setItemSearch] = useState('');
     const [addQuantity, setAddQuantity] = useState(1);
     const [expandedItem, setExpandedItem] = useState(null);
+    // New states for add item panel
+    const [addItemFilter, setAddItemFilter] = useState('all');
+    const [addItemSort, setAddItemSort] = useState('name'); // 'name', 'price-low', 'price-high', 'type'
 
     // Get unique item types from GAME_DATA dynamically
     const availableTypes = useMemo(() => {
@@ -78,15 +81,47 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
         return result;
     }, [inventory, filter, searchQuery]);
 
-    // Available items from game data
+    // Available items from game data with filtering and sorting
     const availableItems = useMemo(() => {
-        return Object.entries(GAME_DATA.items || {})
-            .filter(([name, _]) => {
-                if (!itemSearch) return true;
-                return name.toLowerCase().includes(itemSearch.toLowerCase());
-            })
-            .slice(0, 50);
-    }, [itemSearch]);
+        let items = Object.entries(GAME_DATA.items || {});
+
+        // Apply type filter
+        if (addItemFilter !== 'all') {
+            items = items.filter(([_, data]) => {
+                const itemType = (data.type || 'misc').toLowerCase();
+                return itemType === addItemFilter;
+            });
+        }
+
+        // Apply search filter
+        if (itemSearch) {
+            const search = itemSearch.toLowerCase();
+            items = items.filter(([name, data]) =>
+                name.toLowerCase().includes(search) ||
+                (data.effect || '').toLowerCase().includes(search)
+            );
+        }
+
+        // Apply sorting
+        items.sort((a, b) => {
+            const [nameA, dataA] = a;
+            const [nameB, dataB] = b;
+            switch (addItemSort) {
+                case 'name':
+                    return nameA.localeCompare(nameB);
+                case 'price-low':
+                    return (dataA.price || 0) - (dataB.price || 0);
+                case 'price-high':
+                    return (dataB.price || 0) - (dataA.price || 0);
+                case 'type':
+                    return (dataA.type || 'misc').localeCompare(dataB.type || 'misc') || nameA.localeCompare(nameB);
+                default:
+                    return nameA.localeCompare(nameB);
+            }
+        });
+
+        return items.slice(0, 100); // Increased limit
+    }, [itemSearch, addItemFilter, addItemSort]);
 
     const handleAddItem = (itemName, itemData = {}, quantity = 1) => {
         const qty = Math.max(1, parseInt(quantity) || 1);
@@ -213,14 +248,39 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                 {/* Add Item Panel */}
                 {showAddItem && (
                     <div style={{ marginBottom: '15px', padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '2px solid #667eea' }}>
+                        {/* Search and Quantity Row */}
                         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                            <input
-                                type="text"
-                                placeholder="Search items to add..."
-                                value={itemSearch}
-                                onChange={(e) => setItemSearch(e.target.value)}
-                                style={{ flex: 1, padding: '10px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
-                            />
+                            <div style={{ flex: 1, position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Search items by name or effect..."
+                                    value={itemSearch}
+                                    onChange={(e) => setItemSearch(e.target.value)}
+                                    style={{ width: '100%', padding: '10px 12px', paddingRight: itemSearch ? '32px' : '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box' }}
+                                />
+                                {itemSearch && (
+                                    <button
+                                        onClick={() => setItemSearch('')}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '8px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: '#999',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '20px',
+                                            height: '20px',
+                                            cursor: 'pointer',
+                                            fontSize: '12px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >✕</button>
+                                )}
+                            </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'white', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd' }}>
                                 <span style={{ fontSize: '12px', color: '#666' }}>Qty:</span>
                                 <input
@@ -231,6 +291,72 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                     style={{ width: '50px', padding: '4px', borderRadius: '4px', border: '1px solid #ddd', textAlign: 'center', fontWeight: 'bold' }}
                                 />
                             </div>
+                        </div>
+
+                        {/* Filter and Sort Row */}
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                            {/* Type Filter */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Type:</span>
+                                <select
+                                    value={addItemFilter}
+                                    onChange={(e) => setAddItemFilter(e.target.value)}
+                                    style={{
+                                        padding: '6px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #ddd',
+                                        background: addItemFilter !== 'all' ? getTypeColor(addItemFilter) : 'white',
+                                        color: addItemFilter !== 'all' ? 'white' : '#333',
+                                        fontWeight: 'bold',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        textTransform: 'capitalize'
+                                    }}
+                                >
+                                    <option value="all">All Types</option>
+                                    <option value="healing">Healing</option>
+                                    <option value="medicine">Medicine</option>
+                                    <option value="ball">Poke Ball</option>
+                                    <option value="pokeball">Pokeball</option>
+                                    <option value="battle">Battle</option>
+                                    <option value="berry">Berry</option>
+                                    <option value="held">Held Item</option>
+                                    <option value="hold item">Hold Item</option>
+                                    <option value="evolution">Evolution</option>
+                                    <option value="key">Key Item</option>
+                                    <option value="tm">TM</option>
+                                    <option value="food">Food</option>
+                                    <option value="misc">Misc</option>
+                                </select>
+                            </div>
+
+                            {/* Sort */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Sort:</span>
+                                <select
+                                    value={addItemSort}
+                                    onChange={(e) => setAddItemSort(e.target.value)}
+                                    style={{
+                                        padding: '6px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #ddd',
+                                        background: 'white',
+                                        fontWeight: 'bold',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <option value="name">Name (A-Z)</option>
+                                    <option value="price-low">Price (Low → High)</option>
+                                    <option value="price-high">Price (High → Low)</option>
+                                    <option value="type">Type</option>
+                                </select>
+                            </div>
+
+                            {/* Results count */}
+                            <span style={{ fontSize: '11px', color: '#999', marginLeft: 'auto' }}>
+                                {availableItems.length} items
+                            </span>
                         </div>
 
                         <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
@@ -355,9 +481,11 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                 </div>
                             )}
 
-                            {availableItems.length === 0 && !itemSearch && (
+                            {availableItems.length === 0 && (
                                 <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                                    Start typing to search for items...
+                                    {itemSearch || addItemFilter !== 'all'
+                                        ? 'No items match your search/filter'
+                                        : 'Browse items using the filters above or search by name'}
                                 </div>
                             )}
                         </div>
