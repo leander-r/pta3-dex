@@ -1570,7 +1570,9 @@ const PokemonCard = ({
                                                     }}
                                                 >
                                                     <div>
-                                                        <div style={{ fontWeight: 'bold' }}>{evo.species}</div>
+                                                        <div style={{ fontWeight: 'bold' }}>
+                                                            {evo.regionalForm ? `${evo.regionalForm} ${evo.species}` : evo.species}
+                                                        </div>
                                                         <div style={{ fontSize: '11px', color: '#666' }}>
                                                             {evo.reason || evo.requirement}
                                                             {evo.note && ` (${evo.note})`}

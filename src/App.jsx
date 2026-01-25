@@ -767,13 +767,17 @@ const getEvolutionOptions = (pokemon) => {
     // Check evolution options
     if (evolutionData.evolvesTo) {
         evolutionData.evolvesTo.forEach(evo => {
+            // Special case: Pikachu can evolve into both normal Raichu and Alolan Raichu
+            // even though there's no Alolan Pikachu (only Pokemon where this happens)
+            const isPikachuToAlolanRaichu = species === 'Pikachu' && evo.species === 'Raichu' && evo.regionalForm === 'Alolan';
+
             // Filter by regional form if applicable
-            if (evo.regionalForm && evo.regionalForm !== regionalForm) {
+            if (evo.regionalForm && evo.regionalForm !== regionalForm && !isPikachuToAlolanRaichu) {
                 // This evolution is for a different regional form
                 // Only show if the Pokemon IS that regional form
                 if (regionalForm !== evo.regionalForm) return;
             }
-            
+
             // For non-regional evolutions, show if Pokemon has no regional form or matches
             if (!evo.regionalForm && regionalForm) {
                 // Normal evolution but Pokemon is regional - check if regional form has same evo
