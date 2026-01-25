@@ -453,16 +453,16 @@ useEffect(() => {
 }, [discordWebhook.url, discordWebhook.enabled]);
 
 // Send roll result to Discord webhook
-const sendToDiscord = async (roll) => {
+const sendToDiscord = useCallback(async (roll) => {
     if (!discordWebhook.enabled || !discordWebhook.url) return;
-    
+
     try {
         // Build the embed based on roll type
         let embed = {
             timestamp: new Date().toISOString(),
-            footer: { text: `${trainer.name || 'Trainer'} • PTA Manager` }
+            footer: { text: `${trainer?.name || 'Trainer'} • PTA Manager` }
         };
-        
+
         // Color based on roll type
         const colors = {
             pokemon: 0xF5A623,      // Orange
@@ -474,31 +474,41 @@ const sendToDiscord = async (roll) => {
             pokemonSkill: 0x9B59B6  // Purple
         };
         embed.color = colors[roll.type] || 0x667EEA;
-        
+
         // Build title and description based on roll type
         if (roll.type === 'pokemon') {
             embed.title = `🎲 ${roll.pokemon} used ${roll.move}!`;
-            embed.fields = [
-                { name: '📊 Damage Roll', value: `**${roll.total}** damage`, inline: true },
-                { name: '🎯 Accuracy', value: roll.isCrit ? `**${roll.accRoll}** - CRITICAL HIT! 💥` : `**${roll.accRoll}**`, inline: true },
-                { name: '🎲 Dice', value: `${roll.dice} → [${roll.rolls.join(', ')}] = ${roll.diceTotal}`, inline: false }
-            ];
-            
-            let breakdown = [];
-            if (roll.statBonus) breakdown.push(`+${roll.statBonus} stat`);
-            if (roll.stabBonus) breakdown.push(`+${roll.stabBonus} STAB`);
-            if (breakdown.length > 0) {
-                embed.fields.push({ name: '📈 Bonuses', value: breakdown.join(', '), inline: true });
+
+            // Handle hit/miss from accuracy check
+            if (roll.isHit === false) {
+                embed.description = `**MISS!** (Rolled ${roll.accRoll}${roll.accModifier ? ` + ${roll.accModifier}` : ''} = ${roll.modifiedAccRoll || roll.accRoll} vs AC ${roll.moveAC})`;
+                embed.color = 0x95A5A6; // Gray for miss
+            } else {
+                embed.fields = [
+                    { name: '📊 Damage Roll', value: `**${roll.total}** damage`, inline: true },
+                    { name: '🎯 Accuracy', value: roll.isCrit ? `**${roll.accRoll}** - CRITICAL HIT! 💥` : `**${roll.accRoll}** vs AC ${roll.moveAC}${roll.acWasOverridden ? ' (DM)' : ''}`, inline: true }
+                ];
+
+                if (roll.dice && roll.rolls) {
+                    embed.fields.push({ name: '🎲 Dice', value: `${roll.dice} → [${roll.rolls.join(', ')}] = ${roll.diceTotal}`, inline: false });
+                }
+
+                let breakdown = [];
+                if (roll.statBonus) breakdown.push(`+${roll.statBonus} stat`);
+                if (roll.stabBonus) breakdown.push(`+${roll.stabBonus} STAB`);
+                if (breakdown.length > 0) {
+                    embed.fields.push({ name: '📈 Bonuses', value: breakdown.join(', '), inline: true });
+                }
+
+                embed.fields.push({ name: '⚔️ Type', value: `${roll.moveType} (${roll.category})`, inline: true });
             }
-            
-            embed.fields.push({ name: '⚔️ Type', value: `${roll.moveType} (${roll.category})`, inline: true });
-            
+
         } else if (roll.type === 'accuracy') {
             embed.title = `🎯 ${roll.pokemon} - Accuracy Check`;
-            embed.description = roll.isCrit 
-                ? `**${roll.total}** - CRITICAL HIT! 💥` 
+            embed.description = roll.isCrit
+                ? `**${roll.total}** - CRITICAL HIT! 💥`
                 : `**${roll.total}**`;
-            
+
         } else if (roll.type === 'trainer_skill' || roll.type === 'trainer') {
             embed.title = `🧑‍🏫 Trainer Skill: ${roll.skill}`;
             embed.fields = [
@@ -511,11 +521,11 @@ const sendToDiscord = async (roll) => {
             if (roll.skillStat) {
                 embed.fields.push({ name: '📈 Stat', value: roll.skillStat, inline: true });
             }
-            
+
         } else if (roll.type === 'trainer_d20') {
             embed.title = `🎯 Trainer: ${roll.skill}`;
             embed.description = `Rolled **${roll.total}** on d20`;
-            
+
         } else if (roll.type === 'pokemonSkill') {
             embed.title = `🐾 ${roll.pokemon} - ${roll.skill}`;
             embed.fields = [
@@ -525,7 +535,7 @@ const sendToDiscord = async (roll) => {
             if (roll.modifier) {
                 embed.fields.push({ name: '📈 Modifier', value: `+${roll.modifier}`, inline: true });
             }
-            
+
         } else if (roll.type === 'custom') {
             embed.title = `🎲 Custom Roll: ${roll.dice}`;
             embed.fields = [
@@ -533,7 +543,7 @@ const sendToDiscord = async (roll) => {
                 { name: '📊 Rolls', value: `[${roll.rolls.join(', ')}]`, inline: true }
             ];
         }
-        
+
         // Send to Discord
         await fetch(discordWebhook.url, {
             method: 'POST',
@@ -544,11 +554,11 @@ const sendToDiscord = async (roll) => {
                 embeds: [embed]
             })
         });
-        
+
     } catch (error) {
         console.error('Failed to send to Discord:', error);
     }
-};
+}, [discordWebhook.enabled, discordWebhook.url, trainer?.name]);
 
 // Initialize activeTrainerId on first load
 useEffect(() => {
