@@ -248,14 +248,10 @@ const Header = ({
 
                 {/* Menu Button */}
                 <div style={{ position: 'relative', flexShrink: 0, zIndex: 101 }} ref={menuRef}>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setShowCharacterMenu(prev => !prev);
-                        }}
+                    <div
+                        onClick={() => setShowCharacterMenu(prev => !prev)}
                         onTouchEnd={(e) => {
                             e.preventDefault();
-                            e.stopPropagation();
                             setShowCharacterMenu(prev => !prev);
                         }}
                         style={{
@@ -272,10 +268,12 @@ const Header = ({
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                             WebkitTapHighlightColor: 'transparent',
                             touchAction: 'manipulation',
-                            pointerEvents: 'auto',
                             userSelect: 'none',
                             WebkitUserSelect: 'none'
                         }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Open menu"
                     >
                         <svg
                             width={isMobile ? "18" : (isScrolled ? "18" : "20")}
@@ -285,13 +283,13 @@ const Header = ({
                             stroke={showCharacterMenu ? '#e8941c' : '#f5a623'}
                             strokeWidth="2.5"
                             strokeLinecap="round"
-                            style={{ transition: 'all 0.25s ease', pointerEvents: 'none' }}
+                            style={{ transition: 'all 0.25s ease', pointerEvents: 'none', display: 'block' }}
                         >
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
-                    </button>
+                    </div>
 
                     {/* Dropdown Menu */}
                     {showCharacterMenu && (
