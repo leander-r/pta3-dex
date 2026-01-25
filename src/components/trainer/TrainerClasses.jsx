@@ -170,6 +170,10 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
                     {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
                 </span>
             </h3>
+            <p style={{ fontSize: '11px', color: '#666', marginBottom: '12px', marginTop: '-5px' }}>
+                Classes unlock features and skills. Lv1-4: 1 class | Lv5-11: 2 | Lv12-23: 3 | Lv24+: 4.
+                {currentClasses.length >= 1 && ' Additional classes cost 1 feat point.'}
+            </p>
 
             {/* Current Classes */}
             {currentClasses.length > 0 && (

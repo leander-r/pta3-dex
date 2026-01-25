@@ -253,6 +253,11 @@ const Header = ({
                             e.stopPropagation();
                             setShowCharacterMenu(prev => !prev);
                         }}
+                        onTouchEnd={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowCharacterMenu(prev => !prev);
+                        }}
                         style={{
                             width: isMobile ? '44px' : (isScrolled ? '36px' : '42px'),
                             height: isMobile ? '44px' : (isScrolled ? '36px' : '42px'),

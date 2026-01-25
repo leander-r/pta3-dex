@@ -78,6 +78,9 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                     {currentFeatures.length} features | {trainer.featPoints || 0} points available
                 </span>
             </h3>
+            <p style={{ fontSize: '11px', color: '#666', marginBottom: '12px', marginTop: '-5px' }}>
+                Features give special abilities. Most cost 1 feat point. "General (Free)" features are free. Green badges are class base features.
+            </p>
 
             {/* Current Features */}
             {currentFeatures.length > 0 && (

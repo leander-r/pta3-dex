@@ -54,6 +54,9 @@ const PokemonTab = ({
     return (
         <div>
             <h2 className="section-title">Pokemon</h2>
+            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px', marginTop: '-5px' }}>
+                Party Pokémon travel with you (max {MAX_PARTY_SIZE}). Reserve stores additional Pokémon for later.
+            </p>
 
             {/* View Toggle */}
             <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap', alignItems: 'center' }}>

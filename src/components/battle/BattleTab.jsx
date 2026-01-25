@@ -271,6 +271,9 @@ const BattleTab = ({
     return (
         <div>
             <h2 className="section-title">Dice Roller</h2>
+            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px', marginTop: '-5px' }}>
+                Roll attacks, skills, and custom dice. Results can be sent to Discord via webhook.
+            </p>
 
             {/* Mode Selector */}
             <div className="tabs" style={{ marginBottom: '15px' }}>
@@ -394,7 +397,12 @@ const BattleTab = ({
                                             marginBottom: showCombatStages ? '8px' : 0
                                         }}
                                     >
-                                        <span style={{ fontSize: '12px', fontWeight: 'bold' }}>Combat Stages</span>
+                                        <div>
+                                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>Combat Stages</span>
+                                            <span style={{ fontSize: '10px', color: '#666', marginLeft: '8px' }}>
+                                                Buffs & debuffs from moves
+                                            </span>
+                                        </div>
                                         <span style={{ fontSize: '11px', color: '#666' }}>
                                             {showCombatStages ? '▲ Hide' : '▼ Show'}
                                         </span>
@@ -408,6 +416,9 @@ const BattleTab = ({
                                         };
                                         return (
                                             <div style={{ background: '#f5f5f5', padding: '10px', borderRadius: '6px' }}>
+                                                <div style={{ fontSize: '10px', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
+                                                    +1 stage = +25% stat | −1 stage = −10% stat | Range: −6 to +6
+                                                </div>
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                                                     {[
                                                         { key: 'atk', label: 'ATK', color: '#f44336' },
@@ -476,7 +487,7 @@ const BattleTab = ({
                                     <span style={{ fontSize: '11px', color: '#666' }}>
                                         (+{calculateSTAB(selectedPokemon.level || 1)} for matching type)
                                     </span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override the move's default Accuracy Class. Higher AC = harder to hit.">
                                         <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>AC Override:</label>
                                         <input
                                             type="number"
@@ -999,7 +1010,10 @@ const BattleTab = ({
                     <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                         {rollHistory.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                                No rolls yet
+                                <div style={{ fontSize: '14px', marginBottom: '8px' }}>No rolls yet</div>
+                                <div style={{ fontSize: '11px' }}>
+                                    Select a Pokémon and move, then click "Roll Attack!" to make your first roll.
+                                </div>
                             </div>
                         ) : (
                             rollHistory.map((roll, idx) => (

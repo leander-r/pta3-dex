@@ -74,6 +74,19 @@ const TrainerProfile = ({
             <h3 className="section-title-purple">
                 <span>👤</span> Profile
             </h3>
+            {isLevel0 && (
+                <div style={{
+                    background: 'linear-gradient(135deg, #fff3e0, #ffe0b2)',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    marginBottom: '12px',
+                    fontSize: '12px',
+                    color: '#e65100',
+                    border: '1px solid #ffcc80'
+                }}>
+                    <strong>Character Creation:</strong> Allocate your stat points (30 total, range 6-14), select a class, then level up to start playing!
+                </div>
+            )}
 
             {/* Avatar and Name Row */}
             <div className="trainer-profile-row" style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
@@ -208,11 +221,11 @@ const TrainerProfile = ({
 
             {/* Quick Stats */}
             <div className="trainer-quick-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '15px' }}>
-                <div style={{ textAlign: 'center', padding: '10px', background: '#fff', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center', padding: '10px', background: '#fff', borderRadius: '8px' }} title="Max HP = (HP stat × 4) + (Level × 4)">
                     <div style={{ fontSize: '10px', color: '#666' }}>MAX HP</div>
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e53935' }}>{calculateMaxHP()}</div>
                 </div>
-                <div style={{ textAlign: 'center', padding: '10px', background: '#fff', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center', padding: '10px', background: '#fff', borderRadius: '8px' }} title="Feat points are used to buy features. Gain points from leveling up.">
                     <div style={{ fontSize: '10px', color: '#666' }}>FEAT PTS</div>
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: trainer.featPoints > 0 ? '#4caf50' : '#999' }}>{trainer.featPoints || 0}</div>
                 </div>

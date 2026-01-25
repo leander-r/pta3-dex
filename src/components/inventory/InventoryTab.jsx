@@ -200,6 +200,9 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
     return (
         <div>
             <h2 className="section-title">Inventory</h2>
+            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px', marginTop: '-5px' }}>
+                Track items, medicine, Poké Balls, and equipment. Tap an item for details or to adjust quantity.
+            </p>
 
             <div className="section-card-purple">
                 <h3 className="section-title-purple">
