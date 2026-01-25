@@ -129,7 +129,7 @@ const TrainerProfile = ({
                             value={trainer.name}
                             onChange={(e) => setTrainer(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="Trainer Name..."
-                            style={{ fontSize: '18px', fontWeight: 'bold', width: '100%' }}
+                            style={{ fontSize: '18px', fontWeight: 'bold', width: '100%', color: '#667eea' }}
                         />
                     </div>
                     <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -144,7 +144,7 @@ const TrainerProfile = ({
                             </label>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <span style={{ fontSize: '12px', color: '#666' }}>Age:</span>
+                            <span style={{ fontSize: '12px', color: '#667eea', fontWeight: '500' }}>Age:</span>
                             <input
                                 type="number"
                                 value={trainer.age || ''}
@@ -152,7 +152,7 @@ const TrainerProfile = ({
                                 placeholder="—"
                                 min="1"
                                 max="999"
-                                style={{ width: '55px', padding: '4px 6px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', textAlign: 'center' }}
+                                style={{ width: '55px', padding: '4px 6px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', textAlign: 'center', color: '#667eea', fontWeight: '500' }}
                             />
                         </div>
                     </div>

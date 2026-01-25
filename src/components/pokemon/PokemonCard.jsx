@@ -47,7 +47,11 @@ const PokemonCard = ({
     const stabBonus = useMemo(() => calculateSTAB(pokemon.level || 1), [pokemon.level]);
 
     const primaryType = pokemon.types?.[0] || 'Normal';
-    const borderColor = getTypeColor(primaryType);
+    const secondaryType = pokemon.types?.[1] || null;
+    const primaryColor = getTypeColor(primaryType);
+    const secondaryColor = secondaryType ? getTypeColor(secondaryType) : primaryColor;
+    // For backwards compatibility
+    const borderColor = primaryColor;
 
     // Pokemon type colors for filter chips
     const pokemonTypes = ['Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
@@ -242,7 +246,12 @@ const PokemonCard = ({
                 style={{
                     background: 'white',
                     borderRadius: '12px',
-                    borderLeft: `5px solid ${borderColor}`,
+                    borderLeft: secondaryType
+                        ? `5px solid ${primaryColor}`
+                        : `5px solid ${primaryColor}`,
+                    borderRight: secondaryType
+                        ? `3px solid ${secondaryColor}`
+                        : 'none',
                     padding: '15px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     cursor: 'pointer'
@@ -255,7 +264,7 @@ const PokemonCard = ({
                         width: '60px',
                         height: '60px',
                         borderRadius: '50%',
-                        background: `linear-gradient(135deg, ${borderColor}, ${borderColor}88)`,
+                        background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -392,14 +401,15 @@ const PokemonCard = ({
             style={{
                 background: 'white',
                 borderRadius: '12px',
-                borderLeft: `5px solid ${borderColor}`,
+                borderLeft: `5px solid ${primaryColor}`,
+                borderRight: secondaryType ? `3px solid ${secondaryColor}` : 'none',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
                 overflow: 'hidden'
             }}
         >
             {/* Header */}
             <div style={{
-                background: `linear-gradient(135deg, ${borderColor}, ${borderColor}dd)`,
+                background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                 padding: '15px',
                 color: 'white'
             }}>

@@ -217,7 +217,7 @@ const TrainerCard = ({ trainer, pokemon }) => (
                 {!trainer.avatar && '👤'}
             </div>
             <div style={{ flex: 1 }}>
-                <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 800, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+                <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 800, textShadow: '0 2px 8px rgba(0,0,0,0.3)', color: 'white' }}>
                     {trainer.name || 'Unnamed Trainer'}
                     <span style={{ marginLeft: '8px', fontSize: '22px', opacity: 0.9 }}>
                         {trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : ''}
@@ -442,7 +442,7 @@ const TeamCard = ({ trainer, party }) => (
                 {!trainer.avatar && '👤'}
             </div>
             <div style={{ flex: 1 }}>
-                <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 700, textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}>
+                <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 700, textShadow: '0 2px 4px rgba(0,0,0,0.4)', color: 'white' }}>
                     {trainer.name || 'Unnamed Trainer'}
                     <span style={{ marginLeft: '8px', fontSize: '18px', opacity: 0.8 }}>
                         {trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : ''}
@@ -538,11 +538,15 @@ const TeamPokemonSlot = ({ poke, idx }) => {
     const currentHP = maxHP - (poke.currentDamage || 0);
     const hpPercent = (currentHP / maxHP) * 100;
     const primaryType = poke.types?.[0] || 'Normal';
+    const secondaryType = poke.types?.[1];
     const genderIcon = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : '';
+    const bgGradient = secondaryType
+        ? `linear-gradient(145deg, ${getTypeColor(primaryType)}cc, ${getTypeColor(secondaryType)}cc)`
+        : `linear-gradient(145deg, ${getTypeColor(primaryType)}cc, ${getTypeColor(primaryType)}66)`;
 
     return (
         <div style={{
-            background: `linear-gradient(145deg, ${getTypeColor(primaryType)}cc, ${getTypeColor(primaryType)}66)`,
+            background: bgGradient,
             borderRadius: '12px',
             padding: '12px',
             border: '2px solid rgba(255,255,255,0.25)',
@@ -669,27 +673,32 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                 </div>
             </div>
 
-            {/* Key stats */}
+            {/* All 6 stats */}
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '4px',
+                gap: '3px',
                 marginTop: '8px',
                 fontSize: '9px',
                 textAlign: 'center'
             }}>
-                <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '6px', padding: '3px' }}>
-                    <div style={{ opacity: 0.7, fontSize: '8px' }}>ATK</div>
-                    <div style={{ fontWeight: 700 }}>{pokeStats.atk}</div>
-                </div>
-                <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '6px', padding: '3px' }}>
-                    <div style={{ opacity: 0.7, fontSize: '8px' }}>DEF</div>
-                    <div style={{ fontWeight: 700 }}>{pokeStats.def}</div>
-                </div>
-                <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '6px', padding: '3px' }}>
-                    <div style={{ opacity: 0.7, fontSize: '8px' }}>SPD</div>
-                    <div style={{ fontWeight: 700 }}>{pokeStats.spd}</div>
-                </div>
+                {[
+                    { label: 'HP', value: pokeStats.hp, color: '#ef5350' },
+                    { label: 'ATK', value: pokeStats.atk, color: '#ff7043' },
+                    { label: 'DEF', value: pokeStats.def, color: '#66bb6a' },
+                    { label: 'SATK', value: pokeStats.satk, color: '#42a5f5' },
+                    { label: 'SDEF', value: pokeStats.sdef, color: '#ab47bc' },
+                    { label: 'SPD', value: pokeStats.spd, color: '#26c6da' }
+                ].map(stat => (
+                    <div key={stat.label} style={{
+                        background: `linear-gradient(135deg, ${stat.color}aa, ${stat.color}66)`,
+                        borderRadius: '4px',
+                        padding: '2px 3px'
+                    }}>
+                        <div style={{ opacity: 0.9, fontSize: '7px', fontWeight: 600 }}>{stat.label}</div>
+                        <div style={{ fontWeight: 700, fontSize: '10px' }}>{stat.value}</div>
+                    </div>
+                ))}
             </div>
         </div>
     );
@@ -814,7 +823,7 @@ const PokemonCard = ({ poke }) => {
                     {!poke.avatar && '?'}
                 </div>
                 <div style={{ flex: 1 }}>
-                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800, textShadow: '0 3px 6px rgba(0,0,0,0.4)' }}>
+                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800, textShadow: '0 3px 6px rgba(0,0,0,0.4)', color: 'white' }}>
                         {poke.name} <span style={{ opacity: 0.9 }}>{genderSymbol}</span>
                     </h2>
                     {poke.species && poke.species !== poke.name && (
