@@ -786,8 +786,12 @@ const getEvolutionOptions = (pokemon) => {
             // even though there's no Alolan Pikachu (only Pokemon where this happens)
             const isPikachuToAlolanRaichu = species === 'Pikachu' && evo.species === 'Raichu' && evo.regionalForm === 'Alolan';
 
+            // Special case: Rockruff can evolve into any Lycanroc form (Day/Night/Dusk)
+            // The form is a player choice, not based on the Pokemon's current form
+            const isRockruffToLycanroc = species === 'Rockruff' && evo.species === 'Lycanroc';
+
             // Filter by regional form if applicable
-            if (evo.regionalForm && evo.regionalForm !== regionalForm && !isPikachuToAlolanRaichu) {
+            if (evo.regionalForm && evo.regionalForm !== regionalForm && !isPikachuToAlolanRaichu && !isRockruffToLycanroc) {
                 // This evolution is for a different regional form
                 // Only show if the Pokemon IS that regional form
                 if (regionalForm !== evo.regionalForm) return;
