@@ -316,20 +316,11 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                         textTransform: 'capitalize'
                                     }}
                                 >
-                                    <option value="all">All Types</option>
-                                    <option value="healing">Healing</option>
-                                    <option value="medicine">Medicine</option>
-                                    <option value="ball">Poke Ball</option>
-                                    <option value="pokeball">Pokeball</option>
-                                    <option value="battle">Battle</option>
-                                    <option value="berry">Berry</option>
-                                    <option value="held">Held Item</option>
-                                    <option value="hold item">Hold Item</option>
-                                    <option value="evolution">Evolution</option>
-                                    <option value="key">Key Item</option>
-                                    <option value="tm">TM</option>
-                                    <option value="food">Food</option>
-                                    <option value="misc">Misc</option>
+                                    {availableTypes.map(cat => (
+                                        <option key={cat} value={cat}>
+                                            {cat === 'all' ? 'All Types' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
 
