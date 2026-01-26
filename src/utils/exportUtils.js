@@ -352,18 +352,18 @@ const IMPORT_LIMITS = {
 };
 
 /**
- * Valid Pokemon types for validation
+ * Standard Pokemon types (used as reference, but homebrew types allowed)
  */
-const VALID_TYPES = [
+const STANDARD_TYPES = [
     'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
     'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug',
     'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'
 ];
 
 /**
- * Valid natures for validation
+ * Standard natures (used as reference, but homebrew natures allowed)
  */
-const VALID_NATURES = [
+const STANDARD_NATURES = [
     'Hardy', 'Lonely', 'Brave', 'Adamant', 'Naughty',
     'Bold', 'Docile', 'Relaxed', 'Impish', 'Lax',
     'Timid', 'Hasty', 'Serious', 'Jolly', 'Naive',
@@ -372,7 +372,7 @@ const VALID_NATURES = [
 ];
 
 /**
- * Valid genders
+ * Valid genders (strict - no homebrew needed for genders)
  */
 const VALID_GENDERS = ['', 'male', 'female', 'genderless'];
 
@@ -388,6 +388,24 @@ const sanitizeString = (str, maxLength = IMPORT_LIMITS.MAX_STRING_LENGTH) => {
     clean = clean.replace(/on\w+=/gi, '');
     // Trim and limit length
     return clean.trim().substring(0, maxLength);
+};
+
+/**
+ * Sanitize a type string - allows homebrew types but sanitizes them
+ */
+const sanitizeType = (type) => {
+    if (typeof type !== 'string') return 'Normal';
+    const sanitized = sanitizeString(type, 30);
+    return sanitized || 'Normal';
+};
+
+/**
+ * Sanitize a nature string - allows homebrew natures but sanitizes them
+ */
+const sanitizeNature = (nature) => {
+    if (typeof nature !== 'string') return 'Hardy';
+    const sanitized = sanitizeString(nature, 30);
+    return sanitized || 'Hardy';
 };
 
 /**
@@ -417,19 +435,34 @@ const validateStats = (stats, maxValue) => {
 
 /**
  * Validate and sanitize a move object
+ * Allows homebrew moves with custom types/categories while sanitizing all text
  */
 const validateMove = (move) => {
     if (!move || typeof move !== 'object') return null;
 
+    // For category, prefer standard values but allow homebrew
+    let category = sanitizeString(move.category || '', 30);
+    if (!category || !['Physical', 'Special', 'Status'].includes(category)) {
+        // If it's a non-standard category, keep it (homebrew) but sanitize
+        category = category || 'Physical';
+    }
+
+    // For source, prefer standard values but allow homebrew
+    let source = sanitizeString(move.source || '', 20);
+    if (!['natural', 'taught', 'tm', 'egg'].includes(source)) {
+        source = source || 'taught';
+    }
+
     return {
         name: sanitizeString(move.name || 'Unknown Move', 50),
-        type: VALID_TYPES.includes(move.type) ? move.type : 'Normal',
-        category: ['Physical', 'Special', 'Status'].includes(move.category) ? move.category : 'Physical',
-        damage: sanitizeString(move.damage || '', 20),
+        type: sanitizeType(move.type), // Allows homebrew types
+        category,
+        damage: sanitizeString(move.damage || '', 30),
         frequency: sanitizeString(move.frequency || '', 30),
         range: sanitizeString(move.range || '', 50),
         effect: sanitizeString(move.effect || '', 500),
-        source: ['natural', 'taught', 'tm', 'egg'].includes(move.source) ? move.source : 'taught'
+        description: sanitizeString(move.description || '', 1000), // Allow move descriptions
+        source
     };
 };
 
@@ -506,12 +539,13 @@ export const importSinglePokemon = (jsonData) => {
 
         const pokemon = data.pokemon;
 
-        // Validate and sanitize types array
+        // Validate and sanitize types array (allows homebrew types)
         let types = ['Normal'];
         if (Array.isArray(pokemon.types)) {
             types = pokemon.types
-                .filter(t => VALID_TYPES.includes(t))
-                .slice(0, 2);
+                .map(t => sanitizeType(t))
+                .filter(t => t && t.length > 0)
+                .slice(0, 3); // Allow up to 3 types for homebrew
             if (types.length === 0) types = ['Normal'];
         }
 
@@ -546,8 +580,8 @@ export const importSinglePokemon = (jsonData) => {
         // Validate gender
         const gender = VALID_GENDERS.includes(pokemon.gender) ? pokemon.gender : '';
 
-        // Validate nature
-        const nature = VALID_NATURES.includes(pokemon.nature) ? pokemon.nature : 'Hardy';
+        // Validate nature (allows homebrew natures)
+        const nature = sanitizeNature(pokemon.nature);
 
         // Create a new Pokemon with sanitized data and a fresh ID
         const importedPokemon = {
