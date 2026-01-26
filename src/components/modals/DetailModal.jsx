@@ -71,23 +71,51 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
             >
                 <div
                     className="modal-header"
-                    style={{ background: getHeaderBackground(), color: 'white' }}
+                    style={{
+                        background: getHeaderBackground(),
+                        color: 'white',
+                        margin: '-25px -25px 20px -25px',
+                        padding: '18px 20px',
+                        borderRadius: '17px 17px 0 0',
+                        borderBottom: 'none'
+                    }}
                 >
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span>{getIcon()}</span>
+                    <h3 style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        margin: 0,
+                        fontSize: '18px',
+                        fontWeight: '800',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                    }}>
+                        <span style={{ fontSize: '22px' }}>{getIcon()}</span>
                         {detailModal.name}
                     </h3>
                     <button
                         onClick={closeModal}
                         style={{
                             background: 'rgba(255,255,255,0.2)',
-                            border: 'none',
-                            fontSize: '20px',
+                            border: '2px solid rgba(255,255,255,0.3)',
+                            fontSize: '18px',
                             cursor: 'pointer',
                             color: 'white',
                             borderRadius: '50%',
-                            width: '30px',
-                            height: '30px'
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease',
+                            fontWeight: 'bold'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.background = 'rgba(255,255,255,0.35)';
+                            e.target.style.transform = 'rotate(90deg)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(255,255,255,0.2)';
+                            e.target.style.transform = 'rotate(0deg)';
                         }}
                     >
                         ×
@@ -125,92 +153,131 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
     );
 };
 
+// Shared styles for info boxes
+const InfoBox = ({ label, icon, children, variant = 'default' }) => {
+    const variants = {
+        default: { bg: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)', border: '#e0e0e0', labelColor: '#666', textColor: '#333' },
+        orange: { bg: 'linear-gradient(135deg, #fff8e7 0%, #fff3e0 100%)', border: '#ffc966', labelColor: '#e65100', textColor: '#bf360c' },
+        purple: { bg: 'linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%)', border: '#ce93d8', labelColor: '#7b1fa2', textColor: '#4a148c' },
+        blue: { bg: 'linear-gradient(135deg, #e3f2fd 0%, #e8eaf6 100%)', border: '#90caf9', labelColor: '#1565c0', textColor: '#0d47a1' },
+        green: { bg: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)', border: '#a5d6a7', labelColor: '#2e7d32', textColor: '#1b5e20' },
+        red: { bg: 'linear-gradient(135deg, #ffebee 0%, #fce4ec 100%)', border: '#ef9a9a', labelColor: '#c62828', textColor: '#b71c1c' },
+        pink: { bg: 'linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%)', border: '#f8bbd9', labelColor: '#ad1457', textColor: '#880e4f' }
+    };
+    const v = variants[variant] || variants.default;
+    return (
+        <div style={{
+            background: v.bg,
+            padding: '14px 16px',
+            borderRadius: '12px',
+            marginBottom: '12px',
+            border: `2px solid ${v.border}`,
+            position: 'relative'
+        }}>
+            <div style={{
+                fontSize: '11px',
+                color: v.labelColor,
+                fontWeight: '700',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+            }}>
+                {icon && <span>{icon}</span>}
+                {label}
+            </div>
+            <div style={{ fontSize: '14px', lineHeight: '1.6', color: v.textColor }}>
+                {children}
+            </div>
+        </div>
+    );
+};
+
+// Stat box for move stats
+const StatBox = ({ label, value, color }) => (
+    <div style={{
+        background: `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`,
+        padding: '12px',
+        borderRadius: '10px',
+        textAlign: 'center',
+        border: `2px solid ${color}30`,
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+    }}>
+        <div style={{ fontSize: '10px', color: color, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
+        <div style={{ fontSize: '18px', fontWeight: '800', color: color, marginTop: '4px' }}>{value}</div>
+    </div>
+);
+
+// Badge component for tags
+const DetailBadge = ({ children, color, textColor = 'white' }) => (
+    <span style={{
+        padding: '5px 14px',
+        borderRadius: '20px',
+        fontSize: '12px',
+        fontWeight: '700',
+        background: `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`,
+        color: textColor,
+        boxShadow: `0 2px 4px ${color}40`,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px'
+    }}>
+        {children}
+    </span>
+);
+
 // Move Details Sub-component
 const MoveDetails = ({ data, getContestTypeColor }) => (
     <div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
-            <span style={{
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                background: getTypeColor(data.type),
-                color: 'white'
-            }}>
+        {/* Type/Category badges */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+            <DetailBadge color={getTypeColor(data.type)}>
                 {data.type}
-            </span>
-            <span style={{
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '12px',
-                background: data.category === 'Physical' ? '#f44336' : data.category === 'Special' ? '#2196f3' : '#9e9e9e',
-                color: 'white'
-            }}>
-                {data.category}
-            </span>
+            </DetailBadge>
+            <DetailBadge color={data.category === 'Physical' ? '#f44336' : data.category === 'Special' ? '#2196f3' : '#9e9e9e'}>
+                {data.category === 'Physical' ? '💪' : data.category === 'Special' ? '✨' : '🔄'} {data.category}
+            </DetailBadge>
             {data.frequency && (
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', background: '#ff9800', color: 'white' }}>
-                    {data.frequency}
-                </span>
+                <DetailBadge color="#ff9800">
+                    ⏱️ {data.frequency}
+                </DetailBadge>
             )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '15px' }}>
+        {/* Stats grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px', marginBottom: '16px' }}>
             {data.damage && (
-                <div style={{ background: '#ffebee', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '10px', color: '#c62828', fontWeight: 'bold' }}>DAMAGE</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#b71c1c' }}>{data.damage}</div>
-                </div>
+                <StatBox label="Damage" value={data.damage} color="#f44336" />
             )}
             {data.ac && (
-                <div style={{ background: '#e3f2fd', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '10px', color: '#1565c0', fontWeight: 'bold' }}>ACCURACY</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0d47a1' }}>{data.ac}</div>
-                </div>
+                <StatBox label="Accuracy" value={data.ac} color="#2196f3" />
             )}
             {data.range && (
-                <div style={{ background: '#f3e5f5', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '10px', color: '#7b1fa2', fontWeight: 'bold' }}>RANGE</div>
-                    <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#4a148c' }}>{data.range}</div>
-                </div>
+                <StatBox label="Range" value={data.range} color="#9c27b0" />
             )}
         </div>
 
         {data.effect && (
-            <div style={{ background: '#e8f5e9', padding: '15px', borderRadius: '8px', marginBottom: '10px' }}>
-                <div style={{ fontSize: '11px', color: '#2e7d32', fontWeight: 'bold', marginBottom: '5px' }}>TARGET / EFFECT</div>
-                <div style={{ fontSize: '14px', lineHeight: '1.5', color: '#1b5e20' }}>{data.effect}</div>
-            </div>
+            <InfoBox label="Target / Effect" icon="🎯" variant="green">
+                {data.effect}
+            </InfoBox>
         )}
 
         {data.description && (
-            <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px', marginBottom: '10px' }}>
-                <div style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', marginBottom: '5px' }}>DESCRIPTION</div>
-                <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#333' }}>{data.description}</div>
-            </div>
+            <InfoBox label="Description" icon="📖" variant="default">
+                {data.description}
+            </InfoBox>
         )}
 
         {(data.contestType || data.contestEffect || data.contest) && (
-            <div style={{
-                background: 'linear-gradient(135deg, #fce4ec, #f3e5f5)',
-                padding: '15px',
-                borderRadius: '8px',
-                marginBottom: '10px',
-                border: '1px solid #f8bbd9'
-            }}>
-                <div style={{ fontSize: '11px', color: '#ad1457', fontWeight: 'bold', marginBottom: '8px' }}>🎭 CONTEST</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+            <InfoBox label="Contest" icon="🎭" variant="pink">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: data.contestEffect || data.contest ? '8px' : 0 }}>
                     {data.contestType && (
-                        <span style={{
-                            padding: '4px 10px',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            background: getContestTypeColor(data.contestType),
-                            color: 'white'
-                        }}>
+                        <DetailBadge color={getContestTypeColor(data.contestType)}>
                             {data.contestType}
-                        </span>
+                        </DetailBadge>
                     )}
                     {data.contestDice && (
                         <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#7b1fa2' }}>
@@ -218,24 +285,15 @@ const MoveDetails = ({ data, getContestTypeColor }) => (
                         </span>
                     )}
                 </div>
-                {data.contestEffect && (
-                    <div style={{ fontSize: '13px', lineHeight: '1.5', color: '#6a1b9a', marginTop: '8px' }}>
-                        {data.contestEffect}
-                    </div>
-                )}
-                {data.contest && !data.contestType && (
-                    <div style={{ fontSize: '13px', lineHeight: '1.5', color: '#6a1b9a' }}>
-                        {data.contest}
-                    </div>
-                )}
-            </div>
+                {data.contestEffect && <div>{data.contestEffect}</div>}
+                {data.contest && !data.contestType && <div>{data.contest}</div>}
+            </InfoBox>
         )}
 
         {data.notes && (
-            <div style={{ background: '#fff3e0', padding: '15px', borderRadius: '8px', marginBottom: '10px', border: '1px solid #ffcc80' }}>
-                <div style={{ fontSize: '11px', color: '#e65100', fontWeight: 'bold', marginBottom: '5px' }}>📝 NOTES</div>
-                <div style={{ fontSize: '13px', lineHeight: '1.5', color: '#bf360c' }}>{data.notes}</div>
-            </div>
+            <InfoBox label="Notes" icon="📝" variant="orange">
+                {data.notes}
+            </InfoBox>
         )}
     </div>
 );
@@ -245,9 +303,17 @@ const FeatureDetails = ({ data, name }) => {
     // Handle missing data gracefully
     if (!data) {
         return (
-            <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
+            <div style={{
+                background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
+                padding: '24px',
+                borderRadius: '12px',
+                border: '2px dashed #e0e0e0',
+                textAlign: 'center'
+            }}>
+                <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>📋</span>
                 <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#666' }}>
-                    Feature data not found in database. This feature may be custom or from an external source.
+                    Feature data not found in database.<br />
+                    <span style={{ fontSize: '12px', color: '#999' }}>This feature may be custom or from an external source.</span>
                 </div>
             </div>
         );
@@ -255,123 +321,214 @@ const FeatureDetails = ({ data, name }) => {
 
     return (
         <div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
+            {/* Badges */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
                 {data.category && (
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: '#667eea', color: 'white' }}>
-                        {data.category}
-                    </span>
+                    <DetailBadge color="#667eea">
+                        📁 {data.category}
+                    </DetailBadge>
                 )}
                 {data.isBase && (
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: '#ff9800', color: 'white' }}>
-                        Base Feature
-                    </span>
+                    <DetailBadge color="#ff9800">
+                        ⭐ Base Feature
+                    </DetailBadge>
                 )}
                 {data.frequency && (
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', background: '#4caf50', color: 'white' }}>
-                        {data.frequency}
-                    </span>
+                    <DetailBadge color="#4caf50">
+                        ⏱️ {data.frequency}
+                    </DetailBadge>
                 )}
             </div>
 
             {data.prerequisites && (
-                <div style={{ background: '#fff3e0', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: '#e65100', fontWeight: 'bold', marginBottom: '3px' }}>PREREQUISITES</div>
-                    <div className="text-13">{data.prerequisites}</div>
-                </div>
+                <InfoBox label="Prerequisites" icon="🔒" variant="orange">
+                    {data.prerequisites}
+                </InfoBox>
             )}
 
             {data.trigger && (
-                <div style={{ background: '#fce4ec', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: '#c2185b', fontWeight: 'bold', marginBottom: '3px' }}>TRIGGER</div>
-                    <div className="text-13">{data.trigger}</div>
-                </div>
+                <InfoBox label="Trigger" icon="⚡" variant="pink">
+                    {data.trigger}
+                </InfoBox>
             )}
 
             {data.target && (
-                <div style={{ background: '#e8eaf6', padding: '12px', borderRadius: '8px', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: '#303f9f', fontWeight: 'bold', marginBottom: '3px' }}>TARGET</div>
-                    <div className="text-13">{data.target}</div>
-                </div>
+                <InfoBox label="Target" icon="🎯" variant="blue">
+                    {data.target}
+                </InfoBox>
             )}
 
             {data.effect && (
-                <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', marginBottom: '5px' }}>EFFECT</div>
-                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{data.effect}</div>
-                </div>
+                <InfoBox label="Effect" icon="✨" variant="purple">
+                    {data.effect}
+                </InfoBox>
             )}
 
             {data.description && !data.effect && (
-                <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', marginBottom: '5px' }}>DESCRIPTION</div>
-                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{data.description}</div>
-                </div>
+                <InfoBox label="Description" icon="📖" variant="default">
+                    {data.description}
+                </InfoBox>
             )}
         </div>
     );
 };
 
 // Ability Details Sub-component
-const AbilityDetails = ({ data }) => (
-    <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
-        <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-            {typeof data === 'string' ? data : data?.effect || data?.description || 'No description available.'}
+const AbilityDetails = ({ data }) => {
+    const description = typeof data === 'string' ? data : data?.effect || data?.description || null;
+    const frequency = data?.frequency;
+    const trigger = data?.trigger;
+
+    return (
+        <div>
+            {/* Frequency/Trigger badges if available */}
+            {(frequency || trigger) && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                    {frequency && (
+                        <DetailBadge color="#9c27b0">
+                            ⏱️ {frequency}
+                        </DetailBadge>
+                    )}
+                    {trigger && (
+                        <DetailBadge color="#e91e63">
+                            ⚡ Trigger
+                        </DetailBadge>
+                    )}
+                </div>
+            )}
+
+            {trigger && (
+                <InfoBox label="Trigger" icon="⚡" variant="pink">
+                    {trigger}
+                </InfoBox>
+            )}
+
+            {description ? (
+                <InfoBox label="Effect" icon="✨" variant="purple">
+                    {description}
+                </InfoBox>
+            ) : (
+                <div style={{
+                    background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    border: '2px dashed #e0e0e0',
+                    textAlign: 'center',
+                    color: '#999'
+                }}>
+                    <span style={{ fontSize: '24px', display: 'block', marginBottom: '8px' }}>📋</span>
+                    No description available for this ability.
+                </div>
+            )}
+
+            {data?.notes && (
+                <InfoBox label="Notes" icon="📝" variant="orange">
+                    {data.notes}
+                </InfoBox>
+            )}
         </div>
-    </div>
-);
+    );
+};
 
 // Skill Details Sub-component
 const SkillDetails = ({ data, getStatColor }) => (
     <div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
+        {/* Stat badge with enhanced styling */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px', alignItems: 'center' }}>
             {data.stat && (
-                <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '20px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    background: getStatColor(data.stat),
-                    color: 'white'
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    borderRadius: '12px',
+                    background: `linear-gradient(135deg, ${getStatColor(data.stat)} 0%, ${getStatColor(data.stat)}dd 100%)`,
+                    color: 'white',
+                    fontWeight: '700',
+                    fontSize: '14px',
+                    boxShadow: `0 3px 8px ${getStatColor(data.stat)}40`
                 }}>
-                    {data.stat}
-                </span>
+                    <span style={{ fontSize: '16px' }}>📊</span>
+                    Uses {data.stat}
+                </div>
             )}
             {data.type && (
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', background: '#e0e0e0', color: '#333' }}>
+                <DetailBadge color="#667eea">
                     {data.type}
-                </span>
+                </DetailBadge>
             )}
         </div>
 
-        <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
-            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                {data.description || 'No description available.'}
+        {/* Roll info */}
+        <div style={{
+            background: 'linear-gradient(135deg, #e3f2fd 0%, #e8eaf6 100%)',
+            padding: '14px 16px',
+            borderRadius: '12px',
+            marginBottom: '12px',
+            border: '2px solid #90caf9',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+        }}>
+            <span style={{ fontSize: '24px' }}>🎲</span>
+            <div>
+                <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Roll</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#0d47a1' }}>2d6 + {data.stat} modifier</div>
             </div>
         </div>
+
+        <InfoBox label="Description" icon="📖" variant="default">
+            {data.description || 'No description available.'}
+        </InfoBox>
     </div>
 );
 
 // Item Details Sub-component
 const ItemDetails = ({ data }) => (
     <div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
-            {data.category && (
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: '#ff9800', color: 'white' }}>
-                    {data.category}
-                </span>
+        {/* Badges */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
+            {data.type && (
+                <DetailBadge color="#667eea">
+                    📦 {data.type}
+                </DetailBadge>
             )}
-            {data.price && (
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', background: '#ffd700', color: '#5d4e00' }}>
-                    ₽{data.price}
-                </span>
+            {data.category && (
+                <DetailBadge color="#ff9800">
+                    📁 {data.category}
+                </DetailBadge>
             )}
         </div>
 
-        <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
-            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                {data.effect || data.description || 'No description available.'}
+        {/* Price display */}
+        {data.price !== undefined && (
+            <div style={{
+                background: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)',
+                padding: '14px 16px',
+                borderRadius: '12px',
+                marginBottom: '12px',
+                border: '2px solid #ffd54f',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+            }}>
+                <span style={{ fontSize: '24px' }}>💰</span>
+                <div>
+                    <div style={{ fontSize: '11px', color: '#f57f17', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price</div>
+                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#e65100' }}>₽{data.price?.toLocaleString() || 0}</div>
+                </div>
             </div>
-        </div>
+        )}
+
+        <InfoBox label="Effect" icon="✨" variant="green">
+            {data.effect || data.description || 'No description available.'}
+        </InfoBox>
+
+        {data.notes && (
+            <InfoBox label="Notes" icon="📝" variant="orange">
+                {data.notes}
+            </InfoBox>
+        )}
     </div>
 );
 
