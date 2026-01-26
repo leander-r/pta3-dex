@@ -331,12 +331,159 @@ export const exportSinglePokemon = (pokemon) => {
     URL.revokeObjectURL(url);
 };
 
+// ============================================================
+// SECURITY UTILITIES FOR IMPORT
+// ============================================================
+
 /**
- * Import single Pokemon from JSON data
+ * Maximum allowed sizes for import security
+ */
+const IMPORT_LIMITS = {
+    MAX_FILE_SIZE: 100 * 1024, // 100KB max file size
+    MAX_STRING_LENGTH: 200, // Max length for name, species, etc.
+    MAX_NOTES_LENGTH: 2000, // Max length for notes field
+    MAX_AVATAR_LENGTH: 50 * 1024, // 50KB max for avatar data URL
+    MAX_MOVES: 8, // Max moves a Pokemon can have
+    MAX_ABILITIES: 5, // Max abilities
+    MAX_SKILLS: 20, // Max Pokemon skills
+    MAX_LEVEL: 100, // Max Pokemon level
+    MAX_STAT: 50, // Max base stat value
+    MAX_ADDED_STAT: 100, // Max added stat points per stat
+};
+
+/**
+ * Valid Pokemon types for validation
+ */
+const VALID_TYPES = [
+    'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
+    'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug',
+    'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'
+];
+
+/**
+ * Valid natures for validation
+ */
+const VALID_NATURES = [
+    'Hardy', 'Lonely', 'Brave', 'Adamant', 'Naughty',
+    'Bold', 'Docile', 'Relaxed', 'Impish', 'Lax',
+    'Timid', 'Hasty', 'Serious', 'Jolly', 'Naive',
+    'Modest', 'Mild', 'Quiet', 'Bashful', 'Rash',
+    'Calm', 'Gentle', 'Sassy', 'Careful', 'Quirky'
+];
+
+/**
+ * Valid genders
+ */
+const VALID_GENDERS = ['', 'male', 'female', 'genderless'];
+
+/**
+ * Sanitize a string by removing HTML tags and limiting length
+ */
+const sanitizeString = (str, maxLength = IMPORT_LIMITS.MAX_STRING_LENGTH) => {
+    if (typeof str !== 'string') return '';
+    // Remove HTML tags
+    let clean = str.replace(/<[^>]*>/g, '');
+    // Remove potential script injection patterns
+    clean = clean.replace(/javascript:/gi, '');
+    clean = clean.replace(/on\w+=/gi, '');
+    // Trim and limit length
+    return clean.trim().substring(0, maxLength);
+};
+
+/**
+ * Validate and clamp a number within a range
+ */
+const clampNumber = (value, min, max, defaultValue = min) => {
+    if (typeof value !== 'number' || isNaN(value)) return defaultValue;
+    return Math.max(min, Math.min(max, Math.floor(value)));
+};
+
+/**
+ * Validate a stats object
+ */
+const validateStats = (stats, maxValue) => {
+    const defaultStats = { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 };
+    if (!stats || typeof stats !== 'object') return defaultStats;
+
+    return {
+        hp: clampNumber(stats.hp, 1, maxValue, 10),
+        atk: clampNumber(stats.atk, 1, maxValue, 10),
+        def: clampNumber(stats.def, 1, maxValue, 10),
+        satk: clampNumber(stats.satk, 1, maxValue, 10),
+        sdef: clampNumber(stats.sdef, 1, maxValue, 10),
+        spd: clampNumber(stats.spd, 1, maxValue, 10)
+    };
+};
+
+/**
+ * Validate and sanitize a move object
+ */
+const validateMove = (move) => {
+    if (!move || typeof move !== 'object') return null;
+
+    return {
+        name: sanitizeString(move.name || 'Unknown Move', 50),
+        type: VALID_TYPES.includes(move.type) ? move.type : 'Normal',
+        category: ['Physical', 'Special', 'Status'].includes(move.category) ? move.category : 'Physical',
+        damage: sanitizeString(move.damage || '', 20),
+        frequency: sanitizeString(move.frequency || '', 30),
+        range: sanitizeString(move.range || '', 50),
+        effect: sanitizeString(move.effect || '', 500),
+        source: ['natural', 'taught', 'tm', 'egg'].includes(move.source) ? move.source : 'taught'
+    };
+};
+
+/**
+ * Validate and sanitize a Pokemon skill object
+ */
+const validatePokemonSkill = (skill) => {
+    if (!skill || typeof skill !== 'object') return null;
+
+    return {
+        name: sanitizeString(skill.name || 'Unknown', 50),
+        value: clampNumber(skill.value, 1, 10, 2)
+    };
+};
+
+/**
+ * Validate avatar - only allow valid image data URLs or empty
+ */
+const validateAvatar = (avatar) => {
+    if (!avatar || typeof avatar !== 'string') return '';
+
+    // Check length limit
+    if (avatar.length > IMPORT_LIMITS.MAX_AVATAR_LENGTH) return '';
+
+    // Only allow data URLs that are images
+    if (avatar.startsWith('data:image/')) {
+        // Validate it's a proper data URL format
+        const validImageTypes = ['data:image/png;', 'data:image/jpeg;', 'data:image/gif;', 'data:image/webp;'];
+        if (validImageTypes.some(type => avatar.startsWith(type))) {
+            return avatar;
+        }
+    }
+
+    // Also allow HTTPS URLs to images (external sprites)
+    if (avatar.startsWith('https://') && avatar.length < 500) {
+        return sanitizeString(avatar, 500);
+    }
+
+    return '';
+};
+
+/**
+ * Import single Pokemon from JSON data with full validation
  * Returns the Pokemon object if valid, null otherwise
  */
 export const importSinglePokemon = (jsonData) => {
     try {
+        // Check raw data size before parsing
+        if (typeof jsonData === 'string') {
+            if (jsonData.length > IMPORT_LIMITS.MAX_FILE_SIZE) {
+                throw new Error('File too large. Maximum size is 100KB.');
+            }
+        }
+
         let data;
         if (typeof jsonData === 'string') {
             data = JSON.parse(jsonData);
@@ -345,42 +492,97 @@ export const importSinglePokemon = (jsonData) => {
         }
 
         // Validate that this is a Pokemon export
-        if (!data.type || data.type !== 'pta-pokemon' || !data.pokemon) {
-            throw new Error('Invalid Pokemon file format');
+        if (!data || typeof data !== 'object') {
+            throw new Error('Invalid data format');
+        }
+
+        if (data.type !== 'pta-pokemon') {
+            throw new Error('Invalid Pokemon file format. Expected type "pta-pokemon".');
+        }
+
+        if (!data.pokemon || typeof data.pokemon !== 'object') {
+            throw new Error('Missing or invalid Pokemon data');
         }
 
         const pokemon = data.pokemon;
 
-        // Create a new Pokemon with a fresh ID
-        return {
+        // Validate and sanitize types array
+        let types = ['Normal'];
+        if (Array.isArray(pokemon.types)) {
+            types = pokemon.types
+                .filter(t => VALID_TYPES.includes(t))
+                .slice(0, 2);
+            if (types.length === 0) types = ['Normal'];
+        }
+
+        // Validate and sanitize abilities array
+        let abilities = [];
+        if (Array.isArray(pokemon.abilities)) {
+            abilities = pokemon.abilities
+                .filter(a => typeof a === 'string')
+                .map(a => sanitizeString(a, 50))
+                .filter(a => a.length > 0)
+                .slice(0, IMPORT_LIMITS.MAX_ABILITIES);
+        }
+
+        // Validate and sanitize moves array
+        let moves = [];
+        if (Array.isArray(pokemon.moves)) {
+            moves = pokemon.moves
+                .map(validateMove)
+                .filter(m => m !== null)
+                .slice(0, IMPORT_LIMITS.MAX_MOVES);
+        }
+
+        // Validate and sanitize Pokemon skills
+        let pokemonSkills = [];
+        if (Array.isArray(pokemon.pokemonSkills)) {
+            pokemonSkills = pokemon.pokemonSkills
+                .map(validatePokemonSkill)
+                .filter(s => s !== null)
+                .slice(0, IMPORT_LIMITS.MAX_SKILLS);
+        }
+
+        // Validate gender
+        const gender = VALID_GENDERS.includes(pokemon.gender) ? pokemon.gender : '';
+
+        // Validate nature
+        const nature = VALID_NATURES.includes(pokemon.nature) ? pokemon.nature : 'Hardy';
+
+        // Create a new Pokemon with sanitized data and a fresh ID
+        const importedPokemon = {
             id: Date.now() + Math.random(),
-            name: pokemon.name || pokemon.species || 'Unknown',
-            species: pokemon.species || 'Unknown',
-            level: pokemon.level || 1,
-            experience: pokemon.experience || 0,
-            types: pokemon.types || ['Normal'],
-            nature: pokemon.nature || 'Hardy',
-            abilities: pokemon.abilities || [],
-            ability: pokemon.ability || '',
-            ability2: pokemon.ability2 || '',
-            ability3: pokemon.ability3 || '',
-            moves: pokemon.moves || [],
-            baseStats: pokemon.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
-            addedStats: pokemon.addedStats || { hp: 0, atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 },
-            statPointsAvailable: pokemon.statPointsAvailable || 0,
-            statAllocationHistory: pokemon.statAllocationHistory || [],
-            currentDamage: pokemon.currentDamage || 0,
-            gender: pokemon.gender || '',
-            avatar: pokemon.avatar || '',
-            pokemonSkills: pokemon.pokemonSkills || [],
-            availableAbilities: pokemon.availableAbilities || [],
-            availableLevelUpMoves: pokemon.availableLevelUpMoves || [],
-            regionalForm: pokemon.regionalForm || null,
-            heldItem: pokemon.heldItem || '',
-            notes: pokemon.notes || ''
+            name: sanitizeString(pokemon.name || pokemon.species || 'Unknown'),
+            species: sanitizeString(pokemon.species || 'Unknown'),
+            level: clampNumber(pokemon.level, 1, IMPORT_LIMITS.MAX_LEVEL, 1),
+            experience: clampNumber(pokemon.experience, 0, 1000000, 0),
+            types,
+            nature,
+            abilities,
+            ability: sanitizeString(pokemon.ability || '', 50),
+            ability2: sanitizeString(pokemon.ability2 || '', 50),
+            ability3: sanitizeString(pokemon.ability3 || '', 50),
+            moves,
+            baseStats: validateStats(pokemon.baseStats, IMPORT_LIMITS.MAX_STAT),
+            addedStats: validateStats(pokemon.addedStats, IMPORT_LIMITS.MAX_ADDED_STAT),
+            statPointsAvailable: clampNumber(pokemon.statPointsAvailable, 0, 500, 0),
+            currentDamage: clampNumber(pokemon.currentDamage, 0, 9999, 0),
+            gender,
+            avatar: validateAvatar(pokemon.avatar),
+            pokemonSkills,
+            regionalForm: pokemon.regionalForm ? sanitizeString(String(pokemon.regionalForm), 30) : null,
+            heldItem: sanitizeString(pokemon.heldItem || '', 50),
+            notes: sanitizeString(pokemon.notes || '', IMPORT_LIMITS.MAX_NOTES_LENGTH),
+            // These will be regenerated based on species data
+            availableAbilities: [],
+            availableLevelUpMoves: [],
+            statAllocationHistory: []
         };
+
+        return importedPokemon;
     } catch (error) {
         console.error('Error importing Pokemon:', error);
+        alert(`Import failed: ${error.message}`);
         return null;
     }
 };

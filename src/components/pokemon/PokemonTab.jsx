@@ -59,6 +59,23 @@ const PokemonTab = ({
         const file = event.target.files[0];
         if (!file) return;
 
+        // Security: Check file size before reading (100KB max)
+        const MAX_FILE_SIZE = 100 * 1024;
+        if (file.size > MAX_FILE_SIZE) {
+            alert('File too large. Maximum file size is 100KB.');
+            event.target.value = '';
+            setShowImportOptions(false);
+            return;
+        }
+
+        // Security: Check file type
+        if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+            alert('Invalid file type. Please select a JSON file.');
+            event.target.value = '';
+            setShowImportOptions(false);
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
@@ -66,9 +83,8 @@ const PokemonTab = ({
                 if (pokemon) {
                     importPokemon(pokemon, pokemonView === 'party');
                     alert(`${pokemon.name || pokemon.species} was added to your ${pokemonView}!`);
-                } else {
-                    alert('Invalid Pokemon file. Please use a valid PTA Pokemon export file.');
                 }
+                // Note: importSinglePokemon now shows its own error alerts
             } catch (err) {
                 alert('Error reading file: ' + err.message);
             }
