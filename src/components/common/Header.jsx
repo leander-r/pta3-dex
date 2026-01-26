@@ -19,7 +19,9 @@ const Header = ({
     exportSingleTrainer,
     exportAllData,
     onImport,
-    onExportCard
+    onExportCard,
+    theme,
+    setTheme
 }) => {
     const [showCharacterMenu, setShowCharacterMenu] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
@@ -27,6 +29,10 @@ const Header = ({
     const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
     const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 360);
     const menuRef = useRef(null);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
 
     // Track window size for responsive layout
     useEffect(() => {
@@ -87,10 +93,10 @@ const Header = ({
             onMouseLeave={() => setHoveredItem(null)}
             onTouchStart={() => setHoveredItem(id)}
             onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
+            className={`header-menu-item ${hoveredItem === id ? 'hovered' : ''} ${danger ? 'danger' : ''}`}
             style={{
                 width: '100%',
                 padding: '14px 18px',
-                background: hoveredItem === id ? (danger ? '#ffebee' : '#fff8e7') : 'transparent',
                 border: 'none',
                 textAlign: 'left',
                 cursor: disabled ? 'not-allowed' : 'pointer',
@@ -99,7 +105,6 @@ const Header = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                color: danger ? '#e53935' : (disabled ? '#bbb' : '#2d2d2d'),
                 opacity: disabled ? 0.5 : 1,
                 transition: 'all 0.15s ease',
                 borderLeft: hoveredItem === id && !danger ? '3px solid #f5a623' : '3px solid transparent',
@@ -178,42 +183,44 @@ const Header = ({
                 minWidth: 0
             }}>
                 {/* Money Display */}
-                <div style={{
-                    background: 'rgba(255,255,255,0.95)',
-                    padding: isMobile ? '5px 8px' : (isScrolled ? '6px 12px' : '8px 16px'),
-                    borderRadius: isMobile ? '8px' : '12px',
-                    fontWeight: 700,
-                    color: '#2d2d2d',
-                    fontSize: isMobile ? '12px' : (isScrolled ? '13px' : '14px'),
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: isMobile ? '4px' : '6px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    border: '2px solid rgba(255,255,255,0.5)',
-                    transition: 'all 0.25s ease',
-                    flexShrink: 0
-                }}>
+                <div
+                    className="header-money-display"
+                    style={{
+                        padding: isMobile ? '5px 8px' : (isScrolled ? '6px 12px' : '8px 16px'),
+                        borderRadius: isMobile ? '8px' : '12px',
+                        fontWeight: 700,
+                        fontSize: isMobile ? '12px' : (isScrolled ? '13px' : '14px'),
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: isMobile ? '4px' : '6px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'all 0.25s ease',
+                        flexShrink: 0
+                    }}
+                >
                     <span style={{ color: '#f5a623', fontWeight: 800 }}>₽</span>
                     <span>{(trainer.money || 0).toLocaleString()}</span>
                 </div>
 
                 {/* Trainer Selector */}
-                <div style={{
-                    background: 'rgba(255,255,255,0.95)',
-                    borderRadius: isMobile ? '8px' : '12px',
-                    padding: '2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    border: '2px solid rgba(255,255,255,0.5)',
-                    transition: 'all 0.25s ease',
-                    flexShrink: 1,
-                    minWidth: 0,
-                    maxWidth: isMobile ? '110px' : 'none'
-                }}>
+                <div
+                    className="header-trainer-selector"
+                    style={{
+                        borderRadius: isMobile ? '8px' : '12px',
+                        padding: '2px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'all 0.25s ease',
+                        flexShrink: 1,
+                        minWidth: 0,
+                        maxWidth: isMobile ? '110px' : 'none'
+                    }}
+                >
                     <select
                         value={activeTrainerId || ''}
                         onChange={(e) => setActiveTrainerId(parseInt(e.target.value))}
+                        className="header-trainer-select"
                         style={{
                             paddingTop: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
                             paddingBottom: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
@@ -228,7 +235,6 @@ const Header = ({
                             minWidth: 0,
                             width: '100%',
                             appearance: 'none',
-                            color: '#2d2d2d',
                             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23f5a623' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                             backgroundRepeat: 'no-repeat',
                             backgroundPosition: isMobile ? 'right 6px center' : 'right 10px center',
@@ -246,6 +252,36 @@ const Header = ({
                     </select>
                 </div>
 
+                {/* Theme Toggle */}
+                <button
+                    onClick={toggleTheme}
+                    className="theme-toggle"
+                    style={{
+                        width: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
+                        height: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
+                    }}
+                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                    title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                >
+                    {theme === 'light' ? (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5a623" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffc966" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    )}
+                </button>
+
                 {/* Menu Button */}
                 <div style={{ position: 'relative', flexShrink: 0, zIndex: 101 }} ref={menuRef}>
                     <div
@@ -254,11 +290,10 @@ const Header = ({
                             e.preventDefault();
                             setShowCharacterMenu(prev => !prev);
                         }}
+                        className={`header-menu-button ${showCharacterMenu ? 'active' : ''}`}
                         style={{
                             width: isMobile ? '44px' : (isScrolled ? '36px' : '42px'),
                             height: isMobile ? '44px' : (isScrolled ? '36px' : '42px'),
-                            background: showCharacterMenu ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.9)',
-                            border: '2px solid rgba(255,255,255,0.5)',
                             borderRadius: isMobile ? '8px' : '12px',
                             cursor: 'pointer',
                             display: 'flex',
@@ -293,11 +328,10 @@ const Header = ({
 
                     {/* Dropdown Menu */}
                     {showCharacterMenu && (
-                        <div style={{
+                        <div className="header-dropdown-menu" style={{
                             position: 'absolute',
                             right: 0,
                             top: 'calc(100% + 8px)',
-                            background: 'white',
                             borderRadius: '16px',
                             boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
                             minWidth: isMobile ? '200px' : '230px',
@@ -413,10 +447,10 @@ const Header = ({
                                     onMouseLeave={() => setHoveredItem(null)}
                                     onTouchStart={() => setHoveredItem('import')}
                                     onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
+                                    className={`header-menu-item ${hoveredItem === 'import' ? 'hovered' : ''}`}
                                     style={{
                                         width: '100%',
                                         padding: '14px 18px',
-                                        background: hoveredItem === 'import' ? '#fff8e7' : 'transparent',
                                         border: 'none',
                                         textAlign: 'left',
                                         cursor: 'pointer',
@@ -425,7 +459,6 @@ const Header = ({
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '12px',
-                                        color: '#2d2d2d',
                                         transition: 'all 0.15s ease',
                                         boxSizing: 'border-box',
                                         borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent',

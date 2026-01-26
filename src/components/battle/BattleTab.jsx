@@ -271,7 +271,7 @@ const BattleTab = ({
     return (
         <div>
             <h2 className="section-title">Dice Roller</h2>
-            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px', marginTop: '-5px' }}>
+            <p className="section-description">
                 Roll attacks, skills, and custom dice. Results can be sent to Discord via webhook.
             </p>
 
@@ -331,7 +331,7 @@ const BattleTab = ({
                                 const hp = getPokemonHP(selectedPokemon);
                                 const hpPercent = (hp.current / hp.max) * 100;
                                 return (
-                                    <div style={{ marginBottom: '12px', padding: '10px', background: '#f8f9fa', borderRadius: '8px' }}>
+                                    <div className="hp-tracker-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                                             <span style={{ fontSize: '12px', fontWeight: 'bold' }}>HP</span>
                                             <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{hp.current} / {hp.max}</span>
@@ -345,7 +345,7 @@ const BattleTab = ({
                                             }} />
                                         </div>
                                         <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                                            <span style={{ fontSize: '10px', color: '#666', width: '100%', textAlign: 'center', marginBottom: '4px' }}>
+                                            <span className="text-muted" style={{ fontSize: '10px', width: '100%', textAlign: 'center', marginBottom: '4px' }}>
                                                 Damage ← → Heal
                                             </span>
                                             {[10, 5, 1].map(val => (
@@ -386,12 +386,12 @@ const BattleTab = ({
                                 <div style={{ marginBottom: '12px' }}>
                                     <div
                                         onClick={() => setShowCombatStages(!showCombatStages)}
+                                        className="combat-stages-header"
                                         style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
                                             padding: '8px 10px',
-                                            background: '#e8eaf6',
                                             borderRadius: '6px',
                                             cursor: 'pointer',
                                             marginBottom: showCombatStages ? '8px' : 0
@@ -399,7 +399,7 @@ const BattleTab = ({
                                     >
                                         <div>
                                             <span style={{ fontSize: '12px', fontWeight: 'bold' }}>Combat Stages</span>
-                                            <span style={{ fontSize: '10px', color: '#666', marginLeft: '8px' }}>
+                                            <span className="text-muted" style={{ fontSize: '10px', marginLeft: '8px' }}>
                                                 Buffs & debuffs from moves
                                             </span>
                                         </div>
@@ -415,8 +415,8 @@ const BattleTab = ({
                                             return baseStat;
                                         };
                                         return (
-                                            <div style={{ background: '#f5f5f5', padding: '10px', borderRadius: '6px' }}>
-                                                <div style={{ fontSize: '10px', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
+                                            <div className="combat-stages-content" style={{ padding: '10px', borderRadius: '6px' }}>
+                                                <div className="text-muted" style={{ fontSize: '10px', marginBottom: '8px', textAlign: 'center' }}>
                                                     +1 stage = +25% stat | −1 stage = −10% stat | Range: −6 to +6
                                                 </div>
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
@@ -432,7 +432,7 @@ const BattleTab = ({
                                                         const stages = combatStages[stat.key] || 0;
                                                         const modifiedStat = stat.key === 'acc' ? stages : getModifiedStat(baseStat, stages);
                                                         return (
-                                                            <div key={stat.key} style={{ textAlign: 'center', background: 'white', padding: '6px', borderRadius: '4px' }}>
+                                                            <div key={stat.key} className="combat-stat-box" style={{ textAlign: 'center', padding: '6px', borderRadius: '4px' }}>
                                                                 <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
                                                                 <div style={{ fontSize: '11px', color: '#666' }}>
                                                                     {stat.key === 'acc' ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : '#333' }}>
@@ -552,13 +552,14 @@ const BattleTab = ({
                                             >
                                                 <button
                                                     onClick={() => setSelectedMove(move)}
+                                                    className={selectedMove?.name !== move.name ? 'move-select-btn' : ''}
                                                     style={{
                                                         flex: 1,
                                                         padding: '10px',
                                                         background: selectedMove?.name === move.name
                                                             ? getTypeColor(move.type)
-                                                            : 'white',
-                                                        color: selectedMove?.name === move.name ? 'white' : '#333',
+                                                            : undefined,
+                                                        color: selectedMove?.name === move.name ? 'white' : undefined,
                                                         border: 'none',
                                                         cursor: 'pointer',
                                                         textAlign: 'left'
@@ -648,7 +649,7 @@ const BattleTab = ({
                                         Select Skill
                                     </label>
                                     {(selectedPokemon.pokemonSkills || []).length === 0 ? (
-                                        <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '6px', color: '#666', textAlign: 'center' }}>
+                                        <div className="pokemon-skill-empty text-muted" style={{ padding: '15px', borderRadius: '6px', textAlign: 'center' }}>
                                             No skills available for this Pokemon
                                         </div>
                                     ) : (
@@ -657,12 +658,13 @@ const BattleTab = ({
                                                 <button
                                                     key={idx}
                                                     onClick={() => setSelectedPokemonSkill(skill)}
+                                                    className={selectedPokemonSkill?.name !== skill.name ? 'skill-select-btn' : ''}
                                                     style={{
                                                         padding: '10px',
                                                         background: selectedPokemonSkill?.name === skill.name
                                                             ? '#9c27b0'
-                                                            : 'white',
-                                                        color: selectedPokemonSkill?.name === skill.name ? 'white' : '#333',
+                                                            : undefined,
+                                                        color: selectedPokemonSkill?.name === skill.name ? 'white' : undefined,
                                                         border: '2px solid #9c27b0',
                                                         borderRadius: '6px',
                                                         cursor: 'pointer',
@@ -706,7 +708,7 @@ const BattleTab = ({
                     {mode === 'trainer' && (
                         <div>
                             {/* Trainer Stats Display */}
-                            <div style={{ marginBottom: '12px', padding: '10px', background: '#f8f9fa', borderRadius: '8px' }}>
+                            <div className="trainer-stats-display" style={{ marginBottom: '12px' }}>
                                 <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
                                     {trainer.name || 'Trainer'} - Level {trainer.level || 1}
                                 </div>
@@ -722,7 +724,7 @@ const BattleTab = ({
                                         const value = trainer.stats?.[stat.key] || 10;
                                         const mod = value >= 10 ? Math.floor((value - 10) / 2) : -(10 - value);
                                         return (
-                                            <div key={stat.key} style={{ textAlign: 'center', padding: '4px', background: 'white', borderRadius: '4px' }}>
+                                            <div key={stat.key} className="trainer-stat-mini-box" style={{ textAlign: 'center', padding: '4px', borderRadius: '4px' }}>
                                                 <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
                                                 <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{value}</div>
                                                 <div style={{ fontSize: '10px', color: mod >= 0 ? '#4caf50' : '#f44336' }}>
@@ -764,13 +766,13 @@ const BattleTab = ({
                                 const hasTrained = trainer.skills?.includes(selectedSkill);
                                 const trainedBonus = hasTrained ? 2 : 0;
                                 return (
-                                    <div style={{ marginBottom: '12px', padding: '10px', background: '#e8f5e9', borderRadius: '6px', fontSize: '12px' }}>
+                                    <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '12px' }}>
                                         <div><strong>{selectedSkill}</strong> ({skillData.stat})</div>
                                         <div style={{ marginTop: '4px' }}>
                                             Roll: 2d6 {modifier >= 0 ? '+' : ''}{modifier} (stat)
                                             {hasTrained && <span style={{ color: '#4caf50' }}> +2 (trained)</span>}
                                         </div>
-                                        <div style={{ marginTop: '2px', color: '#666' }}>
+                                        <div className="text-muted" style={{ marginTop: '2px' }}>
                                             {skillData.description}
                                         </div>
                                     </div>
@@ -816,11 +818,9 @@ const BattleTab = ({
                                     <button
                                         key={dice}
                                         onClick={() => setCustomDice(dice)}
+                                        className={`dice-quick-btn ${customDice === dice ? 'selected' : ''}`}
                                         style={{
                                             padding: '6px 12px',
-                                            background: customDice === dice ? '#667eea' : 'white',
-                                            color: customDice === dice ? 'white' : '#333',
-                                            border: '1px solid #ddd',
                                             borderRadius: '4px',
                                             cursor: 'pointer',
                                             fontSize: '12px'
@@ -1020,10 +1020,10 @@ const BattleTab = ({
                             rollHistory.map((roll, idx) => (
                                 <div
                                     key={idx}
+                                    className={`roll-history-item ${roll.isCrit ? 'crit' : ''}`}
                                     style={{
                                         padding: '10px',
                                         marginBottom: '8px',
-                                        background: roll.isCrit ? 'linear-gradient(135deg, #ffd700, #ff9800)' : 'white',
                                         borderRadius: '6px',
                                         borderLeft: `4px solid ${
                                             roll.type === 'pokemon' ? getTypeColor(roll.moveType || 'Normal') :
@@ -1055,7 +1055,7 @@ const BattleTab = ({
                                                 }}>
                                                     {roll.accRoll}
                                                     {roll.accModifier !== 0 && (
-                                                        <span style={{ color: '#666' }}>
+                                                        <span className="text-muted">
                                                             {roll.accModifier > 0 ? '+' : ''}{roll.accModifier}={roll.modifiedAccRoll}
                                                         </span>
                                                     )}

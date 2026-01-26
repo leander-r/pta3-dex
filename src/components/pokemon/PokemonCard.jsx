@@ -5,6 +5,7 @@
 import React, { useState, useMemo } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
+import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
 
 const PokemonCard = ({
     pokemon,
@@ -243,18 +244,14 @@ const PokemonCard = ({
     if (!isEditing) {
         return (
             <div
+                className="pokemon-card pokemon-card-collapsed"
                 style={{
-                    background: 'white',
-                    borderRadius: '12px',
                     borderLeft: secondaryType
                         ? `5px solid ${primaryColor}`
                         : `5px solid ${primaryColor}`,
                     borderRight: secondaryType
                         ? `3px solid ${secondaryColor}`
-                        : 'none',
-                    padding: '15px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    cursor: 'pointer'
+                        : 'none'
                 }}
                 onClick={() => setEditing(true)}
             >
@@ -284,9 +281,9 @@ const PokemonCard = ({
                                 {pokemon.name || pokemon.species || 'Unknown'}
                             </span>
                             {pokemon.species && pokemon.species !== pokemon.name && (
-                                <span style={{ color: '#666', fontSize: '13px' }}>({pokemon.species})</span>
+                                <span className="text-muted" style={{ fontSize: '13px' }}>({pokemon.species})</span>
                             )}
-                            <span style={{ fontSize: '13px', color: '#666' }}>Lv.{pokemon.level || 1}</span>
+                            <span className="text-muted" style={{ fontSize: '13px' }}>Lv.{pokemon.level || 1}</span>
                         </div>
 
                         <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
@@ -307,7 +304,7 @@ const PokemonCard = ({
                             ))}
                         </div>
 
-                        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                        <div className="text-muted" style={{ fontSize: '12px', marginTop: '4px' }}>
                             HP: {currentHP}/{maxHP} | {pokemon.nature || 'Hardy'} | {
                                 (pokemon.abilities && pokemon.abilities.length > 0)
                                     ? pokemon.abilities.join(', ')
@@ -378,17 +375,26 @@ const PokemonCard = ({
                                 </svg>
                                 <span>Reserve</span>
                             </button>
-                        ) : canMoveToParty ? (
+                        ) : (
                             <button
-                                onClick={(e) => { e.stopPropagation(); onMoveToParty && onMoveToParty(); }}
-                                style={{ ...quickBtnLabelStyle, background: '#e8f5e9', borderColor: '#4caf50', color: '#2e7d32' }}
+                                onClick={(e) => { e.stopPropagation(); canMoveToParty && onMoveToParty && onMoveToParty(); }}
+                                disabled={!canMoveToParty}
+                                style={{
+                                    ...quickBtnLabelStyle,
+                                    background: canMoveToParty ? '#e8f5e9' : '#f5f5f5',
+                                    borderColor: canMoveToParty ? '#4caf50' : '#ccc',
+                                    color: canMoveToParty ? '#2e7d32' : '#999',
+                                    cursor: canMoveToParty ? 'pointer' : 'not-allowed',
+                                    opacity: canMoveToParty ? 1 : 0.7
+                                }}
+                                title={canMoveToParty ? 'Move to Party' : 'Party is full (6/6)'}
                             >
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={canMoveToParty ? '#2e7d32' : '#999'} strokeWidth="2">
                                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                                 </svg>
                                 <span>Party</span>
                             </button>
-                        ) : null}
+                        )}
                     </div>
                 </div>
             </div>
@@ -398,13 +404,10 @@ const PokemonCard = ({
     // Expanded/Editing view
     return (
         <div
+            className="pokemon-card pokemon-card-expanded"
             style={{
-                background: 'white',
-                borderRadius: '12px',
                 borderLeft: `5px solid ${primaryColor}`,
-                borderRight: secondaryType ? `3px solid ${secondaryColor}` : 'none',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-                overflow: 'hidden'
+                borderRight: secondaryType ? `3px solid ${secondaryColor}` : 'none'
             }}
         >
             {/* Header */}
@@ -450,7 +453,7 @@ const PokemonCard = ({
             </div>
 
             {/* Edit Tabs */}
-            <div className="tabs" style={{ padding: '0 15px', background: '#f8f9fa' }}>
+            <div className="tabs pokemon-card-tabs" style={{ padding: '0 15px' }}>
                 {['info', 'stats', 'moves', 'skills', 'evolution'].map(tab => (
                     <button
                         key={tab}
@@ -890,7 +893,7 @@ const PokemonCard = ({
                         <div style={{ marginBottom: '15px' }}>
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Abilities</span>
-                                <span style={{ fontWeight: 'normal', color: '#666' }}>
+                                <span className="text-muted" style={{ fontWeight: 'normal' }}>
                                     {(pokemon.abilities || []).length}/3 selected
                                 </span>
                             </label>
@@ -953,8 +956,8 @@ const PokemonCard = ({
 
                             {/* Available Abilities to Add */}
                             {derivedAbilities.length > 0 ? (
-                                <div style={{ padding: '10px', background: '#f0f4ff', borderRadius: '8px' }}>
-                                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '8px' }}>
+                                <div className="abilities-available-box" style={{ padding: '10px', borderRadius: '8px' }}>
+                                    <div className="text-muted" style={{ fontSize: '11px', marginBottom: '8px' }}>
                                         Tap to add (tap name for details):
                                     </div>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -965,15 +968,13 @@ const PokemonCard = ({
                                             return (
                                                 <div
                                                     key={idx}
+                                                    className={`ability-option ${isSelected ? 'selected' : ''}`}
                                                     style={{
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         padding: '4px 10px',
                                                         borderRadius: '12px',
                                                         fontSize: '11px',
-                                                        background: isSelected ? '#e8f5e9' : 'white',
-                                                        color: isSelected ? '#4caf50' : '#333',
-                                                        border: `1px solid ${isSelected ? '#4caf50' : '#ddd'}`,
                                                         opacity: isSelected || canAdd ? 1 : 0.5
                                                     }}
                                                 >
@@ -1020,7 +1021,7 @@ const PokemonCard = ({
                                             );
                                         })}
                                     </div>
-                                    <div style={{ fontSize: '10px', color: '#999', marginTop: '8px' }}>
+                                    <div className="text-light" style={{ fontSize: '10px', marginTop: '8px' }}>
                                         ● Basic  ★ Advanced  ◆ High
                                     </div>
                                 </div>
@@ -1151,14 +1152,48 @@ const PokemonCard = ({
                                 >
                                     Move to Reserve
                                 </button>
-                            ) : canMoveToParty && (
+                            ) : (
                                 <button
-                                    onClick={onMoveToParty}
-                                    style={{ padding: '8px 16px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                                    onClick={canMoveToParty ? onMoveToParty : undefined}
+                                    disabled={!canMoveToParty}
+                                    title={canMoveToParty ? 'Move to Party' : 'Party is full (6/6)'}
+                                    style={{
+                                        padding: '8px 16px',
+                                        background: canMoveToParty ? '#4caf50' : '#ccc',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        cursor: canMoveToParty ? 'pointer' : 'not-allowed',
+                                        opacity: canMoveToParty ? 1 : 0.6
+                                    }}
                                 >
                                     Move to Party
                                 </button>
                             )}
+                            <button
+                                onClick={() => exportSinglePokemon(pokemon)}
+                                className="pokemon-action-btn export"
+                                title="Export this Pokemon as a file for trading"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Export
+                            </button>
+                            <button
+                                onClick={() => copyPokemonToClipboard(pokemon)}
+                                className="pokemon-action-btn export"
+                                style={{ background: '#9c27b0' }}
+                                title="Copy Pokemon data to clipboard for sharing"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Copy
+                            </button>
                             <button
                                 onClick={() => {
                                     if (confirm(`Delete ${pokemon.name || pokemon.species || 'this Pokemon'}?`)) {
@@ -1175,17 +1210,17 @@ const PokemonCard = ({
 
                 {editTab === 'stats' && (
                     <div>
-                        <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
+                        <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px' }}>
                             Stat Points Available: <strong>{pokemon.statPointsAvailable || 0}</strong>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                             {['hp', 'atk', 'def', 'satk', 'sdef', 'spd'].map(stat => (
-                                <div key={stat} style={{ background: '#f8f9fa', padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
+                                <div key={stat} className="bg-light" style={{ padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
                                     <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#667eea', marginBottom: '4px' }}>
                                         {stat.toUpperCase()}
                                     </div>
-                                    <div style={{ fontSize: '10px', color: '#999' }}>
+                                    <div className="text-light" style={{ fontSize: '10px' }}>
                                         Base: {pokemon.baseStats?.[stat] || 10}
                                     </div>
                                     <div style={{ fontSize: '10px', color: '#4caf50' }}>
@@ -1257,20 +1292,20 @@ const PokemonCard = ({
 
                 {editTab === 'moves' && (
                     <div>
-                        <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
+                        <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px' }}>
                             Moves: {(pokemon.moves || []).length}/8 (4 natural + 4 taught)
                         </div>
 
                         {(pokemon.moves || []).map((move, idx) => (
                             <div
                                 key={idx}
+                                className="move-card"
                                 style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     padding: '10px',
                                     marginBottom: '6px',
-                                    background: 'white',
                                     borderRadius: '6px',
                                     borderLeft: `4px solid ${getTypeColor(move.type)}`,
                                     cursor: showDetail ? 'pointer' : 'default'
@@ -1284,7 +1319,7 @@ const PokemonCard = ({
                             >
                                 <div>
                                     <div style={{ fontWeight: 'bold' }}>{move.name}</div>
-                                    <div style={{ fontSize: '11px', color: '#666' }}>
+                                    <div className="text-muted" style={{ fontSize: '11px' }}>
                                         {move.type} | {move.category} | {move.damage || 'Status'}
                                     </div>
                                 </div>
@@ -1311,7 +1346,7 @@ const PokemonCard = ({
                         ))}
 
                         {(pokemon.moves || []).length < 6 && (
-                            <div style={{ marginTop: '10px', padding: '12px', background: '#f8f9fa', borderRadius: '8px', border: '2px solid #667eea' }}>
+                            <div className="add-move-panel" style={{ marginTop: '10px', padding: '12px', borderRadius: '8px' }}>
                                 <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '10px', color: '#667eea' }}>Add Move</div>
 
                                 {/* Search Input */}
@@ -1362,7 +1397,7 @@ const PokemonCard = ({
                                 <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
                                     {/* Type Filter */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666' }}>Type:</span>
+                                        <span className="text-muted" style={{ fontSize: '11px', fontWeight: 'bold' }}>Type:</span>
                                         <select
                                             value={moveTypeFilter}
                                             onChange={(e) => setMoveTypeFilter(e.target.value)}
@@ -1385,7 +1420,7 @@ const PokemonCard = ({
 
                                     {/* Category Filter */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666' }}>Cat:</span>
+                                        <span className="text-muted" style={{ fontSize: '11px', fontWeight: 'bold' }}>Cat:</span>
                                         <select
                                             value={moveCategoryFilter}
                                             onChange={(e) => setMoveCategoryFilter(e.target.value)}
@@ -1404,56 +1439,52 @@ const PokemonCard = ({
                                         </select>
                                     </div>
 
-                                    <span style={{ fontSize: '10px', color: '#999', marginLeft: 'auto' }}>
+                                    <span className="text-light" style={{ fontSize: '10px', marginLeft: 'auto' }}>
                                         {filteredMoves.length} moves
                                     </span>
                                 </div>
 
                                 {/* Move List */}
                                 {showMoveDropdown && (
-                                    <div style={{
+                                    <div className="move-list-container" style={{
                                         maxHeight: '200px',
                                         overflowY: 'auto',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '6px',
-                                        background: 'white'
+                                        borderRadius: '6px'
                                     }}>
                                         {filteredMoves.length > 0 ? (
                                             filteredMoves.map(([name, data]) => (
                                                 <div
                                                     key={name}
-                                                    onClick={() => {
-                                                        updatePokemon({
-                                                            moves: [...(pokemon.moves || []), {
-                                                                name: name,
-                                                                type: data.type,
-                                                                category: data.category,
-                                                                damage: data.damage,
-                                                                frequency: data.frequency,
-                                                                range: data.range,
-                                                                effect: data.effect,
-                                                                source: 'taught'
-                                                            }]
-                                                        });
-                                                        setMoveSearch('');
-                                                        setMoveTypeFilter('all');
-                                                        setMoveCategoryFilter('all');
-                                                    }}
+                                                    className="move-list-item"
                                                     style={{
                                                         padding: '8px 10px',
-                                                        cursor: 'pointer',
-                                                        borderBottom: '1px solid #eee',
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
-                                                        alignItems: 'center',
-                                                        transition: 'background 0.15s'
+                                                        alignItems: 'center'
                                                     }}
-                                                    onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
                                                 >
-                                                    <div>
+                                                    <div
+                                                        style={{ flex: 1, cursor: 'pointer' }}
+                                                        onClick={() => {
+                                                            updatePokemon({
+                                                                moves: [...(pokemon.moves || []), {
+                                                                    name: name,
+                                                                    type: data.type,
+                                                                    category: data.category,
+                                                                    damage: data.damage,
+                                                                    frequency: data.frequency,
+                                                                    range: data.range,
+                                                                    effect: data.effect,
+                                                                    source: 'taught'
+                                                                }]
+                                                            });
+                                                            setMoveSearch('');
+                                                            setMoveTypeFilter('all');
+                                                            setMoveCategoryFilter('all');
+                                                        }}
+                                                    >
                                                         <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</span>
-                                                        <div style={{ fontSize: '10px', color: '#666' }}>
+                                                        <div className="text-muted" style={{ fontSize: '10px' }}>
                                                             {data.damage || 'Status'} | {data.frequency || 'At-Will'}
                                                         </div>
                                                     </div>
@@ -1474,11 +1505,32 @@ const PokemonCard = ({
                                                             fontSize: '9px',
                                                             fontWeight: 'bold'
                                                         }}>{data.category?.charAt(0) || '?'}</span>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (showDetail) {
+                                                                    showDetail('move', name, { ...data, type: data.type });
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                padding: '2px 6px',
+                                                                background: getTypeColor(data.type),
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '8px',
+                                                                fontSize: '11px',
+                                                                cursor: 'pointer',
+                                                                marginLeft: '4px'
+                                                            }}
+                                                            title="View move details"
+                                                        >
+                                                            ℹ
+                                                        </button>
                                                     </div>
                                                 </div>
                                             ))
                                         ) : (
-                                            <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                            <div className="text-light" style={{ padding: '20px', textAlign: 'center' }}>
                                                 {moveSearch || moveTypeFilter !== 'all' || moveCategoryFilter !== 'all'
                                                     ? 'No moves match your filters'
                                                     : 'Search or filter to find moves'}
@@ -1569,13 +1621,13 @@ const PokemonCard = ({
                                             {canEvolve.map((evo, idx) => (
                                                 <div
                                                     key={idx}
+                                                    className={`evolution-option-card ${evo.canEvolveNow ? 'can-evolve' : 'cannot-evolve'}`}
                                                     style={{
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center',
                                                         padding: '10px',
                                                         marginBottom: '6px',
-                                                        background: evo.canEvolveNow ? '#e8f5e9' : '#fff3e0',
                                                         borderRadius: '6px'
                                                     }}
                                                 >
@@ -1583,7 +1635,7 @@ const PokemonCard = ({
                                                         <div style={{ fontWeight: 'bold' }}>
                                                             {evo.regionalForm ? `${evo.regionalForm} ${evo.species}` : evo.species}
                                                         </div>
-                                                        <div style={{ fontSize: '11px', color: '#666' }}>
+                                                        <div className="text-muted" style={{ fontSize: '11px' }}>
                                                             {evo.reason || evo.requirement}
                                                             {evo.note && ` (${evo.note})`}
                                                         </div>
@@ -1612,17 +1664,19 @@ const PokemonCard = ({
                                     {canDevolve && devolvePokemon && (
                                         <div>
                                             <h4 style={{ marginBottom: '10px' }}>Devolution</h4>
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                padding: '10px',
-                                                background: '#ffebee',
-                                                borderRadius: '6px'
-                                            }}>
+                                            <div
+                                                className="evolution-option-card devolve"
+                                                style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    padding: '10px',
+                                                    borderRadius: '6px'
+                                                }}
+                                            >
                                                 <div>
                                                     <div style={{ fontWeight: 'bold' }}>{canDevolve.species}</div>
-                                                    <div style={{ fontSize: '11px', color: '#666' }}>
+                                                    <div className="text-muted" style={{ fontSize: '11px' }}>
                                                         Revert to previous form
                                                     </div>
                                                 </div>
@@ -1645,7 +1699,7 @@ const PokemonCard = ({
                                     )}
 
                                     {(!canEvolve || canEvolve.length === 0) && !canDevolve && (
-                                        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                                        <div className="text-light" style={{ textAlign: 'center', padding: '20px' }}>
                                             No evolution options available for {pokemon.species || 'this Pokemon'}
                                         </div>
                                     )}

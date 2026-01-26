@@ -99,6 +99,15 @@ const [showSaveIndicator, setShowSaveIndicator] = useState(false);
 const [levelUpNotification, setLevelUpNotification] = useState(null);
 const [referenceTab, setReferenceTab] = useState('types');
 
+// --- Theme State ---
+const [theme, setTheme] = useState(() => {
+    // Load theme from localStorage or default to light
+    const savedTheme = safeLocalStorageGet('pta-theme', 'light');
+    // Apply theme to document immediately
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    return savedTheme;
+});
+
 // --- Moves Database Filters ---
 const [movesFilter, setMovesFilter] = useState({
     search: '',
@@ -451,6 +460,12 @@ useEffect(() => {
         console.warn('Could not save Discord webhook settings');
     }
 }, [discordWebhook.url, discordWebhook.enabled]);
+
+// Save theme to localStorage and apply to document
+useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    safeLocalStorageSet('pta-theme', theme);
+}, [theme]);
 
 // Send roll result to Discord webhook
 const sendToDiscord = useCallback(async (roll) => {
@@ -2372,6 +2387,26 @@ const respecTrainer = () => {
     alert('Trainer has been reset to Level 0!\n\nYou can now rebuild your character. Remember to level up to 1 and pick your first class to get your base features!');
 };
 
+// Import Pokemon (from trade/gift)
+const importPokemon = (pokemonData, toParty = false) => {
+    // Ensure the imported Pokemon has a unique ID
+    const importedPokemon = {
+        ...pokemonData,
+        id: Date.now() + Math.random()
+    };
+
+    // Add to party if requested and there's room, otherwise add to reserve
+    if (toParty && party.length < 6) {
+        setParty(prev => [...prev, importedPokemon]);
+    } else {
+        setReserve(prev => [...prev, importedPokemon]);
+        // Switch to reserve view if we added there and we tried to add to party
+        if (toParty && party.length >= 6) {
+            setPokemonView('reserve');
+        }
+    }
+};
+
 // Add new Pokemon
 const addPokemon = () => {
     const newPokemon = {
@@ -2952,6 +2987,8 @@ return (
             exportAllData={exportAllData}
             onImport={importData}
             onExportCard={() => setShowCardModal(true)}
+            theme={theme}
+            setTheme={setTheme}
         />
 
 
@@ -3053,6 +3090,7 @@ return (
                         getEvolutionOptions={getEvolutionOptions}
                         evolvePokemon={handleEvolution}
                         devolvePokemon={handleDevolution}
+                        importPokemon={importPokemon}
                     />
                 )}
 

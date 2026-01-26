@@ -74,11 +74,11 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
             <h3 className="section-title-purple">
                 <span>⭐</span> Features
-                <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal', color: '#666' }}>
+                <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
                     {currentFeatures.length} features | {trainer.featPoints || 0} points available
                 </span>
             </h3>
-            <p style={{ fontSize: '11px', color: '#666', marginBottom: '12px', marginTop: '-5px' }}>
+            <p className="section-description" style={{ fontSize: '11px' }}>
                 Features give special abilities. Most cost 1 feat point. "General (Free)" features are free. Green badges are class base features.
             </p>
 
@@ -138,7 +138,7 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
             )}
 
             {/* Add Feature Section */}
-            <div style={{ background: '#f8f9fa', padding: '12px', borderRadius: '8px' }}>
+            <div className="bg-light" style={{ padding: '12px', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
                     <input
                         type="text"

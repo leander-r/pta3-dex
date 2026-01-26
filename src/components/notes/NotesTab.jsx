@@ -23,7 +23,7 @@ const NotesTab = ({ trainer, setTrainer }) => {
     return (
         <div>
             <h2 className="section-title">Campaign Notes</h2>
-            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px', marginTop: '-5px' }}>
+            <p className="section-description">
                 Keep track of your adventure - quests, NPCs, story events, and strategies.
             </p>
 

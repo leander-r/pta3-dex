@@ -166,11 +166,11 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
             <h3 className="section-title-purple">
                 <span>🎓</span> Classes
-                <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal', color: '#666' }}>
+                <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
                     {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
                 </span>
             </h3>
-            <p style={{ fontSize: '11px', color: '#666', marginBottom: '12px', marginTop: '-5px' }}>
+            <p className="section-description" style={{ fontSize: '11px' }}>
                 Classes unlock features and skills. Lv1-4: 1 class | Lv5-11: 2 | Lv12-23: 3 | Lv24+: 4.
                 {currentClasses.length >= 1 && ' Additional classes cost 1 feat point.'}
             </p>

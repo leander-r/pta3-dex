@@ -200,14 +200,14 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
     return (
         <div>
             <h2 className="section-title">Inventory</h2>
-            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px', marginTop: '-5px' }}>
+            <p className="section-description">
                 Track items, medicine, Poké Balls, and equipment. Tap an item for details or to adjust quantity.
             </p>
 
             <div className="section-card-purple">
                 <h3 className="section-title-purple">
                     <span>🎒</span> Items
-                    <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal', color: '#666' }}>
+                    <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
                         {totalItems} items ({inventory.length} unique)
                     </span>
                 </h3>
@@ -250,7 +250,7 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
 
                 {/* Add Item Panel */}
                 {showAddItem && (
-                    <div style={{ marginBottom: '15px', padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '2px solid #667eea' }}>
+                    <div className="add-item-panel" style={{ marginBottom: '15px' }}>
                         {/* Search and Quantity Row */}
                         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
                             <div style={{ flex: 1, position: 'relative' }}>
@@ -284,8 +284,8 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                     >✕</button>
                                 )}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'white', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd' }}>
-                                <span style={{ fontSize: '12px', color: '#666' }}>Qty:</span>
+                            <div className="quantity-input-group" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd' }}>
+                                <span className="text-muted" style={{ fontSize: '12px' }}>Qty:</span>
                                 <input
                                     type="number"
                                     value={addQuantity}
@@ -300,7 +300,7 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
                             {/* Type Filter */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Type:</span>
+                                <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'bold' }}>Type:</span>
                                 <select
                                     value={addItemFilter}
                                     onChange={(e) => setAddItemFilter(e.target.value)}
@@ -335,7 +335,7 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
 
                             {/* Sort */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>Sort:</span>
+                                <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'bold' }}>Sort:</span>
                                 <select
                                     value={addItemSort}
                                     onChange={(e) => setAddItemSort(e.target.value)}
@@ -357,7 +357,7 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                             </div>
 
                             {/* Results count */}
-                            <span style={{ fontSize: '11px', color: '#999', marginLeft: 'auto' }}>
+                            <span className="text-light" style={{ fontSize: '11px', marginLeft: 'auto' }}>
                                 {availableItems.length} items
                             </span>
                         </div>
@@ -368,9 +368,9 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                 return (
                                     <div
                                         key={name}
+                                        className="item-list-card"
                                         style={{
                                             marginBottom: '6px',
-                                            background: 'white',
                                             borderRadius: '8px',
                                             borderLeft: `4px solid ${getTypeColor(data.type)}`,
                                             overflow: 'hidden'
@@ -400,10 +400,10 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                                         {data.type || 'misc'}
                                                     </span>
                                                 </div>
-                                                <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+                                                <div className="text-muted" style={{ fontSize: '11px', marginTop: '2px' }}>
                                                     {data.price ? `₽${data.price}` : 'No price'}
                                                     {data.effect && (
-                                                        <span style={{ marginLeft: '8px', color: '#999' }}>
+                                                        <span className="text-light" style={{ marginLeft: '8px' }}>
                                                             {isExpanded ? '▼' : '▶'} Details
                                                         </span>
                                                     )}
@@ -434,12 +434,10 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
 
                                         {/* Expanded details */}
                                         {isExpanded && data.effect && (
-                                            <div style={{
+                                            <div className="item-details-expanded" style={{
                                                 padding: '10px 12px',
-                                                background: '#f0f4ff',
                                                 borderTop: '1px solid #e0e0e0',
-                                                fontSize: '12px',
-                                                color: '#333'
+                                                fontSize: '12px'
                                             }}>
                                                 <strong>Effect:</strong> {data.effect}
                                             </div>
@@ -464,7 +462,7 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                 >
                                     <div>
                                         <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Add Custom: "{itemSearch}"</div>
-                                        <div style={{ fontSize: '11px', color: '#666' }}>Not in database - will be added as misc item</div>
+                                        <div className="text-muted" style={{ fontSize: '11px' }}>Not in database - will be added as misc item</div>
                                     </div>
                                     <button
                                         onClick={() => handleAddItem(itemSearch, { type: 'misc' }, addQuantity)}
@@ -532,12 +530,12 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                             return (
                                 <div
                                     key={`${item.name}-${index}`}
+                                    className="inventory-item-card"
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '12px',
                                         padding: '12px',
-                                        background: 'white',
                                         borderRadius: '8px',
                                         borderLeft: `4px solid ${getTypeColor(itemType)}`
                                     }}
@@ -558,12 +556,12 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                             </span>
                                         </div>
                                         {item.effect && (
-                                            <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                                            <div className="text-muted" style={{ fontSize: '12px', marginTop: '2px' }}>
                                                 {item.effect}
                                             </div>
                                         )}
                                         {item.price > 0 && (
-                                            <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
+                                            <div className="text-light" style={{ fontSize: '11px', marginTop: '2px' }}>
                                                 ₽{item.price} each
                                             </div>
                                         )}
@@ -573,12 +571,11 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <button
                                             onClick={() => handleRemoveItem(item.name)}
+                                            className="quantity-btn"
                                             style={{
                                                 width: '28px',
                                                 height: '28px',
-                                                border: '1px solid #ddd',
                                                 borderRadius: '4px',
-                                                background: 'white',
                                                 cursor: 'pointer',
                                                 fontSize: '16px',
                                                 display: 'flex',
@@ -605,12 +602,11 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                         />
                                         <button
                                             onClick={() => handleAddItem(item.name, item, 1)}
+                                            className="quantity-btn"
                                             style={{
                                                 width: '28px',
                                                 height: '28px',
-                                                border: '1px solid #ddd',
                                                 borderRadius: '4px',
-                                                background: 'white',
                                                 cursor: 'pointer',
                                                 fontSize: '16px',
                                                 display: 'flex',

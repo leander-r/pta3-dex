@@ -35,18 +35,18 @@ const TrainerSkills = ({ trainer, setTrainer, GAME_DATA }) => {
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
             <h3 className="section-title-purple">
                 <span>🎯</span> Skills
-                <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal', color: '#666' }}>
+                <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
                     {currentSkills.length} trained skills
                 </span>
             </h3>
 
-            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px' }}>
+            <p className="section-description">
                 Trained skills grant +2 bonus on skill checks. Click to toggle training.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
                 {SKILL_STATS.map(stat => (
-                    <div key={stat} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '10px' }}>
+                    <div key={stat} className="bg-light" style={{ borderRadius: '8px', padding: '10px' }}>
                         <div style={{
                             fontWeight: 'bold',
                             fontSize: '12px',
@@ -68,14 +68,15 @@ const TrainerSkills = ({ trainer, setTrainer, GAME_DATA }) => {
                                 <div
                                     key={skill.name}
                                     onClick={() => handleToggleSkill(skill.name)}
+                                    className={!isTrained ? 'skill-list-item' : ''}
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '8px',
                                         padding: '6px 8px',
                                         marginBottom: '4px',
-                                        background: isTrained ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'white',
-                                        color: isTrained ? 'white' : '#333',
+                                        background: isTrained ? 'linear-gradient(135deg, #667eea, #764ba2)' : undefined,
+                                        color: isTrained ? 'white' : undefined,
                                         borderRadius: '6px',
                                         cursor: 'pointer',
                                         fontSize: '12px',
@@ -107,7 +108,7 @@ const TrainerSkills = ({ trainer, setTrainer, GAME_DATA }) => {
 
             {/* Current Skills Summary */}
             {currentSkills.length > 0 && (
-                <div style={{ marginTop: '15px', padding: '10px', background: '#e8eaf6', borderRadius: '8px' }}>
+                <div className="skill-search-section" style={{ marginTop: '15px', padding: '10px', borderRadius: '8px' }}>
                     <div style={{ fontWeight: 'bold', fontSize: '11px', marginBottom: '6px', color: '#303f9f' }}>
                         Trained Skills:
                     </div>

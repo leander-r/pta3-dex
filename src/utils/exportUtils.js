@@ -288,3 +288,129 @@ export const exportSingleTrainer = (trainerToExport, inventory) => {
     a.click();
     URL.revokeObjectURL(url);
 };
+
+/**
+ * Export single Pokemon as JSON for trading/sharing
+ */
+export const exportSinglePokemon = (pokemon) => {
+    // Create a clean export without the id (will be regenerated on import)
+    const { id, ...pokemonData } = pokemon;
+
+    const exportData = {
+        type: 'pta-pokemon',
+        pokemon: {
+            ...pokemonData,
+            // Ensure all important fields are included
+            name: pokemon.name || pokemon.species || 'Unknown',
+            species: pokemon.species || 'Unknown',
+            level: pokemon.level || 1,
+            types: pokemon.types || ['Normal'],
+            nature: pokemon.nature || 'Hardy',
+            abilities: pokemon.abilities || [],
+            moves: pokemon.moves || [],
+            baseStats: pokemon.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
+            addedStats: pokemon.addedStats || { hp: 0, atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 },
+            statPointsAvailable: pokemon.statPointsAvailable || 0,
+            currentDamage: pokemon.currentDamage || 0,
+            gender: pokemon.gender || '',
+            avatar: pokemon.avatar || ''
+        },
+        exportedAt: new Date().toISOString(),
+        version: '1.0',
+        _m: { c: 'leander_rsr', h: '6c65616e6465725f727372' }
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const pokeName = (pokemon.name || pokemon.species || 'pokemon').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    a.download = `pokemon-${pokeName}-lv${pokemon.level || 1}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+/**
+ * Import single Pokemon from JSON data
+ * Returns the Pokemon object if valid, null otherwise
+ */
+export const importSinglePokemon = (jsonData) => {
+    try {
+        let data;
+        if (typeof jsonData === 'string') {
+            data = JSON.parse(jsonData);
+        } else {
+            data = jsonData;
+        }
+
+        // Validate that this is a Pokemon export
+        if (!data.type || data.type !== 'pta-pokemon' || !data.pokemon) {
+            throw new Error('Invalid Pokemon file format');
+        }
+
+        const pokemon = data.pokemon;
+
+        // Create a new Pokemon with a fresh ID
+        return {
+            id: Date.now() + Math.random(),
+            name: pokemon.name || pokemon.species || 'Unknown',
+            species: pokemon.species || 'Unknown',
+            level: pokemon.level || 1,
+            experience: pokemon.experience || 0,
+            types: pokemon.types || ['Normal'],
+            nature: pokemon.nature || 'Hardy',
+            abilities: pokemon.abilities || [],
+            ability: pokemon.ability || '',
+            ability2: pokemon.ability2 || '',
+            ability3: pokemon.ability3 || '',
+            moves: pokemon.moves || [],
+            baseStats: pokemon.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
+            addedStats: pokemon.addedStats || { hp: 0, atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 },
+            statPointsAvailable: pokemon.statPointsAvailable || 0,
+            statAllocationHistory: pokemon.statAllocationHistory || [],
+            currentDamage: pokemon.currentDamage || 0,
+            gender: pokemon.gender || '',
+            avatar: pokemon.avatar || '',
+            pokemonSkills: pokemon.pokemonSkills || [],
+            availableAbilities: pokemon.availableAbilities || [],
+            availableLevelUpMoves: pokemon.availableLevelUpMoves || [],
+            regionalForm: pokemon.regionalForm || null,
+            heldItem: pokemon.heldItem || '',
+            notes: pokemon.notes || ''
+        };
+    } catch (error) {
+        console.error('Error importing Pokemon:', error);
+        return null;
+    }
+};
+
+/**
+ * Copy Pokemon data to clipboard for easy sharing
+ */
+export const copyPokemonToClipboard = (pokemon) => {
+    // Create a clean export without the id
+    const { id, ...pokemonData } = pokemon;
+
+    const exportData = {
+        type: 'pta-pokemon',
+        pokemon: pokemonData,
+        exportedAt: new Date().toISOString(),
+        version: '1.0'
+    };
+
+    const dataStr = JSON.stringify(exportData);
+
+    navigator.clipboard.writeText(dataStr).then(() => {
+        alert(`${pokemon.name || pokemon.species || 'Pokemon'} copied to clipboard! Share this with another player to trade.`);
+    }).catch(err => {
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = dataStr;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert(`${pokemon.name || pokemon.species || 'Pokemon'} copied to clipboard!`);
+    });
+};
