@@ -3,7 +3,7 @@
 // ============================================================
 // Campaign notes editor
 
-import React from 'react';
+import React, { useState } from 'react';
 
 /**
  * NotesTab - Campaign notes editor
@@ -12,15 +12,25 @@ import React from 'react';
  * @param {Function} props.setTrainer - Function to update trainer
  */
 const NotesTab = ({ trainer, setTrainer }) => {
+    const [isFocused, setIsFocused] = useState(false);
+
     const handleNotesChange = (e) => {
         setTrainer(prev => ({ ...prev, notes: e.target.value }));
     };
 
+    const wordCount = (trainer.notes || '').trim().split(/\s+/).filter(Boolean).length;
+
     return (
         <div>
             <h2 className="section-title">Campaign Notes</h2>
+            <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px', marginTop: '-5px' }}>
+                Keep track of your adventure - quests, NPCs, story events, and strategies.
+            </p>
 
-            <div className="section-card-purple">
+            <div className="section-card-purple" style={{
+                transition: 'box-shadow 0.2s ease',
+                boxShadow: isFocused ? '0 0 0 3px rgba(102, 126, 234, 0.2)' : 'none'
+            }}>
                 <h3 className="section-title-purple">
                     <span>📝</span> {trainer.name || 'Trainer'}'s Notes
                 </h3>
@@ -28,6 +38,8 @@ const NotesTab = ({ trainer, setTrainer }) => {
                 <textarea
                     value={trainer.notes || ''}
                     onChange={handleNotesChange}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
                     placeholder="Write your campaign notes, quest logs, NPC info, or anything else here...
 
 Examples of what you could track:
@@ -40,13 +52,24 @@ Examples of what you could track:
                     style={{
                         width: '100%',
                         minHeight: '500px',
-                        padding: '15px',
+                        padding: '16px',
                         fontSize: '14px',
-                        lineHeight: '1.6',
+                        lineHeight: '1.7',
                         border: '2px solid #e8e3f3',
-                        borderRadius: '8px',
+                        borderRadius: '10px',
                         resize: 'vertical',
-                        fontFamily: 'inherit'
+                        fontFamily: 'inherit',
+                        background: '#fafafa',
+                        transition: 'border-color 0.2s ease, background-color 0.2s ease',
+                        outline: 'none'
+                    }}
+                    onFocusCapture={(e) => {
+                        e.target.style.borderColor = '#667eea';
+                        e.target.style.backgroundColor = '#fff';
+                    }}
+                    onBlurCapture={(e) => {
+                        e.target.style.borderColor = '#e8e3f3';
+                        e.target.style.backgroundColor = '#fafafa';
                     }}
                 />
 
@@ -54,14 +77,33 @@ Examples of what you could track:
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginTop: '10px',
+                    marginTop: '12px',
+                    padding: '8px 4px',
                     fontSize: '12px',
-                    color: '#666'
+                    color: '#666',
+                    borderTop: '1px solid #e8e3f3'
                 }}>
-                    <span>
-                        {(trainer.notes || '').length} characters
-                    </span>
-                    <span>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <span>
+                            <strong>{(trainer.notes || '').length}</strong> characters
+                        </span>
+                        <span>
+                            <strong>{wordCount}</strong> words
+                        </span>
+                    </div>
+                    <span style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        color: '#4caf50'
+                    }}>
+                        <span style={{
+                            width: '6px',
+                            height: '6px',
+                            background: '#4caf50',
+                            borderRadius: '50%',
+                            display: 'inline-block'
+                        }}></span>
                         Auto-saved
                     </span>
                 </div>

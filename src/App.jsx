@@ -2958,42 +2958,54 @@ return (
         {/* Main Content */}
         <div className="main-content">
             {/* Sidebar Navigation */}
-            <div className="sidebar">
+            <div className="sidebar" role="navigation" aria-label="Main navigation">
                 <button
                     className={`nav-button ${activeTab === 'trainer' ? 'active' : ''}`}
                     onClick={() => setActiveTab('trainer')}
+                    aria-current={activeTab === 'trainer' ? 'page' : undefined}
                 >
-                    👤 Trainer
+                    <span className="nav-icon">👤</span>
+                    <span>Trainer</span>
                 </button>
                 <button
                     className={`nav-button ${activeTab === 'pokemon' ? 'active' : ''}`}
                     onClick={() => setActiveTab('pokemon')}
+                    aria-current={activeTab === 'pokemon' ? 'page' : undefined}
                 >
-                    🎮 Pokémon Team
+                    <span className="nav-icon">🎮</span>
+                    <span>Pokémon Team</span>
                 </button>
                 <button
                     className={`nav-button ${activeTab === 'inventory' ? 'active' : ''}`}
                     onClick={() => setActiveTab('inventory')}
+                    aria-current={activeTab === 'inventory' ? 'page' : undefined}
                 >
-                    🎒 Inventory
+                    <span className="nav-icon">🎒</span>
+                    <span>Inventory</span>
                 </button>
                 <button
                     className={`nav-button ${activeTab === 'battle' ? 'active' : ''}`}
                     onClick={() => setActiveTab('battle')}
+                    aria-current={activeTab === 'battle' ? 'page' : undefined}
                 >
-                    🎲 Dice Roller
+                    <span className="nav-icon">🎲</span>
+                    <span>Dice Roller</span>
                 </button>
                 <button
                     className={`nav-button ${activeTab === 'reference' ? 'active' : ''}`}
                     onClick={() => setActiveTab('reference')}
+                    aria-current={activeTab === 'reference' ? 'page' : undefined}
                 >
-                    📚 Quick Reference
+                    <span className="nav-icon">📚</span>
+                    <span>Quick Reference</span>
                 </button>
                 <button
                     className={`nav-button ${activeTab === 'notes' ? 'active' : ''}`}
                     onClick={() => setActiveTab('notes')}
+                    aria-current={activeTab === 'notes' ? 'page' : undefined}
                 >
-                    📝 Campaign Notes
+                    <span className="nav-icon">📝</span>
+                    <span>Campaign Notes</span>
                 </button>
             </div>
             

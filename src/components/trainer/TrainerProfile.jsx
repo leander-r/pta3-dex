@@ -161,18 +161,27 @@ const TrainerProfile = ({
 
             {/* Level Controls */}
             <div className="level-controls">
-                <button className="level-btn" onClick={levelDownTrainer} disabled={trainer.level <= 1}>−</button>
-                <div className="text-center">
-                    <div style={{ fontSize: '12px', opacity: 0.8 }}>LEVEL</div>
-                    <div style={{ fontSize: '36px', fontWeight: 'bold' }}>{trainer.level}</div>
+                <button
+                    className="level-btn"
+                    onClick={levelDownTrainer}
+                    disabled={trainer.level <= 1}
+                    aria-label="Decrease level"
+                >
+                    −
+                </button>
+                <div className="level-display">
+                    <div className="level-label">LEVEL</div>
+                    <div className="level-value">{trainer.level}</div>
                 </div>
                 <button
                     className="level-btn"
                     onClick={levelUpTrainer}
                     disabled={!canLevelUp}
-                    style={!canLevelUp ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                     title={!canLevelUp ? `Complete character creation first` : 'Level up trainer'}
-                >+</button>
+                    aria-label="Increase level"
+                >
+                    +
+                </button>
             </div>
 
             {/* Level 0 Checklist */}

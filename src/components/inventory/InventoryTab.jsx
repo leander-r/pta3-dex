@@ -485,10 +485,18 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                             )}
 
                             {availableItems.length === 0 && (
-                                <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                                    {itemSearch || addItemFilter !== 'all'
-                                        ? 'No items match your search/filter'
-                                        : 'Browse items using the filters above or search by name'}
+                                <div className="empty-state" style={{ padding: '24px' }}>
+                                    <span className="empty-state-icon" style={{ fontSize: '32px' }}>🔍</span>
+                                    <p className="empty-state-title" style={{ fontSize: '14px' }}>
+                                        {itemSearch || addItemFilter !== 'all'
+                                            ? 'No items match your search'
+                                            : 'Search for items'}
+                                    </p>
+                                    <p className="empty-state-description" style={{ fontSize: '12px' }}>
+                                        {itemSearch || addItemFilter !== 'all'
+                                            ? 'Try a different search term or change the filter.'
+                                            : 'Use the search box or filters above to find items.'}
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -497,8 +505,25 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
 
                 {/* Inventory List */}
                 {filteredInventory.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                        {inventory.length === 0 ? 'Inventory is empty' : 'No items match your filter'}
+                    <div className="empty-state">
+                        <span className="empty-state-icon">{inventory.length === 0 ? '🎒' : '🔍'}</span>
+                        <p className="empty-state-title">
+                            {inventory.length === 0 ? 'Inventory is empty' : 'No items found'}
+                        </p>
+                        <p className="empty-state-description">
+                            {inventory.length === 0
+                                ? 'Add items from the item database to track your supplies.'
+                                : 'Try adjusting your search or filter.'}
+                        </p>
+                        {inventory.length === 0 && (
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => setShowAddItem(true)}
+                                style={{ marginTop: '16px' }}
+                            >
+                                + Add Items
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div style={{ display: 'grid', gap: '8px' }}>

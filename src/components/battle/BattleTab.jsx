@@ -1009,11 +1009,12 @@ const BattleTab = ({
 
                     <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                         {rollHistory.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                                <div style={{ fontSize: '14px', marginBottom: '8px' }}>No rolls yet</div>
-                                <div style={{ fontSize: '11px' }}>
+                            <div className="empty-state" style={{ margin: '0' }}>
+                                <span className="empty-state-icon">🎲</span>
+                                <p className="empty-state-title">No rolls yet</p>
+                                <p className="empty-state-description">
                                     Select a Pokémon and move, then click "Roll Attack!" to make your first roll.
-                                </div>
+                                </p>
                             </div>
                         ) : (
                             rollHistory.map((roll, idx) => (

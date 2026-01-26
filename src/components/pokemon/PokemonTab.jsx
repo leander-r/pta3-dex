@@ -77,17 +77,10 @@ const PokemonTab = ({
 
                 <button
                     onClick={handleAddPokemon}
-                    style={{
-                        padding: '10px 20px',
-                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
-                    }}
+                    className="btn btn-purple"
+                    style={{ padding: '10px 20px' }}
                 >
-                    + Add Pokemon
+                    + Add Pokémon
                 </button>
             </div>
 
@@ -110,30 +103,43 @@ const PokemonTab = ({
 
             {/* Pokemon List */}
             {filteredList.length === 0 ? (
-                <div className="section-card-purple" style={{ textAlign: 'center', padding: '40px' }}>
+                <div className="empty-state" style={{ marginTop: '10px' }}>
                     {currentList.length === 0 ? (
                         <>
-                            <div style={{ fontSize: '48px', marginBottom: '15px' }}>🎮</div>
-                            <div style={{ color: '#666', marginBottom: '15px' }}>
-                                {pokemonView === 'party' ? 'No Pokemon in your party yet' : 'No Pokemon in reserve'}
-                            </div>
+                            <span className="empty-state-icon">
+                                {pokemonView === 'party' ? '🎮' : '📦'}
+                            </span>
+                            <p className="empty-state-title">
+                                {pokemonView === 'party' ? 'No Pokémon in your party' : 'Reserve is empty'}
+                            </p>
+                            <p className="empty-state-description">
+                                {pokemonView === 'party'
+                                    ? 'Add Pokémon to your party to take them on your adventure!'
+                                    : 'Move Pokémon here from your party or add new ones.'}
+                            </p>
                             <button
                                 onClick={handleAddPokemon}
-                                style={{
-                                    padding: '12px 24px',
-                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
+                                className="btn btn-purple"
+                                style={{ marginTop: '16px' }}
                             >
-                                Add Your First Pokemon
+                                + Add Your First Pokémon
                             </button>
                         </>
                     ) : (
-                        <div style={{ color: '#666' }}>No Pokemon match your search</div>
+                        <>
+                            <span className="empty-state-icon">🔍</span>
+                            <p className="empty-state-title">No matches found</p>
+                            <p className="empty-state-description">
+                                Try a different search term or clear the search.
+                            </p>
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="btn btn-secondary"
+                                style={{ marginTop: '12px' }}
+                            >
+                                Clear Search
+                            </button>
+                        </>
                     )}
                 </div>
             ) : (
