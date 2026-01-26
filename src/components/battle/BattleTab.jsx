@@ -14,7 +14,8 @@ const BattleTab = ({
     setDiscordWebhook,
     sendToDiscord,
     updatePokemon,
-    showDetail
+    showDetail,
+    pokedex
 }) => {
     const [mode, setMode] = useState('pokemon');
     const [selectedMove, setSelectedMove] = useState(null);
@@ -31,10 +32,57 @@ const BattleTab = ({
     const [selectedPokemonId, setSelectedPokemonId] = useState(null);
     const [acOverride, setAcOverride] = useState('');
 
+    // Mega Evolution state
+    const [megaEvolved, setMegaEvolved] = useState(false);
+    const [currentMegaForm, setCurrentMegaForm] = useState(null);
+    const [showMegaModal, setShowMegaModal] = useState(false);
+
     // Get selected pokemon from party (synced with actual data)
     const selectedPokemon = useMemo(() => {
         return party.find(p => p.id === selectedPokemonId) || null;
     }, [party, selectedPokemonId]);
+
+    // Get mega forms for selected Pokemon from pokedex
+    const megaForms = useMemo(() => {
+        if (!selectedPokemon || !pokedex) return [];
+        const speciesData = pokedex.find(p => p.species === selectedPokemon.species);
+        return speciesData?.megaForms || [];
+    }, [selectedPokemon, pokedex]);
+
+    // Reset mega evolution when switching Pokemon
+    useEffect(() => {
+        setMegaEvolved(false);
+        setCurrentMegaForm(null);
+    }, [selectedPokemonId]);
+
+    // Apply mega stat boosts to actual stats
+    const getStatsWithMega = (pokemon) => {
+        const baseStats = getActualStats(pokemon);
+        if (!megaEvolved || !currentMegaForm || !currentMegaForm.statBoosts) {
+            return baseStats;
+        }
+        return {
+            hp: baseStats.hp + (currentMegaForm.statBoosts.hp || 0),
+            atk: baseStats.atk + (currentMegaForm.statBoosts.atk || 0),
+            def: baseStats.def + (currentMegaForm.statBoosts.def || 0),
+            satk: baseStats.satk + (currentMegaForm.statBoosts.satk || 0),
+            sdef: baseStats.sdef + (currentMegaForm.statBoosts.sdef || 0),
+            spd: baseStats.spd + (currentMegaForm.statBoosts.spd || 0)
+        };
+    };
+
+    // Handle mega evolution
+    const handleMegaEvolve = (megaForm) => {
+        setCurrentMegaForm(megaForm);
+        setMegaEvolved(true);
+        setShowMegaModal(false);
+    };
+
+    // Revert mega evolution
+    const handleMegaRevert = () => {
+        setMegaEvolved(false);
+        setCurrentMegaForm(null);
+    };
 
     // Calculate Pokemon HP using the utility function
     const getPokemonHP = (poke) => {
@@ -88,7 +136,7 @@ const BattleTab = ({
     const rollPokemonMove = () => {
         if (!selectedPokemon || !selectedMove) return;
 
-        const actualStats = getActualStats(selectedPokemon);
+        const actualStats = getStatsWithMega(selectedPokemon);
         const isPhysical = selectedMove.category === 'Physical';
         const statKey = isPhysical ? 'atk' : 'satk';
         const baseStat = actualStats[statKey] || 0;
@@ -381,6 +429,158 @@ const BattleTab = ({
                                 );
                             })()}
 
+                            {/* Mega Evolution */}
+                            {selectedPokemon && megaForms.length > 0 && (
+                                <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>
+                                                Mega Evolution
+                                            </span>
+                                            {megaEvolved && currentMegaForm && (
+                                                <span style={{
+                                                    marginLeft: '8px',
+                                                    fontSize: '11px',
+                                                    background: 'rgba(255,255,255,0.2)',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '10px',
+                                                    color: 'white'
+                                                }}>
+                                                    {currentMegaForm.name} Active
+                                                </span>
+                                            )}
+                                        </div>
+                                        {!megaEvolved ? (
+                                            <button
+                                                onClick={() => megaForms.length === 1 ? handleMegaEvolve(megaForms[0]) : setShowMegaModal(true)}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    background: 'white',
+                                                    color: '#667eea',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '11px'
+                                                }}
+                                            >
+                                                Mega Evolve
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={handleMegaRevert}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    background: 'rgba(255,255,255,0.2)',
+                                                    color: 'white',
+                                                    border: '1px solid rgba(255,255,255,0.3)',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '11px'
+                                                }}
+                                            >
+                                                Revert
+                                            </button>
+                                        )}
+                                    </div>
+                                    {megaEvolved && currentMegaForm && (
+                                        <div style={{ marginTop: '8px', fontSize: '10px', color: 'rgba(255,255,255,0.9)' }}>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                {currentMegaForm.types && (
+                                                    <span>Type: {currentMegaForm.types.join('/')}</span>
+                                                )}
+                                                {currentMegaForm.ability && (
+                                                    <span>• Ability: {currentMegaForm.ability}</span>
+                                                )}
+                                            </div>
+                                            <div style={{ marginTop: '4px' }}>
+                                                Stat Boosts: {Object.entries(currentMegaForm.statBoosts || {})
+                                                    .filter(([, v]) => v > 0)
+                                                    .map(([k, v]) => `+${v} ${k.toUpperCase()}`)
+                                                    .join(', ') || 'None'}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Mega Form Selection Modal */}
+                            {showMegaModal && megaForms.length > 1 && (
+                                <div
+                                    style={{
+                                        position: 'fixed',
+                                        top: 0, left: 0, right: 0, bottom: 0,
+                                        background: 'rgba(0,0,0,0.5)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        zIndex: 1000
+                                    }}
+                                    onClick={() => setShowMegaModal(false)}
+                                >
+                                    <div
+                                        style={{
+                                            background: 'white',
+                                            borderRadius: '12px',
+                                            padding: '20px',
+                                            maxWidth: '400px',
+                                            width: '90%'
+                                        }}
+                                        onClick={e => e.stopPropagation()}
+                                    >
+                                        <h3 style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
+                                            Choose Mega Form
+                                        </h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {megaForms.map((form, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => handleMegaEvolve(form)}
+                                                    style={{
+                                                        padding: '12px',
+                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        textAlign: 'left'
+                                                    }}
+                                                >
+                                                    <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                                        {form.name}
+                                                    </div>
+                                                    <div style={{ fontSize: '11px', opacity: 0.9 }}>
+                                                        {form.types?.join('/') || 'Unknown Type'}
+                                                        {form.ability && ` • ${form.ability}`}
+                                                    </div>
+                                                    <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+                                                        {Object.entries(form.statBoosts || {})
+                                                            .filter(([, v]) => v > 0)
+                                                            .map(([k, v]) => `+${v} ${k.toUpperCase()}`)
+                                                            .join(', ')}
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <button
+                                            onClick={() => setShowMegaModal(false)}
+                                            style={{
+                                                marginTop: '12px',
+                                                width: '100%',
+                                                padding: '10px',
+                                                background: '#eee',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Combat Stages */}
                             {selectedPokemon && (
                                 <div style={{ marginBottom: '12px' }}>
@@ -408,7 +608,7 @@ const BattleTab = ({
                                         </span>
                                     </div>
                                     {showCombatStages && (() => {
-                                        const actualStats = getActualStats(selectedPokemon);
+                                        const actualStats = getStatsWithMega(selectedPokemon);
                                         const getModifiedStat = (baseStat, stages) => {
                                             if (stages > 0) return Math.floor(baseStat * (1 + stages * 0.25));
                                             if (stages < 0) return Math.ceil(baseStat * (1 - Math.abs(stages) * 0.10));

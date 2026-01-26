@@ -3111,6 +3111,7 @@ return (
                         sendToDiscord={sendToDiscord}
                         updatePokemon={updatePokemon}
                         showDetail={showDetail}
+                        pokedex={pokedex}
                     />
                 )}
 

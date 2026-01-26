@@ -415,4 +415,16 @@ export const EVOLUTION_CHAINS = {
     // Diglett line (with Alolan)
     'Diglett': { evolvesTo: [{ species: 'Dugtrio', method: 'level', requirement: 26 }] },
     'Dugtrio': { evolvesFrom: { species: 'Diglett', method: 'level', requirement: 26 } },
+
+    // Rockruff line (with form choices)
+    'Rockruff': { evolvesTo: [
+        { species: 'Lycanroc', method: 'level', requirement: 25, note: 'Day Form' },
+        { species: 'Lycanroc', method: 'level', requirement: 25, regionalForm: 'Night', note: 'Night Form' },
+        { species: 'Lycanroc', method: 'level', requirement: 25, regionalForm: 'Dusk', note: 'Dusk Form' }
+    ]},
+    'Lycanroc': { evolvesFrom: { species: 'Rockruff', method: 'level', requirement: 25 } },
+
+    // Pumpkaboo line (size form preserved on evolution)
+    'Pumpkaboo': { evolvesTo: [{ species: 'Gourgeist', method: 'level', requirement: 25 }] },
+    'Gourgeist': { evolvesFrom: { species: 'Pumpkaboo', method: 'level', requirement: 25 } },
 };
