@@ -107,6 +107,36 @@
             --species-regional-hover: #e3f2fd;
             --species-label-text: #666;
             --species-muted-text: #999;
+
+            /* Moves database colors */
+            --moves-card-bg: #fff;
+            --moves-card-shadow: rgba(0, 0, 0, 0.1);
+            --moves-category-physical-bg: #ffebee;
+            --moves-category-physical-text: #c62828;
+            --moves-category-special-bg: #f3e5f5;
+            --moves-category-special-text: #6a1b9a;
+            --moves-category-status-bg: #eceff1;
+            --moves-category-status-text: #455a64;
+            --moves-damage-text: #c62828;
+            --moves-frequency-text: #888;
+            --moves-range-text: #666;
+            --moves-effect-text: #555;
+            --moves-empty-text: #999;
+            --moves-type-btn-border: #333;
+
+            /* Abilities database colors */
+            --abilities-card-bg: #fff;
+            --abilities-card-shadow: rgba(0, 0, 0, 0.1);
+            --abilities-card-border: #667eea;
+            --abilities-name-text: inherit;
+            --abilities-desc-text: #555;
+            --abilities-empty-text: #999;
+            --abilities-quick-btn-bg: #fff;
+            --abilities-quick-btn-border: #dee2e6;
+            --abilities-quick-btn-text: #555;
+            --abilities-quick-btn-active-bg: #667eea;
+            --abilities-quick-btn-active-border: #667eea;
+            --abilities-quick-btn-active-text: white;
         }
 
         /* ========== DARK MODE ========== */
@@ -166,6 +196,36 @@
             --species-regional-hover: #2a3a4a;
             --species-label-text: #b0b0c0;
             --species-muted-text: #8888a0;
+
+            /* Moves database colors - dark mode */
+            --moves-card-bg: #2a2a3a;
+            --moves-card-shadow: rgba(0, 0, 0, 0.3);
+            --moves-category-physical-bg: #4a2a2a;
+            --moves-category-physical-text: #ff8a80;
+            --moves-category-special-bg: #3a2a4a;
+            --moves-category-special-text: #ce93d8;
+            --moves-category-status-bg: #3a3a4a;
+            --moves-category-status-text: #90a4ae;
+            --moves-damage-text: #ff8a80;
+            --moves-frequency-text: #8888a0;
+            --moves-range-text: #b0b0c0;
+            --moves-effect-text: #b8b8c8;
+            --moves-empty-text: #6666a0;
+            --moves-type-btn-border: #f0f0f5;
+
+            /* Abilities database colors - dark mode */
+            --abilities-card-bg: #2a2a3a;
+            --abilities-card-shadow: rgba(0, 0, 0, 0.3);
+            --abilities-card-border: #8b9cf7;
+            --abilities-name-text: #f0f0f5;
+            --abilities-desc-text: #b8b8c8;
+            --abilities-empty-text: #6666a0;
+            --abilities-quick-btn-bg: #2a2a3a;
+            --abilities-quick-btn-border: #4d4d5d;
+            --abilities-quick-btn-text: #b8b8c8;
+            --abilities-quick-btn-active-bg: #8b9cf7;
+            --abilities-quick-btn-active-border: #8b9cf7;
+            --abilities-quick-btn-active-text: #1a1a2e;
         }
 
         body {

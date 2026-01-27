@@ -46,14 +46,16 @@ const AbilitiesSection = ({ showDetail }) => {
                             minWidth: '200px',
                             padding: '10px 15px',
                             borderRadius: '8px',
-                            border: '2px solid #dee2e6',
-                            fontSize: '14px'
+                            border: '2px solid var(--border-medium)',
+                            fontSize: '14px',
+                            background: 'var(--input-bg)',
+                            color: 'var(--text-primary)'
                         }}
                     />
 
                     <button
                         onClick={() => setFilter(prev => ({ ...prev, sortDir: prev.sortDir === 'asc' ? 'desc' : 'asc' }))}
-                        style={{ padding: '10px 15px', borderRadius: '8px', border: '1px solid #dee2e6', background: '#fff', cursor: 'pointer', fontSize: '13px' }}
+                        style={{ padding: '10px 15px', borderRadius: '8px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}
                     >
                         {filter.sortDir === 'asc' ? ' A-Z' : ' Z-A'}
                     </button>
@@ -70,7 +72,7 @@ const AbilitiesSection = ({ showDetail }) => {
 
                 {/* Quick Search */}
                 <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    <span style={{ fontSize: '11px', color: '#666', marginRight: '4px' }}>Quick:</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginRight: '4px' }}>Quick:</span>
                     {quickTerms.map(term => (
                         <button
                             key={term}
@@ -78,9 +80,9 @@ const AbilitiesSection = ({ showDetail }) => {
                             style={{
                                 padding: '3px 8px',
                                 borderRadius: '4px',
-                                border: filter.search === term ? '2px solid #667eea' : '1px solid #dee2e6',
-                                background: filter.search === term ? '#667eea' : '#fff',
-                                color: filter.search === term ? 'white' : '#555',
+                                border: filter.search === term ? '2px solid var(--abilities-quick-btn-active-border)' : '1px solid var(--abilities-quick-btn-border)',
+                                background: filter.search === term ? 'var(--abilities-quick-btn-active-bg)' : 'var(--abilities-quick-btn-bg)',
+                                color: filter.search === term ? 'var(--abilities-quick-btn-active-text)' : 'var(--abilities-quick-btn-text)',
                                 cursor: 'pointer',
                                 fontSize: '11px'
                             }}
@@ -92,14 +94,14 @@ const AbilitiesSection = ({ showDetail }) => {
             </div>
 
             {/* Results Count */}
-            <div style={{ marginBottom: '10px', fontSize: '13px', color: '#666' }}>
+            <div style={{ marginBottom: '10px', fontSize: '13px', color: 'var(--text-muted)' }}>
                 Showing {filteredAbilities.length} of {totalAbilities} abilities
             </div>
 
             {/* Abilities List */}
             <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
                 {filteredAbilities.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                    <div style={{ textAlign: 'center', padding: '40px', color: 'var(--abilities-empty-text)' }}>
                         No abilities found matching your search.
                     </div>
                 ) : (
@@ -109,18 +111,18 @@ const AbilitiesSection = ({ showDetail }) => {
                             style={{
                                 marginBottom: '8px',
                                 padding: '12px',
-                                background: '#fff',
+                                background: 'var(--abilities-card-bg)',
                                 borderRadius: '8px',
-                                borderLeft: '4px solid #667eea',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                borderLeft: '4px solid var(--abilities-card-border)',
+                                boxShadow: '0 1px 3px var(--abilities-card-shadow)',
                                 cursor: showDetail ? 'pointer' : 'default'
                             }}
                             onClick={() => showDetail && showDetail('ability', name, desc)}
                         >
-                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', color: 'var(--abilities-name-text)' }}>
                                 {name}
                             </div>
-                            <div style={{ fontSize: '13px', color: '#555', lineHeight: '1.4' }}>
+                            <div style={{ fontSize: '13px', color: 'var(--abilities-desc-text)', lineHeight: '1.4' }}>
                                 {desc}
                             </div>
                         </div>

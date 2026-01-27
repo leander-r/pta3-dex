@@ -73,8 +73,10 @@ const MovesSection = ({ showDetail }) => {
                             width: '100%',
                             padding: '10px 15px',
                             borderRadius: '8px',
-                            border: '2px solid #dee2e6',
-                            fontSize: '14px'
+                            border: '2px solid var(--border-medium)',
+                            fontSize: '14px',
+                            background: 'var(--input-bg)',
+                            color: 'var(--text-primary)'
                         }}
                     />
                 </div>
@@ -86,10 +88,10 @@ const MovesSection = ({ showDetail }) => {
                         style={{
                             padding: '8px 12px',
                             borderRadius: '6px',
-                            border: '1px solid #dee2e6',
+                            border: '1px solid var(--border-medium)',
                             fontSize: '13px',
-                            background: filter.type ? getTypeColor(filter.type) : 'white',
-                            color: filter.type ? 'white' : '#333'
+                            background: filter.type ? getTypeColor(filter.type) : 'var(--input-bg)',
+                            color: filter.type ? 'white' : 'var(--text-primary)'
                         }}
                     >
                         <option value="">All Types</option>
@@ -101,7 +103,7 @@ const MovesSection = ({ showDetail }) => {
                     <select
                         value={filter.category}
                         onChange={(e) => setFilter(prev => ({ ...prev, category: e.target.value }))}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '13px' }}
+                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                     >
                         <option value="">All Categories</option>
                         <option value="Physical">Physical (ATK)</option>
@@ -112,7 +114,7 @@ const MovesSection = ({ showDetail }) => {
                     <select
                         value={filter.frequency}
                         onChange={(e) => setFilter(prev => ({ ...prev, frequency: e.target.value }))}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '13px' }}
+                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                     >
                         <option value="">All Frequencies</option>
                         <option value="At-Will">At-Will</option>
@@ -125,7 +127,7 @@ const MovesSection = ({ showDetail }) => {
                     <select
                         value={filter.sortBy}
                         onChange={(e) => setFilter(prev => ({ ...prev, sortBy: e.target.value }))}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '13px' }}
+                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                     >
                         <option value="name">Sort: Name</option>
                         <option value="type">Sort: Type</option>
@@ -135,7 +137,7 @@ const MovesSection = ({ showDetail }) => {
 
                     <button
                         onClick={() => setFilter(prev => ({ ...prev, sortDir: prev.sortDir === 'asc' ? 'desc' : 'asc' }))}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #dee2e6', background: '#fff', cursor: 'pointer', fontSize: '13px' }}
+                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}
                     >
                         {filter.sortDir === 'asc' ? ' A-Z' : ' Z-A'}
                     </button>
@@ -160,7 +162,7 @@ const MovesSection = ({ showDetail }) => {
                         style={{
                             padding: '4px 8px',
                             borderRadius: '4px',
-                            border: filter.type === type ? '2px solid #333' : '1px solid transparent',
+                            border: filter.type === type ? '2px solid var(--moves-type-btn-border)' : '1px solid transparent',
                             background: getTypeColor(type),
                             color: ['Electric', 'Ice', 'Ground', 'Steel'].includes(type) ? '#333' : 'white',
                             cursor: 'pointer',
@@ -175,14 +177,14 @@ const MovesSection = ({ showDetail }) => {
             </div>
 
             {/* Results Count */}
-            <div style={{ marginBottom: '10px', fontSize: '13px', color: '#666' }}>
+            <div style={{ marginBottom: '10px', fontSize: '13px', color: 'var(--text-muted)' }}>
                 Showing {filteredMoves.length} of {totalMoves} moves
             </div>
 
             {/* Moves List */}
             <div style={{ maxHeight: '550px', overflowY: 'auto' }}>
                 {filteredMoves.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                    <div style={{ textAlign: 'center', padding: '40px', color: 'var(--moves-empty-text)' }}>
                         No moves found matching your filters.
                     </div>
                 ) : (
@@ -192,17 +194,17 @@ const MovesSection = ({ showDetail }) => {
                             style={{
                                 marginBottom: '10px',
                                 padding: '12px',
-                                background: '#fff',
+                                background: 'var(--moves-card-bg)',
                                 borderRadius: '8px',
                                 borderLeft: `4px solid ${getTypeColor(data.type)}`,
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                boxShadow: '0 1px 3px var(--moves-card-shadow)',
                                 cursor: 'pointer'
                             }}
                             onClick={() => showDetail && showDetail('move', move, data)}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                    <strong style={{ fontSize: '14px' }}>{move}</strong>
+                                    <strong style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{move}</strong>
                                     <span style={{
                                         padding: '2px 8px',
                                         borderRadius: '4px',
@@ -217,28 +219,28 @@ const MovesSection = ({ showDetail }) => {
                                         padding: '2px 8px',
                                         borderRadius: '4px',
                                         fontSize: '10px',
-                                        background: data.category === 'Physical' ? '#ffebee' : data.category === 'Special' ? '#f3e5f5' : '#eceff1',
-                                        color: data.category === 'Physical' ? '#c62828' : data.category === 'Special' ? '#6a1b9a' : '#455a64'
+                                        background: data.category === 'Physical' ? 'var(--moves-category-physical-bg)' : data.category === 'Special' ? 'var(--moves-category-special-bg)' : 'var(--moves-category-status-bg)',
+                                        color: data.category === 'Physical' ? 'var(--moves-category-physical-text)' : data.category === 'Special' ? 'var(--moves-category-special-text)' : 'var(--moves-category-status-text)'
                                     }}>
                                         {data.category}
                                     </span>
                                 </div>
-                                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#555' }}>
+                                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                                     {data.damage && (
-                                        <span style={{ fontWeight: 'bold', color: '#c62828' }}>
+                                        <span style={{ fontWeight: 'bold', color: 'var(--moves-damage-text)' }}>
                                             {data.damage}
                                         </span>
                                     )}
-                                    <span style={{ color: '#888' }}>{data.frequency}</span>
+                                    <span style={{ color: 'var(--moves-frequency-text)' }}>{data.frequency}</span>
                                 </div>
                             </div>
                             {data.range && (
-                                <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                                <div style={{ fontSize: '11px', color: 'var(--moves-range-text)', marginTop: '4px' }}>
                                     {data.range}
                                 </div>
                             )}
                             {data.effect && (
-                                <div style={{ fontSize: '12px', color: '#555', marginTop: '6px', lineHeight: '1.4' }}>
+                                <div style={{ fontSize: '12px', color: 'var(--moves-effect-text)', marginTop: '6px', lineHeight: '1.4' }}>
                                     {data.effect.length > 150 ? data.effect.substring(0, 150) + '...' : data.effect}
                                 </div>
                             )}
