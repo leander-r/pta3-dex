@@ -84,6 +84,18 @@
             /* Body background (for theme switching) */
             --body-bg: linear-gradient(180deg, #ffecd2 0%, #fcb69f 50%, #ee9ca7 100%);
             --body-bg-fallback: #ffecd2;
+
+            /* Collapsed Pokemon card colors */
+            --collapsed-btn-bg: #f5f5f5;
+            --collapsed-btn-text: #666;
+            --collapsed-hp-track: #e0e0e0;
+            --collapsed-abilities-bg: #fce4ec;
+            --collapsed-moves-bg: #ede7f6;
+            --collapsed-skills-bg: #e8f5e9;
+            --collapsed-quick-btn-bg: white;
+            --collapsed-quick-btn-border: #ddd;
+            --collapsed-party-btn-bg: #e8f5e9;
+            --collapsed-reserve-btn-bg: #fff3e0;
         }
 
         /* ========== DARK MODE ========== */
@@ -120,6 +132,18 @@
             /* Body background - dark theme */
             --body-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             --body-bg-fallback: #1a1a2e;
+
+            /* Collapsed Pokemon card colors - dark mode */
+            --collapsed-btn-bg: #3a3a4a;
+            --collapsed-btn-text: #b0b0c0;
+            --collapsed-hp-track: #3a3a4a;
+            --collapsed-abilities-bg: #4a2a3a;
+            --collapsed-moves-bg: #3a2a4a;
+            --collapsed-skills-bg: #2a3a2a;
+            --collapsed-quick-btn-bg: #2a2a3a;
+            --collapsed-quick-btn-border: #4a4a5a;
+            --collapsed-party-btn-bg: #2a3a2a;
+            --collapsed-reserve-btn-bg: #3a3a2a;
         }
 
         body {

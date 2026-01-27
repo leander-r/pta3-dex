@@ -312,7 +312,7 @@ const PokemonCard = ({
                                 <div style={{
                                     flex: 1,
                                     height: '8px',
-                                    background: '#e0e0e0',
+                                    background: 'var(--collapsed-hp-track)',
                                     borderRadius: '4px',
                                     overflow: 'hidden'
                                 }}>
@@ -349,8 +349,8 @@ const PokemonCard = ({
                                             padding: '4px 10px',
                                             borderRadius: '12px',
                                             border: 'none',
-                                            background: expandedSection === 'abilities' ? 'linear-gradient(135deg, #f093fb, #f5576c)' : '#f5f5f5',
-                                            color: expandedSection === 'abilities' ? 'white' : '#666',
+                                            background: expandedSection === 'abilities' ? 'linear-gradient(135deg, #f093fb, #f5576c)' : 'var(--collapsed-btn-bg)',
+                                            color: expandedSection === 'abilities' ? 'white' : 'var(--collapsed-btn-text)',
                                             fontSize: '11px',
                                             fontWeight: 'bold',
                                             cursor: 'pointer',
@@ -374,8 +374,8 @@ const PokemonCard = ({
                                         padding: '4px 10px',
                                         borderRadius: '12px',
                                         border: 'none',
-                                        background: expandedSection === 'moves' ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#f5f5f5',
-                                        color: expandedSection === 'moves' ? 'white' : '#666',
+                                        background: expandedSection === 'moves' ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'var(--collapsed-btn-bg)',
+                                        color: expandedSection === 'moves' ? 'white' : 'var(--collapsed-btn-text)',
                                         fontSize: '11px',
                                         fontWeight: 'bold',
                                         cursor: 'pointer',
@@ -398,8 +398,8 @@ const PokemonCard = ({
                                         padding: '4px 10px',
                                         borderRadius: '12px',
                                         border: 'none',
-                                        background: expandedSection === 'skills' ? 'linear-gradient(135deg, #9c27b0, #4caf50)' : '#f5f5f5',
-                                        color: expandedSection === 'skills' ? 'white' : '#666',
+                                        background: expandedSection === 'skills' ? 'linear-gradient(135deg, #9c27b0, #4caf50)' : 'var(--collapsed-btn-bg)',
+                                        color: expandedSection === 'skills' ? 'white' : 'var(--collapsed-btn-text)',
                                         fontSize: '11px',
                                         fontWeight: 'bold',
                                         cursor: 'pointer',
@@ -419,7 +419,7 @@ const PokemonCard = ({
                                 ? pokemon.abilities
                                 : (pokemon.ability ? [pokemon.ability] : []);
                             return (
-                                <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: '#fce4ec', borderRadius: '8px' }}>
+                                <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: 'var(--collapsed-abilities-bg)', borderRadius: '8px' }}>
                                     {abilities.map((abilityName, idx) => (
                                         <span
                                             key={idx}
@@ -449,7 +449,7 @@ const PokemonCard = ({
 
                         {/* Expanded Moves */}
                         {expandedSection === 'moves' && (
-                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: '#ede7f6', borderRadius: '8px' }}>
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: 'var(--collapsed-moves-bg)', borderRadius: '8px' }}>
                                 {(pokemon.moves || []).map((move, idx) => (
                                     <span
                                         key={idx}
@@ -478,7 +478,7 @@ const PokemonCard = ({
 
                         {/* Expanded Skills */}
                         {expandedSection === 'skills' && (
-                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: '#e8f5e9', borderRadius: '8px' }}>
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: 'var(--collapsed-skills-bg)', borderRadius: '8px' }}>
                                 {(pokemon.pokemonSkills || []).map((skill, idx) => (
                                     <span
                                         key={idx}
@@ -537,7 +537,7 @@ const PokemonCard = ({
                         {isInParty ? (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onMoveToReserve && onMoveToReserve(); }}
-                                style={{ ...quickBtnLabelStyle, background: '#fff3e0', borderColor: '#ff9800', color: '#e65100' }}
+                                style={{ ...quickBtnLabelStyle, background: 'var(--collapsed-reserve-btn-bg)', borderColor: '#ff9800', color: '#e65100' }}
                             >
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e65100" strokeWidth="2">
                                     <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -550,15 +550,15 @@ const PokemonCard = ({
                                 disabled={!canMoveToParty}
                                 style={{
                                     ...quickBtnLabelStyle,
-                                    background: canMoveToParty ? '#e8f5e9' : '#f5f5f5',
-                                    borderColor: canMoveToParty ? '#4caf50' : '#ccc',
-                                    color: canMoveToParty ? '#2e7d32' : '#999',
+                                    background: canMoveToParty ? 'var(--collapsed-party-btn-bg)' : 'var(--collapsed-btn-bg)',
+                                    borderColor: canMoveToParty ? '#4caf50' : 'var(--collapsed-quick-btn-border)',
+                                    color: canMoveToParty ? '#2e7d32' : 'var(--collapsed-btn-text)',
                                     cursor: canMoveToParty ? 'pointer' : 'not-allowed',
                                     opacity: canMoveToParty ? 1 : 0.7
                                 }}
                                 title={canMoveToParty ? 'Move to Party' : 'Party is full (6/6)'}
                             >
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={canMoveToParty ? '#2e7d32' : '#999'} strokeWidth="2">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={canMoveToParty ? '#2e7d32' : 'var(--collapsed-btn-text)'} strokeWidth="2">
                                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                                 </svg>
                                 <span>Party</span>
@@ -1917,16 +1917,16 @@ const quickBtnStyle = {
 
 const quickBtnLabelStyle = {
     padding: '4px 8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--collapsed-quick-btn-border)',
     borderRadius: '4px',
-    background: 'white',
+    background: 'var(--collapsed-quick-btn-bg)',
     cursor: 'pointer',
     fontSize: '10px',
     fontWeight: 'bold',
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
-    color: '#666',
+    color: 'var(--collapsed-btn-text)',
     whiteSpace: 'nowrap'
 };
 
