@@ -1579,7 +1579,16 @@ const PokemonCard = ({
                                         key={idx}
                                         onClick={() => {
                                             if (showDetail) {
-                                                const skillData = GAME_DATA?.pokemonSkills?.[skill.name];
+                                                // Try exact match first, then case-insensitive search
+                                                let skillData = GAME_DATA?.pokemonSkills?.[skill.name];
+                                                if (!skillData && GAME_DATA?.pokemonSkills) {
+                                                    // Try to find a matching skill name (handles "Mindlock" vs "Mind Lock", etc.)
+                                                    const normalizedName = skill.name.toLowerCase().replace(/\s+/g, '');
+                                                    const matchingKey = Object.keys(GAME_DATA.pokemonSkills).find(key =>
+                                                        key.toLowerCase().replace(/\s+/g, '') === normalizedName
+                                                    );
+                                                    if (matchingKey) skillData = GAME_DATA.pokemonSkills[matchingKey];
+                                                }
                                                 showDetail('pokemonSkill', skill.name, { ...skillData, value: skill.value });
                                             }
                                         }}
@@ -1609,7 +1618,7 @@ const PokemonCard = ({
                                                 fontSize: '12px',
                                                 fontWeight: 'bold'
                                             }}>
-                                                {skill.value}d6
+                                                {skill.value}
                                             </div>
                                         )}
                                     </div>

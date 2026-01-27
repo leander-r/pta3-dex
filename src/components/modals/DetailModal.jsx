@@ -553,10 +553,10 @@ const PokemonSkillDetails = ({ data }) => {
                     alignItems: 'center',
                     gap: '12px'
                 }}>
-                    <span style={{ fontSize: '24px' }}>🎲</span>
+                    <span style={{ fontSize: '24px' }}>📏</span>
                     <div>
                         <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Value</div>
-                        <div style={{ fontSize: '20px', fontWeight: '800', color: '#0d47a1' }}>{data.value}d6</div>
+                        <div style={{ fontSize: '20px', fontWeight: '800', color: '#0d47a1' }}>{data.value}</div>
                     </div>
                 </div>
             )}

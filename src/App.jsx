@@ -1006,32 +1006,39 @@ const applyEvolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty, 
     const pokemonSkills = [];
     if (speciesData.skills) {
         const skillMappings = [
-            ['overland', 'Overland'], 
-            ['surface', 'Surface'], 
-            ['sky', 'Sky'],
-            ['burrow', 'Burrow'], 
-            ['jump', 'Jump'], 
-            ['power', 'Power'],
-            ['intelligence', 'Intelligence']
+            ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
+            ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
+            ['power', 'Power'], ['intelligence', 'Intelligence']
         ];
-        
+
         skillMappings.forEach(([key, name]) => {
             if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
                 pokemonSkills.push({ name, value: speciesData.skills[key] });
             }
         });
-        
-        const capabilities = [
-            'phasing', 'invisibility', 'zapper', 'firestarter', 
-            'gilled', 'tracker', 'threaded', 'Pokemon education',
-            'mindlock', 'telepath', 'telekinetic', 'aura reader'
+
+        // Capability skills - map pokedex key to display name
+        const capabilityMappings = [
+            ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
+            ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
+            ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
+            ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
+            ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
+            ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
+            ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+            ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
+            ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
+            ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
+            // Legendary skills
+            ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
+            ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
         ];
-        capabilities.forEach(cap => {
-            if (speciesData.skills[cap]) {
-                pokemonSkills.push({ name: cap.charAt(0).toUpperCase() + cap.slice(1) });
+        capabilityMappings.forEach(([key, name]) => {
+            if (speciesData.skills[key]) {
+                pokemonSkills.push({ name });
             }
         });
-        
+
         if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
             speciesData.skills.naturewalk.forEach(terrain => {
                 pokemonSkills.push({ name: `Naturewalk (${terrain})` });
@@ -1039,7 +1046,7 @@ const applyEvolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty, 
         }
     }
     updates.pokemonSkills = pokemonSkills;
-    
+
     // DO NOT replace moves - keep current moveset
     // Apply the species updates first
     updatePokemon(pokemonId, updates);
@@ -1230,27 +1237,38 @@ const applyDevolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty)
     if (speciesData.skills) {
         const skillMappings = [
             ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
-            ['burrow', 'Burrow'], ['jump', 'Jump'], ['power', 'Power'],
-            ['intelligence', 'Intelligence']
+            ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
+            ['power', 'Power'], ['intelligence', 'Intelligence']
         ];
-        
+
         skillMappings.forEach(([key, name]) => {
             if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
                 pokemonSkills.push({ name, value: speciesData.skills[key] });
             }
         });
-        
-        const capabilities = [
-            'phasing', 'invisibility', 'zapper', 'firestarter', 
-            'gilled', 'tracker', 'threaded', 'Pokemon education',
-            'mindlock', 'telepath', 'telekinetic', 'aura reader'
+
+        // Capability skills - map pokedex key to display name
+        const capabilityMappings = [
+            ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
+            ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
+            ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
+            ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
+            ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
+            ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
+            ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+            ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
+            ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
+            ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
+            // Legendary skills
+            ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
+            ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
         ];
-        capabilities.forEach(cap => {
-            if (speciesData.skills[cap]) {
-                pokemonSkills.push({ name: cap.charAt(0).toUpperCase() + cap.slice(1) });
+        capabilityMappings.forEach(([key, name]) => {
+            if (speciesData.skills[key]) {
+                pokemonSkills.push({ name });
             }
         });
-        
+
         if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
             speciesData.skills.naturewalk.forEach(terrain => {
                 pokemonSkills.push({ name: `Naturewalk (${terrain})` });
@@ -1258,7 +1276,7 @@ const applyDevolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty)
         }
     }
     updates.pokemonSkills = pokemonSkills;
-    
+
     // Keep current moves (don't reset on devolution)
     // But we could optionally remove moves that the devolved form can't learn
     
@@ -1341,33 +1359,39 @@ const applySpeciesToPokemon = (pokemonId, speciesData, regionalForm) => {
     if (speciesData.skills) {
         // Movement skills with values
         const skillMappings = [
-            ['overland', 'Overland'], 
-            ['surface', 'Surface'], 
-            ['sky', 'Sky'],
-            ['burrow', 'Burrow'], 
-            ['jump', 'Jump'], 
-            ['power', 'Power'],
-            ['intelligence', 'Intelligence']
+            ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
+            ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
+            ['power', 'Power'], ['intelligence', 'Intelligence']
         ];
-        
+
         skillMappings.forEach(([key, name]) => {
             if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
                 pokemonSkills.push({ name, value: speciesData.skills[key] });
             }
         });
-        
-        // Capability skills (boolean flags)
-        const capabilities = [
-            'phasing', 'invisibility', 'zapper', 'firestarter', 
-            'gilled', 'tracker', 'threaded', 'Pokemon education',
-            'mindlock', 'telepath', 'telekinetic', 'aura reader'
+
+        // Capability skills - map pokedex key to display name
+        const capabilityMappings = [
+            ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
+            ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
+            ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
+            ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
+            ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
+            ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
+            ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+            ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
+            ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
+            ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
+            // Legendary skills
+            ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
+            ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
         ];
-        capabilities.forEach(cap => {
-            if (speciesData.skills[cap]) {
-                pokemonSkills.push({ name: cap.charAt(0).toUpperCase() + cap.slice(1) });
+        capabilityMappings.forEach(([key, name]) => {
+            if (speciesData.skills[key]) {
+                pokemonSkills.push({ name });
             }
         });
-        
+
         // Naturewalk (array of terrain types)
         if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
             speciesData.skills.naturewalk.forEach(terrain => {
@@ -1376,7 +1400,7 @@ const applySpeciesToPokemon = (pokemonId, speciesData, regionalForm) => {
         }
     }
     updates.pokemonSkills = pokemonSkills;
-    
+
     // Add starting moves based on current level (moves at level 0 and 1, plus any up to current level)
     if (levelUpMoves && levelUpMoves.length > 0) {
         // Filter to moves at or below current level, then deduplicate by move name
