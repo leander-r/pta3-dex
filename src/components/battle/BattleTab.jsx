@@ -20,7 +20,6 @@ const BattleTab = ({
     const [mode, setMode] = useState('pokemon');
     const [selectedMove, setSelectedMove] = useState(null);
     const [selectedSkill, setSelectedSkill] = useState('');
-    const [selectedPokemonSkill, setSelectedPokemonSkill] = useState(null);
     const [customDice, setCustomDice] = useState('');
     const [rollHistory, setRollHistory] = useState([]);
     const [combatStages, setCombatStages] = useState({
@@ -274,25 +273,6 @@ const BattleTab = ({
         });
     };
 
-    // Roll Pokemon Skill
-    const rollPokemonSkill = () => {
-        if (!selectedPokemon || !selectedPokemonSkill) return;
-
-        const diceCount = selectedPokemonSkill.value || 2;
-        const rolls = rollDice(diceCount, 6);
-        const total = rolls.reduce((sum, r) => sum + r, 0);
-
-        addToHistory({
-            type: 'pokemonSkill',
-            pokemon: selectedPokemon.name || selectedPokemon.species,
-            skill: selectedPokemonSkill.name,
-            dice: `${diceCount}d6`,
-            rolls,
-            total,
-            timestamp: Date.now()
-        });
-    };
-
     // Roll Custom
     const rollCustomDice = () => {
         const diceData = parseDice(customDice);
@@ -328,9 +308,6 @@ const BattleTab = ({
                 <button className={`tab ${mode === 'pokemon' ? 'active' : ''}`} onClick={() => setMode('pokemon')}>
                     Pokemon Attack
                 </button>
-                <button className={`tab ${mode === 'pokemonSkill' ? 'active' : ''}`} onClick={() => setMode('pokemonSkill')}>
-                    Pokemon Skill
-                </button>
                 <button className={`tab ${mode === 'trainer' ? 'active' : ''}`} onClick={() => setMode('trainer')}>
                     Trainer Skill
                 </button>
@@ -343,7 +320,7 @@ const BattleTab = ({
                 {/* Left: Roll Controls */}
                 <div className="section-card-purple">
                     <h3 className="section-title-purple">
-                        <span>🎲</span> {mode === 'pokemon' ? 'Pokemon Attack' : mode === 'pokemonSkill' ? 'Pokemon Skill' : mode === 'trainer' ? 'Trainer Skill' : 'Custom Roll'}
+                        <span>🎲</span> {mode === 'pokemon' ? 'Pokemon Attack' : mode === 'trainer' ? 'Trainer Skill' : 'Custom Roll'}
                     </h3>
 
                     {mode === 'pokemon' && (
@@ -818,93 +795,6 @@ const BattleTab = ({
                         </div>
                     )}
 
-                    {mode === 'pokemonSkill' && (
-                        <div>
-                            {/* Pokemon Selector */}
-                            <div style={{ marginBottom: '12px' }}>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
-                                    Select Pokemon
-                                </label>
-                                <select
-                                    value={selectedPokemonId || ''}
-                                    onChange={(e) => {
-                                        setSelectedPokemonId(parseInt(e.target.value) || null);
-                                        setSelectedPokemonSkill(null);
-                                    }}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                >
-                                    <option value="">Choose a Pokemon...</option>
-                                    {party.map(poke => (
-                                        <option key={poke.id} value={poke.id}>
-                                            {poke.name || poke.species} (Lv.{poke.level})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Skill Selector */}
-                            {selectedPokemon && (
-                                <div style={{ marginBottom: '12px' }}>
-                                    <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
-                                        Select Skill
-                                    </label>
-                                    {(selectedPokemon.pokemonSkills || []).length === 0 ? (
-                                        <div className="pokemon-skill-empty text-muted" style={{ padding: '15px', borderRadius: '6px', textAlign: 'center' }}>
-                                            No skills available for this Pokemon
-                                        </div>
-                                    ) : (
-                                        <div style={{ display: 'grid', gap: '6px' }}>
-                                            {(selectedPokemon.pokemonSkills || []).filter(s => s.value !== undefined).map((skill, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => setSelectedPokemonSkill(skill)}
-                                                    className={selectedPokemonSkill?.name !== skill.name ? 'skill-select-btn' : ''}
-                                                    style={{
-                                                        padding: '10px',
-                                                        background: selectedPokemonSkill?.name === skill.name
-                                                            ? '#9c27b0'
-                                                            : undefined,
-                                                        color: selectedPokemonSkill?.name === skill.name ? 'white' : undefined,
-                                                        border: '2px solid #9c27b0',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        textAlign: 'left'
-                                                    }}
-                                                >
-                                                    <div style={{ fontWeight: 'bold' }}>{skill.name}</div>
-                                                    <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                                                        {skill.value}d6
-                                                    </div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Roll Button */}
-                            <button
-                                onClick={rollPokemonSkill}
-                                disabled={!selectedPokemon || !selectedPokemonSkill}
-                                style={{
-                                    width: '100%',
-                                    padding: '15px',
-                                    background: selectedPokemon && selectedPokemonSkill
-                                        ? 'linear-gradient(135deg, #9c27b0, #7b1fa2)'
-                                        : '#ccc',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: selectedPokemon && selectedPokemonSkill ? 'pointer' : 'not-allowed',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Roll Skill!
-                            </button>
-                        </div>
-                    )}
-
                     {mode === 'trainer' && (
                         <div>
                             {/* Trainer Stats Display */}
@@ -1227,7 +1117,6 @@ const BattleTab = ({
                                         borderRadius: '6px',
                                         borderLeft: `4px solid ${
                                             roll.type === 'pokemon' ? getTypeColor(roll.moveType || 'Normal') :
-                                            roll.type === 'pokemonSkill' ? '#9c27b0' :
                                             roll.type === 'trainer_skill' ? '#667eea' : '#95a5a6'
                                         }`
                                     }}
@@ -1278,17 +1167,6 @@ const BattleTab = ({
                                                 ) : (
                                                     <span style={{ color: '#999', fontStyle: 'italic' }}>Attack missed - no damage</span>
                                                 )}
-                                            </div>
-                                        </>
-                                    )}
-                                    {roll.type === 'pokemonSkill' && (
-                                        <>
-                                            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                                                🐾 {roll.pokemon} - {roll.skill}
-                                            </div>
-                                            <div style={{ fontSize: '12px' }}>
-                                                <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{roll.total}</span>
-                                                <span> | [{roll.rolls?.join(', ')}] ({roll.dice})</span>
                                             </div>
                                         </>
                                     )}
