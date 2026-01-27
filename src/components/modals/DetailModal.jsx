@@ -21,6 +21,8 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
                 return 'linear-gradient(135deg, #f093fb, #f5576c)';
             case 'skill':
                 return 'linear-gradient(135deg, #4facfe, #00f2fe)';
+            case 'pokemonSkill':
+                return 'linear-gradient(135deg, #9c27b0, #4caf50)';
             case 'item':
                 return 'linear-gradient(135deg, #fa709a, #fee140)';
             default:
@@ -34,6 +36,7 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
             case 'feature': return '⚡';
             case 'ability': return '✨';
             case 'skill': return '🎯';
+            case 'pokemonSkill': return '🐾';
             case 'item': return '🎒';
             default: return '📋';
         }
@@ -141,6 +144,11 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
                     {/* Skill Details */}
                     {detailModal.type === 'skill' && detailModal.data && (
                         <SkillDetails data={detailModal.data} getStatColor={getStatColor} />
+                    )}
+
+                    {/* Pokemon Skill Details */}
+                    {detailModal.type === 'pokemonSkill' && (
+                        <PokemonSkillDetails data={detailModal.data} />
                     )}
 
                     {/* Item Details */}
@@ -482,6 +490,83 @@ const SkillDetails = ({ data, getStatColor }) => (
         </InfoBox>
     </div>
 );
+
+// Pokemon Skill Details Sub-component (species capabilities like Overland, Zapper, etc.)
+const PokemonSkillDetails = ({ data }) => {
+    const getTypeColor = (type) => {
+        switch (type) {
+            case 'speed': return '#2196f3';
+            case 'basic': return '#9c27b0';
+            case 'legendary': return '#ff9800';
+            default: return '#4caf50';
+        }
+    };
+
+    const getTypeLabel = (type) => {
+        switch (type) {
+            case 'speed': return '🏃 Speed Skill';
+            case 'basic': return '📊 Basic Skill';
+            case 'legendary': return '⭐ Legendary Skill';
+            default: return '✨ Capability';
+        }
+    };
+
+    const getTagColor = (tag) => {
+        switch (tag) {
+            case 'Fire': return '#f44336';
+            case 'Water': return '#2196f3';
+            case 'Electric': return '#ffc107';
+            case 'Ice': return '#00bcd4';
+            case 'Plant': return '#4caf50';
+            case 'Earth': return '#795548';
+            case 'Wind': return '#90caf9';
+            case 'Psionic': return '#9c27b0';
+            default: return '#667eea';
+        }
+    };
+
+    return (
+        <div>
+            {/* Type and tag badges */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                {data?.type && (
+                    <DetailBadge color={getTypeColor(data.type)}>
+                        {getTypeLabel(data.type)}
+                    </DetailBadge>
+                )}
+                {data?.tag && (
+                    <DetailBadge color={getTagColor(data.tag)}>
+                        {data.tag}
+                    </DetailBadge>
+                )}
+            </div>
+
+            {/* Value display for numeric skills */}
+            {data?.value !== undefined && (
+                <div style={{
+                    background: 'linear-gradient(135deg, #e3f2fd 0%, #e8eaf6 100%)',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    marginBottom: '12px',
+                    border: '2px solid #90caf9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                }}>
+                    <span style={{ fontSize: '24px' }}>🎲</span>
+                    <div>
+                        <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Value</div>
+                        <div style={{ fontSize: '20px', fontWeight: '800', color: '#0d47a1' }}>{data.value}d6</div>
+                    </div>
+                </div>
+            )}
+
+            <InfoBox label="Description" icon="📖" variant="default">
+                {data?.description || 'No description available.'}
+            </InfoBox>
+        </div>
+    );
+};
 
 // Item Details Sub-component
 const ItemDetails = ({ data }) => (

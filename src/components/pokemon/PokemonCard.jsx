@@ -1577,6 +1577,12 @@ const PokemonCard = ({
                                 {(pokemon.pokemonSkills || []).map((skill, idx) => (
                                     <div
                                         key={idx}
+                                        onClick={() => {
+                                            if (showDetail) {
+                                                const skillData = GAME_DATA?.pokemonSkills?.[skill.name];
+                                                showDetail('pokemonSkill', skill.name, { ...skillData, value: skill.value });
+                                            }
+                                        }}
                                         style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
@@ -1584,8 +1590,12 @@ const PokemonCard = ({
                                             padding: '10px 12px',
                                             background: 'white',
                                             borderRadius: '6px',
-                                            borderLeft: `4px solid ${skill.value !== undefined ? '#9c27b0' : '#4caf50'}`
+                                            borderLeft: `4px solid ${skill.value !== undefined ? '#9c27b0' : '#4caf50'}`,
+                                            cursor: showDetail ? 'pointer' : 'default',
+                                            transition: 'background 0.2s ease'
                                         }}
+                                        onMouseEnter={(e) => { if (showDetail) e.currentTarget.style.background = '#f5f5f5'; }}
+                                        onMouseLeave={(e) => { if (showDetail) e.currentTarget.style.background = 'white'; }}
                                     >
                                         <div style={{ fontWeight: 'bold', fontSize: '13px' }}>
                                             {skill.name}
