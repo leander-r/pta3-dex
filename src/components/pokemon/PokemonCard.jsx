@@ -38,6 +38,8 @@ const PokemonCard = ({
     const [moveTypeFilter, setMoveTypeFilter] = useState('all');
     const [moveCategoryFilter, setMoveCategoryFilter] = useState('all');
     const [showMoveDropdown, setShowMoveDropdown] = useState(false);
+    // Collapsed view expanded sections
+    const [expandedSection, setExpandedSection] = useState(null); // 'abilities', 'moves', 'skills', or null
     // Regional form selection state
     const [showRegionalFormSelect, setShowRegionalFormSelect] = useState(false);
     const [pendingSpeciesData, setPendingSpeciesData] = useState(null);
@@ -304,17 +306,120 @@ const PokemonCard = ({
                             ))}
                         </div>
 
-                        <div className="text-muted" style={{ fontSize: '12px', marginTop: '4px' }}>
-                            HP: {currentHP}/{maxHP} | {pokemon.nature || 'Hardy'}
+                        {/* HP Bar - More Visible */}
+                        <div style={{ marginTop: '6px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{
+                                    flex: 1,
+                                    height: '8px',
+                                    background: '#e0e0e0',
+                                    borderRadius: '4px',
+                                    overflow: 'hidden'
+                                }}>
+                                    <div style={{
+                                        width: `${Math.max(0, Math.min(100, (currentHP / maxHP) * 100))}%`,
+                                        height: '100%',
+                                        background: currentHP / maxHP > 0.5 ? '#4caf50' : currentHP / maxHP > 0.25 ? '#ff9800' : '#f44336',
+                                        transition: 'width 0.3s ease'
+                                    }} />
+                                </div>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: currentHP / maxHP > 0.5 ? '#4caf50' : currentHP / maxHP > 0.25 ? '#ff9800' : '#f44336', minWidth: '55px' }}>
+                                    {currentHP}/{maxHP}
+                                </span>
+                            </div>
+                            <div className="text-muted" style={{ fontSize: '11px', marginTop: '2px' }}>
+                                {pokemon.nature || 'Hardy'} Nature
+                            </div>
                         </div>
 
-                        {/* Abilities - Tappable */}
-                        {(() => {
+                        {/* Expandable Section Buttons */}
+                        <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                            {/* Abilities Button */}
+                            {(() => {
+                                const abilities = (pokemon.abilities && pokemon.abilities.length > 0)
+                                    ? pokemon.abilities
+                                    : (pokemon.ability ? [pokemon.ability] : []);
+                                return abilities.length > 0 && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setExpandedSection(expandedSection === 'abilities' ? null : 'abilities');
+                                        }}
+                                        style={{
+                                            padding: '4px 10px',
+                                            borderRadius: '12px',
+                                            border: 'none',
+                                            background: expandedSection === 'abilities' ? 'linear-gradient(135deg, #f093fb, #f5576c)' : '#f5f5f5',
+                                            color: expandedSection === 'abilities' ? 'white' : '#666',
+                                            fontSize: '11px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}
+                                    >
+                                        <span>✨</span> Abilities ({abilities.length})
+                                    </button>
+                                );
+                            })()}
+                            {/* Moves Button */}
+                            {(pokemon.moves || []).length > 0 && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setExpandedSection(expandedSection === 'moves' ? null : 'moves');
+                                    }}
+                                    style={{
+                                        padding: '4px 10px',
+                                        borderRadius: '12px',
+                                        border: 'none',
+                                        background: expandedSection === 'moves' ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#f5f5f5',
+                                        color: expandedSection === 'moves' ? 'white' : '#666',
+                                        fontSize: '11px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <span>⚔️</span> Moves ({(pokemon.moves || []).length})
+                                </button>
+                            )}
+                            {/* Skills Button */}
+                            {(pokemon.pokemonSkills || []).length > 0 && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setExpandedSection(expandedSection === 'skills' ? null : 'skills');
+                                    }}
+                                    style={{
+                                        padding: '4px 10px',
+                                        borderRadius: '12px',
+                                        border: 'none',
+                                        background: expandedSection === 'skills' ? 'linear-gradient(135deg, #9c27b0, #4caf50)' : '#f5f5f5',
+                                        color: expandedSection === 'skills' ? 'white' : '#666',
+                                        fontSize: '11px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <span>🐾</span> Skills ({(pokemon.pokemonSkills || []).length})
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Expanded Abilities */}
+                        {expandedSection === 'abilities' && (() => {
                             const abilities = (pokemon.abilities && pokemon.abilities.length > 0)
                                 ? pokemon.abilities
                                 : (pokemon.ability ? [pokemon.ability] : []);
-                            return abilities.length > 0 && (
-                                <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                            return (
+                                <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: '#fce4ec', borderRadius: '8px' }}>
                                     {abilities.map((abilityName, idx) => (
                                         <span
                                             key={idx}
@@ -326,11 +431,12 @@ const PokemonCard = ({
                                                 }
                                             }}
                                             style={{
-                                                padding: '2px 8px',
-                                                borderRadius: '10px',
+                                                padding: '4px 10px',
+                                                borderRadius: '12px',
                                                 background: 'linear-gradient(135deg, #f093fb, #f5576c)',
                                                 color: 'white',
-                                                fontSize: '10px',
+                                                fontSize: '11px',
+                                                fontWeight: 'bold',
                                                 cursor: 'pointer'
                                             }}
                                         >
@@ -341,10 +447,10 @@ const PokemonCard = ({
                             );
                         })()}
 
-                        {/* Moves Preview */}
-                        {(pokemon.moves || []).length > 0 && (
-                            <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
-                                {(pokemon.moves || []).slice(0, 4).map((move, idx) => (
+                        {/* Expanded Moves */}
+                        {expandedSection === 'moves' && (
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: '#ede7f6', borderRadius: '8px' }}>
+                                {(pokemon.moves || []).map((move, idx) => (
                                     <span
                                         key={idx}
                                         onClick={(e) => {
@@ -355,29 +461,25 @@ const PokemonCard = ({
                                             }
                                         }}
                                         style={{
-                                            padding: '2px 8px',
-                                            borderRadius: '10px',
+                                            padding: '4px 10px',
+                                            borderRadius: '12px',
                                             background: getTypeColor(move.type),
                                             color: 'white',
-                                            fontSize: '10px',
+                                            fontSize: '11px',
+                                            fontWeight: 'bold',
                                             cursor: 'pointer'
                                         }}
                                     >
                                         {move.name}
                                     </span>
                                 ))}
-                                {(pokemon.moves || []).length > 4 && (
-                                    <span style={{ fontSize: '10px', color: '#999', alignSelf: 'center' }}>
-                                        +{(pokemon.moves || []).length - 4} more
-                                    </span>
-                                )}
                             </div>
                         )}
 
-                        {/* Pokemon Skills Preview */}
-                        {(pokemon.pokemonSkills || []).length > 0 && (
-                            <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
-                                {(pokemon.pokemonSkills || []).slice(0, 6).map((skill, idx) => (
+                        {/* Expanded Skills */}
+                        {expandedSection === 'skills' && (
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: '#e8f5e9', borderRadius: '8px' }}>
+                                {(pokemon.pokemonSkills || []).map((skill, idx) => (
                                     <span
                                         key={idx}
                                         onClick={(e) => {
@@ -395,24 +497,20 @@ const PokemonCard = ({
                                             }
                                         }}
                                         style={{
-                                            padding: '2px 8px',
-                                            borderRadius: '10px',
+                                            padding: '4px 10px',
+                                            borderRadius: '12px',
                                             background: skill.value !== undefined
                                                 ? 'linear-gradient(135deg, #9c27b0, #7b1fa2)'
                                                 : 'linear-gradient(135deg, #4caf50, #388e3c)',
                                             color: 'white',
-                                            fontSize: '10px',
+                                            fontSize: '11px',
+                                            fontWeight: 'bold',
                                             cursor: 'pointer'
                                         }}
                                     >
                                         {skill.name}{skill.value !== undefined ? ` ${skill.value}` : ''}
                                     </span>
                                 ))}
-                                {(pokemon.pokemonSkills || []).length > 6 && (
-                                    <span style={{ fontSize: '10px', color: '#999', alignSelf: 'center' }}>
-                                        +{(pokemon.pokemonSkills || []).length - 6} more
-                                    </span>
-                                )}
                             </div>
                         )}
                     </div>
