@@ -148,7 +148,7 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
 
                     {/* Pokemon Skill Details */}
                     {detailModal.type === 'pokemonSkill' && (
-                        <PokemonSkillDetails data={detailModal.data} />
+                        <PokemonSkillDetails data={detailModal.data} name={detailModal.name} />
                     )}
 
                     {/* Item Details */}
@@ -492,7 +492,7 @@ const SkillDetails = ({ data, getStatColor }) => (
 );
 
 // Pokemon Skill Details Sub-component (species capabilities like Overland, Zapper, etc.)
-const PokemonSkillDetails = ({ data }) => {
+const PokemonSkillDetails = ({ data, name }) => {
     const getTypeColor = (type) => {
         switch (type) {
             case 'speed': return '#2196f3';
@@ -525,6 +525,70 @@ const PokemonSkillDetails = ({ data }) => {
         }
     };
 
+    // Get the effect description based on skill name and value
+    const getSkillEffect = (skillName, value) => {
+        if (value === undefined || value === null) return null;
+
+        const normalizedName = skillName?.toLowerCase();
+
+        // Speed skills - value = spaces/meters per round
+        if (['overland', 'surface', 'sky', 'burrow', 'underwater'].includes(normalizedName)) {
+            return `${value} spaces/meters per round`;
+        }
+
+        // Jump - value corresponds to height
+        if (normalizedName === 'jump') {
+            const jumpHeights = {
+                1: '3 ft / 1 m',
+                2: '6 ft / 1.8 m',
+                3: '10 ft / 3 m',
+                4: '15 ft / 4.5 m',
+                5: '20 ft / 6 m',
+                6: '25 ft / 7.6 m',
+                7: '35 ft / 10.6 m',
+                8: '50 ft / 15.2 m',
+                9: '70 ft / 21 m',
+                10: '100 ft / 30.5 m'
+            };
+            return jumpHeights[value] || `${value} (unknown height)`;
+        }
+
+        // Power - value corresponds to lifting capacity
+        if (normalizedName === 'power') {
+            const powerWeights = {
+                1: '10 lbs / 5 kg',
+                2: '50 lbs / 23 kg',
+                3: '100 lbs / 45 kg',
+                4: '200 lbs / 90 kg',
+                5: '350 lbs / 158 kg',
+                6: '500 lbs / 227 kg',
+                7: '750 lbs / 340 kg',
+                8: '1000 lbs / 455 kg',
+                9: '2500 lbs / 1135 kg',
+                10: '4000 lbs / 1815 kg'
+            };
+            return powerWeights[value] || `${value} (unknown weight)`;
+        }
+
+        // Intelligence - value corresponds to mental capability
+        if (normalizedName === 'intelligence') {
+            const intelligenceLevels = {
+                1: 'Feeble-minded — Slow reaction time, unable to do simple tasks',
+                2: 'Deficiency — Self-aware',
+                3: 'Dullness — Can follow others\' lead but can\'t figure out tasks alone',
+                4: 'Normal — Can build and use tools',
+                5: 'Superior — Average human intellect',
+                6: 'Vastly Superior — Able to function as a leader and act independently',
+                7: 'Genius — Super computer thought, speaks human languages'
+            };
+            return intelligenceLevels[value] || `${value} (unknown level)`;
+        }
+
+        return null;
+    };
+
+    const skillEffect = getSkillEffect(name, data?.value);
+
     return (
         <div>
             {/* Type and tag badges */}
@@ -541,7 +605,7 @@ const PokemonSkillDetails = ({ data }) => {
                 )}
             </div>
 
-            {/* Value display for numeric skills */}
+            {/* Value display for numeric skills with effect description */}
             {data?.value !== undefined && (
                 <div style={{
                     background: 'linear-gradient(135deg, #e3f2fd 0%, #e8eaf6 100%)',
@@ -554,9 +618,13 @@ const PokemonSkillDetails = ({ data }) => {
                     gap: '12px'
                 }}>
                     <span style={{ fontSize: '24px' }}>📏</span>
-                    <div>
-                        <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Value</div>
-                        <div style={{ fontSize: '20px', fontWeight: '800', color: '#0d47a1' }}>{data.value}</div>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            {name} {data.value}
+                        </div>
+                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#0d47a1' }}>
+                            {skillEffect || data.value}
+                        </div>
                     </div>
                 </div>
             )}
