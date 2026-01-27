@@ -661,8 +661,10 @@ const PokemonCard = ({
                                             padding: '10px',
                                             paddingRight: speciesSearch ? '32px' : '10px',
                                             borderRadius: '6px',
-                                            border: showSpeciesDropdown ? '2px solid #667eea' : '1px solid #ddd',
-                                            boxSizing: 'border-box'
+                                            border: showSpeciesDropdown ? '2px solid #667eea' : '1px solid var(--species-input-border)',
+                                            boxSizing: 'border-box',
+                                            background: 'var(--species-dropdown-bg)',
+                                            color: 'var(--text-primary)'
                                         }}
                                     />
                                     {speciesSearch && (
@@ -673,7 +675,7 @@ const PokemonCard = ({
                                                 right: '8px',
                                                 top: '50%',
                                                 transform: 'translateY(-50%)',
-                                                background: '#999',
+                                                background: 'var(--species-muted-text)',
                                                 color: 'white',
                                                 border: 'none',
                                                 borderRadius: '50%',
@@ -696,7 +698,7 @@ const PokemonCard = ({
                                         top: '100%',
                                         left: 0,
                                         right: 0,
-                                        background: 'white',
+                                        background: 'var(--species-dropdown-bg)',
                                         border: '2px solid #667eea',
                                         borderTop: 'none',
                                         borderRadius: '0 0 8px 8px',
@@ -706,12 +708,12 @@ const PokemonCard = ({
                                         {/* Filter & Sort Controls */}
                                         <div style={{
                                             padding: '10px',
-                                            background: '#f8f9fa',
-                                            borderBottom: '1px solid #eee'
+                                            background: 'var(--species-filter-bg)',
+                                            borderBottom: '1px solid var(--species-border)'
                                         }}>
                                             {/* Type Filter Chips */}
                                             <div style={{ marginBottom: '8px' }}>
-                                                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Filter by Type:</div>
+                                                <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--species-label-text)', marginBottom: '4px' }}>Filter by Type:</div>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                                                     <button
                                                         onClick={() => setSpeciesTypeFilter('all')}
@@ -719,8 +721,8 @@ const PokemonCard = ({
                                                             padding: '4px 8px',
                                                             borderRadius: '12px',
                                                             border: 'none',
-                                                            background: speciesTypeFilter === 'all' ? '#667eea' : '#e0e0e0',
-                                                            color: speciesTypeFilter === 'all' ? 'white' : '#666',
+                                                            background: speciesTypeFilter === 'all' ? '#667eea' : 'var(--species-filter-inactive)',
+                                                            color: speciesTypeFilter === 'all' ? 'white' : 'var(--species-label-text)',
                                                             fontSize: '10px',
                                                             fontWeight: 'bold',
                                                             cursor: 'pointer'
@@ -734,8 +736,8 @@ const PokemonCard = ({
                                                                 padding: '4px 8px',
                                                                 borderRadius: '12px',
                                                                 border: 'none',
-                                                                background: speciesTypeFilter === type ? getTypeColor(type) : '#e0e0e0',
-                                                                color: speciesTypeFilter === type ? 'white' : '#666',
+                                                                background: speciesTypeFilter === type ? getTypeColor(type) : 'var(--species-filter-inactive)',
+                                                                color: speciesTypeFilter === type ? 'white' : 'var(--species-label-text)',
                                                                 fontSize: '10px',
                                                                 fontWeight: 'bold',
                                                                 cursor: 'pointer'
@@ -748,16 +750,18 @@ const PokemonCard = ({
                                             {/* Sort Controls */}
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666' }}>Sort:</span>
+                                                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--species-label-text)' }}>Sort:</span>
                                                     <select
                                                         value={speciesSort}
                                                         onChange={(e) => setSpeciesSort(e.target.value)}
                                                         style={{
                                                             padding: '4px 8px',
                                                             borderRadius: '4px',
-                                                            border: '1px solid #ddd',
+                                                            border: '1px solid var(--species-input-border)',
                                                             fontSize: '11px',
-                                                            cursor: 'pointer'
+                                                            cursor: 'pointer',
+                                                            background: 'var(--species-dropdown-bg)',
+                                                            color: 'var(--text-primary)'
                                                         }}
                                                     >
                                                         <option value="name">Name (A-Z)</option>
@@ -766,7 +770,7 @@ const PokemonCard = ({
                                                         <option value="bst-low">BST (Low → High)</option>
                                                     </select>
                                                 </div>
-                                                <span style={{ fontSize: '10px', color: '#999' }}>
+                                                <span style={{ fontSize: '10px', color: 'var(--species-muted-text)' }}>
                                                     {filteredSpecies.length} results
                                                 </span>
                                             </div>
@@ -787,21 +791,22 @@ const PokemonCard = ({
                                                         <div
                                                             key={sp.id}
                                                             onClick={() => handleSelectSpecies(sp)}
+                                                            className="species-list-item"
                                                             style={{
                                                                 padding: '10px 12px',
                                                                 cursor: 'pointer',
-                                                                borderBottom: '1px solid #eee',
+                                                                borderBottom: '1px solid var(--species-border)',
                                                                 display: 'flex',
                                                                 justifyContent: 'space-between',
                                                                 alignItems: 'center',
                                                                 transition: 'background 0.15s'
                                                             }}
-                                                            onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                                                            onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--species-hover-bg)'}
+                                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                                         >
                                                             <div>
                                                                 <span style={{ fontWeight: 'bold' }}>{sp.species}</span>
-                                                                <span style={{ fontSize: '11px', color: '#999', marginLeft: '6px' }}>
+                                                                <span style={{ fontSize: '11px', color: 'var(--species-muted-text)', marginLeft: '6px' }}>
                                                                     #{sp.id || '???'}
                                                                 </span>
                                                                 {hasRegionalForms && (
@@ -840,7 +845,7 @@ const PokemonCard = ({
                                                                         title="Regional form type"
                                                                     >{t}</span>
                                                                 ))}
-                                                                <span style={{ fontSize: '10px', color: '#999', marginLeft: '4px' }}>
+                                                                <span style={{ fontSize: '10px', color: 'var(--species-muted-text)', marginLeft: '4px' }}>
                                                                     BST: {getBaseStatTotal(sp)}
                                                                 </span>
                                                             </div>
@@ -848,7 +853,7 @@ const PokemonCard = ({
                                                     );
                                                 })
                                             ) : (
-                                                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--species-muted-text)' }}>
                                                     {speciesSearch || speciesTypeFilter !== 'all'
                                                         ? 'No Pokemon match your search/filter'
                                                         : 'Use filters or search to find Pokemon'}
@@ -859,8 +864,8 @@ const PokemonCard = ({
                                         {/* Close Button */}
                                         <div style={{
                                             padding: '8px',
-                                            borderTop: '1px solid #eee',
-                                            background: '#f8f9fa',
+                                            borderTop: '1px solid var(--species-border)',
+                                            background: 'var(--species-filter-bg)',
                                             textAlign: 'center'
                                         }}>
                                             <button
@@ -891,8 +896,8 @@ const PokemonCard = ({
                                         top: '100%',
                                         left: 0,
                                         right: 0,
-                                        background: 'white',
-                                        border: '1px solid #ddd',
+                                        background: 'var(--species-dropdown-bg)',
+                                        border: '1px solid var(--species-input-border)',
                                         borderRadius: '8px',
                                         boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
                                         zIndex: 1001,
@@ -900,7 +905,7 @@ const PokemonCard = ({
                                     }}>
                                         <div style={{
                                             padding: '12px',
-                                            borderBottom: '1px solid #eee',
+                                            borderBottom: '1px solid var(--species-border)',
                                             background: 'linear-gradient(135deg, #9c27b0, #7b1fa2)',
                                             borderRadius: '8px 8px 0 0',
                                             color: 'white'
@@ -920,11 +925,11 @@ const PokemonCard = ({
                                                 style={{
                                                     padding: '12px',
                                                     cursor: 'pointer',
-                                                    borderBottom: '1px solid #eee',
+                                                    borderBottom: '1px solid var(--species-border)',
                                                     transition: 'background 0.15s'
                                                 }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--species-hover-bg)'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                             >
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <div>
@@ -956,11 +961,11 @@ const PokemonCard = ({
                                                     style={{
                                                         padding: '12px',
                                                         cursor: 'pointer',
-                                                        borderBottom: '1px solid #eee',
+                                                        borderBottom: '1px solid var(--species-border)',
                                                         transition: 'background 0.15s'
                                                     }}
-                                                    onMouseEnter={(e) => e.currentTarget.style.background = '#e3f2fd'}
-                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--species-regional-hover)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                                 >
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                         <div>
@@ -989,8 +994,8 @@ const PokemonCard = ({
                                         {/* Cancel Button */}
                                         <div style={{
                                             padding: '8px',
-                                            borderTop: '1px solid #eee',
-                                            background: '#f8f9fa',
+                                            borderTop: '1px solid var(--species-border)',
+                                            background: 'var(--species-filter-bg)',
                                             textAlign: 'center',
                                             borderRadius: '0 0 8px 8px'
                                         }}>
