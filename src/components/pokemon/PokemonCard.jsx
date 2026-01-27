@@ -305,16 +305,45 @@ const PokemonCard = ({
                         </div>
 
                         <div className="text-muted" style={{ fontSize: '12px', marginTop: '4px' }}>
-                            HP: {currentHP}/{maxHP} | {pokemon.nature || 'Hardy'} | {
-                                (pokemon.abilities && pokemon.abilities.length > 0)
-                                    ? pokemon.abilities.join(', ')
-                                    : (pokemon.ability || 'No Ability')
-                            }
+                            HP: {currentHP}/{maxHP} | {pokemon.nature || 'Hardy'}
                         </div>
+
+                        {/* Abilities - Tappable */}
+                        {(() => {
+                            const abilities = (pokemon.abilities && pokemon.abilities.length > 0)
+                                ? pokemon.abilities
+                                : (pokemon.ability ? [pokemon.ability] : []);
+                            return abilities.length > 0 && (
+                                <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                    {abilities.map((abilityName, idx) => (
+                                        <span
+                                            key={idx}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (showDetail) {
+                                                    const abilityData = GAME_DATA?.abilities?.[abilityName];
+                                                    if (abilityData) showDetail('ability', abilityName, abilityData);
+                                                }
+                                            }}
+                                            style={{
+                                                padding: '2px 8px',
+                                                borderRadius: '10px',
+                                                background: 'linear-gradient(135deg, #f093fb, #f5576c)',
+                                                color: 'white',
+                                                fontSize: '10px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {abilityName}
+                                        </span>
+                                    ))}
+                                </div>
+                            );
+                        })()}
 
                         {/* Moves Preview */}
                         {(pokemon.moves || []).length > 0 && (
-                            <div style={{ display: 'flex', gap: '4px', marginTop: '6px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
                                 {(pokemon.moves || []).slice(0, 4).map((move, idx) => (
                                     <span
                                         key={idx}
@@ -340,6 +369,48 @@ const PokemonCard = ({
                                 {(pokemon.moves || []).length > 4 && (
                                     <span style={{ fontSize: '10px', color: '#999', alignSelf: 'center' }}>
                                         +{(pokemon.moves || []).length - 4} more
+                                    </span>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Pokemon Skills Preview */}
+                        {(pokemon.pokemonSkills || []).length > 0 && (
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                {(pokemon.pokemonSkills || []).slice(0, 6).map((skill, idx) => (
+                                    <span
+                                        key={idx}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (showDetail) {
+                                                let skillData = GAME_DATA?.pokemonSkills?.[skill.name];
+                                                if (!skillData && GAME_DATA?.pokemonSkills) {
+                                                    const normalizedName = skill.name.toLowerCase().replace(/\s+/g, '');
+                                                    const matchingKey = Object.keys(GAME_DATA.pokemonSkills).find(key =>
+                                                        key.toLowerCase().replace(/\s+/g, '') === normalizedName
+                                                    );
+                                                    if (matchingKey) skillData = GAME_DATA.pokemonSkills[matchingKey];
+                                                }
+                                                showDetail('pokemonSkill', skill.name, { ...skillData, value: skill.value });
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '2px 8px',
+                                            borderRadius: '10px',
+                                            background: skill.value !== undefined
+                                                ? 'linear-gradient(135deg, #9c27b0, #7b1fa2)'
+                                                : 'linear-gradient(135deg, #4caf50, #388e3c)',
+                                            color: 'white',
+                                            fontSize: '10px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {skill.name}{skill.value !== undefined ? ` ${skill.value}` : ''}
+                                    </span>
+                                ))}
+                                {(pokemon.pokemonSkills || []).length > 6 && (
+                                    <span style={{ fontSize: '10px', color: '#999', alignSelf: 'center' }}>
+                                        +{(pokemon.pokemonSkills || []).length - 6} more
                                     </span>
                                 )}
                             </div>
