@@ -3045,7 +3045,7 @@ return (
     <div className="container">
         {/* Save Indicator */}
         <div className={`save-indicator ${showSaveIndicator ? 'show' : ''}`}>
-            ✓ Auto-saved
+            Auto-saved
         </div>
         
         {/* Level Up Notification */}
