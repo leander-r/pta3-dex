@@ -28,11 +28,21 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
         return classData?.type === 'base' ? 3 : 1;
     };
 
-    // Check if a skill is already at max (trained twice, except HP which is once)
+    // Helper to get skill rank from skills object (handles legacy array format)
+    const getSkillRank = (skillName) => {
+        const skills = trainer.skills || {};
+        if (Array.isArray(skills)) {
+            return skills.filter(s => s === skillName).length;
+        }
+        return skills[skillName] || 0;
+    };
+
+    // Check if a skill is already at max (rank 2, except HP skills which cap at rank 1)
     const isSkillMaxed = (skillName) => {
-        const count = (trainer.skills || []).filter(s => s === skillName).length;
-        const isHPSkill = skillName.toLowerCase().includes('hp');
-        return isHPSkill ? count >= 1 : count >= 2;
+        const rank = getSkillRank(skillName);
+        const skillData = GAME_DATA.skills?.[skillName];
+        const isHPSkill = skillData?.stat === 'HP';
+        return isHPSkill ? rank >= 1 : rank >= 2;
     };
 
     const handleRemoveClass = (cls) => {
@@ -55,11 +65,23 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
         }
 
         setTrainer(prev => {
-            let updatedSkills = [...(prev.skills || [])];
+            // Handle skills - convert legacy array to object if needed
+            let prevSkills = prev.skills || {};
+            if (Array.isArray(prevSkills)) {
+                prevSkills = prevSkills.reduce((acc, s) => {
+                    acc[s] = (acc[s] || 0) + 1;
+                    return acc;
+                }, {});
+            }
+
+            // Remove class skills by reducing rank
+            const updatedSkills = { ...prevSkills };
             classSkillsToRemove.forEach(skillToRemove => {
-                const idx = updatedSkills.indexOf(skillToRemove);
-                if (idx !== -1) {
-                    updatedSkills.splice(idx, 1);
+                if (updatedSkills[skillToRemove]) {
+                    updatedSkills[skillToRemove] -= 1;
+                    if (updatedSkills[skillToRemove] <= 0) {
+                        delete updatedSkills[skillToRemove];
+                    }
                 }
             });
 
@@ -141,17 +163,34 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
             .filter(([_, f]) => f.category === pendingClass && f.isBase)
             .map(([name, _]) => name) : [];
 
-        setTrainer(prev => ({
-            ...prev,
-            classes: [...(prev.classes || []), pendingClass],
-            features: [...(prev.features || []), ...baseFeatures],
-            featPoints: (prev.featPoints || 0) + featPointChange,
-            skills: [...(prev.skills || []), ...selectedClassSkills],
-            classSkills: {
-                ...(prev.classSkills || {}),
-                [pendingClass]: selectedClassSkills
+        setTrainer(prev => {
+            // Handle skills - convert legacy array to object if needed
+            let prevSkills = prev.skills || {};
+            if (Array.isArray(prevSkills)) {
+                prevSkills = prevSkills.reduce((acc, s) => {
+                    acc[s] = (acc[s] || 0) + 1;
+                    return acc;
+                }, {});
             }
-        }));
+
+            // Add selected skills (increment rank or add with rank 1)
+            const updatedSkills = { ...prevSkills };
+            selectedClassSkills.forEach(skill => {
+                updatedSkills[skill] = (updatedSkills[skill] || 0) + 1;
+            });
+
+            return {
+                ...prev,
+                classes: [...(prev.classes || []), pendingClass],
+                features: [...(prev.features || []), ...baseFeatures],
+                featPoints: (prev.featPoints || 0) + featPointChange,
+                skills: updatedSkills,
+                classSkills: {
+                    ...(prev.classSkills || {}),
+                    [pendingClass]: selectedClassSkills
+                }
+            };
+        });
 
         setPendingClass(null);
         setSelectedClassSkills([]);
@@ -246,7 +285,8 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
                         {getClassSkillPool(pendingClass).map(skillName => {
                             const isSelected = selectedClassSkills.includes(skillName);
                             const isMaxed = isSkillMaxed(skillName);
-                            const alreadyHas = (trainer.skills || []).includes(skillName);
+                            const currentRank = getSkillRank(skillName);
+                            const alreadyHas = currentRank > 0;
                             return (
                                 <button
                                     key={skillName}
