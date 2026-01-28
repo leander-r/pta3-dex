@@ -38,7 +38,7 @@ const PokemonTab = ({
     const [filter, setFilter] = useState({
         search: '',
         type: '',
-        sortBy: 'manual',
+        sortBy: '',
         sortDir: 'asc'
     });
     const [showImportOptions, setShowImportOptions] = useState(false);
@@ -142,8 +142,8 @@ const PokemonTab = ({
             );
         }
 
-        // Sorting (skip if manual to preserve user's custom order)
-        if (filter.sortBy !== 'manual') {
+        // Sorting (skip if empty to preserve user's custom order)
+        if (filter.sortBy) {
             result.sort((a, b) => {
                 let cmp = 0;
                 switch (filter.sortBy) {
@@ -168,6 +168,21 @@ const PokemonTab = ({
 
     const handleAddPokemon = () => {
         addPokemon();
+    };
+
+    // Wrap move handlers to reset sort when manually reordering
+    const handleMoveUp = (pokemonId) => {
+        if (filter.sortBy) {
+            setFilter(prev => ({ ...prev, sortBy: '' }));
+        }
+        movePokemonUp(pokemonId, pokemonView === 'party');
+    };
+
+    const handleMoveDown = (pokemonId) => {
+        if (filter.sortBy) {
+            setFilter(prev => ({ ...prev, sortBy: '' }));
+        }
+        movePokemonDown(pokemonId, pokemonView === 'party');
     };
 
     return (
@@ -350,7 +365,7 @@ const PokemonTab = ({
                         onChange={(e) => setFilter(prev => ({ ...prev, sortBy: e.target.value }))}
                         style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                     >
-                        <option value="manual">Sort: Manual</option>
+                        <option value="">Sort: Default</option>
                         <option value="name">Sort: Name</option>
                         <option value="level">Sort: Level</option>
                         <option value="species">Sort: Species</option>
@@ -366,7 +381,7 @@ const PokemonTab = ({
 
                     {(filter.search || filter.type) && (
                         <button
-                            onClick={() => setFilter({ search: '', type: '', sortBy: 'manual', sortDir: 'asc' })}
+                            onClick={() => setFilter({ search: '', type: '', sortBy: '', sortDir: 'asc' })}
                             style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: '#dc3545', color: 'white', cursor: 'pointer', fontSize: '13px' }}
                         >
                             Clear
@@ -407,7 +422,7 @@ const PokemonTab = ({
                                 Try a different search term or clear the filters.
                             </p>
                             <button
-                                onClick={() => setFilter({ search: '', type: '', sortBy: 'manual', sortDir: 'asc' })}
+                                onClick={() => setFilter({ search: '', type: '', sortBy: '', sortDir: 'asc' })}
                                 className="btn btn-secondary"
                                 style={{ marginTop: '12px' }}
                             >
@@ -430,8 +445,8 @@ const PokemonTab = ({
                             canMoveToParty={pokemonView === 'reserve' && party.length < MAX_PARTY_SIZE}
                             onMoveToParty={() => moveToParty(pokemon.id)}
                             onMoveToReserve={() => moveToReserve(pokemon.id)}
-                            onMoveUp={() => movePokemonUp(pokemon.id, pokemonView === 'party')}
-                            onMoveDown={() => movePokemonDown(pokemon.id, pokemonView === 'party')}
+                            onMoveUp={() => handleMoveUp(pokemon.id)}
+                            onMoveDown={() => handleMoveDown(pokemon.id)}
                             canMoveUp={index > 0}
                             canMoveDown={index < filteredList.length - 1}
                             pokedex={pokedex}
