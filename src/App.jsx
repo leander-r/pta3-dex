@@ -1641,6 +1641,20 @@ const saveData = async () => {
 
 // Migrate old single-trainer data to multi-trainer format
 const migrateOldData = (loadedData) => {
+    // Helper to migrate skills from array to object format
+    const migrateSkillsToObject = (skills) => {
+        if (!skills) return {};
+        if (Array.isArray(skills)) {
+            // Convert array format to object with rank 1
+            return skills.reduce((acc, skill) => {
+                acc[skill] = 1;
+                return acc;
+            }, {});
+        }
+        // Already object format
+        return skills;
+    };
+
     // Helper to migrate pokemon array to party/reserve
     const migratePokemonToPartyReserve = (trainerData) => {
         // If already has party/reserve, just ensure they exist
@@ -1683,19 +1697,28 @@ const migrateOldData = (loadedData) => {
         
         // Migrate to party/reserve
         trainerData = migratePokemonToPartyReserve(trainerData);
-        
+
+        // Migrate skills to object format
+        trainerData = {
+            ...trainerData,
+            skills: migrateSkillsToObject(trainerData.skills)
+        };
+
         return {
             trainers: [trainerData],
             activeTrainerId: trainerData.id,
             inventory: loadedData.inventory || []
         };
     }
-    
-    // Multi-trainer format - migrate each trainer's pokemon to party/reserve
+
+    // Multi-trainer format - migrate each trainer's pokemon to party/reserve and skills
     if (loadedData.trainers) {
         return {
             ...loadedData,
-            trainers: loadedData.trainers.map(t => migratePokemonToPartyReserve(t))
+            trainers: loadedData.trainers.map(t => ({
+                ...migratePokemonToPartyReserve(t),
+                skills: migrateSkillsToObject(t.skills)
+            }))
         };
     }
     
@@ -1773,8 +1796,14 @@ const _originalExportTrainerText = () => {
         const featureNames = trainer.features.map(f => typeof f === 'object' ? f.name : f);
         text += `**Features:** ${featureNames.join(', ')}\n`;
     }
-    if (trainer.skills.length > 0) {
-        text += `**Skills:** ${trainer.skills.join(', ')}\n`;
+    // Handle both legacy array format and new object format for skills
+    const skillsForDisplay = Array.isArray(trainer.skills)
+        ? trainer.skills
+        : Object.entries(trainer.skills || {})
+            .filter(([_, rank]) => rank > 0)
+            .map(([name, rank]) => rank === 2 ? `${name} (★★)` : name);
+    if (skillsForDisplay.length > 0) {
+        text += `**Skills:** ${skillsForDisplay.join(', ')}\n`;
     }
     if (trainer.badges.length > 0) {
         text += `**Badges:** ${trainer.badges.length}\n`;
@@ -1962,6 +1991,15 @@ const importData = (file) => {
         try {
             const data = JSON.parse(e.target.result);
             
+            // Helper to migrate skills array to object format
+            const migrateSkills = (skills) => {
+                if (!skills) return {};
+                if (Array.isArray(skills)) {
+                    return skills.reduce((acc, s) => ({ ...acc, [s]: 1 }), {});
+                }
+                return skills;
+            };
+
             // Check if it's multi-trainer format (v2.0+)
             if (data.trainers) {
                 // Ensure all trainers have proper structure
@@ -1969,7 +2007,8 @@ const importData = (file) => {
                     ...t,
                     money: t.money || 0,
                     party: t.party || t.pokemon?.slice(0, 6) || [],
-                    reserve: t.reserve || t.pokemon?.slice(6) || []
+                    reserve: t.reserve || t.pokemon?.slice(6) || [],
+                    skills: migrateSkills(t.skills)
                 }));
                 setTrainers(migratedTrainers);
                 setActiveTrainerId(data.activeTrainerId || migratedTrainers[0]?.id);
@@ -1998,14 +2037,15 @@ const importData = (file) => {
                     trainerData = { ...trainerData, classes: migratedClasses };
                 }
                 
-                // Ensure proper structure with money, party, reserve
+                // Ensure proper structure with money, party, reserve, skills
                 trainerData = {
                     ...trainerData,
                     id: trainerData.id || Date.now(),
                     money: trainerData.money || 0,
                     // Handle party/reserve - prefer explicit fields, fall back to pokemon array or separate data
                     party: trainerData.party || data.pokemon?.slice(0, 6) || trainerData.pokemon?.slice(0, 6) || [],
-                    reserve: trainerData.reserve || data.pokemon?.slice(6) || trainerData.pokemon?.slice(6) || []
+                    reserve: trainerData.reserve || data.pokemon?.slice(6) || trainerData.pokemon?.slice(6) || [],
+                    skills: migrateSkills(trainerData.skills)
                 };
                 
                 // Ask if they want to replace all or add to existing

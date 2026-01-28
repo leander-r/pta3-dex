@@ -26,7 +26,7 @@ export const DEFAULT_TRAINER = {
     statPoints: 30,        // Character creation points (cap at 14 per stat)
     levelStatPoints: 0,    // Level-up stat points (no cap)
     featPoints: 0,         // Feature points
-    skills: [],
+    skills: {},            // Skills with ranks: { 'Browbeat': 1, 'Jump': 2 }
     features: [],
     notes: '',
     badges: [],

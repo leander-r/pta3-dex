@@ -31,8 +31,14 @@ export const exportTrainerText = (trainer) => {
         const featureNames = trainer.features.map(f => typeof f === 'object' ? f.name : f);
         text += `**Features:** ${featureNames.join(', ')}\n`;
     }
-    if (trainer.skills.length > 0) {
-        text += `**Skills:** ${trainer.skills.join(', ')}\n`;
+    // Handle both legacy array format and new object format for skills
+    const skillsList = Array.isArray(trainer.skills)
+        ? trainer.skills
+        : Object.entries(trainer.skills || {})
+            .filter(([_, rank]) => rank > 0)
+            .map(([name, rank]) => rank === 2 ? `${name} (★★)` : name);
+    if (skillsList.length > 0) {
+        text += `**Skills:** ${skillsList.join(', ')}\n`;
     }
     if (trainer.badges.length > 0) {
         text += `**Badges:** ${trainer.badges.length}\n`;

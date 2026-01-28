@@ -824,9 +824,16 @@ const BattleTab = ({
                                         );
                                     })}
                                 </div>
-                                {trainer.skills && trainer.skills.length > 0 && (
+                                {trainer.skills && (Array.isArray(trainer.skills) ? trainer.skills.length > 0 : Object.keys(trainer.skills).length > 0) && (
                                     <div style={{ marginTop: '8px', fontSize: '11px' }}>
-                                        <strong>Trained Skills:</strong> {trainer.skills.join(', ')}
+                                        <strong>Trained Skills:</strong> {
+                                            Array.isArray(trainer.skills)
+                                                ? trainer.skills.join(', ')
+                                                : Object.entries(trainer.skills)
+                                                    .filter(([_, rank]) => rank > 0)
+                                                    .map(([name, rank]) => rank === 2 ? `${name} ★★` : name)
+                                                    .join(', ')
+                                        }
                                     </div>
                                 )}
                             </div>

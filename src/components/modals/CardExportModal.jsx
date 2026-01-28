@@ -308,7 +308,7 @@ const TrainerCard = ({ trainer, pokemon }) => (
         )}
 
         {/* Skills */}
-        {trainer.skills.length > 0 && (
+        {(Array.isArray(trainer.skills) ? trainer.skills.length > 0 : Object.keys(trainer.skills || {}).length > 0) && (
             <div style={{ marginBottom: '12px' }}>
                 <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
                     Skills
@@ -319,7 +319,13 @@ const TrainerCard = ({ trainer, pokemon }) => (
                     padding: '8px 12px',
                     borderRadius: '8px'
                 }}>
-                    {trainer.skills.join(' • ')}
+                    {Array.isArray(trainer.skills)
+                        ? trainer.skills.join(' • ')
+                        : Object.entries(trainer.skills || {})
+                            .filter(([_, rank]) => rank > 0)
+                            .map(([name, rank]) => rank === 2 ? `${name} ★★` : name)
+                            .join(' • ')
+                    }
                 </div>
             </div>
         )}

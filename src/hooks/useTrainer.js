@@ -292,7 +292,7 @@ export const useTrainer = (initialTrainers = null, initialActiveId = null) => {
             featPoints: 0,
             classes: [],
             features: [],
-            skills: []
+            skills: {}
         }));
     }, [setTrainer]);
 
@@ -330,20 +330,55 @@ export const useTrainer = (initialTrainers = null, initialActiveId = null) => {
         }));
     }, [setTrainer]);
 
-    // Add skill to trainer
-    const addSkill = useCallback((skill) => {
-        setTrainer(prev => ({
-            ...prev,
-            skills: [...(prev.skills || []), skill]
-        }));
+    // Add skill to trainer (with rank, default 1)
+    const addSkill = useCallback((skill, rank = 1) => {
+        setTrainer(prev => {
+            const currentSkills = prev.skills || {};
+            // Handle legacy array format
+            const skillsObj = Array.isArray(currentSkills)
+                ? currentSkills.reduce((acc, s) => ({ ...acc, [s]: 1 }), {})
+                : currentSkills;
+            return {
+                ...prev,
+                skills: { ...skillsObj, [skill]: rank }
+            };
+        });
+    }, [setTrainer]);
+
+    // Set skill rank (0 removes the skill, 1-2 sets rank)
+    const setSkillRank = useCallback((skill, rank) => {
+        setTrainer(prev => {
+            const currentSkills = prev.skills || {};
+            // Handle legacy array format
+            const skillsObj = Array.isArray(currentSkills)
+                ? currentSkills.reduce((acc, s) => ({ ...acc, [s]: 1 }), {})
+                : currentSkills;
+
+            if (rank === 0) {
+                const { [skill]: removed, ...rest } = skillsObj;
+                return { ...prev, skills: rest };
+            }
+            return {
+                ...prev,
+                skills: { ...skillsObj, [skill]: rank }
+            };
+        });
     }, [setTrainer]);
 
     // Remove skill from trainer
     const removeSkill = useCallback((skill) => {
-        setTrainer(prev => ({
-            ...prev,
-            skills: (prev.skills || []).filter(s => s !== skill)
-        }));
+        setTrainer(prev => {
+            const currentSkills = prev.skills || {};
+            // Handle legacy array format
+            if (Array.isArray(currentSkills)) {
+                return {
+                    ...prev,
+                    skills: currentSkills.filter(s => s !== skill)
+                };
+            }
+            const { [skill]: removed, ...rest } = currentSkills;
+            return { ...prev, skills: rest };
+        });
     }, [setTrainer]);
 
     // Calculate max HP
@@ -389,6 +424,7 @@ export const useTrainer = (initialTrainers = null, initialActiveId = null) => {
         addFeature,
         removeFeature,
         addSkill,
+        setSkillRank,
         removeSkill
     };
 };

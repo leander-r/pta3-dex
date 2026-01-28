@@ -44,11 +44,23 @@ const SkillPickerModal = ({
             const existingFeatures = prev.features || [];
             const newFeatures = baseFeatures.filter(f => !existingFeatures.includes(f));
 
+            // Handle legacy array format for skills
+            const prevSkills = prev.skills || {};
+            const skillsObj = Array.isArray(prevSkills)
+                ? prevSkills.reduce((acc, s) => ({ ...acc, [s]: 1 }), {})
+                : prevSkills;
+
+            // Add new skills with rank 1
+            const newSkills = skillPickerModal.selectedSkills.reduce((acc, skill) => {
+                acc[skill] = 1;
+                return acc;
+            }, {});
+
             return {
                 ...prev,
                 classes: [...(prev.classes || []), cls],
                 features: [...existingFeatures, ...newFeatures],
-                skills: [...(prev.skills || []), ...skillPickerModal.selectedSkills],
+                skills: { ...skillsObj, ...newSkills },
                 classSkills: {
                     ...(prev.classSkills || {}),
                     [cls]: skillPickerModal.selectedSkills
