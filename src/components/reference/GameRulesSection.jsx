@@ -110,9 +110,11 @@ const GameRulesSection = () => {
 
                     <h4>Skill Checks</h4>
                     <ul>
-                        <li>Roll 2d6 + stat modifier</li>
-                        <li>Trained skills: +2 bonus</li>
+                        <li>Roll 2d6 + stat modifier + skill bonus</li>
                         <li>Stat modifier = (Stat - 10)</li>
+                        <li>Rank 1: +2 + stat modifier</li>
+                        <li>Rank 2: +4 + (2 × stat modifier)</li>
+                        <li>HP skills max at Rank 1 (passive)</li>
                     </ul>
                 </div>
             )
