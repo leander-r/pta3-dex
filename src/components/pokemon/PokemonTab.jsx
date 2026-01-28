@@ -27,6 +27,7 @@ const PokemonTab = ({
     moveToReserve,
     movePokemonUp,
     movePokemonDown,
+    sortPokemonList,
     pokedex,
     GAME_DATA,
     showDetail,
@@ -37,10 +38,9 @@ const PokemonTab = ({
 }) => {
     const [filter, setFilter] = useState({
         search: '',
-        type: '',
-        sortBy: '',
-        sortDir: 'asc'
+        type: ''
     });
+    const [sortDir, setSortDir] = useState('asc');
     const [showImportOptions, setShowImportOptions] = useState(false);
     const fileInputRef = useRef(null);
     const importDropdownRef = useRef(null);
@@ -121,7 +121,7 @@ const PokemonTab = ({
     // Current pokemon list based on view
     const currentList = pokemonView === 'party' ? party : reserve;
 
-    // Filtered and sorted list
+    // Filtered list (sorting is done via sortPokemonList action, not here)
     const filteredList = useMemo(() => {
         let result = [...currentList];
 
@@ -142,27 +142,6 @@ const PokemonTab = ({
             );
         }
 
-        // Sorting (skip if empty to preserve user's custom order)
-        if (filter.sortBy) {
-            result.sort((a, b) => {
-                let cmp = 0;
-                switch (filter.sortBy) {
-                    case 'level':
-                        cmp = (b.level || 1) - (a.level || 1);
-                        break;
-                    case 'species':
-                        cmp = (a.species || '').localeCompare(b.species || '');
-                        break;
-                    case 'type':
-                        cmp = (a.types?.[0] || '').localeCompare(b.types?.[0] || '');
-                        break;
-                    default: // name
-                        cmp = (a.name || a.species || '').localeCompare(b.name || b.species || '');
-                }
-                return filter.sortDir === 'asc' ? cmp : -cmp;
-            });
-        }
-
         return result;
     }, [currentList, filter]);
 
@@ -170,19 +149,11 @@ const PokemonTab = ({
         addPokemon();
     };
 
-    // Wrap move handlers to reset sort when manually reordering
-    const handleMoveUp = (pokemonId) => {
-        if (filter.sortBy) {
-            setFilter(prev => ({ ...prev, sortBy: '' }));
+    // Handle sort action - sorts the actual data
+    const handleSort = (sortBy) => {
+        if (sortBy) {
+            sortPokemonList(pokemonView === 'party', sortBy, sortDir);
         }
-        movePokemonUp(pokemonId, pokemonView === 'party');
-    };
-
-    const handleMoveDown = (pokemonId) => {
-        if (filter.sortBy) {
-            setFilter(prev => ({ ...prev, sortBy: '' }));
-        }
-        movePokemonDown(pokemonId, pokemonView === 'party');
     };
 
     return (
@@ -361,27 +332,27 @@ const PokemonTab = ({
                     </select>
 
                     <select
-                        value={filter.sortBy}
-                        onChange={(e) => setFilter(prev => ({ ...prev, sortBy: e.target.value }))}
+                        value=""
+                        onChange={(e) => handleSort(e.target.value)}
                         style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                     >
-                        <option value="">Sort: Default</option>
-                        <option value="name">Sort: Name</option>
-                        <option value="level">Sort: Level</option>
-                        <option value="species">Sort: Species</option>
-                        <option value="type">Sort: Type</option>
+                        <option value="">Sort by...</option>
+                        <option value="name">Name</option>
+                        <option value="level">Level</option>
+                        <option value="species">Species</option>
+                        <option value="type">Type</option>
                     </select>
 
                     <button
-                        onClick={() => setFilter(prev => ({ ...prev, sortDir: prev.sortDir === 'asc' ? 'desc' : 'asc' }))}
+                        onClick={() => setSortDir(prev => prev === 'asc' ? 'desc' : 'asc')}
                         style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}
                     >
-                        {filter.sortDir === 'asc' ? ' A-Z' : ' Z-A'}
+                        {sortDir === 'asc' ? ' A-Z' : ' Z-A'}
                     </button>
 
                     {(filter.search || filter.type) && (
                         <button
-                            onClick={() => setFilter({ search: '', type: '', sortBy: '', sortDir: 'asc' })}
+                            onClick={() => setFilter({ search: '', type: '' })}
                             style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: '#dc3545', color: 'white', cursor: 'pointer', fontSize: '13px' }}
                         >
                             Clear
@@ -422,7 +393,7 @@ const PokemonTab = ({
                                 Try a different search term or clear the filters.
                             </p>
                             <button
-                                onClick={() => setFilter({ search: '', type: '', sortBy: '', sortDir: 'asc' })}
+                                onClick={() => setFilter({ search: '', type: '' })}
                                 className="btn btn-secondary"
                                 style={{ marginTop: '12px' }}
                             >
@@ -445,8 +416,8 @@ const PokemonTab = ({
                             canMoveToParty={pokemonView === 'reserve' && party.length < MAX_PARTY_SIZE}
                             onMoveToParty={() => moveToParty(pokemon.id)}
                             onMoveToReserve={() => moveToReserve(pokemon.id)}
-                            onMoveUp={() => handleMoveUp(pokemon.id)}
-                            onMoveDown={() => handleMoveDown(pokemon.id)}
+                            onMoveUp={() => movePokemonUp(pokemon.id, pokemonView === 'party')}
+                            onMoveDown={() => movePokemonDown(pokemon.id, pokemonView === 'party')}
                             canMoveUp={index > 0}
                             canMoveDown={index < filteredList.length - 1}
                             pokedex={pokedex}

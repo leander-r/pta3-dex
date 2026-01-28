@@ -314,6 +314,32 @@ const movePokemonDown = (pokemonId, isParty) => {
     });
 };
 
+// Sort pokemon list by specified criteria
+const sortPokemonList = (isParty, sortBy, sortDir = 'asc') => {
+    const setList = isParty ? setParty : setReserve;
+    setList(prev => {
+        const sorted = [...prev].sort((a, b) => {
+            let cmp = 0;
+            switch (sortBy) {
+                case 'level':
+                    cmp = (b.level || 1) - (a.level || 1);
+                    break;
+                case 'species':
+                    cmp = (a.species || '').localeCompare(b.species || '');
+                    break;
+                case 'type':
+                    cmp = (a.types?.[0] || '').localeCompare(b.types?.[0] || '');
+                    break;
+                case 'name':
+                default:
+                    cmp = (a.name || a.species || '').localeCompare(b.name || b.species || '');
+            }
+            return sortDir === 'asc' ? cmp : -cmp;
+        });
+        return sorted;
+    });
+};
+
 // ============================================================
 // TRAINER MANAGEMENT FUNCTIONS
 // ============================================================
@@ -3112,6 +3138,7 @@ return (
                         moveToReserve={moveToReserve}
                         movePokemonUp={movePokemonUp}
                         movePokemonDown={movePokemonDown}
+                        sortPokemonList={sortPokemonList}
                         pokedex={pokedex}
                         GAME_DATA={GAME_DATA}
                         showDetail={showDetail}

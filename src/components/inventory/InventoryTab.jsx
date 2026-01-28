@@ -8,7 +8,6 @@ import { GAME_DATA } from '../../data/configs.js';
 const InventoryTab = ({ inventory, setInventory, showDetail }) => {
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [inventorySort, setInventorySort] = useState(''); // '', 'name', 'type', 'quantity'
     const [showAddItem, setShowAddItem] = useState(false);
     const [itemSearch, setItemSearch] = useState('');
     const [addQuantity, setAddQuantity] = useState(1);
@@ -60,7 +59,7 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
         return colors[t] || '#667eea';
     };
 
-    // Filtered and sorted inventory
+    // Filtered inventory (sorting is done via sortInventory action, not here)
     const filteredInventory = useMemo(() => {
         let result = [...inventory];
 
@@ -79,10 +78,15 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
             );
         }
 
-        // Sorting (skip if empty to preserve user's custom order)
-        if (inventorySort) {
-            result.sort((a, b) => {
-                switch (inventorySort) {
+        return result;
+    }, [inventory, filter, searchQuery]);
+
+    // Sort inventory action - sorts the actual data
+    const sortInventory = (sortBy) => {
+        if (!sortBy) return;
+        setInventory(prev => {
+            const sorted = [...prev].sort((a, b) => {
+                switch (sortBy) {
                     case 'name':
                         return a.name.localeCompare(b.name);
                     case 'type':
@@ -93,10 +97,9 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                         return 0;
                 }
             });
-        }
-
-        return result;
-    }, [inventory, filter, searchQuery, inventorySort]);
+            return sorted;
+        });
+    };
 
     // Available items from game data with filtering and sorting
     const availableItems = useMemo(() => {
@@ -264,8 +267,8 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                         ))}
                     </select>
                     <select
-                        value={inventorySort}
-                        onChange={(e) => setInventorySort(e.target.value)}
+                        value=""
+                        onChange={(e) => sortInventory(e.target.value)}
                         style={{
                             padding: '8px 12px',
                             borderRadius: '6px',
@@ -274,10 +277,10 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                             color: 'var(--text-primary)'
                         }}
                     >
-                        <option value="">Sort: Default</option>
-                        <option value="name">Sort: Name</option>
-                        <option value="type">Sort: Type</option>
-                        <option value="quantity">Sort: Quantity</option>
+                        <option value="">Sort by...</option>
+                        <option value="name">Name</option>
+                        <option value="type">Type</option>
+                        <option value="quantity">Quantity</option>
                     </select>
                     <button
                         onClick={() => setShowAddItem(!showAddItem)}
