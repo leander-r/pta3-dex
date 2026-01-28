@@ -7,6 +7,8 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import PokemonCard from './PokemonCard.jsx';
 import { MAX_PARTY_SIZE } from '../../data/constants.js';
 import { importSinglePokemon } from '../../utils/exportUtils.js';
+import { POKEMON_TYPES } from '../../data/typeChart.js';
+import { getTypeColor } from '../../utils/typeUtils.js';
 
 /**
  * PokemonTab - Main Pokemon management container
@@ -33,7 +35,12 @@ const PokemonTab = ({
     devolvePokemon,
     importPokemon
 }) => {
-    const [searchQuery, setSearchQuery] = useState('');
+    const [filter, setFilter] = useState({
+        search: '',
+        type: '',
+        sortBy: 'name',
+        sortDir: 'asc'
+    });
     const [showImportOptions, setShowImportOptions] = useState(false);
     const fileInputRef = useRef(null);
     const importDropdownRef = useRef(null);
@@ -114,16 +121,48 @@ const PokemonTab = ({
     // Current pokemon list based on view
     const currentList = pokemonView === 'party' ? party : reserve;
 
-    // Filtered list
+    // Filtered and sorted list
     const filteredList = useMemo(() => {
-        if (!searchQuery.trim()) return currentList;
-        const query = searchQuery.toLowerCase();
-        return currentList.filter(p =>
-            (p.name || '').toLowerCase().includes(query) ||
-            (p.species || '').toLowerCase().includes(query) ||
-            p.types?.some(t => t.toLowerCase().includes(query))
-        );
-    }, [currentList, searchQuery]);
+        let result = [...currentList];
+
+        // Search filter
+        if (filter.search.trim()) {
+            const query = filter.search.toLowerCase();
+            result = result.filter(p =>
+                (p.name || '').toLowerCase().includes(query) ||
+                (p.species || '').toLowerCase().includes(query) ||
+                p.types?.some(t => t.toLowerCase().includes(query))
+            );
+        }
+
+        // Type filter
+        if (filter.type) {
+            result = result.filter(p =>
+                p.types?.some(t => t.toLowerCase() === filter.type.toLowerCase())
+            );
+        }
+
+        // Sorting
+        result.sort((a, b) => {
+            let cmp = 0;
+            switch (filter.sortBy) {
+                case 'level':
+                    cmp = (b.level || 1) - (a.level || 1);
+                    break;
+                case 'species':
+                    cmp = (a.species || '').localeCompare(b.species || '');
+                    break;
+                case 'type':
+                    cmp = (a.types?.[0] || '').localeCompare(b.types?.[0] || '');
+                    break;
+                default: // name
+                    cmp = (a.name || a.species || '').localeCompare(b.name || b.species || '');
+            }
+            return filter.sortDir === 'asc' ? cmp : -cmp;
+        });
+
+        return result;
+    }, [currentList, filter]);
 
     const handleAddPokemon = () => {
         addPokemon();
@@ -265,21 +304,72 @@ const PokemonTab = ({
                 </button>
             </div>
 
-            {/* Search */}
-            <div style={{ marginBottom: '15px' }}>
-                <input
-                    type="text"
-                    placeholder="Search by name, species, or type..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                        width: '100%',
-                        padding: '10px 15px',
-                        borderRadius: '8px',
-                        border: '2px solid #e8e3f3',
-                        fontSize: '14px'
-                    }}
-                />
+            {/* Search and Filters */}
+            <div className="section-card" style={{ marginBottom: '15px' }}>
+                <div style={{ marginBottom: '12px' }}>
+                    <input
+                        type="text"
+                        placeholder="Search by name, species, or type..."
+                        value={filter.search}
+                        onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
+                        style={{
+                            width: '100%',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            border: '2px solid var(--border-medium)',
+                            fontSize: '14px',
+                            background: 'var(--input-bg)',
+                            color: 'var(--text-primary)'
+                        }}
+                    />
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                    <select
+                        value={filter.type}
+                        onChange={(e) => setFilter(prev => ({ ...prev, type: e.target.value }))}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--border-medium)',
+                            fontSize: '13px',
+                            background: filter.type ? getTypeColor(filter.type) : 'var(--input-bg)',
+                            color: filter.type ? 'white' : 'var(--text-primary)'
+                        }}
+                    >
+                        <option value="">All Types</option>
+                        {POKEMON_TYPES.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                        ))}
+                    </select>
+
+                    <select
+                        value={filter.sortBy}
+                        onChange={(e) => setFilter(prev => ({ ...prev, sortBy: e.target.value }))}
+                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
+                    >
+                        <option value="name">Sort: Name</option>
+                        <option value="level">Sort: Level</option>
+                        <option value="species">Sort: Species</option>
+                        <option value="type">Sort: Type</option>
+                    </select>
+
+                    <button
+                        onClick={() => setFilter(prev => ({ ...prev, sortDir: prev.sortDir === 'asc' ? 'desc' : 'asc' }))}
+                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}
+                    >
+                        {filter.sortDir === 'asc' ? ' A-Z' : ' Z-A'}
+                    </button>
+
+                    {(filter.search || filter.type) && (
+                        <button
+                            onClick={() => setFilter({ search: '', type: '', sortBy: 'name', sortDir: 'asc' })}
+                            style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: '#dc3545', color: 'white', cursor: 'pointer', fontSize: '13px' }}
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Pokemon List */}
@@ -311,14 +401,14 @@ const PokemonTab = ({
                             <span className="empty-state-icon">🔍</span>
                             <p className="empty-state-title">No matches found</p>
                             <p className="empty-state-description">
-                                Try a different search term or clear the search.
+                                Try a different search term or clear the filters.
                             </p>
                             <button
-                                onClick={() => setSearchQuery('')}
+                                onClick={() => setFilter({ search: '', type: '', sortBy: 'name', sortDir: 'asc' })}
                                 className="btn btn-secondary"
                                 style={{ marginTop: '12px' }}
                             >
-                                Clear Search
+                                Clear Filters
                             </button>
                         </>
                     )}
