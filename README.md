@@ -13,9 +13,9 @@ This tool replaces spreadsheets and manual note-taking with a clean, interactive
 ## Features
 
 ### Trainer Management
-- **Profile & Stats** — Track trainer name, age, level, HP, and core stats (STR, DEX, CON, INT, WIS, CHA)
+- **Profile & Stats** — Track trainer name, age, level, HP, and core stats (HP, ATK, DEF, SATK, SDEF, SPD)
 - **Classes & Features** — Manage trainer classes with their associated features and abilities
-- **Skills** — Full skill system with modifiers and proficiency tracking
+- **Skills** — Rank-based skill system (Rank 1: +2 + mod, Rank 2: +4 + 2×mod). HP skills cap at Rank 1
 - **Money Tracking** — Keep track of your Pokédollars (₽)
 
 ### Pokémon Team
@@ -128,9 +128,9 @@ npm run preview
 
 1. The app starts with a default trainer — click on the **Trainer** tab
 2. Edit your trainer's name, age, and description
-3. Allocate stat points (STR, DEX, CON, INT, WIS, CHA)
+3. Allocate stat points (HP, ATK, DEF, SATK, SDEF, SPD)
 4. Choose your trainer classes and features
-5. Assign skill points
+5. Click skills to cycle through ranks (0 → 1 → 2, HP skills max at 1)
 
 ### Adding Pokémon to Your Team
 
