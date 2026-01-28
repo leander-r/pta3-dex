@@ -137,6 +137,16 @@
             --abilities-quick-btn-active-bg: #667eea;
             --abilities-quick-btn-active-border: #667eea;
             --abilities-quick-btn-active-text: white;
+
+            /* Skill Picker (TrainerClasses) */
+            --skill-picker-bg: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            --skill-btn-bg: white;
+            --skill-btn-text: #333;
+            --skill-btn-border: #ddd;
+            --skill-btn-has-bg: #fff3e0;
+            --skill-btn-disabled-bg: #e0e0e0;
+            --skill-btn-disabled-text: #999;
+            --skill-btn-disabled-border: #bdbdbd;
         }
 
         /* ========== DARK MODE ========== */
@@ -226,6 +236,16 @@
             --abilities-quick-btn-active-bg: #8b9cf7;
             --abilities-quick-btn-active-border: #8b9cf7;
             --abilities-quick-btn-active-text: #1a1a2e;
+
+            /* Skill Picker (TrainerClasses) - dark mode */
+            --skill-picker-bg: linear-gradient(135deg, #1a3320, #1e3a28);
+            --skill-btn-bg: #2a2a3a;
+            --skill-btn-text: #e0e0e8;
+            --skill-btn-border: #4d4d5d;
+            --skill-btn-has-bg: #3d3020;
+            --skill-btn-disabled-bg: #1e1e28;
+            --skill-btn-disabled-text: #666;
+            --skill-btn-disabled-border: #3a3a4a;
         }
 
         body {

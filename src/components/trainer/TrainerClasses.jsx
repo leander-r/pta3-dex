@@ -258,12 +258,12 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
                 <div style={{
                     marginBottom: '15px',
                     padding: '15px',
-                    background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)',
+                    background: 'var(--skill-picker-bg, linear-gradient(135deg, #e8f5e9, #c8e6c9))',
                     borderRadius: '8px',
                     border: '2px solid #4caf50'
                 }}>
                     <div style={{ marginBottom: '10px' }}>
-                        <strong style={{ fontSize: '14px' }}>Adding: {pendingClass}</strong>
+                        <strong style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Adding: {pendingClass}</strong>
                         <span style={{
                             marginLeft: '8px',
                             padding: '2px 8px',
@@ -275,9 +275,9 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
                             {GAME_DATA.trainerClasses[pendingClass]?.type === 'base' ? 'Base' : 'Advanced'}
                         </span>
                     </div>
-                    <div style={{ fontSize: '12px', marginBottom: '10px', color: '#333' }}>
+                    <div style={{ fontSize: '12px', marginBottom: '10px', color: 'var(--text-primary)' }}>
                         Select {getSkillCount(pendingClass)} skill{getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:
-                        <span style={{ color: '#666', fontSize: '11px', display: 'block', marginTop: '4px' }}>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginTop: '4px' }}>
                             Trained skills add +2 to rolls. Getting the same skill twice adds another +2. HP skills can only be taken once.
                         </span>
                     </div>
@@ -294,9 +294,9 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
                                     disabled={isMaxed}
                                     style={{
                                         padding: '6px 12px',
-                                        background: isSelected ? '#4caf50' : isMaxed ? '#e0e0e0' : alreadyHas ? '#fff3e0' : 'white',
-                                        color: isSelected ? 'white' : isMaxed ? '#999' : '#333',
-                                        border: `2px solid ${isSelected ? '#4caf50' : isMaxed ? '#bdbdbd' : alreadyHas ? '#ff9800' : '#ddd'}`,
+                                        background: isSelected ? '#4caf50' : isMaxed ? 'var(--skill-btn-disabled-bg, #e0e0e0)' : alreadyHas ? 'var(--skill-btn-has-bg, #fff3e0)' : 'var(--skill-btn-bg, white)',
+                                        color: isSelected ? 'white' : isMaxed ? 'var(--skill-btn-disabled-text, #999)' : 'var(--skill-btn-text, #333)',
+                                        border: `2px solid ${isSelected ? '#4caf50' : isMaxed ? 'var(--skill-btn-disabled-border, #bdbdbd)' : alreadyHas ? '#ff9800' : 'var(--skill-btn-border, #ddd)'}`,
                                         borderRadius: '20px',
                                         cursor: isMaxed ? 'not-allowed' : 'pointer',
                                         fontSize: '12px'
