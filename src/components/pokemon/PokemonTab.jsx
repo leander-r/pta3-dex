@@ -38,7 +38,7 @@ const PokemonTab = ({
     const [filter, setFilter] = useState({
         search: '',
         type: '',
-        sortBy: 'name',
+        sortBy: 'manual',
         sortDir: 'asc'
     });
     const [showImportOptions, setShowImportOptions] = useState(false);
@@ -142,24 +142,26 @@ const PokemonTab = ({
             );
         }
 
-        // Sorting
-        result.sort((a, b) => {
-            let cmp = 0;
-            switch (filter.sortBy) {
-                case 'level':
-                    cmp = (b.level || 1) - (a.level || 1);
-                    break;
-                case 'species':
-                    cmp = (a.species || '').localeCompare(b.species || '');
-                    break;
-                case 'type':
-                    cmp = (a.types?.[0] || '').localeCompare(b.types?.[0] || '');
-                    break;
-                default: // name
-                    cmp = (a.name || a.species || '').localeCompare(b.name || b.species || '');
-            }
-            return filter.sortDir === 'asc' ? cmp : -cmp;
-        });
+        // Sorting (skip if manual to preserve user's custom order)
+        if (filter.sortBy !== 'manual') {
+            result.sort((a, b) => {
+                let cmp = 0;
+                switch (filter.sortBy) {
+                    case 'level':
+                        cmp = (b.level || 1) - (a.level || 1);
+                        break;
+                    case 'species':
+                        cmp = (a.species || '').localeCompare(b.species || '');
+                        break;
+                    case 'type':
+                        cmp = (a.types?.[0] || '').localeCompare(b.types?.[0] || '');
+                        break;
+                    default: // name
+                        cmp = (a.name || a.species || '').localeCompare(b.name || b.species || '');
+                }
+                return filter.sortDir === 'asc' ? cmp : -cmp;
+            });
+        }
 
         return result;
     }, [currentList, filter]);
@@ -348,6 +350,7 @@ const PokemonTab = ({
                         onChange={(e) => setFilter(prev => ({ ...prev, sortBy: e.target.value }))}
                         style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                     >
+                        <option value="manual">Sort: Manual</option>
                         <option value="name">Sort: Name</option>
                         <option value="level">Sort: Level</option>
                         <option value="species">Sort: Species</option>
@@ -363,7 +366,7 @@ const PokemonTab = ({
 
                     {(filter.search || filter.type) && (
                         <button
-                            onClick={() => setFilter({ search: '', type: '', sortBy: 'name', sortDir: 'asc' })}
+                            onClick={() => setFilter({ search: '', type: '', sortBy: 'manual', sortDir: 'asc' })}
                             style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: '#dc3545', color: 'white', cursor: 'pointer', fontSize: '13px' }}
                         >
                             Clear
@@ -404,7 +407,7 @@ const PokemonTab = ({
                                 Try a different search term or clear the filters.
                             </p>
                             <button
-                                onClick={() => setFilter({ search: '', type: '', sortBy: 'name', sortDir: 'asc' })}
+                                onClick={() => setFilter({ search: '', type: '', sortBy: 'manual', sortDir: 'asc' })}
                                 className="btn btn-secondary"
                                 style={{ marginTop: '12px' }}
                             >
