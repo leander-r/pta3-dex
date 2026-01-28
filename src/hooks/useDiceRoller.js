@@ -213,16 +213,21 @@ export const useDiceRoller = (sendToDiscord = null) => {
         const statKey = skillData.stat?.toLowerCase();
         const baseStat = trainer.stats?.[statKey] || 6;
 
-        // Check if trainer has this skill
-        const hasSkill = trainer.skills?.includes(skillName);
-        const skillBonus = hasSkill ? 2 : 0;
+        // Calculate stat modifier first (needed for skill bonus)
+        const modifier = baseStat - 10;
+
+        // Check skill rank (handles both object and legacy array format)
+        const skills = trainer.skills || {};
+        const skillRank = Array.isArray(skills)
+            ? (skills.includes(skillName) ? 1 : 0)
+            : (skills[skillName] || 0);
+        const hasSkill = skillRank > 0;
+        // Rank 1: +2 + modifier, Rank 2: +4 + (2×modifier)
+        const skillBonus = skillRank > 0 ? (skillRank * 2) + (skillRank * modifier) : 0;
 
         // Roll 2d6
         const rolls = rollDice(2, 6);
         const rollTotal = rolls.reduce((sum, r) => sum + r, 0);
-
-        // Calculate modifier (stat - 10)
-        const modifier = baseStat - 10;
         const total = rollTotal + modifier + skillBonus;
 
         const result = {

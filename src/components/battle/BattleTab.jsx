@@ -250,12 +250,19 @@ const BattleTab = ({
 
         const statKey = skillData.stat?.toLowerCase();
         const baseStat = trainer.stats?.[statKey] || 6;
-        const hasSkill = trainer.skills?.includes(selectedSkill);
-        const skillBonus = hasSkill ? 2 : 0;
+        const modifier = baseStat - 10;
+
+        // Check skill rank (handles both object and legacy array format)
+        const skills = trainer.skills || {};
+        const skillRank = Array.isArray(skills)
+            ? (skills.includes(selectedSkill) ? 1 : 0)
+            : (skills[selectedSkill] || 0);
+        const hasSkill = skillRank > 0;
+        // Rank 1: +2 + modifier, Rank 2: +4 + (2×modifier)
+        const skillBonus = skillRank > 0 ? (skillRank * 2) + (skillRank * modifier) : 0;
 
         const rolls = rollDice(2, 6);
         const rollTotal = rolls.reduce((sum, r) => sum + r, 0);
-        const modifier = baseStat - 10;
         const total = rollTotal + modifier + skillBonus;
 
         addToHistory({
@@ -847,11 +854,15 @@ const BattleTab = ({
                                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', marginBottom: '8px' }}
                             >
                                 <option value="">Choose a skill...</option>
-                                {Object.entries(GAME_DATA.skills || {}).map(([name, data]) => (
-                                    <option key={name} value={name}>
-                                        {name} ({data.stat}) {trainer.skills?.includes(name) ? '✓ Trained' : ''}
-                                    </option>
-                                ))}
+                                {Object.entries(GAME_DATA.skills || {}).map(([name, data]) => {
+                                    const skills = trainer.skills || {};
+                                    const rank = Array.isArray(skills) ? (skills.includes(name) ? 1 : 0) : (skills[name] || 0);
+                                    return (
+                                        <option key={name} value={name}>
+                                            {name} ({data.stat}) {rank > 0 ? (rank === 2 ? '✓✓ Rank 2' : '✓ Trained') : ''}
+                                        </option>
+                                    );
+                                })}
                             </select>
 
                             {/* Selected Skill Info */}
@@ -860,14 +871,20 @@ const BattleTab = ({
                                 const statKey = skillData.stat?.toLowerCase();
                                 const baseStat = trainer.stats?.[statKey] || 10;
                                 const modifier = baseStat >= 10 ? Math.floor((baseStat - 10) / 2) : -(10 - baseStat);
-                                const hasTrained = trainer.skills?.includes(selectedSkill);
-                                const trainedBonus = hasTrained ? 2 : 0;
+                                // Check skill rank (handles both object and legacy array format)
+                                const skills = trainer.skills || {};
+                                const skillRank = Array.isArray(skills)
+                                    ? (skills.includes(selectedSkill) ? 1 : 0)
+                                    : (skills[selectedSkill] || 0);
+                                const hasTrained = skillRank > 0;
+                                // Rank 1: +2 + modifier, Rank 2: +4 + (2×modifier)
+                                const trainedBonus = skillRank > 0 ? (skillRank * 2) + (skillRank * modifier) : 0;
                                 return (
                                     <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '12px' }}>
                                         <div><strong>{selectedSkill}</strong> ({skillData.stat})</div>
                                         <div style={{ marginTop: '4px' }}>
                                             Roll: 2d6 {modifier >= 0 ? '+' : ''}{modifier} (stat)
-                                            {hasTrained && <span style={{ color: '#4caf50' }}> +2 (trained)</span>}
+                                            {hasTrained && <span style={{ color: '#4caf50' }}> +{trainedBonus} (rank {skillRank})</span>}
                                         </div>
                                         <div className="text-muted" style={{ marginTop: '2px' }}>
                                             {skillData.description}
