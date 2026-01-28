@@ -8,6 +8,7 @@ import { GAME_DATA } from '../../data/configs.js';
 const InventoryTab = ({ inventory, setInventory, showDetail }) => {
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [inventorySort, setInventorySort] = useState('manual'); // 'manual', 'name', 'type', 'quantity'
     const [showAddItem, setShowAddItem] = useState(false);
     const [itemSearch, setItemSearch] = useState('');
     const [addQuantity, setAddQuantity] = useState(1);
@@ -59,9 +60,9 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
         return colors[t] || '#667eea';
     };
 
-    // Filtered inventory
+    // Filtered and sorted inventory
     const filteredInventory = useMemo(() => {
-        let result = inventory;
+        let result = [...inventory];
 
         if (filter !== 'all') {
             result = result.filter(item => {
@@ -78,8 +79,24 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
             );
         }
 
+        // Sorting (skip if manual to preserve user's custom order)
+        if (inventorySort !== 'manual') {
+            result.sort((a, b) => {
+                switch (inventorySort) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'type':
+                        return (a.type || 'misc').localeCompare(b.type || 'misc') || a.name.localeCompare(b.name);
+                    case 'quantity':
+                        return (b.quantity || 1) - (a.quantity || 1);
+                    default:
+                        return 0;
+                }
+            });
+        }
+
         return result;
-    }, [inventory, filter, searchQuery]);
+    }, [inventory, filter, searchQuery, inventorySort]);
 
     // Available items from game data with filtering and sorting
     const availableItems = useMemo(() => {
@@ -213,24 +230,54 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                 </h3>
 
                 {/* Search and Filter */}
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <input
                         type="text"
                         placeholder="Search inventory..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        style={{ flex: 1, minWidth: '150px', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                        style={{
+                            flex: 1,
+                            minWidth: '150px',
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--border-medium)',
+                            background: 'var(--input-bg)',
+                            color: 'var(--text-primary)'
+                        }}
                     />
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--border-medium)',
+                            background: filter !== 'all' ? getTypeColor(filter) : 'var(--input-bg)',
+                            color: filter !== 'all' ? 'white' : 'var(--text-primary)'
+                        }}
                     >
                         {availableTypes.map(cat => (
                             <option key={cat} value={cat}>
                                 {cat === 'all' ? 'All Items' : cat.charAt(0).toUpperCase() + cat.slice(1)}
                             </option>
                         ))}
+                    </select>
+                    <select
+                        value={inventorySort}
+                        onChange={(e) => setInventorySort(e.target.value)}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--border-medium)',
+                            background: 'var(--input-bg)',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
+                        <option value="manual">Sort: Manual</option>
+                        <option value="name">Sort: Name</option>
+                        <option value="type">Sort: Type</option>
+                        <option value="quantity">Sort: Quantity</option>
                     </select>
                     <button
                         onClick={() => setShowAddItem(!showAddItem)}
@@ -259,7 +306,16 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                     placeholder="Search items by name or effect..."
                                     value={itemSearch}
                                     onChange={(e) => setItemSearch(e.target.value)}
-                                    style={{ width: '100%', padding: '10px 12px', paddingRight: itemSearch ? '32px' : '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box' }}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        paddingRight: itemSearch ? '32px' : '12px',
+                                        borderRadius: '6px',
+                                        border: '1px solid var(--border-medium)',
+                                        background: 'var(--input-bg)',
+                                        color: 'var(--text-primary)',
+                                        boxSizing: 'border-box'
+                                    }}
                                 />
                                 {itemSearch && (
                                     <button
@@ -284,14 +340,14 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                     >✕</button>
                                 )}
                             </div>
-                            <div className="quantity-input-group" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', borderRadius: '6px', border: '1px solid #ddd' }}>
-                                <span className="text-muted" style={{ fontSize: '12px' }}>Qty:</span>
+                            <div className="quantity-input-group" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)' }}>
+                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Qty:</span>
                                 <input
                                     type="number"
                                     value={addQuantity}
                                     onChange={(e) => setAddQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                                     min="1"
-                                    style={{ width: '50px', padding: '4px', borderRadius: '4px', border: '1px solid #ddd', textAlign: 'center', fontWeight: 'bold' }}
+                                    style={{ width: '50px', padding: '4px', borderRadius: '4px', border: '1px solid var(--border-medium)', textAlign: 'center', fontWeight: 'bold', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                                 />
                             </div>
                         </div>
@@ -300,16 +356,16 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
                             {/* Type Filter */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'bold' }}>Type:</span>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Type:</span>
                                 <select
                                     value={addItemFilter}
                                     onChange={(e) => setAddItemFilter(e.target.value)}
                                     style={{
                                         padding: '6px 10px',
                                         borderRadius: '6px',
-                                        border: '1px solid #ddd',
-                                        background: addItemFilter !== 'all' ? getTypeColor(addItemFilter) : 'white',
-                                        color: addItemFilter !== 'all' ? 'white' : '#333',
+                                        border: '1px solid var(--border-medium)',
+                                        background: addItemFilter !== 'all' ? getTypeColor(addItemFilter) : 'var(--input-bg)',
+                                        color: addItemFilter !== 'all' ? 'white' : 'var(--text-primary)',
                                         fontWeight: 'bold',
                                         fontSize: '12px',
                                         cursor: 'pointer',
@@ -326,15 +382,16 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
 
                             {/* Sort */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'bold' }}>Sort:</span>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Sort:</span>
                                 <select
                                     value={addItemSort}
                                     onChange={(e) => setAddItemSort(e.target.value)}
                                     style={{
                                         padding: '6px 10px',
                                         borderRadius: '6px',
-                                        border: '1px solid #ddd',
-                                        background: 'white',
+                                        border: '1px solid var(--border-medium)',
+                                        background: 'var(--input-bg)',
+                                        color: 'var(--text-primary)',
                                         fontWeight: 'bold',
                                         fontSize: '12px',
                                         cursor: 'pointer'
@@ -585,10 +642,12 @@ const InventoryTab = ({ inventory, setInventory, showDetail }) => {
                                                 width: '50px',
                                                 textAlign: 'center',
                                                 padding: '4px',
-                                                border: '1px solid #ddd',
+                                                border: '1px solid var(--border-medium)',
                                                 borderRadius: '4px',
                                                 fontSize: '14px',
-                                                fontWeight: 'bold'
+                                                fontWeight: 'bold',
+                                                background: 'var(--input-bg)',
+                                                color: 'var(--text-primary)'
                                             }}
                                         />
                                         <button
