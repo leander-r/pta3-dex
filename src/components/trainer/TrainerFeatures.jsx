@@ -4,9 +4,28 @@
 
 import React, { useState, useMemo } from 'react';
 
+// Features that modify trainer stats when acquired
+// Format: { featureName: { stat: 'statName', value: number } } for auto-apply
+// Or: { featureName: { choices: ['stat1', 'stat2'], value: number } } for user choice
+const STAT_MODIFYING_FEATURES = {
+    'League Member': { stat: 'sdef', value: 2 },
+    'Study Session': { choices: ['satk', 'sdef'], value: 1, label: 'Choose stat to boost (+1)' },
+    'Workout': { choices: ['hp', 'atk', 'def', 'spd'], value: 1, label: 'Choose stat to boost (+1)' }
+};
+
+const STAT_LABELS = {
+    hp: 'HP',
+    atk: 'Attack',
+    def: 'Defense',
+    satk: 'Sp. Attack',
+    sdef: 'Sp. Defense',
+    spd: 'Speed'
+};
+
 const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
     const [featureFilter, setFeatureFilter] = useState('all');
     const [featureSearch, setFeatureSearch] = useState('');
+    const [pendingStatFeature, setPendingStatFeature] = useState(null); // { name, data, featureData }
 
     const currentFeatures = trainer.features || [];
 
@@ -50,6 +69,22 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
             return;
         }
 
+        // Check if this feature modifies stats
+        const statMod = STAT_MODIFYING_FEATURES[featureName];
+
+        if (statMod) {
+            if (statMod.choices) {
+                // Feature requires user to choose which stat to boost
+                setPendingStatFeature({ name: featureName, data: statMod, featureData, isFree });
+                return;
+            } else {
+                // Auto-apply stat boost
+                applyFeatureWithStat(featureName, statMod.stat, statMod.value, isFree);
+                return;
+            }
+        }
+
+        // No stat modification, just add the feature normally
         setTrainer(prev => ({
             ...prev,
             features: [...(prev.features || []), featureName],
@@ -57,17 +92,65 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
         }));
     };
 
+    const applyFeatureWithStat = (featureName, chosenStat, value, isFree) => {
+        setTrainer(prev => ({
+            ...prev,
+            features: [...(prev.features || []), { name: featureName, statBoost: { stat: chosenStat, value } }],
+            featPoints: isFree ? prev.featPoints : (prev.featPoints || 0) - 1,
+            stats: {
+                ...prev.stats,
+                [chosenStat]: (prev.stats[chosenStat] || 6) + value
+            }
+        }));
+    };
+
+    const handleStatChoice = (chosenStat) => {
+        if (!pendingStatFeature) return;
+        const { name, data, isFree } = pendingStatFeature;
+        applyFeatureWithStat(name, chosenStat, data.value, isFree);
+        setPendingStatFeature(null);
+    };
+
     const handleRemoveFeature = (featureName) => {
         const featureData = GAME_DATA.features[featureName];
         const isFree = featureData?.category === 'General (Free)' || featureData?.isBase;
 
-        setTrainer(prev => ({
-            ...prev,
-            features: (prev.features || []).filter(f =>
-                (typeof f === 'object' ? f.name : f) !== featureName
-            ),
-            featPoints: isFree ? prev.featPoints : (prev.featPoints || 0) + 1
-        }));
+        // Find the feature in current features (might be string or object with statBoost)
+        const featureEntry = currentFeatures.find(f =>
+            (typeof f === 'object' ? f.name : f) === featureName
+        );
+
+        // Check if this feature had a stat boost that needs to be reversed
+        let statReduction = null;
+        if (featureEntry && typeof featureEntry === 'object' && featureEntry.statBoost) {
+            statReduction = featureEntry.statBoost;
+        } else if (STAT_MODIFYING_FEATURES[featureName] && !STAT_MODIFYING_FEATURES[featureName].choices) {
+            // Auto-applied stat boost (like League Member)
+            statReduction = {
+                stat: STAT_MODIFYING_FEATURES[featureName].stat,
+                value: STAT_MODIFYING_FEATURES[featureName].value
+            };
+        }
+
+        setTrainer(prev => {
+            const newState = {
+                ...prev,
+                features: (prev.features || []).filter(f =>
+                    (typeof f === 'object' ? f.name : f) !== featureName
+                ),
+                featPoints: isFree ? prev.featPoints : (prev.featPoints || 0) + 1
+            };
+
+            // Reverse the stat boost if applicable
+            if (statReduction) {
+                newState.stats = {
+                    ...prev.stats,
+                    [statReduction.stat]: Math.max(6, (prev.stats[statReduction.stat] || 6) - statReduction.value)
+                };
+            }
+
+            return newState;
+        });
     };
 
     return (
@@ -108,6 +191,11 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                             >
                                 <span>{featureName}</span>
                                 {isBase && <span style={{ fontSize: '9px', opacity: 0.8 }}>(Base)</span>}
+                                {typeof feature === 'object' && feature.statBoost && (
+                                    <span style={{ fontSize: '9px', opacity: 0.9, background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '4px' }}>
+                                        +{feature.statBoost.value} {STAT_LABELS[feature.statBoost.stat]}
+                                    </span>
+                                )}
                                 {!isBase && (
                                     <button
                                         onClick={(e) => {
@@ -184,7 +272,14 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                                 onClick={() => showDetail && showDetail('feature', name, data)}
                             >
                                 <div style={{ flex: 1, marginRight: '10px' }}>
-                                    <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '13px' }}>
+                                                {name}
+                                                {STAT_MODIFYING_FEATURES[name] && (
+                                                    <span style={{ marginLeft: '6px', fontSize: '10px', color: '#4caf50', fontWeight: 'normal' }}>
+                                                        (+{STAT_MODIFYING_FEATURES[name].value} {STAT_MODIFYING_FEATURES[name].stat ? STAT_LABELS[STAT_MODIFYING_FEATURES[name].stat] : 'stat'})
+                                                    </span>
+                                                )}
+                                            </div>
                                     <div style={{ fontSize: '11px', color: '#666' }}>{data.category}</div>
                                     {data.description && (
                                         <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>
@@ -213,6 +308,87 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                     )}
                 </div>
             </div>
+
+            {/* Stat Choice Modal */}
+            {pendingStatFeature && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                    }}
+                    onClick={() => setPendingStatFeature(null)}
+                >
+                    <div
+                        style={{
+                            background: 'white',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            maxWidth: '400px',
+                            width: '90%',
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 style={{ margin: '0 0 8px 0', color: '#667eea' }}>{pendingStatFeature.name}</h3>
+                        <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666' }}>
+                            {pendingStatFeature.data.label || 'Choose which stat to boost:'}
+                        </p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                            {pendingStatFeature.data.choices.map(stat => (
+                                <button
+                                    key={stat}
+                                    onClick={() => handleStatChoice(stat)}
+                                    style={{
+                                        padding: '12px 16px',
+                                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        fontWeight: 'bold',
+                                        transition: 'transform 0.1s, box-shadow 0.1s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'scale(1.02)';
+                                        e.currentTarget.style.boxShadow = '0 4px 15px rgba(102,126,234,0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'scale(1)';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                    }}
+                                >
+                                    {STAT_LABELS[stat]} +{pendingStatFeature.data.value}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => setPendingStatFeature(null)}
+                            style={{
+                                width: '100%',
+                                marginTop: '15px',
+                                padding: '10px',
+                                background: '#f5f5f5',
+                                border: '1px solid #ddd',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '13px',
+                                color: '#666'
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
