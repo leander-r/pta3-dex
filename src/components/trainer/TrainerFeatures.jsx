@@ -7,10 +7,21 @@ import React, { useState, useMemo } from 'react';
 // Features that modify trainer stats when acquired
 // Format: { featureName: { stat: 'statName', value: number } } for auto-apply
 // Or: { featureName: { choices: ['stat1', 'stat2'], value: number } } for user choice
+// Or: { featureName: { stat: 'statName', calculated: { baseStat: 'stat', formula: 'halfMod' } } } for calculated values
 const STAT_MODIFYING_FEATURES = {
     'League Member': { stat: 'sdef', value: 2 },
     'Study Session': { choices: ['satk', 'sdef'], value: 1, label: 'Choose stat to boost (+1)' },
-    'Workout': { choices: ['hp', 'atk', 'def', 'spd'], value: 1, label: 'Choose stat to boost (+1)' }
+    'Workout': { choices: ['hp', 'atk', 'def', 'spd'], value: 1, label: 'Choose stat to boost (+1)' },
+    'Alacrity': { stat: 'spd', calculated: { baseStat: 'atk', formula: 'halfMod' }, label: 'Adds half ATK modifier to Speed' },
+    'Martial Endurance': { hpBonus: 'half', label: 'Adds (half ATK mod + half DEF mod) × 5 to Max HP' },
+    'Improved Martial Endurance': { hpBonus: 'full', label: 'Adds (ATK mod + DEF mod) × 5 to Max HP', replaces: 'Martial Endurance' }
+};
+
+// Calculate stat modifier (PTA formula)
+const calculateModifier = (stat) => {
+    if (stat === 10) return 0;
+    if (stat < 10) return -(10 - stat);
+    return Math.floor((stat - 10) / 2);
 };
 
 const STAT_LABELS = {
@@ -77,8 +88,43 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                 // Feature requires user to choose which stat to boost
                 setPendingStatFeature({ name: featureName, data: statMod, featureData, isFree });
                 return;
+            } else if (statMod.hpBonus) {
+                // HP bonus feature (like Martial Endurance) - just add the feature, HP calc handles it
+                // If this feature replaces another, remove the old one
+                setTrainer(prev => {
+                    let newFeatures = [...(prev.features || [])];
+                    if (statMod.replaces) {
+                        newFeatures = newFeatures.filter(f =>
+                            (typeof f === 'object' ? f.name : f) !== statMod.replaces
+                        );
+                    }
+                    return {
+                        ...prev,
+                        features: [...newFeatures, { name: featureName, hpBonus: statMod.hpBonus }],
+                        featPoints: isFree ? prev.featPoints : (prev.featPoints || 0) - 1
+                    };
+                });
+                return;
+            } else if (statMod.calculated) {
+                // Calculate the value based on another stat
+                const baseStat = trainer.stats[statMod.calculated.baseStat] || 10;
+                const modifier = calculateModifier(baseStat);
+                let calculatedValue = 0;
+
+                if (statMod.calculated.formula === 'halfMod') {
+                    calculatedValue = Math.floor(modifier / 2);
+                }
+
+                // Only apply if there's a positive bonus
+                if (calculatedValue > 0) {
+                    applyFeatureWithStat(featureName, statMod.stat, calculatedValue, isFree);
+                } else {
+                    // Still add the feature but with 0 bonus (show it was applied)
+                    applyFeatureWithStat(featureName, statMod.stat, 0, isFree);
+                }
+                return;
             } else {
-                // Auto-apply stat boost
+                // Auto-apply fixed stat boost
                 applyFeatureWithStat(featureName, statMod.stat, statMod.value, isFree);
                 return;
             }
@@ -191,11 +237,23 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                             >
                                 <span>{featureName}</span>
                                 {isBase && <span style={{ fontSize: '9px', opacity: 0.8 }}>(Base)</span>}
-                                {typeof feature === 'object' && feature.statBoost && (
+                                {typeof feature === 'object' && feature.statBoost && feature.statBoost.value > 0 && (
                                     <span style={{ fontSize: '9px', opacity: 0.9, background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '4px' }}>
                                         +{feature.statBoost.value} {STAT_LABELS[feature.statBoost.stat]}
                                     </span>
                                 )}
+                                {typeof feature === 'object' && feature.hpBonus && (() => {
+                                    const atkMod = calculateModifier(trainer.stats.atk || 10);
+                                    const defMod = calculateModifier(trainer.stats.def || 10);
+                                    const hpBonusValue = feature.hpBonus === 'full'
+                                        ? (atkMod + defMod) * 5
+                                        : (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+                                    return hpBonusValue > 0 ? (
+                                        <span style={{ fontSize: '9px', opacity: 0.9, background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '4px' }}>
+                                            +{hpBonusValue} Max HP
+                                        </span>
+                                    ) : null;
+                                })()}
                                 {!isBase && (
                                     <button
                                         onClick={(e) => {
@@ -274,11 +332,50 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                                 <div style={{ flex: 1, marginRight: '10px' }}>
                                     <div style={{ fontWeight: 'bold', fontSize: '13px' }}>
                                                 {name}
-                                                {STAT_MODIFYING_FEATURES[name] && (
-                                                    <span style={{ marginLeft: '6px', fontSize: '10px', color: '#4caf50', fontWeight: 'normal' }}>
-                                                        (+{STAT_MODIFYING_FEATURES[name].value} {STAT_MODIFYING_FEATURES[name].stat ? STAT_LABELS[STAT_MODIFYING_FEATURES[name].stat] : 'stat'})
-                                                    </span>
-                                                )}
+                                                {STAT_MODIFYING_FEATURES[name] && (() => {
+                                                    const statMod = STAT_MODIFYING_FEATURES[name];
+                                                    let displayValue = statMod.value;
+                                                    let displayStat = statMod.stat ? STAT_LABELS[statMod.stat] : 'stat';
+
+                                                    // Calculate preview for calculated features
+                                                    if (statMod.hpBonus) {
+                                                        // Calculate HP bonus preview for Martial Endurance variants
+                                                        const atkMod = calculateModifier(trainer.stats.atk || 10);
+                                                        const defMod = calculateModifier(trainer.stats.def || 10);
+                                                        const hpBonusValue = statMod.hpBonus === 'full'
+                                                            ? (atkMod + defMod) * 5
+                                                            : (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+                                                        return (
+                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: hpBonusValue > 0 ? '#e53935' : '#999', fontWeight: 'normal' }}>
+                                                                (+{hpBonusValue} Max HP)
+                                                            </span>
+                                                        );
+                                                    } else if (statMod.calculated) {
+                                                        const baseStat = trainer.stats[statMod.calculated.baseStat] || 10;
+                                                        const modifier = calculateModifier(baseStat);
+                                                        if (statMod.calculated.formula === 'halfMod') {
+                                                            displayValue = Math.floor(modifier / 2);
+                                                        }
+                                                        displayStat = STAT_LABELS[statMod.stat];
+                                                        return (
+                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: displayValue > 0 ? '#4caf50' : '#999', fontWeight: 'normal' }}>
+                                                                (+{displayValue} {displayStat} from {STAT_LABELS[statMod.calculated.baseStat]})
+                                                            </span>
+                                                        );
+                                                    } else if (statMod.choices) {
+                                                        return (
+                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: '#4caf50', fontWeight: 'normal' }}>
+                                                                (+{displayValue} to choice)
+                                                            </span>
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: '#4caf50', fontWeight: 'normal' }}>
+                                                                (+{displayValue} {displayStat})
+                                                            </span>
+                                                        );
+                                                    }
+                                                })()}
                                             </div>
                                     <div style={{ fontSize: '11px', color: '#666' }}>{data.category}</div>
                                     {data.description && (

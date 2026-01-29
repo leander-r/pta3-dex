@@ -2240,7 +2240,36 @@ const calculateModifier = (stat) => {
 
 // Calculate trainer max HP
 const calculateMaxHP = () => {
-    return (trainer.stats.hp * 4) + (trainer.level * 4);
+    let baseHP = (trainer.stats.hp * 4) + (trainer.level * 4);
+
+    // Check for Martial Endurance features - they add HP bonuses based on ATK/DEF modifiers
+    const features = trainer.features || [];
+
+    // Check for Improved Martial Endurance first (uses full modifiers, replaces basic version)
+    const hasImprovedMartialEndurance = features.some(f =>
+        (typeof f === 'object' ? f.name : f) === 'Improved Martial Endurance'
+    );
+
+    // Check for basic Martial Endurance (uses half modifiers)
+    const hasMartialEndurance = features.some(f =>
+        (typeof f === 'object' ? f.name : f) === 'Martial Endurance'
+    );
+
+    if (hasImprovedMartialEndurance) {
+        // Improved: (ATK mod + DEF mod) × 5
+        const atkMod = calculateModifier(trainer.stats.atk || 10);
+        const defMod = calculateModifier(trainer.stats.def || 10);
+        const hpBonus = (atkMod + defMod) * 5;
+        baseHP += Math.max(0, hpBonus);
+    } else if (hasMartialEndurance) {
+        // Basic: (half ATK mod + half DEF mod) × 5
+        const atkMod = calculateModifier(trainer.stats.atk || 10);
+        const defMod = calculateModifier(trainer.stats.def || 10);
+        const hpBonus = (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+        baseHP += Math.max(0, hpBonus);
+    }
+
+    return baseHP;
 };
 
 // Update trainer stat
