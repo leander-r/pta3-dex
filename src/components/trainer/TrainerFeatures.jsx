@@ -14,7 +14,8 @@ const STAT_MODIFYING_FEATURES = {
     'Workout': { choices: ['hp', 'atk', 'def', 'spd'], value: 1, label: 'Choose stat to boost (+1)' },
     'Alacrity': { stat: 'spd', calculated: { baseStat: 'atk', formula: 'halfMod' }, label: 'Adds half ATK modifier to Speed' },
     'Martial Endurance': { hpBonus: 'half', label: 'Adds (half ATK mod + half DEF mod) × 5 to Max HP' },
-    'Improved Martial Endurance': { hpBonus: 'full', label: 'Adds (ATK mod + DEF mod) × 5 to Max HP', replaces: 'Martial Endurance' }
+    'Improved Martial Endurance': { hpBonus: 'full', label: 'Adds (ATK mod + DEF mod) × 5 to Max HP', replaces: 'Martial Endurance' },
+    'Mystic Veil': { hpBonus: 'mystic', label: 'Adds DEF modifier × 3 to Max HP' }
 };
 
 // Calculate stat modifier (PTA formula)
@@ -245,9 +246,14 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
                                 {typeof feature === 'object' && feature.hpBonus && (() => {
                                     const atkMod = calculateModifier(trainer.stats.atk || 10);
                                     const defMod = calculateModifier(trainer.stats.def || 10);
-                                    const hpBonusValue = feature.hpBonus === 'full'
-                                        ? (atkMod + defMod) * 5
-                                        : (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+                                    let hpBonusValue = 0;
+                                    if (feature.hpBonus === 'full') {
+                                        hpBonusValue = (atkMod + defMod) * 5;
+                                    } else if (feature.hpBonus === 'half') {
+                                        hpBonusValue = (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+                                    } else if (feature.hpBonus === 'mystic') {
+                                        hpBonusValue = defMod * 3;
+                                    }
                                     return hpBonusValue > 0 ? (
                                         <span style={{ fontSize: '9px', opacity: 0.9, background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '4px' }}>
                                             +{hpBonusValue} Max HP
@@ -339,12 +345,17 @@ const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
 
                                                     // Calculate preview for calculated features
                                                     if (statMod.hpBonus) {
-                                                        // Calculate HP bonus preview for Martial Endurance variants
+                                                        // Calculate HP bonus preview for HP bonus features
                                                         const atkMod = calculateModifier(trainer.stats.atk || 10);
                                                         const defMod = calculateModifier(trainer.stats.def || 10);
-                                                        const hpBonusValue = statMod.hpBonus === 'full'
-                                                            ? (atkMod + defMod) * 5
-                                                            : (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+                                                        let hpBonusValue = 0;
+                                                        if (statMod.hpBonus === 'full') {
+                                                            hpBonusValue = (atkMod + defMod) * 5;
+                                                        } else if (statMod.hpBonus === 'half') {
+                                                            hpBonusValue = (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+                                                        } else if (statMod.hpBonus === 'mystic') {
+                                                            hpBonusValue = defMod * 3;
+                                                        }
                                                         return (
                                                             <span style={{ marginLeft: '6px', fontSize: '10px', color: hpBonusValue > 0 ? '#e53935' : '#999', fontWeight: 'normal' }}>
                                                                 (+{hpBonusValue} Max HP)

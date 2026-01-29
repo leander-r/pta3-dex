@@ -2242,7 +2242,7 @@ const calculateModifier = (stat) => {
 const calculateMaxHP = () => {
     let baseHP = (trainer.stats.hp * 4) + (trainer.level * 4);
 
-    // Check for Martial Endurance features - they add HP bonuses based on ATK/DEF modifiers
+    // Check for HP bonus features - they add HP bonuses based on stat modifiers
     const features = trainer.features || [];
 
     // Check for Improved Martial Endurance first (uses full modifiers, replaces basic version)
@@ -2253,6 +2253,11 @@ const calculateMaxHP = () => {
     // Check for basic Martial Endurance (uses half modifiers)
     const hasMartialEndurance = features.some(f =>
         (typeof f === 'object' ? f.name : f) === 'Martial Endurance'
+    );
+
+    // Check for Mystic Veil (DEF mod × 3)
+    const hasMysticVeil = features.some(f =>
+        (typeof f === 'object' ? f.name : f) === 'Mystic Veil'
     );
 
     if (hasImprovedMartialEndurance) {
@@ -2266,6 +2271,13 @@ const calculateMaxHP = () => {
         const atkMod = calculateModifier(trainer.stats.atk || 10);
         const defMod = calculateModifier(trainer.stats.def || 10);
         const hpBonus = (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
+        baseHP += Math.max(0, hpBonus);
+    }
+
+    if (hasMysticVeil) {
+        // Mystic Veil: DEF mod × 3
+        const defMod = calculateModifier(trainer.stats.def || 10);
+        const hpBonus = defMod * 3;
         baseHP += Math.max(0, hpBonus);
     }
 
