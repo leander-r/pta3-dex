@@ -26,7 +26,11 @@ const PokemonCard = ({
     showDetail,
     getEvolutionOptions,
     evolvePokemon,
-    devolvePokemon
+    devolvePokemon,
+    customSpecies,
+    setCustomSpecies,
+    setShowCustomSpeciesModal,
+    setEditingCustomSpeciesId
 }) => {
     const [editTab, setEditTab] = useState('info');
     const [speciesSearch, setSpeciesSearch] = useState('');
@@ -66,11 +70,12 @@ const PokemonCard = ({
         return (stats.hp || 0) + (stats.atk || 0) + (stats.def || 0) + (stats.satk || 0) + (stats.sdef || 0) + (stats.spd || 0);
     };
 
-    // Filter and sort species for selection
+    // Filter and sort species for selection (includes custom species)
     const filteredSpecies = useMemo(() => {
         if (!pokedex) return [];
 
-        let results = [...pokedex];
+        // Combine pokedex with custom species
+        let results = [...pokedex, ...(customSpecies || [])];
 
         // Apply type filter (check both base form and regional forms)
         if (speciesTypeFilter !== 'all') {
@@ -106,8 +111,12 @@ const PokemonCard = ({
             });
         }
 
-        // Apply sorting
+        // Apply sorting (custom species first when sorting by name)
         results.sort((a, b) => {
+            // Custom species always come first
+            if (a.isCustom && !b.isCustom) return -1;
+            if (!a.isCustom && b.isCustom) return 1;
+
             switch (speciesSort) {
                 case 'name':
                     return a.species.localeCompare(b.species);
@@ -123,7 +132,7 @@ const PokemonCard = ({
         });
 
         return results.slice(0, 50); // Increased limit
-    }, [pokedex, speciesSearch, speciesTypeFilter, speciesSort]);
+    }, [pokedex, customSpecies, speciesSearch, speciesTypeFilter, speciesSort]);
 
     // Filter and sort moves for selection
     const filteredMoves = useMemo(() => {
@@ -159,6 +168,56 @@ const PokemonCard = ({
 
         return moves.slice(0, 100);
     }, [moveSearch, moveTypeFilter, moveCategoryFilter, GAME_DATA]);
+
+    // Helper function to add a move with specified source (natural/taught)
+    const addMoveWithSource = (moveName, moveData, source) => {
+        // Check if already knows move
+        const alreadyKnows = pokemon.moves?.some(m =>
+            m.name?.toLowerCase() === moveName?.toLowerCase()
+        );
+        if (alreadyKnows) {
+            alert(`${pokemon.name || pokemon.species} already knows ${moveName}!`);
+            return;
+        }
+
+        // Check move limits based on source
+        const naturalCount = pokemon.moves?.filter(m => m.source === 'natural').length || 0;
+        const taughtCount = pokemon.moves?.filter(m => m.source === 'taught').length || 0;
+
+        if (source === 'natural' && naturalCount >= 4) {
+            alert('This Pokemon already has 4 Natural moves.');
+            return;
+        }
+        if (source === 'taught' && taughtCount >= 4) {
+            alert('This Pokemon already has 4 Taught moves.');
+            return;
+        }
+        if ((pokemon.moves?.length || 0) >= 8) {
+            alert('This Pokemon already has 8 moves.');
+            return;
+        }
+
+        updatePokemon({
+            moves: [...(pokemon.moves || []), {
+                name: moveName,
+                type: moveData.type,
+                category: moveData.category,
+                damage: moveData.damage,
+                frequency: moveData.frequency,
+                range: moveData.range,
+                effect: moveData.effect,
+                source: source
+            }]
+        });
+
+        setMoveSearch('');
+        setMoveTypeFilter('all');
+        setMoveCategoryFilter('all');
+    };
+
+    // Calculate current move counts for UI
+    const naturalMoveCount = pokemon.moves?.filter(m => m.source === 'natural').length || 0;
+    const taughtMoveCount = pokemon.moves?.filter(m => m.source === 'taught').length || 0;
 
     // Get all available abilities from species data
     const getAvailableAbilities = (speciesData) => {
@@ -327,8 +386,57 @@ const PokemonCard = ({
                                     {currentHP}/{maxHP}
                                 </span>
                             </div>
-                            <div className="text-muted" style={{ fontSize: '11px', marginTop: '2px' }}>
-                                {pokemon.nature || 'Hardy'} Nature
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
+                                <span className="text-muted" style={{ fontSize: '11px' }}>
+                                    {pokemon.nature || 'Hardy'} Nature
+                                </span>
+                                {/* Quick EXP Adjustment */}
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            updatePokemon({ exp: Math.max(0, (pokemon.exp || 0) - 100) });
+                                        }}
+                                        style={{
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
+                                            border: 'none',
+                                            background: '#f44336',
+                                            color: 'white',
+                                            cursor: 'pointer',
+                                            fontSize: '9px',
+                                            fontWeight: 'bold'
+                                        }}
+                                        title="Remove 100 EXP"
+                                    >
+                                        -100
+                                    </button>
+                                    <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#667eea', minWidth: '50px', textAlign: 'center' }}>
+                                        {pokemon.exp || 0} XP
+                                    </span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            updatePokemon({ exp: (pokemon.exp || 0) + 100 });
+                                        }}
+                                        style={{
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
+                                            border: 'none',
+                                            background: '#4caf50',
+                                            color: 'white',
+                                            cursor: 'pointer',
+                                            fontSize: '9px',
+                                            fontWeight: 'bold'
+                                        }}
+                                        title="Add 100 EXP"
+                                    >
+                                        +100
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -804,15 +912,74 @@ const PokemonCard = ({
                                                             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--species-hover-bg)'}
                                                             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                                         >
-                                                            <div>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                                 <span style={{ fontWeight: 'bold' }}>{sp.species}</span>
-                                                                <span style={{ fontSize: '11px', color: 'var(--species-muted-text)', marginLeft: '6px' }}>
-                                                                    #{sp.id || '???'}
-                                                                </span>
+                                                                {sp.isCustom ? (
+                                                                    <span style={{
+                                                                        fontSize: '9px',
+                                                                        color: 'white',
+                                                                        background: '#667eea',
+                                                                        padding: '1px 4px',
+                                                                        borderRadius: '4px',
+                                                                        fontWeight: 'bold'
+                                                                    }}>
+                                                                        Custom
+                                                                    </span>
+                                                                ) : (
+                                                                    <span style={{ fontSize: '11px', color: 'var(--species-muted-text)' }}>
+                                                                        #{sp.id || '???'}
+                                                                    </span>
+                                                                )}
                                                                 {hasRegionalForms && (
-                                                                    <span style={{ fontSize: '10px', color: '#9c27b0', marginLeft: '6px' }}>
+                                                                    <span style={{ fontSize: '10px', color: '#9c27b0' }}>
                                                                         🌍
                                                                     </span>
+                                                                )}
+                                                                {/* Edit/Delete buttons for custom species */}
+                                                                {sp.isCustom && setCustomSpecies && (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                if (setEditingCustomSpeciesId) {
+                                                                                    setEditingCustomSpeciesId(sp.id);
+                                                                                }
+                                                                                if (setShowCustomSpeciesModal) {
+                                                                                    setShowCustomSpeciesModal(true);
+                                                                                }
+                                                                                setShowSpeciesDropdown(false);
+                                                                            }}
+                                                                            style={{
+                                                                                padding: '1px 5px',
+                                                                                background: '#667eea',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '3px',
+                                                                                fontSize: '9px',
+                                                                                cursor: 'pointer',
+                                                                                marginLeft: '4px'
+                                                                            }}
+                                                                            title="Edit custom species"
+                                                                        >Edit</button>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                if (window.confirm(`Delete custom species "${sp.species}"?`)) {
+                                                                                    setCustomSpecies(prev => prev.filter(s => s.id !== sp.id));
+                                                                                }
+                                                                            }}
+                                                                            style={{
+                                                                                padding: '1px 5px',
+                                                                                background: '#f44336',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '3px',
+                                                                                fontSize: '9px',
+                                                                                cursor: 'pointer'
+                                                                            }}
+                                                                            title="Delete custom species"
+                                                                        >×</button>
+                                                                    </>
                                                                 )}
                                                             </div>
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -861,13 +1028,33 @@ const PokemonCard = ({
                                             )}
                                         </div>
 
-                                        {/* Close Button */}
+                                        {/* Bottom Buttons */}
                                         <div style={{
                                             padding: '8px',
                                             borderTop: '1px solid var(--species-border)',
                                             background: 'var(--species-filter-bg)',
-                                            textAlign: 'center'
+                                            display: 'flex',
+                                            gap: '8px',
+                                            justifyContent: 'center'
                                         }}>
+                                            {setShowCustomSpeciesModal && (
+                                                <button
+                                                    onClick={() => {
+                                                        setShowSpeciesDropdown(false);
+                                                        setShowCustomSpeciesModal(true);
+                                                    }}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        background: '#667eea',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        fontSize: '11px',
+                                                        fontWeight: 'bold',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >+ Custom Species</button>
+                                            )}
                                             <button
                                                 onClick={() => {
                                                     setShowSpeciesDropdown(false);
@@ -1021,8 +1208,8 @@ const PokemonCard = ({
                             </div>
                         </div>
 
-                        {/* Level & EXP */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                        {/* Level, EXP & Nature */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                             <div>
                                 <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Level</label>
                                 <input
@@ -1033,6 +1220,57 @@ const PokemonCard = ({
                                     max="100"
                                     style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
                                 />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
+                                    Experience
+                                    <span style={{ fontWeight: 'normal', fontSize: '10px', color: '#666', marginLeft: '4px' }}>
+                                        (auto-levels)
+                                    </span>
+                                </label>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                    <input
+                                        type="number"
+                                        value={pokemon.exp || 0}
+                                        onChange={(e) => updatePokemon({ exp: parseInt(e.target.value) || 0 })}
+                                        min="0"
+                                        style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                    />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                        <button
+                                            onClick={() => updatePokemon({ exp: (pokemon.exp || 0) + 100 })}
+                                            style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '4px',
+                                                border: '1px solid #4caf50',
+                                                background: '#4caf50',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: '10px',
+                                                fontWeight: 'bold'
+                                            }}
+                                            title="Add 100 EXP"
+                                        >
+                                            +100
+                                        </button>
+                                        <button
+                                            onClick={() => updatePokemon({ exp: Math.max(0, (pokemon.exp || 0) - 100) })}
+                                            style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '4px',
+                                                border: '1px solid #f44336',
+                                                background: '#f44336',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: '10px',
+                                                fontWeight: 'bold'
+                                            }}
+                                            title="Remove 100 EXP"
+                                        >
+                                            -100
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Nature</label>
@@ -1519,9 +1757,16 @@ const PokemonCard = ({
                             </div>
                         ))}
 
-                        {(pokemon.moves || []).length < 6 && (
+                        {(pokemon.moves || []).length < 8 && (
                             <div className="add-move-panel" style={{ marginTop: '10px', padding: '12px', borderRadius: '8px' }}>
-                                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '10px', color: '#667eea' }}>Add Move</div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>Add Move</span>
+                                    <span style={{ fontSize: '10px', color: '#666' }}>
+                                        Natural: <span style={{ color: naturalMoveCount >= 4 ? '#f44336' : '#4caf50', fontWeight: 'bold' }}>{naturalMoveCount}/4</span>
+                                        {' | '}
+                                        Taught: <span style={{ color: taughtMoveCount >= 4 ? '#f44336' : '#2196f3', fontWeight: 'bold' }}>{taughtMoveCount}/4</span>
+                                    </span>
+                                </div>
 
                                 {/* Search Input */}
                                 <div style={{ position: 'relative', marginBottom: '10px' }}>
@@ -1637,26 +1882,7 @@ const PokemonCard = ({
                                                         alignItems: 'center'
                                                     }}
                                                 >
-                                                    <div
-                                                        style={{ flex: 1, cursor: 'pointer' }}
-                                                        onClick={() => {
-                                                            updatePokemon({
-                                                                moves: [...(pokemon.moves || []), {
-                                                                    name: name,
-                                                                    type: data.type,
-                                                                    category: data.category,
-                                                                    damage: data.damage,
-                                                                    frequency: data.frequency,
-                                                                    range: data.range,
-                                                                    effect: data.effect,
-                                                                    source: 'taught'
-                                                                }]
-                                                            });
-                                                            setMoveSearch('');
-                                                            setMoveTypeFilter('all');
-                                                            setMoveCategoryFilter('all');
-                                                        }}
-                                                    >
+                                                    <div style={{ flex: 1 }}>
                                                         <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</span>
                                                         <div className="text-muted" style={{ fontSize: '10px' }}>
                                                             {data.damage || 'Status'} | {data.frequency || 'At-Will'}
@@ -1680,6 +1906,42 @@ const PokemonCard = ({
                                                             fontWeight: 'bold'
                                                         }}>{data.category?.charAt(0) || '?'}</span>
                                                         <button
+                                                            onClick={() => addMoveWithSource(name, data, 'natural')}
+                                                            disabled={naturalMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8}
+                                                            style={{
+                                                                padding: '2px 6px',
+                                                                background: naturalMoveCount >= 4 ? '#999' : '#4caf50',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '4px',
+                                                                fontSize: '10px',
+                                                                fontWeight: 'bold',
+                                                                cursor: naturalMoveCount >= 4 ? 'not-allowed' : 'pointer',
+                                                                opacity: naturalMoveCount >= 4 ? 0.6 : 1
+                                                            }}
+                                                            title="Add as Natural move"
+                                                        >
+                                                            N
+                                                        </button>
+                                                        <button
+                                                            onClick={() => addMoveWithSource(name, data, 'taught')}
+                                                            disabled={taughtMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8}
+                                                            style={{
+                                                                padding: '2px 6px',
+                                                                background: taughtMoveCount >= 4 ? '#999' : '#2196f3',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '4px',
+                                                                fontSize: '10px',
+                                                                fontWeight: 'bold',
+                                                                cursor: taughtMoveCount >= 4 ? 'not-allowed' : 'pointer',
+                                                                opacity: taughtMoveCount >= 4 ? 0.6 : 1
+                                                            }}
+                                                            title="Add as Taught move"
+                                                        >
+                                                            T
+                                                        </button>
+                                                        <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 if (showDetail) {
@@ -1694,7 +1956,7 @@ const PokemonCard = ({
                                                                 borderRadius: '8px',
                                                                 fontSize: '11px',
                                                                 cursor: 'pointer',
-                                                                marginLeft: '4px'
+                                                                marginLeft: '2px'
                                                             }}
                                                             title="View move details"
                                                         >

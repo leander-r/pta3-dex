@@ -34,7 +34,11 @@ const PokemonTab = ({
     getEvolutionOptions,
     evolvePokemon,
     devolvePokemon,
-    importPokemon
+    importPokemon,
+    customSpecies,
+    setCustomSpecies,
+    setShowCustomSpeciesModal,
+    setEditingCustomSpeciesId
 }) => {
     const [filter, setFilter] = useState({
         search: '',
@@ -426,6 +430,10 @@ const PokemonTab = ({
                             getEvolutionOptions={getEvolutionOptions}
                             evolvePokemon={evolvePokemon}
                             devolvePokemon={devolvePokemon}
+                            customSpecies={customSpecies}
+                            setCustomSpecies={setCustomSpecies}
+                            setShowCustomSpeciesModal={setShowCustomSpeciesModal}
+                            setEditingCustomSpeciesId={setEditingCustomSpeciesId}
                         />
                     ))}
                 </div>

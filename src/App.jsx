@@ -75,6 +75,7 @@ import {
     DetailModal,
     CustomFeatureModal,
     CustomMoveModal,
+    CustomSpeciesModal,
     MoveLearnModal,
     RegionalFormModal,
     SkillPickerModal,
@@ -134,6 +135,9 @@ const [showReferenceModal, setShowReferenceModal] = useState(false);
 const [showCustomFeatureModal, setShowCustomFeatureModal] = useState(false);
 const [showCustomMoveModal, setShowCustomMoveModal] = useState(false);
 const [customMoveForPokemon, setCustomMoveForPokemon] = useState(null);
+const [showCustomSpeciesModal, setShowCustomSpeciesModal] = useState(false);
+const [customSpecies, setCustomSpecies] = useState([]);
+const [editingCustomSpeciesId, setEditingCustomSpeciesId] = useState(null);
 
 // --- Regional Form Selector State ---
 const [showRegionalFormModal, setShowRegionalFormModal] = useState(false);
@@ -794,12 +798,30 @@ const filteredSpecies = useMemo(() => {
 // Get evolution options for a Pokemon
 const getEvolutionOptions = (pokemon) => {
     if (!pokemon?.species) return { canEvolve: [], canDevolve: null };
-    
+
     const species = pokemon.species;
     const level = pokemon.level || 1;
     const regionalForm = pokemon.regionalForm || null;
-    
-    const evolutionData = EVOLUTION_CHAINS[species];
+
+    // Check for custom species evolution data first
+    const customSpeciesData = customSpecies?.find(p =>
+        p.species?.toLowerCase() === species.toLowerCase()
+    );
+
+    // Use custom species evolution data if available, otherwise use EVOLUTION_CHAINS
+    let evolutionData;
+    if (customSpeciesData) {
+        evolutionData = {
+            evolvesTo: customSpeciesData.evolvesTo || [],
+            evolvesFrom: customSpeciesData.evolvesFrom || null
+        };
+        // Skip if no evolution data defined
+        if (evolutionData.evolvesTo.length === 0 && !evolutionData.evolvesFrom) {
+            evolutionData = null;
+        }
+    } else {
+        evolutionData = EVOLUTION_CHAINS[species];
+    }
     if (!evolutionData) return { canEvolve: [], canDevolve: null };
     
     const canEvolve = [];
@@ -1613,8 +1635,9 @@ const saveData = async () => {
             trainers,
             activeTrainerId,
             inventory,
+            customSpecies,
             lastSaved: new Date().toISOString(),
-            version: '2.0' // Multi-trainer version
+            version: '2.1' // Added custom species support
         };
         
         let saveSuccess = false;
@@ -1763,6 +1786,7 @@ const loadData = async () => {
                 setActiveTrainerId(migratedData.activeTrainerId || migratedData.trainers[0].id);
             }
             setInventory(Array.isArray(migratedData.inventory) ? migratedData.inventory : []);
+            setCustomSpecies(Array.isArray(migratedData.customSpecies) ? migratedData.customSpecies : []);
         }
     } catch (error) {
         console.error('Error loading data:', error);
@@ -2561,13 +2585,19 @@ const getLevelUpMovesForPokemon = (pokemon) => {
         return pokemon.availableLevelUpMoves;
     }
     
-    // Fall back to looking up species in pokedex
+    // Fall back to looking up species in pokedex or customSpecies
     const species = pokemon?.species;
     if (!species || !pokedex || pokedex.length === 0) return [];
-    
-    const speciesData = pokedex.find(p => 
+
+    // First check customSpecies, then pokedex
+    let speciesData = customSpecies?.find(p =>
         p.species?.toLowerCase() === species.toLowerCase()
     );
+    if (!speciesData) {
+        speciesData = pokedex.find(p =>
+            p.species?.toLowerCase() === species.toLowerCase()
+        );
+    }
     
     // If Pokemon has a regional form but no stored moves, try to get form-specific moves
     if (pokemon?.regionalForm && speciesData?.regionalForms) {
@@ -2585,9 +2615,15 @@ const getLevelUpMovesForPokemon = (pokemon) => {
 // Legacy function for backwards compatibility (when we only have species name)
 const getLevelUpMovesForSpecies = (species) => {
     if (!species || !pokedex || pokedex.length === 0) return [];
-    const speciesData = pokedex.find(p => 
+    // First check customSpecies, then pokedex
+    let speciesData = customSpecies?.find(p =>
         p.species?.toLowerCase() === species.toLowerCase()
     );
+    if (!speciesData) {
+        speciesData = pokedex.find(p =>
+            p.species?.toLowerCase() === species.toLowerCase()
+        );
+    }
     return speciesData?.levelUpMoves || [];
 };
 
@@ -3186,6 +3222,10 @@ return (
                         evolvePokemon={handleEvolution}
                         devolvePokemon={handleDevolution}
                         importPokemon={importPokemon}
+                        customSpecies={customSpecies}
+                        setCustomSpecies={setCustomSpecies}
+                        setShowCustomSpeciesModal={setShowCustomSpeciesModal}
+                        setEditingCustomSpeciesId={setEditingCustomSpeciesId}
                     />
                 )}
 
@@ -3241,6 +3281,15 @@ return (
             customMoveForPokemon={customMoveForPokemon}
             pokemon={pokemon}
             updatePokemon={updatePokemon}
+        />
+
+        <CustomSpeciesModal
+            showCustomSpeciesModal={showCustomSpeciesModal}
+            setShowCustomSpeciesModal={setShowCustomSpeciesModal}
+            customSpecies={customSpecies}
+            setCustomSpecies={setCustomSpecies}
+            editingCustomSpeciesId={editingCustomSpeciesId}
+            setEditingCustomSpeciesId={setEditingCustomSpeciesId}
         />
 
         <MoveLearnModal
