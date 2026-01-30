@@ -186,8 +186,13 @@ const PokemonCard = ({
         const naturalCount = pokemon.moves?.filter(m => m.source === 'natural').length || 0;
         const taughtCount = pokemon.moves?.filter(m => m.source === 'taught').length || 0;
 
-        if (source === 'natural' && naturalCount >= 4) {
-            alert('This Pokemon already has 4 Natural moves.');
+        // If trying to add a natural move when at limit, show replacement modal
+        if (source === 'natural' && (naturalCount >= 4 || (pokemon.moves?.length || 0) >= 8)) {
+            if (naturalCount === 0) {
+                alert('Cannot add natural move - no natural moves to replace.');
+                return;
+            }
+            setPendingMoveReplacement({ moveName, moveData, source });
             return;
         }
 
@@ -198,12 +203,6 @@ const PokemonCard = ({
                 return;
             }
             setPendingMoveReplacement({ moveName, moveData, source });
-            return;
-        }
-
-        // Block if at total limit for natural moves
-        if (source === 'natural' && (pokemon.moves?.length || 0) >= 8) {
-            alert('This Pokemon already has 8 moves.');
             return;
         }
 
@@ -1798,15 +1797,18 @@ const PokemonCard = ({
                             </div>
                         ))}
 
-                        {(pokemon.moves || []).length < 8 && (
+                        {((pokemon.moves || []).length < 8 || naturalMoveCount > 0 || taughtMoveCount > 0) && (
                             <div className="add-move-panel" style={{ marginTop: '10px', padding: '12px', borderRadius: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                                     <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>Add Move</span>
                                     <span style={{ fontSize: '10px', color: '#666' }}>
                                         Natural: <span style={{ color: naturalMoveCount >= 4 ? '#f44336' : '#4caf50', fontWeight: 'bold' }}>{naturalMoveCount}/4</span>
                                         {' | '}
                                         Taught: <span style={{ color: taughtMoveCount >= 4 ? '#f44336' : '#2196f3', fontWeight: 'bold' }}>{taughtMoveCount}/4</span>
                                     </span>
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#888', marginBottom: '10px', fontStyle: 'italic' }}>
+                                    Search for moves below, then click <span style={{ background: '#4caf50', color: 'white', padding: '1px 4px', borderRadius: '3px', fontWeight: 'bold', fontStyle: 'normal' }}>N</span> for Natural or <span style={{ background: '#2196f3', color: 'white', padding: '1px 4px', borderRadius: '3px', fontWeight: 'bold', fontStyle: 'normal' }}>T</span> for Taught to add
                                 </div>
 
                                 {/* Search Input */}
@@ -1948,19 +1950,19 @@ const PokemonCard = ({
                                                         }}>{data.category?.charAt(0) || '?'}</span>
                                                         <button
                                                             onClick={() => addMoveWithSource(name, data, 'natural')}
-                                                            disabled={naturalMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8}
+                                                            disabled={naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8}
                                                             style={{
                                                                 padding: '2px 6px',
-                                                                background: naturalMoveCount >= 4 ? '#999' : '#4caf50',
+                                                                background: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? '#999' : ((naturalMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? '#ff9800' : '#4caf50'),
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: '4px',
                                                                 fontSize: '10px',
                                                                 fontWeight: 'bold',
-                                                                cursor: naturalMoveCount >= 4 ? 'not-allowed' : 'pointer',
-                                                                opacity: naturalMoveCount >= 4 ? 0.6 : 1
+                                                                cursor: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 'not-allowed' : 'pointer',
+                                                                opacity: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 0.6 : 1
                                                             }}
-                                                            title="Add as Natural move"
+                                                            title={(naturalMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? "Replace a Natural move" : "Add as Natural move"}
                                                         >
                                                             N
                                                         </button>
@@ -2240,13 +2242,13 @@ const PokemonCard = ({
                             Learn {pendingMoveReplacement.moveName}?
                         </h3>
                         <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--text-secondary, #666)' }}>
-                            {pokemon.name || pokemon.species} already knows 4 Taught moves. Choose a move to forget:
+                            {pokemon.name || pokemon.species} already knows 4 {pendingMoveReplacement.source === 'natural' ? 'Natural' : 'Taught'} moves. Choose a move to forget:
                         </p>
 
-                        {/* Current taught moves */}
+                        {/* Current moves of the same type */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                             {(pokemon.moves || [])
-                                .filter(m => m.source === 'taught')
+                                .filter(m => m.source === pendingMoveReplacement.source)
                                 .map((move, idx) => {
                                     const moveData = GAME_DATA.moves?.[move.name] || move;
                                     return (
@@ -2312,13 +2314,15 @@ const PokemonCard = ({
                         {/* New move preview */}
                         <div style={{
                             padding: '12px',
-                            background: 'linear-gradient(135deg, rgba(33,150,243,0.1), rgba(33,150,243,0.05))',
+                            background: pendingMoveReplacement.source === 'natural'
+                                ? 'linear-gradient(135deg, rgba(76,175,80,0.1), rgba(76,175,80,0.05))'
+                                : 'linear-gradient(135deg, rgba(33,150,243,0.1), rgba(33,150,243,0.05))',
                             borderRadius: '8px',
-                            border: '2px solid #2196f3',
+                            border: `2px solid ${pendingMoveReplacement.source === 'natural' ? '#4caf50' : '#2196f3'}`,
                             marginBottom: '16px'
                         }}>
-                            <div style={{ fontSize: '11px', color: '#2196f3', fontWeight: 'bold', marginBottom: '4px' }}>
-                                NEW MOVE
+                            <div style={{ fontSize: '11px', color: pendingMoveReplacement.source === 'natural' ? '#4caf50' : '#2196f3', fontWeight: 'bold', marginBottom: '4px' }}>
+                                NEW {pendingMoveReplacement.source === 'natural' ? 'NATURAL' : 'TAUGHT'} MOVE
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
