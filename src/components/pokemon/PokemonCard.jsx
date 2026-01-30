@@ -42,6 +42,8 @@ const PokemonCard = ({
     const [moveTypeFilter, setMoveTypeFilter] = useState('all');
     const [moveCategoryFilter, setMoveCategoryFilter] = useState('all');
     const [showMoveDropdown, setShowMoveDropdown] = useState(false);
+    // Move replacement state (when trying to learn a 5th taught move)
+    const [pendingMoveReplacement, setPendingMoveReplacement] = useState(null); // { moveName, moveData, source }
     // Collapsed view expanded sections
     const [expandedSection, setExpandedSection] = useState(null); // 'abilities', 'moves', 'skills', or null
     // Regional form selection state
@@ -188,11 +190,19 @@ const PokemonCard = ({
             alert('This Pokemon already has 4 Natural moves.');
             return;
         }
-        if (source === 'taught' && taughtCount >= 4) {
-            alert('This Pokemon already has 4 Taught moves.');
+
+        // If trying to add a taught move when at limit, show replacement modal
+        if (source === 'taught' && (taughtCount >= 4 || (pokemon.moves?.length || 0) >= 8)) {
+            if (taughtCount === 0) {
+                alert('Cannot add taught move - no taught moves to replace.');
+                return;
+            }
+            setPendingMoveReplacement({ moveName, moveData, source });
             return;
         }
-        if ((pokemon.moves?.length || 0) >= 8) {
+
+        // Block if at total limit for natural moves
+        if (source === 'natural' && (pokemon.moves?.length || 0) >= 8) {
             alert('This Pokemon already has 8 moves.');
             return;
         }
@@ -213,6 +223,37 @@ const PokemonCard = ({
         setMoveSearch('');
         setMoveTypeFilter('all');
         setMoveCategoryFilter('all');
+    };
+
+    // Handle replacing an existing taught move with a new one
+    const handleMoveReplacement = (moveToForget) => {
+        if (!pendingMoveReplacement) return;
+
+        const { moveName, moveData, source } = pendingMoveReplacement;
+
+        // Remove the old move and add the new one
+        const newMoves = (pokemon.moves || []).filter(m => m.name !== moveToForget);
+        newMoves.push({
+            name: moveName,
+            type: moveData.type,
+            category: moveData.category,
+            damage: moveData.damage,
+            frequency: moveData.frequency,
+            range: moveData.range,
+            effect: moveData.effect,
+            source: source
+        });
+
+        updatePokemon({ moves: newMoves });
+        setPendingMoveReplacement(null);
+        setMoveSearch('');
+        setMoveTypeFilter('all');
+        setMoveCategoryFilter('all');
+    };
+
+    // Cancel move replacement
+    const cancelMoveReplacement = () => {
+        setPendingMoveReplacement(null);
     };
 
     // Calculate current move counts for UI
@@ -1925,19 +1966,19 @@ const PokemonCard = ({
                                                         </button>
                                                         <button
                                                             onClick={() => addMoveWithSource(name, data, 'taught')}
-                                                            disabled={taughtMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8}
+                                                            disabled={taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8}
                                                             style={{
                                                                 padding: '2px 6px',
-                                                                background: taughtMoveCount >= 4 ? '#999' : '#2196f3',
+                                                                background: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? '#999' : ((taughtMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? '#ff9800' : '#2196f3'),
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: '4px',
                                                                 fontSize: '10px',
                                                                 fontWeight: 'bold',
-                                                                cursor: taughtMoveCount >= 4 ? 'not-allowed' : 'pointer',
-                                                                opacity: taughtMoveCount >= 4 ? 0.6 : 1
+                                                                cursor: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 'not-allowed' : 'pointer',
+                                                                opacity: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 0.6 : 1
                                                             }}
-                                                            title="Add as Taught move"
+                                                            title={(taughtMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? "Replace a Taught move" : "Add as Taught move"}
                                                         >
                                                             T
                                                         </button>
@@ -2164,6 +2205,162 @@ const PokemonCard = ({
                     </div>
                 )}
             </div>
+
+            {/* Move Replacement Modal */}
+            {pendingMoveReplacement && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.6)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                    }}
+                    onClick={cancelMoveReplacement}
+                >
+                    <div
+                        style={{
+                            background: 'var(--card-bg, white)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            maxWidth: '450px',
+                            width: '90%',
+                            maxHeight: '80vh',
+                            overflow: 'auto',
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
+                            Learn {pendingMoveReplacement.moveName}?
+                        </h3>
+                        <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--text-secondary, #666)' }}>
+                            {pokemon.name || pokemon.species} already knows 4 Taught moves. Choose a move to forget:
+                        </p>
+
+                        {/* Current taught moves */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                            {(pokemon.moves || [])
+                                .filter(m => m.source === 'taught')
+                                .map((move, idx) => {
+                                    const moveData = GAME_DATA.moves?.[move.name] || move;
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => handleMoveReplacement(move.name)}
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                padding: '12px',
+                                                background: 'var(--bg-secondary, #f5f5f5)',
+                                                border: '2px solid transparent',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                textAlign: 'left',
+                                                transition: 'all 0.15s'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.borderColor = '#f44336';
+                                                e.currentTarget.style.background = 'rgba(244,67,54,0.1)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.borderColor = 'transparent';
+                                                e.currentTarget.style.background = 'var(--bg-secondary, #f5f5f5)';
+                                            }}
+                                        >
+                                            <div>
+                                                <div style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text-primary)' }}>
+                                                    {move.name}
+                                                </div>
+                                                <div style={{ fontSize: '11px', color: 'var(--text-secondary, #666)' }}>
+                                                    {moveData.damage || 'Status'} | {moveData.frequency}
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                                <span style={{
+                                                    padding: '2px 6px',
+                                                    background: getTypeColor(moveData.type || move.type),
+                                                    color: 'white',
+                                                    borderRadius: '4px',
+                                                    fontSize: '10px',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    {moveData.type || move.type}
+                                                </span>
+                                                <span style={{
+                                                    padding: '4px 8px',
+                                                    background: '#f44336',
+                                                    color: 'white',
+                                                    borderRadius: '4px',
+                                                    fontSize: '11px',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    Forget
+                                                </span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                        </div>
+
+                        {/* New move preview */}
+                        <div style={{
+                            padding: '12px',
+                            background: 'linear-gradient(135deg, rgba(33,150,243,0.1), rgba(33,150,243,0.05))',
+                            borderRadius: '8px',
+                            border: '2px solid #2196f3',
+                            marginBottom: '16px'
+                        }}>
+                            <div style={{ fontSize: '11px', color: '#2196f3', fontWeight: 'bold', marginBottom: '4px' }}>
+                                NEW MOVE
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text-primary)' }}>
+                                        {pendingMoveReplacement.moveName}
+                                    </div>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-secondary, #666)' }}>
+                                        {pendingMoveReplacement.moveData.damage || 'Status'} | {pendingMoveReplacement.moveData.frequency}
+                                    </div>
+                                </div>
+                                <span style={{
+                                    padding: '2px 6px',
+                                    background: getTypeColor(pendingMoveReplacement.moveData.type),
+                                    color: 'white',
+                                    borderRadius: '4px',
+                                    fontSize: '10px',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {pendingMoveReplacement.moveData.type}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={cancelMoveReplacement}
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                background: 'var(--bg-secondary, #f5f5f5)',
+                                border: '1px solid var(--border-medium, #ddd)',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                color: 'var(--text-primary)',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
