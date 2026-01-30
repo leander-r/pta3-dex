@@ -344,7 +344,7 @@ const BattleTab = ({
                                         setSelectedMove(null);
                                         resetCombatStages();
                                     }}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)' }}
                                 >
                                     <option value="">Choose a Pokemon...</option>
                                     {party.map(poke => {
@@ -368,7 +368,7 @@ const BattleTab = ({
                                             <span style={{ fontSize: '12px', fontWeight: 'bold' }}>HP</span>
                                             <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{hp.current} / {hp.max}</span>
                                         </div>
-                                        <div style={{ background: '#ddd', borderRadius: '4px', height: '12px', overflow: 'hidden', marginBottom: '8px' }}>
+                                        <div style={{ background: 'var(--collapsed-hp-track)', borderRadius: '4px', height: '12px', overflow: 'hidden', marginBottom: '8px' }}>
                                             <div style={{
                                                 width: `${hpPercent}%`,
                                                 height: '100%',
@@ -505,7 +505,7 @@ const BattleTab = ({
                                 >
                                     <div
                                         style={{
-                                            background: 'white',
+                                            background: 'var(--card-bg)',
                                             borderRadius: '12px',
                                             padding: '20px',
                                             maxWidth: '400px',
@@ -553,10 +553,11 @@ const BattleTab = ({
                                                 marginTop: '12px',
                                                 width: '100%',
                                                 padding: '10px',
-                                                background: '#eee',
+                                                background: 'var(--bg-secondary)',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer'
+                                                cursor: 'pointer',
+                                                color: 'var(--text-primary)'
                                             }}
                                         >
                                             Cancel
@@ -587,7 +588,7 @@ const BattleTab = ({
                                                 Buffs & debuffs from moves
                                             </span>
                                         </div>
-                                        <span style={{ fontSize: '11px', color: '#666' }}>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                                             {showCombatStages ? '▲ Hide' : '▼ Show'}
                                         </span>
                                     </div>
@@ -618,8 +619,8 @@ const BattleTab = ({
                                                         return (
                                                             <div key={stat.key} className="combat-stat-box" style={{ textAlign: 'center', padding: '6px', borderRadius: '4px' }}>
                                                                 <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
-                                                                <div style={{ fontSize: '11px', color: '#666' }}>
-                                                                    {stat.key === 'acc' ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : '#333' }}>
+                                                                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                                                    {stat.key === 'acc' ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>
                                                                         {stat.key === 'acc' ? (stages >= 0 ? '+' : '') + stages : modifiedStat}
                                                                     </strong>
                                                                 </div>
@@ -668,7 +669,7 @@ const BattleTab = ({
                                         />
                                         <span style={{ fontSize: '12px' }}>Apply STAB</span>
                                     </label>
-                                    <span style={{ fontSize: '11px', color: '#666' }}>
+                                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                                         (+{calculateSTAB(selectedPokemon.level || 1)} for matching type)
                                     </span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override the move's default Accuracy Class. Higher AC = harder to hit.">
@@ -689,10 +690,10 @@ const BattleTab = ({
                                                 width: '50px',
                                                 padding: '4px 8px',
                                                 borderRadius: '4px',
-                                                border: acOverride !== '' ? '2px solid #667eea' : '1px solid #ddd',
+                                                border: acOverride !== '' ? '2px solid #667eea' : '1px solid var(--border-medium)',
                                                 fontSize: '12px',
                                                 textAlign: 'center',
-                                                background: acOverride !== '' ? '#e8eaf6' : 'white'
+                                                background: acOverride !== '' ? 'var(--input-bg-hover)' : 'var(--input-bg)'
                                             }}
                                         />
                                         {acOverride !== '' && (
@@ -851,7 +852,7 @@ const BattleTab = ({
                             <select
                                 value={selectedSkill}
                                 onChange={(e) => setSelectedSkill(e.target.value)}
-                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', marginBottom: '8px' }}
+                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '8px' }}
                             >
                                 <option value="">Choose a skill...</option>
                                 {Object.entries(GAME_DATA.skills || {}).map(([name, data]) => {
@@ -923,7 +924,7 @@ const BattleTab = ({
                                 value={customDice}
                                 onChange={(e) => setCustomDice(e.target.value)}
                                 placeholder="2d6+5"
-                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', marginBottom: '12px' }}
+                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '12px' }}
                             />
 
                             {/* Quick Dice Buttons */}
@@ -1156,7 +1157,7 @@ const BattleTab = ({
                                             <div style={{
                                                 fontSize: '12px',
                                                 padding: '4px 8px',
-                                                background: roll.isHit ? (roll.isCrit ? '#fff3e0' : '#e8f5e9') : '#ffebee',
+                                                background: roll.isHit ? (roll.isCrit ? 'var(--roll-crit-bg)' : 'var(--roll-hit-bg)') : 'var(--roll-miss-bg)',
                                                 borderRadius: '4px',
                                                 marginBottom: '4px',
                                                 display: 'inline-block'
@@ -1173,23 +1174,23 @@ const BattleTab = ({
                                                         </span>
                                                     )}
                                                 </span>
-                                                <span style={{ color: '#666' }}> vs AC {roll.moveAC}</span>
+                                                <span style={{ color: 'var(--text-secondary)' }}> vs AC {roll.moveAC}</span>
                                                 {roll.acWasOverridden && <span style={{ color: '#667eea', marginLeft: '4px' }}>(DM)</span>}
                                                 {roll.isCrit && <span style={{ color: '#ff6f00', marginLeft: '4px' }}>(Natural 20!)</span>}
                                             </div>
                                             {/* Damage or Status */}
-                                            <div style={{ fontSize: '12px', color: '#666' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                                                 {roll.isStatus ? (
                                                     <span style={{ color: roll.isHit ? '#2e7d32' : '#c62828' }}>
                                                         Status Move - {roll.isHit ? 'Effect applies!' : 'No effect'}
                                                     </span>
                                                 ) : roll.isHit ? (
                                                     <>
-                                                        <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#333' }}>{roll.total}</span>
+                                                        <span style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--text-primary)' }}>{roll.total}</span>
                                                         <span> damage | [{roll.rolls?.join(', ')}] +{roll.statBonus} stat +{roll.stabBonus} STAB</span>
                                                     </>
                                                 ) : (
-                                                    <span style={{ color: '#999', fontStyle: 'italic' }}>Attack missed - no damage</span>
+                                                    <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Attack missed - no damage</span>
                                                 )}
                                             </div>
                                         </>

@@ -312,7 +312,7 @@ const CustomSpeciesModal = ({
                 </div>
                 <div className="modal-content">
                     {/* Data Status */}
-                    <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px' }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '10px' }}>
                         Game Data: {totalMoves} moves, {totalAbilities} abilities loaded
                     </div>
 
@@ -368,7 +368,7 @@ const CustomSpeciesModal = ({
                                 </div>
                             ))}
                         </div>
-                        <div style={{ fontSize: '10px', color: '#666', marginTop: '6px' }}>BST: {Object.values(species.baseStats).reduce((a, b) => a + b, 0)}</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '6px' }}>BST: {Object.values(species.baseStats).reduce((a, b) => a + b, 0)}</div>
                     </div>
 
                     {/* Abilities */}
@@ -402,9 +402,9 @@ const CustomSpeciesModal = ({
                                                 placeholder="Search abilities..."
                                                 value={abilityFilter.search}
                                                 onChange={(e) => setAbilityFilter({ search: e.target.value })}
-                                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', marginBottom: '8px', fontSize: '12px' }}
+                                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-medium)', marginBottom: '8px', fontSize: '12px' }}
                                             />
-                                            <div style={{ fontSize: '10px', color: '#666', marginBottom: '6px' }}>
+                                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
                                                 Showing {filteredAbilities.length} of {totalAbilities} abilities
                                             </div>
                                             <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
@@ -412,12 +412,12 @@ const CustomSpeciesModal = ({
                                                     <div
                                                         key={name}
                                                         onClick={() => { addAbility(tier, name); setShowAbilityPicker(null); }}
-                                                        style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid #eee', fontSize: '12px' }}
-                                                        onMouseEnter={(e) => e.currentTarget.style.background = '#e0e0e0'}
+                                                        style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', fontSize: '12px' }}
+                                                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
                                                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                                     >
                                                         <div style={{ fontWeight: 'bold' }}>{name}</div>
-                                                        <div style={{ fontSize: '10px', color: '#666', marginTop: '2px' }}>{desc?.substring(0, 100)}{desc?.length > 100 ? '...' : ''}</div>
+                                                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>{desc?.substring(0, 100)}{desc?.length > 100 ? '...' : ''}</div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -440,7 +440,7 @@ const CustomSpeciesModal = ({
                                         const moveData = GAME_DATA.moves?.[moveEntry.move];
                                         return (
                                             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '4px' }}>
-                                                <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', minWidth: '35px' }}>Lv.{moveEntry.level}</span>
+                                                <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-secondary)', minWidth: '35px' }}>Lv.{moveEntry.level}</span>
                                                 <span style={{ fontWeight: 'bold', fontSize: '12px', flex: 1 }}>{moveEntry.move}</span>
                                                 {moveData && <span style={{ padding: '2px 6px', background: getTypeColor(moveData.type), color: 'white', borderRadius: '8px', fontSize: '9px', fontWeight: 'bold' }}>{moveData.type}</span>}
                                                 <button onClick={() => removeLevelUpMove(idx)} style={{ background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '11px' }}>×</button>
@@ -449,14 +449,14 @@ const CustomSpeciesModal = ({
                                     })}
                                 </div>
                             ) : (
-                                <div style={{ fontSize: '11px', color: '#666', padding: '8px', textAlign: 'center' }}>No moves added yet</div>
+                                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', padding: '8px', textAlign: 'center' }}>No moves added yet</div>
                             )}
                         </div>
 
                         {/* Add move button */}
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                             <span style={{ fontSize: '11px' }}>Lv.</span>
-                            <input type="number" min="0" max="100" value={pendingMoveLevel} onChange={(e) => setPendingMoveLevel(parseInt(e.target.value) || 1)} style={{ width: '50px', padding: '6px', borderRadius: '4px', border: '1px solid #ddd', textAlign: 'center', fontSize: '12px' }} />
+                            <input type="number" min="0" max="100" value={pendingMoveLevel} onChange={(e) => setPendingMoveLevel(parseInt(e.target.value) || 1)} style={{ width: '50px', padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', textAlign: 'center', fontSize: '12px' }} />
                             <button onClick={() => { setShowMovePicker(!showMovePicker); setMoveFilter({ search: '', type: '', category: '' }); }} style={{ padding: '6px 12px', background: showMovePicker ? '#f44336' : '#667eea', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}>
                                 {showMovePicker ? 'Close Move Picker' : '+ Add Move'}
                             </button>
@@ -472,13 +472,13 @@ const CustomSpeciesModal = ({
                                         placeholder="Search moves..."
                                         value={moveFilter.search}
                                         onChange={(e) => setMoveFilter(prev => ({ ...prev, search: e.target.value }))}
-                                        style={{ flex: 1, minWidth: '150px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' }}
+                                        style={{ flex: 1, minWidth: '150px', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
                                     />
-                                    <select value={moveFilter.type} onChange={(e) => setMoveFilter(prev => ({ ...prev, type: e.target.value }))} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px', background: moveFilter.type ? getTypeColor(moveFilter.type) : 'white', color: moveFilter.type ? 'white' : 'inherit' }}>
+                                    <select value={moveFilter.type} onChange={(e) => setMoveFilter(prev => ({ ...prev, type: e.target.value }))} style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px', background: moveFilter.type ? getTypeColor(moveFilter.type) : 'var(--input-bg)', color: moveFilter.type ? 'white' : 'var(--text-primary)' }}>
                                         <option value="">All Types</option>
                                         {POKEMON_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                                     </select>
-                                    <select value={moveFilter.category} onChange={(e) => setMoveFilter(prev => ({ ...prev, category: e.target.value }))} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' }}>
+                                    <select value={moveFilter.category} onChange={(e) => setMoveFilter(prev => ({ ...prev, category: e.target.value }))} style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}>
                                         <option value="">All Categories</option>
                                         <option value="Physical">Physical</option>
                                         <option value="Special">Special</option>
@@ -495,14 +495,14 @@ const CustomSpeciesModal = ({
                                         <button
                                             key={type}
                                             onClick={() => setMoveFilter(prev => ({ ...prev, type: prev.type === type ? '' : type }))}
-                                            style={{ padding: '2px 6px', borderRadius: '3px', border: moveFilter.type === type ? '2px solid #333' : '1px solid transparent', background: getTypeColor(type), color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold', opacity: moveFilter.type && moveFilter.type !== type ? 0.5 : 1 }}
+                                            style={{ padding: '2px 6px', borderRadius: '3px', border: moveFilter.type === type ? '2px solid var(--text-primary)' : '1px solid transparent', background: getTypeColor(type), color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold', opacity: moveFilter.type && moveFilter.type !== type ? 0.5 : 1 }}
                                         >
                                             {type}
                                         </button>
                                     ))}
                                 </div>
 
-                                <div style={{ fontSize: '10px', color: '#666', marginBottom: '6px' }}>
+                                <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
                                     Showing {Math.min(filteredMoves.length, 100)} of {filteredMoves.length} matches ({totalMoves} total)
                                 </div>
 
@@ -512,13 +512,13 @@ const CustomSpeciesModal = ({
                                         <div
                                             key={name}
                                             onClick={() => { addLevelUpMove(name); }}
-                                            style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = '#e0e0e0'}
+                                            style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
                                             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                         >
                                             <div>
                                                 <span style={{ fontWeight: 'bold', fontSize: '12px' }}>{name}</span>
-                                                <div style={{ fontSize: '10px', color: '#666' }}>{data.damage || 'Status'} | {data.frequency}</div>
+                                                <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{data.damage || 'Status'} | {data.frequency}</div>
                                             </div>
                                             <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                                                 <span style={{ padding: '2px 6px', background: getTypeColor(data.type), color: 'white', borderRadius: '4px', fontSize: '9px', fontWeight: 'bold' }}>{data.type}</span>
@@ -565,7 +565,7 @@ const CustomSpeciesModal = ({
                                     </div>
                                 ))}
                             </div>
-                            <div style={{ fontSize: '10px', color: '#666', marginTop: '8px' }}>
+                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '8px' }}>
                                 Movement skills (0-10), Intelligence (0-6). Set to 0 if not applicable.
                             </div>
                         </div>
@@ -587,14 +587,14 @@ const CustomSpeciesModal = ({
                                         placeholder="Species name (leave empty if none)"
                                         value={species.evolvesFrom?.species || ''}
                                         onChange={(e) => updateEvolvesFrom('species', e.target.value)}
-                                        style={{ flex: 1, minWidth: '120px', padding: '6px 10px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' }}
+                                        style={{ flex: 1, minWidth: '120px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
                                     />
                                     {species.evolvesFrom?.species && (
                                         <>
                                             <select
                                                 value={species.evolvesFrom?.method || 'level'}
                                                 onChange={(e) => updateEvolvesFrom('method', e.target.value)}
-                                                style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '11px' }}
+                                                style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '11px' }}
                                             >
                                                 {EVOLUTION_METHODS.map(m => (
                                                     <option key={m.value} value={m.value}>{m.label}</option>
@@ -605,7 +605,7 @@ const CustomSpeciesModal = ({
                                                 placeholder={species.evolvesFrom?.method === 'level' ? 'Level #' : 'Requirement'}
                                                 value={species.evolvesFrom?.requirement || ''}
                                                 onChange={(e) => updateEvolvesFrom('requirement', e.target.value)}
-                                                style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' }}
+                                                style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
                                             />
                                         </>
                                     )}
@@ -628,12 +628,12 @@ const CustomSpeciesModal = ({
                                                     placeholder="Evolution species"
                                                     value={evo.species}
                                                     onChange={(e) => updateEvolution(idx, 'species', e.target.value)}
-                                                    style={{ flex: 1, minWidth: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' }}
+                                                    style={{ flex: 1, minWidth: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
                                                 />
                                                 <select
                                                     value={evo.method}
                                                     onChange={(e) => updateEvolution(idx, 'method', e.target.value)}
-                                                    style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '11px' }}
+                                                    style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '11px' }}
                                                 >
                                                     {EVOLUTION_METHODS.map(m => (
                                                         <option key={m.value} value={m.value}>{m.label}</option>
@@ -644,7 +644,7 @@ const CustomSpeciesModal = ({
                                                     placeholder={evo.method === 'level' ? 'Level #' : 'Requirement'}
                                                     value={evo.requirement}
                                                     onChange={(e) => updateEvolution(idx, 'requirement', e.target.value)}
-                                                    style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' }}
+                                                    style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
                                                 />
                                                 <button
                                                     onClick={() => removeEvolution(idx)}
@@ -656,7 +656,7 @@ const CustomSpeciesModal = ({
                                         ))}
                                     </div>
                                 ) : (
-                                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '10px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '10px', textAlign: 'center' }}>
                                         No evolutions defined (final form)
                                     </div>
                                 )}
@@ -668,7 +668,7 @@ const CustomSpeciesModal = ({
                                 </button>
                             </div>
                         </div>
-                        <div style={{ fontSize: '10px', color: '#666', marginTop: '8px' }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '8px' }}>
                             Methods: Level (specify level), Stone (e.g., "Fire Stone"), Trade, Happiness, Other/Special
                         </div>
                     </div>
