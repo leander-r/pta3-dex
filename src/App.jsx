@@ -946,13 +946,17 @@ const handleEvolution = (pokemonId, targetSpecies, targetRegionalForm, consumeIt
     
     if (!pokemon) return;
     
-    // Find target species in Pokedex
-    const targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
+    // Find target species in Pokedex or Custom Species
+    let targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
     if (!targetPokedexEntry) {
-        alert(`Could not find ${targetSpecies} in the Pokédex!`);
+        // Check custom species
+        targetPokedexEntry = customSpecies.find(p => p.species === targetSpecies);
+    }
+    if (!targetPokedexEntry) {
+        alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
         return;
     }
-    
+
     // Consume item if needed
     if (consumeItem) {
         if (!hasItemInInventory(consumeItem)) {
@@ -1145,13 +1149,17 @@ const handleDevolution = (pokemonId, targetSpecies) => {
     
     if (!pokemon) return;
     
-    // Find target species in Pokedex
-    const targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
+    // Find target species in Pokedex or Custom Species
+    let targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
     if (!targetPokedexEntry) {
-        alert(`Could not find ${targetSpecies} in the Pokédex!`);
+        // Check custom species
+        targetPokedexEntry = customSpecies.find(p => p.species === targetSpecies);
+    }
+    if (!targetPokedexEntry) {
+        alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
         return;
     }
-    
+
     // Check if regional form should carry over
     const currentRegionalForm = pokemon.regionalForm;
     let targetRegionalForm = null;
