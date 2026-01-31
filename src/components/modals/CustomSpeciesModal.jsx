@@ -49,6 +49,21 @@ const EVOLUTION_METHODS = [
     { value: 'other', label: 'Other/Special' }
 ];
 
+const EVOLUTION_STONES = [
+    'Fire Stone',
+    'Water Stone',
+    'Thunder Stone',
+    'Leaf Stone',
+    'Moon Stone',
+    'Sun Stone',
+    'Shiny Stone',
+    'Dusk Stone',
+    'Dawn Stone',
+    'Ice Stone',
+    'Oval Stone',
+    'Everstone'
+];
+
 const CustomSpeciesModal = ({
     showCustomSpeciesModal,
     setShowCustomSpeciesModal,
@@ -337,6 +352,9 @@ const CustomSpeciesModal = ({
                     {/* Species Name */}
                     <div className="form-group">
                         <label>Species Name *</label>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                            The name of this Pokémon species (e.g., Sprigatito, Fuecoco). This will appear in the species dropdown.
+                        </div>
                         <input type="text" value={species.species} onChange={(e) => setSpecies(prev => ({ ...prev, species: e.target.value }))} placeholder="e.g., Sprigatito" />
                     </div>
 
@@ -359,8 +377,11 @@ const CustomSpeciesModal = ({
 
                     {/* Base Stats */}
                     <div className="form-group">
-                        <label>Base Stats (PTA values, typically 1-15)</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '8px' }}>
+                        <label>Base Stats</label>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                            PTA base stat values (typically 1-15). These determine the species' natural strengths and are added to when leveling up.
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                             {Object.entries(species.baseStats).map(([stat, value]) => (
                                 <div key={stat} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <span style={{ width: '45px', fontWeight: 'bold', fontSize: '11px', color: statColors[stat], textTransform: 'uppercase' }}>{stat}</span>
@@ -373,8 +394,11 @@ const CustomSpeciesModal = ({
 
                     {/* Abilities */}
                     <div className="form-group">
-                        <label>Abilities ({totalAbilities} available)</label>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+                        <label>Ability Pool</label>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                            Available abilities trainers can choose from when catching this species. Basic abilities are available at capture, Advanced at trainer level 15+, High at level 30+.
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {['basic', 'adv', 'high'].map(tier => (
                                 <div key={tier}>
                                     <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#667eea' }}>{tierLabels[tier]}</div>
@@ -430,10 +454,13 @@ const CustomSpeciesModal = ({
 
                     {/* Level-Up Moves */}
                     <div className="form-group">
-                        <label>Level-Up Moves ({totalMoves} available)</label>
+                        <label>Level-Up Moveset</label>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                            Moves this species learns naturally as it levels up. Set the level at which each move is learned (Lv.0 or Lv.1 = known at capture).
+                        </div>
 
                         {/* Selected moves */}
-                        <div style={{ marginTop: '8px', marginBottom: '10px' }}>
+                        <div style={{ marginBottom: '10px' }}>
                             {species.levelUpMoves.length > 0 ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     {species.levelUpMoves.map((moveEntry, idx) => {
@@ -533,8 +560,11 @@ const CustomSpeciesModal = ({
 
                     {/* Pokemon Skills */}
                     <div className="form-group">
-                        <label>Pokemon Skills</label>
-                        <div style={{ marginTop: '8px', padding: '12px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '8px' }}>
+                        <label>Movement & Capabilities</label>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                            How this species moves and interacts with the environment. Higher values = faster/better at that movement type.
+                        </div>
+                        <div style={{ padding: '12px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '8px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
                                 {SKILL_FIELDS.map(skill => (
                                     <div key={skill.key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -574,11 +604,14 @@ const CustomSpeciesModal = ({
                     {/* Evolution Chain */}
                     <div className="form-group">
                         <label>Evolution Chain</label>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                            Define how this species connects to other species. Link to other custom species or official Pokédex entries.
+                        </div>
 
                         {/* Evolves From */}
-                        <div style={{ marginTop: '8px', marginBottom: '12px' }}>
+                        <div style={{ marginBottom: '12px' }}>
                             <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '6px', color: '#9c27b0' }}>
-                                Evolves From (Pre-evolution)
+                                Pre-Evolution (What it evolves from)
                             </div>
                             <div style={{ padding: '10px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '8px' }}>
                                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -600,13 +633,36 @@ const CustomSpeciesModal = ({
                                                     <option key={m.value} value={m.value}>{m.label}</option>
                                                 ))}
                                             </select>
-                                            <input
-                                                type="text"
-                                                placeholder={species.evolvesFrom?.method === 'level' ? 'Level #' : 'Requirement'}
-                                                value={species.evolvesFrom?.requirement || ''}
-                                                onChange={(e) => updateEvolvesFrom('requirement', e.target.value)}
-                                                style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
-                                            />
+                                            {species.evolvesFrom?.method === 'stone' ? (
+                                                <select
+                                                    value={species.evolvesFrom?.requirement || ''}
+                                                    onChange={(e) => updateEvolvesFrom('requirement', e.target.value)}
+                                                    style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '11px', minWidth: '120px' }}
+                                                >
+                                                    <option value="">Select Stone...</option>
+                                                    {EVOLUTION_STONES.map(stone => (
+                                                        <option key={stone} value={stone}>{stone}</option>
+                                                    ))}
+                                                </select>
+                                            ) : species.evolvesFrom?.method === 'level' ? (
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="100"
+                                                    placeholder="Level"
+                                                    value={species.evolvesFrom?.requirement || ''}
+                                                    onChange={(e) => updateEvolvesFrom('requirement', e.target.value)}
+                                                    style={{ width: '70px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px', textAlign: 'center' }}
+                                                />
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    placeholder={species.evolvesFrom?.method === 'trade' ? 'Item or Trade' : 'Requirement'}
+                                                    value={species.evolvesFrom?.requirement || ''}
+                                                    onChange={(e) => updateEvolvesFrom('requirement', e.target.value)}
+                                                    style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
+                                                />
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -616,7 +672,7 @@ const CustomSpeciesModal = ({
                         {/* Evolves To */}
                         <div>
                             <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '6px', color: '#4caf50' }}>
-                                Evolves To (Evolutions)
+                                Evolutions (What it evolves into)
                             </div>
                             <div style={{ padding: '10px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '8px' }}>
                                 {species.evolvesTo?.length > 0 ? (
@@ -639,13 +695,36 @@ const CustomSpeciesModal = ({
                                                         <option key={m.value} value={m.value}>{m.label}</option>
                                                     ))}
                                                 </select>
-                                                <input
-                                                    type="text"
-                                                    placeholder={evo.method === 'level' ? 'Level #' : 'Requirement'}
-                                                    value={evo.requirement}
-                                                    onChange={(e) => updateEvolution(idx, 'requirement', e.target.value)}
-                                                    style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
-                                                />
+                                                {evo.method === 'stone' ? (
+                                                    <select
+                                                        value={evo.requirement}
+                                                        onChange={(e) => updateEvolution(idx, 'requirement', e.target.value)}
+                                                        style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '11px', minWidth: '120px' }}
+                                                    >
+                                                        <option value="">Select Stone...</option>
+                                                        {EVOLUTION_STONES.map(stone => (
+                                                            <option key={stone} value={stone}>{stone}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : evo.method === 'level' ? (
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        max="100"
+                                                        placeholder="Level"
+                                                        value={evo.requirement}
+                                                        onChange={(e) => updateEvolution(idx, 'requirement', e.target.value)}
+                                                        style={{ width: '70px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px', textAlign: 'center' }}
+                                                    />
+                                                ) : (
+                                                    <input
+                                                        type="text"
+                                                        placeholder={evo.method === 'trade' ? 'Item or Trade' : 'Requirement'}
+                                                        value={evo.requirement}
+                                                        onChange={(e) => updateEvolution(idx, 'requirement', e.target.value)}
+                                                        style={{ width: '100px', padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
+                                                    />
+                                                )}
                                                 <button
                                                     onClick={() => removeEvolution(idx)}
                                                     style={{ background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', padding: '4px 8px', cursor: 'pointer', fontSize: '12px' }}
@@ -669,7 +748,7 @@ const CustomSpeciesModal = ({
                             </div>
                         </div>
                         <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                            Methods: Level (specify level), Stone (e.g., "Fire Stone"), Trade, Happiness, Other/Special
+                            Methods: Level (enter level number), Stone (select from dropdown), Trade (item or just "Trade"), Happiness, Other/Special
                         </div>
                     </div>
 
