@@ -7,6 +7,7 @@ import React from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { copyToClipboard, downloadCardAsImage } from '../../utils/exportUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const CardExportModal = ({
     showCardModal,
@@ -22,9 +23,11 @@ const CardExportModal = ({
     exportTeamText,
     exportPokemonText
 }) => {
-    if (!showCardModal) return null;
-
     const handleClose = () => setShowCardModal(false);
+
+    const { modalRef } = useModalKeyboard(showCardModal, handleClose);
+
+    if (!showCardModal) return null;
 
     const handleCopyText = () => {
         let text = '';
@@ -56,6 +59,7 @@ const CardExportModal = ({
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 style={{ maxWidth: cardType === 'team' ? '650px' : '550px', maxHeight: '90vh', overflow: 'auto' }}
                 onClick={e => e.stopPropagation()}

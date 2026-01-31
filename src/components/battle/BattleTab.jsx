@@ -54,6 +54,19 @@ const BattleTab = ({
         setCurrentMegaForm(null);
     }, [selectedPokemonId]);
 
+    // Handle Escape key for mega modal
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && showMegaModal) {
+                setShowMegaModal(false);
+            }
+        };
+        if (showMegaModal) {
+            document.addEventListener('keydown', handleKeyDown);
+            return () => document.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [showMegaModal]);
+
     // Apply mega stat boosts to actual stats
     const getStatsWithMega = (pokemon) => {
         const baseStats = getActualStats(pokemon);
@@ -502,6 +515,7 @@ const BattleTab = ({
                                         zIndex: 1000
                                     }}
                                     onClick={() => setShowMegaModal(false)}
+                                    role="presentation"
                                 >
                                     <div
                                         style={{
@@ -512,8 +526,11 @@ const BattleTab = ({
                                             width: '90%'
                                         }}
                                         onClick={e => e.stopPropagation()}
+                                        role="dialog"
+                                        aria-modal="true"
+                                        aria-labelledby="mega-form-modal-title"
                                     >
-                                        <h3 style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
+                                        <h3 id="mega-form-modal-title" style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
                                             Choose Mega Form
                                         </h3>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

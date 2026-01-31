@@ -4,6 +4,7 @@
 // Modal for picking skills when adding a trainer class
 
 import React from 'react';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const SkillPickerModal = ({
     skillPickerModal,
@@ -11,9 +12,11 @@ const SkillPickerModal = ({
     setTrainer,
     GAME_DATA
 }) => {
-    if (!skillPickerModal.show) return null;
-
     const handleClose = () => setSkillPickerModal({ ...skillPickerModal, show: false });
+
+    const { modalRef } = useModalKeyboard(skillPickerModal.show, handleClose);
+
+    if (!skillPickerModal.show) return null;
 
     const handleSkillToggle = (skill) => {
         const isSelected = skillPickerModal.selectedSkills.includes(skill);
@@ -83,6 +86,7 @@ const SkillPickerModal = ({
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 style={{ maxWidth: '500px' }}
                 onClick={e => e.stopPropagation()}

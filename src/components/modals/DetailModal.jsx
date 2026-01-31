@@ -5,11 +5,14 @@
 
 import React from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const DetailModal = ({ detailModal, setDetailModal }) => {
-    if (!detailModal.show) return null;
-
     const closeModal = () => setDetailModal({ show: false, type: '', name: '', data: null });
+
+    const { modalRef } = useModalKeyboard(detailModal.show, closeModal);
+
+    if (!detailModal.show) return null;
 
     const getHeaderBackground = () => {
         switch (detailModal.type) {
@@ -68,6 +71,7 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
     return (
         <div className="modal-overlay" onClick={closeModal} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 role="dialog"
                 aria-modal="true"

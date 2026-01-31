@@ -3,10 +3,11 @@
 // ============================================================
 // Modal for creating custom Pokemon species for homebrew/newer Pokemon
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { GAME_DATA } from '../../data/configs.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const TYPE_LIST = [
     'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
@@ -140,9 +141,7 @@ const CustomSpeciesModal = ({
         }
     }, [showCustomSpeciesModal, editingCustomSpeciesId, customSpecies]);
 
-    if (!showCustomSpeciesModal) return null;
-
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setShowCustomSpeciesModal(false);
         setSpecies({ ...DEFAULT_SPECIES });
         setEditingIndex(null);
@@ -153,7 +152,11 @@ const CustomSpeciesModal = ({
         if (setEditingCustomSpeciesId) {
             setEditingCustomSpeciesId(null);
         }
-    };
+    }, [setShowCustomSpeciesModal, setEditingCustomSpeciesId]);
+
+    const { modalRef } = useModalKeyboard(showCustomSpeciesModal, handleClose);
+
+    if (!showCustomSpeciesModal) return null;
 
     const handleSaveSpecies = () => {
         if (!species.species.trim()) {
@@ -321,6 +324,7 @@ const CustomSpeciesModal = ({
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 onClick={(e) => e.stopPropagation()}
                 style={{ maxWidth: '700px', maxHeight: '90vh', overflow: 'auto' }}

@@ -4,6 +4,7 @@
 // Modal for selecting regional form variants when evolving Pokemon
 
 import React from 'react';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const RegionalFormModal = ({
     showRegionalFormModal,
@@ -12,16 +13,19 @@ const RegionalFormModal = ({
     setRegionalFormData,
     handleRegionalFormSelect
 }) => {
-    if (!showRegionalFormModal || !regionalFormData) return null;
-
     const handleClose = () => {
         setShowRegionalFormModal(false);
         setRegionalFormData(null);
     };
 
+    const { modalRef } = useModalKeyboard(showRegionalFormModal && !!regionalFormData, handleClose);
+
+    if (!showRegionalFormModal || !regionalFormData) return null;
+
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 style={{ maxWidth: '450px' }}
                 onClick={e => e.stopPropagation()}

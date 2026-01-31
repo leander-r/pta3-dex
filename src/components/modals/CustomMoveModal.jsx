@@ -4,6 +4,7 @@
 // Modal for creating custom Pokemon moves
 
 import React from 'react';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const TYPE_LIST = [
     'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
@@ -28,9 +29,11 @@ const CustomMoveModal = ({
     pokemon,
     updatePokemon
 }) => {
-    if (!showCustomMoveModal) return null;
-
     const handleClose = () => setShowCustomMoveModal(false);
+
+    const { modalRef } = useModalKeyboard(showCustomMoveModal, handleClose);
+
+    if (!showCustomMoveModal) return null;
 
     const handleAddMove = () => {
         if (!customMove.name || !customMoveForPokemon) return;
@@ -74,6 +77,7 @@ const CustomMoveModal = ({
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 onClick={(e) => e.stopPropagation()}
                 style={{ maxWidth: '550px' }}

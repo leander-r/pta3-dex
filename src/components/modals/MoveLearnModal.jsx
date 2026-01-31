@@ -4,6 +4,7 @@
 // Modal that appears when a Pokemon levels up and learns a new move
 
 import React from 'react';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const MoveLearnModal = ({
     showMoveLearnModal,
@@ -14,12 +15,14 @@ const MoveLearnModal = ({
     showDetail,
     GAME_DATA
 }) => {
-    if (!showMoveLearnModal || !moveLearnData) return null;
-
     const handleClose = () => {
         setShowMoveLearnModal(false);
         setMoveLearnData(null);
     };
+
+    const { modalRef } = useModalKeyboard(showMoveLearnModal && !!moveLearnData, handleClose);
+
+    if (!showMoveLearnModal || !moveLearnData) return null;
 
     const handleForgetMove = (index) => {
         learnMove(
@@ -37,6 +40,7 @@ const MoveLearnModal = ({
     return (
         <div className="modal-overlay" onClick={() => {}} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 style={{ maxWidth: '500px' }}
                 onClick={e => e.stopPropagation()}

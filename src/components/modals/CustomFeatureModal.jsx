@@ -4,6 +4,7 @@
 // Modal for creating custom trainer features
 
 import React from 'react';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 
 const CustomFeatureModal = ({
     showCustomFeatureModal,
@@ -12,9 +13,11 @@ const CustomFeatureModal = ({
     setCustomFeature,
     setTrainer
 }) => {
-    if (!showCustomFeatureModal) return null;
-
     const handleClose = () => setShowCustomFeatureModal(false);
+
+    const { modalRef } = useModalKeyboard(showCustomFeatureModal, handleClose);
+
+    if (!showCustomFeatureModal) return null;
 
     const handleAddFeature = () => {
         if (customFeature.name && customFeature.effect) {
@@ -30,6 +33,7 @@ const CustomFeatureModal = ({
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 onClick={(e) => e.stopPropagation()}
                 style={{ maxWidth: '500px' }}
