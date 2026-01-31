@@ -84,6 +84,7 @@ import {
 
 // Common Components
 import { Header, SaveIndicator, LevelUpNotification } from './components/common';
+import AppProviders from './components/AppProviders.jsx';
 
 // Data
 import { EVOLUTION_CHAINS } from './data/evolutionChains.js';
@@ -97,6 +98,8 @@ const PTAManager = () => {
 // --- Navigation & UI State ---
 const [activeTab, setActiveTab] = useState('trainer');
 const [showSaveIndicator, setShowSaveIndicator] = useState(false);
+const [isAutoSave, setIsAutoSave] = useState(false);
+const [lastSaveTime, setLastSaveTime] = useState(null);
 const [levelUpNotification, setLevelUpNotification] = useState(null);
 const [referenceTab, setReferenceTab] = useState('types');
 
@@ -616,6 +619,51 @@ useEffect(() => {
 useEffect(() => {
     loadData();
 }, []);
+
+// Auto-save interval (every 2 minutes)
+const dataLoadedRef = useRef(false);
+const lastAutoSaveDataRef = useRef(null);
+
+useEffect(() => {
+    // Mark data as loaded after initial load completes
+    if (trainers.length > 0 && trainers[0].id) {
+        dataLoadedRef.current = true;
+    }
+}, [trainers]);
+
+useEffect(() => {
+    // Don't start auto-save until data is loaded
+    if (!dataLoadedRef.current) return;
+
+    const AUTO_SAVE_INTERVAL = 2 * 60 * 1000; // 2 minutes
+
+    const autoSaveInterval = setInterval(() => {
+        // Create a snapshot of current data to compare
+        const currentDataSnapshot = JSON.stringify({
+            trainers,
+            activeTrainerId,
+            inventory,
+            customSpecies
+        });
+
+        // Only auto-save if data has changed since last auto-save
+        if (lastAutoSaveDataRef.current !== currentDataSnapshot) {
+            console.log('Auto-saving...');
+            saveData(true); // true = isAuto
+            lastAutoSaveDataRef.current = currentDataSnapshot;
+        }
+    }, AUTO_SAVE_INTERVAL);
+
+    // Set initial snapshot
+    lastAutoSaveDataRef.current = JSON.stringify({
+        trainers,
+        activeTrainerId,
+        inventory,
+        customSpecies
+    });
+
+    return () => clearInterval(autoSaveInterval);
+}, [trainers, activeTrainerId, inventory, customSpecies]);
 
 // ============================================================
 // GAME DATA & POKÉDEX FETCH & CACHE
@@ -1637,7 +1685,7 @@ const calculateSTAB = (level) => {
 };
 
 // Save data to storage
-const saveData = async () => {
+const saveData = async (isAuto = false) => {
     try {
         const savePayload = {
             trainers,
@@ -1647,9 +1695,9 @@ const saveData = async () => {
             lastSaved: new Date().toISOString(),
             version: '2.1' // Added custom species support
         };
-        
+
         let saveSuccess = false;
-        
+
         if (window.storage) {
             // Use Claude's persistent storage if available
             const result = await window.storage.set('pta-enhanced-save-data', JSON.stringify(savePayload));
@@ -1658,8 +1706,10 @@ const saveData = async () => {
             // Fallback to localStorage with safe wrapper
             saveSuccess = safeLocalStorageSet('pta-enhanced-save-data', savePayload);
         }
-        
+
         if (saveSuccess) {
+            setIsAutoSave(isAuto);
+            setLastSaveTime(new Date());
             setShowSaveIndicator(true);
             setTimeout(() => setShowSaveIndicator(false), 2000);
         } else {
@@ -3127,11 +3177,14 @@ const hasSTAB = (moveType, pokemonTypes) => {
 };
 
 return (
+    <AppProviders customSpecies={customSpecies} setCustomSpecies={setCustomSpecies}>
     <div className="container">
         {/* Save Indicator */}
-        <div className={`save-indicator ${showSaveIndicator ? 'show' : ''}`}>
-            Auto-saved
-        </div>
+        <SaveIndicator
+            show={showSaveIndicator}
+            isAuto={isAutoSave}
+            saveTime={lastSaveTime}
+        />
         
         {/* Level Up Notification */}
         {levelUpNotification && (
@@ -3492,6 +3545,7 @@ return (
             </div>
         </footer>
     </div>
+    </AppProviders>
 );
 };
 
