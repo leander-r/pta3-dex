@@ -28,12 +28,20 @@ const CustomFeatureModal = ({
     };
 
     return (
-        <div className="modal-overlay" onClick={handleClose}>
-            <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+        <div className="modal-overlay" onClick={handleClose} role="presentation">
+            <div
+                className="modal"
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: '500px' }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="custom-feature-modal-title"
+            >
                 <div className="modal-header">
-                    <h3>Create Custom Feature</h3>
+                    <h3 id="custom-feature-modal-title">Create Custom Feature</h3>
                     <button
                         onClick={handleClose}
+                        aria-label="Close modal"
                         style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
                     >
                         ×

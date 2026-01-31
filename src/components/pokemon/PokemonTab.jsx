@@ -29,6 +29,7 @@ const PokemonTab = ({
     movePokemonDown,
     sortPokemonList,
     pokedex,
+    pokedexLoading,
     GAME_DATA,
     showDetail,
     getEvolutionOptions,
@@ -425,6 +426,7 @@ const PokemonTab = ({
                             canMoveUp={index > 0}
                             canMoveDown={index < filteredList.length - 1}
                             pokedex={pokedex}
+                            pokedexLoading={pokedexLoading}
                             GAME_DATA={GAME_DATA}
                             showDetail={showDetail}
                             getEvolutionOptions={getEvolutionOptions}

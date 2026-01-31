@@ -35,10 +35,17 @@ const MoveLearnModal = ({
     const moveData = GAME_DATA.moves[moveLearnData.newMove.move] || {};
 
     return (
-        <div className="modal-overlay" onClick={() => {}}>
-            <div className="modal" style={{ maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={() => {}} role="presentation">
+            <div
+                className="modal"
+                style={{ maxWidth: '500px' }}
+                onClick={e => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="move-learn-modal-title"
+            >
                 <div className="modal-header" style={{ background: 'linear-gradient(135deg, #4caf50, #2e7d32)' }}>
-                    <h3>🎉 New Move Available!</h3>
+                    <h3 id="move-learn-modal-title">🎉 New Move Available!</h3>
                 </div>
 
                 <div style={{ padding: '20px' }}>

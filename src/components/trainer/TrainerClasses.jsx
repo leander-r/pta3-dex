@@ -46,6 +46,10 @@ const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
     };
 
     const handleRemoveClass = (cls) => {
+        if (!confirm(`Remove ${cls} class? This will also remove associated skills and features.`)) {
+            return;
+        }
+
         const classData = GAME_DATA.trainerClasses[cls];
         const isBaseClass = classData?.type === 'base';
         const isFirstClass = currentClasses.indexOf(cls) === 0 && currentClasses.length > 0;

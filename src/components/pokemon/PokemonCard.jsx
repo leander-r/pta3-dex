@@ -22,6 +22,7 @@ const PokemonCard = ({
     canMoveUp,
     canMoveDown,
     pokedex,
+    pokedexLoading,
     GAME_DATA,
     showDetail,
     getEvolutionOptions,
@@ -926,7 +927,20 @@ const PokemonCard = ({
 
                                         {/* Species List */}
                                         <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                            {filteredSpecies.length > 0 ? (
+                                            {pokedexLoading ? (
+                                                <div style={{ padding: '30px', textAlign: 'center', color: 'var(--species-muted-text)' }}>
+                                                    <div style={{
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        border: '3px solid var(--border-light)',
+                                                        borderTopColor: '#667eea',
+                                                        borderRadius: '50%',
+                                                        animation: 'spin 1s linear infinite',
+                                                        margin: '0 auto 10px'
+                                                    }} />
+                                                    <div style={{ fontSize: '12px' }}>Loading Pokédex...</div>
+                                                </div>
+                                            ) : filteredSpecies.length > 0 ? (
                                                 filteredSpecies.map(sp => {
                                                     const hasRegionalForms = sp.regionalForms && sp.regionalForms.length > 0;
                                                     // Get all unique types from regional forms
@@ -1381,8 +1395,10 @@ const PokemonCard = ({
                                                 </span>
                                                 <button
                                                     onClick={() => {
-                                                        const newAbilities = (pokemon.abilities || []).filter(a => a !== abilityName);
-                                                        updatePokemon({ abilities: newAbilities });
+                                                        if (confirm(`Remove ${abilityName} from ${pokemon.name || pokemon.species}?`)) {
+                                                            const newAbilities = (pokemon.abilities || []).filter(a => a !== abilityName);
+                                                            updatePokemon({ abilities: newAbilities });
+                                                        }
                                                     }}
                                                     style={{
                                                         background: 'rgba(255,255,255,0.3)',
@@ -1663,7 +1679,7 @@ const PokemonCard = ({
                 {editTab === 'stats' && (
                     <div>
                         <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px' }}>
-                            Stat Points Available: <strong>{pokemon.statPointsAvailable || 0}</strong>
+                            Stat Points Available: <strong title="Spend these to increase stats. Pokémon gain stat points when leveling up.">{pokemon.statPointsAvailable || 0}</strong>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -1672,13 +1688,13 @@ const PokemonCard = ({
                                     <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#667eea', marginBottom: '4px' }}>
                                         {stat.toUpperCase()}
                                     </div>
-                                    <div className="text-light" style={{ fontSize: '10px' }}>
+                                    <div className="text-light" style={{ fontSize: '10px' }} title="Base stat from the species. Determined by the Pokédex entry.">
                                         Base: {pokemon.baseStats?.[stat] || 10}
                                     </div>
-                                    <div style={{ fontSize: '10px', color: '#4caf50' }}>
+                                    <div style={{ fontSize: '10px', color: '#4caf50' }} title="Points you've added from level-up bonuses.">
                                         +{pokemon.addedStats?.[stat] || 0}
                                     </div>
-                                    <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                                    <div style={{ fontSize: '18px', fontWeight: 'bold' }} title="Total stat = Base + Added. Used for damage calculations and skill checks.">
                                         {actualStats[stat]}
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
@@ -1725,15 +1741,15 @@ const PokemonCard = ({
 
                         <div style={{ marginTop: '15px', padding: '10px', background: '#e8f5e9', borderRadius: '8px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', textAlign: 'center', fontSize: '12px' }}>
-                                <div>
+                                <div title="Maximum Hit Points = (HP stat × Level) + (Level × 4) + 10">
                                     <div style={{ color: '#666' }}>Max HP</div>
                                     <div style={{ fontWeight: 'bold', color: '#e53935' }}>{maxHP}</div>
                                 </div>
-                                <div>
+                                <div title="Same Type Attack Bonus: Extra damage when using moves matching the Pokémon's type. Scales with level: +2 (Lv.1-10), +4 (Lv.11-20), +6 (Lv.21-40), +8 (Lv.41-60), +10 (Lv.61+)">
                                     <div style={{ color: '#666' }}>STAB Bonus</div>
                                     <div style={{ fontWeight: 'bold', color: '#667eea' }}>+{stabBonus}</div>
                                 </div>
-                                <div>
+                                <div title="Current HP after damage. When reduced to 0, the Pokémon faints.">
                                     <div style={{ color: '#666' }}>Current HP</div>
                                     <div style={{ fontWeight: 'bold', color: '#4caf50' }}>{currentHP}</div>
                                 </div>
@@ -1778,9 +1794,11 @@ const PokemonCard = ({
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const newMoves = [...(pokemon.moves || [])];
-                                        newMoves.splice(idx, 1);
-                                        updatePokemon({ moves: newMoves });
+                                        if (confirm(`Remove ${move.name} from ${pokemon.name || pokemon.species}?`)) {
+                                            const newMoves = [...(pokemon.moves || [])];
+                                            newMoves.splice(idx, 1);
+                                            updatePokemon({ moves: newMoves });
+                                        }
                                     }}
                                     style={{
                                         background: '#f44336',

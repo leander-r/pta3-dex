@@ -54,16 +54,20 @@ const CardExportModal = ({
     };
 
     return (
-        <div className="modal-overlay" onClick={handleClose}>
+        <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
                 className="modal"
                 style={{ maxWidth: cardType === 'team' ? '650px' : '550px', maxHeight: '90vh', overflow: 'auto' }}
                 onClick={e => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="card-export-modal-title"
             >
                 <div className="modal-header">
-                    <h3>📇 Export Character Card</h3>
+                    <h3 id="card-export-modal-title">📇 Export Character Card</h3>
                     <button
                         onClick={handleClose}
+                        aria-label="Close modal"
                         style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
                     >
                         ×

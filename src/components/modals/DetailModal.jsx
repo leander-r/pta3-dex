@@ -66,9 +66,12 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
     };
 
     return (
-        <div className="modal-overlay" onClick={closeModal}>
+        <div className="modal-overlay" onClick={closeModal} role="presentation">
             <div
                 className="modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="detail-modal-title"
                 style={{ maxWidth: '550px', maxHeight: '80vh', overflow: 'auto' }}
                 onClick={e => e.stopPropagation()}
             >
@@ -83,20 +86,24 @@ const DetailModal = ({ detailModal, setDetailModal }) => {
                         borderBottom: 'none'
                     }}
                 >
-                    <h3 style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        margin: 0,
-                        fontSize: '18px',
-                        fontWeight: '800',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.2)'
-                    }}>
+                    <h3
+                        id="detail-modal-title"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            margin: 0,
+                            fontSize: '18px',
+                            fontWeight: '800',
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
                         <span style={{ fontSize: '22px' }}>{getIcon()}</span>
                         {detailModal.name}
                     </h3>
                     <button
                         onClick={closeModal}
+                        aria-label="Close modal"
                         style={{
                             background: 'rgba(255,255,255,0.2)',
                             border: '2px solid rgba(255,255,255,0.3)',

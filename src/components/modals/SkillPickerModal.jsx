@@ -81,12 +81,20 @@ const SkillPickerModal = ({
     };
 
     return (
-        <div className="modal-overlay" onClick={handleClose}>
-            <div className="modal" style={{ maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={handleClose} role="presentation">
+            <div
+                className="modal"
+                style={{ maxWidth: '500px' }}
+                onClick={e => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="skill-picker-modal-title"
+            >
                 <div className="modal-header">
-                    <h3>🎯 Pick Skills for {skillPickerModal.className}</h3>
+                    <h3 id="skill-picker-modal-title">🎯 Pick Skills for {skillPickerModal.className}</h3>
                     <button
                         onClick={handleClose}
+                        aria-label="Close modal"
                         style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
                     >
                         ×

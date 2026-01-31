@@ -319,11 +319,18 @@ const CustomSpeciesModal = ({
     const tierLabels = { basic: 'Basic', adv: 'Advanced', high: 'High' };
 
     return (
-        <div className="modal-overlay" onClick={handleClose}>
-            <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px', maxHeight: '90vh', overflow: 'auto' }}>
+        <div className="modal-overlay" onClick={handleClose} role="presentation">
+            <div
+                className="modal"
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: '700px', maxHeight: '90vh', overflow: 'auto' }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="custom-species-modal-title"
+            >
                 <div className="modal-header">
-                    <h3>{editingIndex !== null ? 'Edit Custom Species' : 'Create Custom Species'}</h3>
-                    <button onClick={handleClose} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>×</button>
+                    <h3 id="custom-species-modal-title">{editingIndex !== null ? 'Edit Custom Species' : 'Create Custom Species'}</h3>
+                    <button onClick={handleClose} aria-label="Close modal" style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>×</button>
                 </div>
                 <div className="modal-content">
                     {/* Data Status */}

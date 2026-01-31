@@ -72,12 +72,20 @@ const CustomMoveModal = ({
     };
 
     return (
-        <div className="modal-overlay" onClick={handleClose}>
-            <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '550px' }}>
+        <div className="modal-overlay" onClick={handleClose} role="presentation">
+            <div
+                className="modal"
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: '550px' }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="custom-move-modal-title"
+            >
                 <div className="modal-header">
-                    <h3>Create Custom Move</h3>
+                    <h3 id="custom-move-modal-title">Create Custom Move</h3>
                     <button
                         onClick={handleClose}
+                        aria-label="Close modal"
                         style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
                     >
                         ×

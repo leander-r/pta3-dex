@@ -3265,6 +3265,7 @@ return (
                         movePokemonDown={movePokemonDown}
                         sortPokemonList={sortPokemonList}
                         pokedex={pokedex}
+                        pokedexLoading={pokedexLoading}
                         GAME_DATA={GAME_DATA}
                         showDetail={showDetail}
                         getEvolutionOptions={getEvolutionOptions}

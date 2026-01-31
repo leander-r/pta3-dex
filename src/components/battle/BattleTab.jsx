@@ -583,7 +583,10 @@ const BattleTab = ({
                                         }}
                                     >
                                         <div>
-                                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>Combat Stages</span>
+                                            <span
+                                            style={{ fontSize: '12px', fontWeight: 'bold' }}
+                                            title="Combat Stages track stat buffs and debuffs from moves. Each positive stage increases the stat by 25%, each negative stage decreases it by 10%. Range: -6 to +6."
+                                        >Combat Stages</span>
                                             <span className="text-muted" style={{ fontSize: '10px', marginLeft: '8px' }}>
                                                 Buffs & debuffs from moves
                                             </span>
@@ -606,18 +609,18 @@ const BattleTab = ({
                                                 </div>
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                                                     {[
-                                                        { key: 'atk', label: 'ATK', color: '#f44336' },
-                                                        { key: 'def', label: 'DEF', color: '#2196f3' },
-                                                        { key: 'satk', label: 'SATK', color: '#9c27b0' },
-                                                        { key: 'sdef', label: 'SDEF', color: '#ff9800' },
-                                                        { key: 'spd', label: 'SPD', color: '#00bcd4' },
-                                                        { key: 'acc', label: 'ACC', color: '#4caf50' }
+                                                        { key: 'atk', label: 'ATK', color: '#f44336', desc: 'Attack - affects Physical move damage' },
+                                                        { key: 'def', label: 'DEF', color: '#2196f3', desc: 'Defense - reduces Physical damage taken' },
+                                                        { key: 'satk', label: 'SATK', color: '#9c27b0', desc: 'Special Attack - affects Special move damage' },
+                                                        { key: 'sdef', label: 'SDEF', color: '#ff9800', desc: 'Special Defense - reduces Special damage taken' },
+                                                        { key: 'spd', label: 'SPD', color: '#00bcd4', desc: 'Speed - determines turn order in battle' },
+                                                        { key: 'acc', label: 'ACC', color: '#4caf50', desc: 'Accuracy - adds/subtracts from hit roll (1d20)' }
                                                     ].map(stat => {
                                                         const baseStat = actualStats[stat.key] || 0;
                                                         const stages = combatStages[stat.key] || 0;
                                                         const modifiedStat = stat.key === 'acc' ? stages : getModifiedStat(baseStat, stages);
                                                         return (
-                                                            <div key={stat.key} className="combat-stat-box" style={{ textAlign: 'center', padding: '6px', borderRadius: '4px' }}>
+                                                            <div key={stat.key} className="combat-stat-box" style={{ textAlign: 'center', padding: '6px', borderRadius: '4px' }} title={stat.desc}>
                                                                 <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
                                                                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                                                                     {stat.key === 'acc' ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>
@@ -661,7 +664,10 @@ const BattleTab = ({
                             {/* STAB Toggle & AC Override */}
                             {selectedPokemon && (
                                 <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                                    <label
+                                        style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+                                        title="Same Type Attack Bonus - extra damage when using moves that match the Pokémon's type. Scales with level."
+                                    >
                                         <input
                                             type="checkbox"
                                             checked={applyStab}
@@ -669,7 +675,10 @@ const BattleTab = ({
                                         />
                                         <span style={{ fontSize: '12px' }}>Apply STAB</span>
                                     </label>
-                                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                    <span
+                                        style={{ fontSize: '11px', color: 'var(--text-secondary)' }}
+                                        title="Same Type Attack Bonus (STAB): +2 at Lv.1-10, +4 at Lv.11-20, +6 at Lv.21-40, +8 at Lv.41-60, +10 at Lv.61+"
+                                    >
                                         (+{calculateSTAB(selectedPokemon.level || 1)} for matching type)
                                     </span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override the move's default Accuracy Class. Higher AC = harder to hit.">
@@ -752,12 +761,12 @@ const BattleTab = ({
                                                 >
                                                     <div style={{ fontWeight: 'bold' }}>{move.name}</div>
                                                     <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                                                        {move.type} | {move.category} | {move.damage || 'Status'} | AC {(() => {
+                                                        {move.type} | {move.category} | {move.damage || 'Status'} | <span title="Accuracy Class - Roll 1d20, need to meet or beat this number to hit. Natural 20 always hits and crits.">AC {(() => {
                                                             const freq = move.frequency || move.freq;
                                                             if (!freq) return 2;
                                                             const match = freq.match(/[-–]\s*(\d+)/);
                                                             return match ? match[1] : 2;
-                                                        })()}
+                                                        })()}</span>
                                                     </div>
                                                 </button>
                                                 <button
@@ -883,9 +892,9 @@ const BattleTab = ({
                                 return (
                                     <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '12px' }}>
                                         <div><strong>{selectedSkill}</strong> ({skillData.stat})</div>
-                                        <div style={{ marginTop: '4px' }}>
+                                        <div style={{ marginTop: '4px' }} title="Roll 2d6 + stat modifier. Trained skills add a bonus: Rank 1 = +2 + modifier, Rank 2 = +4 + (2× modifier)">
                                             Roll: 2d6 {modifier >= 0 ? '+' : ''}{modifier} (stat)
-                                            {hasTrained && <span style={{ color: '#4caf50' }}> +{trainedBonus} (rank {skillRank})</span>}
+                                            {hasTrained && <span style={{ color: '#4caf50' }} title={`Rank ${skillRank} trained skill bonus`}> +{trainedBonus} (rank {skillRank})</span>}
                                         </div>
                                         <div className="text-muted" style={{ marginTop: '2px' }}>
                                             {skillData.description}
