@@ -3,10 +3,7 @@
 // ============================================================
 // Quick reference section with type chart, moves, abilities, etc.
 
-import React, { useState, useMemo } from 'react';
-import { GAME_DATA } from '../../data/configs.js';
-import { TYPE_CHART, POKEMON_TYPES } from '../../data/typeChart.js';
-import { getTypeColor } from '../../utils/typeUtils.js';
+import React, { useState } from 'react';
 
 // Sub-components for each reference section
 import TypeChartSection from './TypeChartSection.jsx';
@@ -18,10 +15,9 @@ import GameRulesSection from './GameRulesSection.jsx';
 
 /**
  * ReferenceTab - Quick reference database browser
- * @param {Object} props
- * @param {Function} props.showDetail - Function to show detail modal
+ * Sub-components use context for showDetail directly
  */
-const ReferenceTab = ({ showDetail }) => {
+const ReferenceTab = () => {
     const [activeSection, setActiveSection] = useState('types');
 
     const sections = [
@@ -53,8 +49,8 @@ const ReferenceTab = ({ showDetail }) => {
             {/* Content Sections */}
             {activeSection === 'types' && <TypeChartSection />}
             {activeSection === 'natures' && <NaturesSection />}
-            {activeSection === 'moves' && <MovesSection showDetail={showDetail} />}
-            {activeSection === 'abilities' && <AbilitiesSection showDetail={showDetail} />}
+            {activeSection === 'moves' && <MovesSection />}
+            {activeSection === 'abilities' && <AbilitiesSection />}
             {activeSection === 'rules' && <GameRulesSection />}
             {activeSection === 'exp' && <ExpChartSection />}
         </div>

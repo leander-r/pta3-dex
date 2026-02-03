@@ -12,19 +12,9 @@ import TrainerSkills from './TrainerSkills.jsx';
 
 /**
  * TrainerTab - Main trainer management container
+ * Sub-components use contexts directly
  */
-const TrainerTab = ({
-    trainer,
-    setTrainer,
-    levelUpTrainer,
-    levelDownTrainer,
-    respecTrainer,
-    updateTrainerStat,
-    calculateMaxHP,
-    calculateModifier,
-    GAME_DATA,
-    showDetail
-}) => {
+const TrainerTab = () => {
     return (
         <div>
             <h2 className="section-title">Trainer</h2>
@@ -32,44 +22,20 @@ const TrainerTab = ({
             {/* Top Section: Profile + Stats side by side */}
             <div className="grid-responsive-2 mb-lg">
                 {/* Profile Section */}
-                <TrainerProfile
-                    trainer={trainer}
-                    setTrainer={setTrainer}
-                    levelUpTrainer={levelUpTrainer}
-                    levelDownTrainer={levelDownTrainer}
-                    respecTrainer={respecTrainer}
-                    calculateMaxHP={calculateMaxHP}
-                />
+                <TrainerProfile />
 
                 {/* Stats Section */}
-                <TrainerStats
-                    trainer={trainer}
-                    updateTrainerStat={updateTrainerStat}
-                    calculateModifier={calculateModifier}
-                />
+                <TrainerStats />
             </div>
 
             {/* Classes Section */}
-            <TrainerClasses
-                trainer={trainer}
-                setTrainer={setTrainer}
-                GAME_DATA={GAME_DATA}
-            />
+            <TrainerClasses />
 
             {/* Features Section */}
-            <TrainerFeatures
-                trainer={trainer}
-                setTrainer={setTrainer}
-                GAME_DATA={GAME_DATA}
-                showDetail={showDetail}
-            />
+            <TrainerFeatures />
 
             {/* Skills Section */}
-            <TrainerSkills
-                trainer={trainer}
-                setTrainer={setTrainer}
-                GAME_DATA={GAME_DATA}
-            />
+            <TrainerSkills />
         </div>
     );
 };

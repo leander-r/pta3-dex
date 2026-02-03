@@ -560,6 +560,10 @@ export const DataProvider = ({
     }, [discordWebhook.enabled, discordWebhook.url]);
 
     const value = {
+        // Inventory State
+        inventory,
+        setInventory,
+
         // Persistence
         saveData,
         loadData,

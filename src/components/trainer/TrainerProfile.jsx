@@ -3,15 +3,21 @@
 // ============================================================
 
 import React from 'react';
+import { useTrainerContext } from '../../contexts/index.js';
 
-const TrainerProfile = ({
-    trainer,
-    setTrainer,
-    levelUpTrainer,
-    levelDownTrainer,
-    respecTrainer,
-    calculateMaxHP
-}) => {
+/**
+ * TrainerProfile - Trainer profile management
+ * Uses TrainerContext for state management
+ */
+const TrainerProfile = () => {
+    const {
+        trainer,
+        setTrainer,
+        levelUpTrainer,
+        levelDownTrainer,
+        respecTrainer,
+        calculateMaxHP
+    } = useTrainerContext();
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {

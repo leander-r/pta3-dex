@@ -3,6 +3,7 @@
 // ============================================================
 
 import React from 'react';
+import { useTrainerContext } from '../../contexts/index.js';
 
 const STAT_CONFIG = [
     { key: 'hp', label: 'HP', color: '#e53935' },
@@ -13,7 +14,12 @@ const STAT_CONFIG = [
     { key: 'spd', label: 'SPD', color: '#00bcd4' }
 ];
 
-const TrainerStats = ({ trainer, updateTrainerStat, calculateModifier }) => {
+/**
+ * TrainerStats - Trainer stats management
+ * Uses TrainerContext for state management
+ */
+const TrainerStats = () => {
+    const { trainer, updateTrainerStat, calculateModifier } = useTrainerContext();
     return (
         <div className="section-card-purple">
             <h3 className="section-title-purple">
@@ -28,7 +34,7 @@ const TrainerStats = ({ trainer, updateTrainerStat, calculateModifier }) => {
 
             <div className="grid-responsive-3 trainer-stats-grid">
                 {STAT_CONFIG.map(stat => {
-                    const mod = calculateModifier(trainer.stats[stat.key]);
+                    const mod = calculateModifier(stat.key);
                     return (
                         <div
                             key={stat.key}

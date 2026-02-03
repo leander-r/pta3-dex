@@ -6,8 +6,10 @@ import React, { useState, useMemo } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
+import { useGameData, useUI, usePokemonContext } from '../../contexts/index.js';
 
 const PokemonCard = ({
+    // Pokemon-specific props (must be passed per-card)
     pokemon,
     isEditing,
     setEditing,
@@ -21,18 +23,14 @@ const PokemonCard = ({
     onMoveDown,
     canMoveUp,
     canMoveDown,
-    pokedex,
-    pokedexLoading,
-    GAME_DATA,
-    showDetail,
-    getEvolutionOptions,
+    // These props are kept for backward compatibility during migration
     evolvePokemon,
-    devolvePokemon,
-    customSpecies,
-    setCustomSpecies,
-    setShowCustomSpeciesModal,
-    setEditingCustomSpeciesId
+    devolvePokemon
 }) => {
+    // Get shared state from contexts
+    const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
+    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData } = useUI();
+    const { getEvolutionOptions } = usePokemonContext();
     const [editTab, setEditTab] = useState('info');
     const [speciesSearch, setSpeciesSearch] = useState('');
     const [speciesTypeFilter, setSpeciesTypeFilter] = useState('all');
@@ -43,8 +41,6 @@ const PokemonCard = ({
     const [moveTypeFilter, setMoveTypeFilter] = useState('all');
     const [moveCategoryFilter, setMoveCategoryFilter] = useState('all');
     const [showMoveDropdown, setShowMoveDropdown] = useState(false);
-    // Move replacement state (when trying to learn a 5th taught move)
-    const [pendingMoveReplacement, setPendingMoveReplacement] = useState(null); // { moveName, moveData, source }
     // Collapsed view expanded sections
     const [expandedSection, setExpandedSection] = useState(null); // 'abilities', 'moves', 'skills', or null
     // Regional form selection state
@@ -193,7 +189,25 @@ const PokemonCard = ({
                 alert('Cannot add natural move - no natural moves to replace.');
                 return;
             }
-            setPendingMoveReplacement({ moveName, moveData, source });
+            // Use the shared MoveLearnModal
+            setMoveLearnData({
+                pokemonId: pokemon.id,
+                pokemonName: pokemon.name || pokemon.species,
+                newMove: {
+                    move: moveName,
+                    type: moveData.type,
+                    category: moveData.category,
+                    damage: moveData.damage,
+                    frequency: moveData.frequency,
+                    range: moveData.range,
+                    effect: moveData.effect,
+                    source: source
+                },
+                currentMoves: pokemon.moves || [],
+                inParty: isInParty,
+                source: source
+            });
+            setShowMoveLearnModal(true);
             return;
         }
 
@@ -203,7 +217,25 @@ const PokemonCard = ({
                 alert('Cannot add taught move - no taught moves to replace.');
                 return;
             }
-            setPendingMoveReplacement({ moveName, moveData, source });
+            // Use the shared MoveLearnModal
+            setMoveLearnData({
+                pokemonId: pokemon.id,
+                pokemonName: pokemon.name || pokemon.species,
+                newMove: {
+                    move: moveName,
+                    type: moveData.type,
+                    category: moveData.category,
+                    damage: moveData.damage,
+                    frequency: moveData.frequency,
+                    range: moveData.range,
+                    effect: moveData.effect,
+                    source: source
+                },
+                currentMoves: pokemon.moves || [],
+                inParty: isInParty,
+                source: source
+            });
+            setShowMoveLearnModal(true);
             return;
         }
 
@@ -223,37 +255,6 @@ const PokemonCard = ({
         setMoveSearch('');
         setMoveTypeFilter('all');
         setMoveCategoryFilter('all');
-    };
-
-    // Handle replacing an existing taught move with a new one
-    const handleMoveReplacement = (moveToForget) => {
-        if (!pendingMoveReplacement) return;
-
-        const { moveName, moveData, source } = pendingMoveReplacement;
-
-        // Remove the old move and add the new one
-        const newMoves = (pokemon.moves || []).filter(m => m.name !== moveToForget);
-        newMoves.push({
-            name: moveName,
-            type: moveData.type,
-            category: moveData.category,
-            damage: moveData.damage,
-            frequency: moveData.frequency,
-            range: moveData.range,
-            effect: moveData.effect,
-            source: source
-        });
-
-        updatePokemon({ moves: newMoves });
-        setPendingMoveReplacement(null);
-        setMoveSearch('');
-        setMoveTypeFilter('all');
-        setMoveCategoryFilter('all');
-    };
-
-    // Cancel move replacement
-    const cancelMoveReplacement = () => {
-        setPendingMoveReplacement(null);
     };
 
     // Calculate current move counts for UI
@@ -324,6 +325,20 @@ const PokemonCard = ({
 
         const initialAbilities = availableAbilities.length > 0 ? [availableAbilities[0].name] : [];
 
+        // Auto-add starting moves (level 0 and 1) as natural moves
+        const startingMoves = levelUpMoves
+            .filter(m => m.level <= 1)
+            .slice(0, 4) // Max 4 natural moves
+            .map(m => {
+                const moveData = GAME_DATA?.moves?.[m.move];
+                return {
+                    name: m.move,
+                    source: 'natural',
+                    learnedAtLevel: m.level,
+                    type: moveData?.type || 'Normal'
+                };
+            });
+
         updatePokemon({
             species: speciesData.species,
             name: pokemon.name === 'New Pokemon' || !pokemon.name ? speciesData.species : pokemon.name,
@@ -332,6 +347,7 @@ const PokemonCard = ({
             abilities: initialAbilities,
             availableAbilities: availableAbilities,
             availableLevelUpMoves: levelUpMoves,
+            moves: startingMoves,
             regionalForm: isRegional ? regionalForm.name : null,
             pokemonSkills: speciesData.skills ? Object.entries(speciesData.skills).map(([name, value]) => ({ name, value })) : []
         });
@@ -537,7 +553,7 @@ const PokemonCard = ({
                                 </button>
                             )}
                             {/* Skills Button */}
-                            {(pokemon.pokemonSkills || []).length > 0 && (
+                            {(pokemon.pokemonSkills || []).filter(s => s.value > 0).length > 0 && (
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -557,7 +573,7 @@ const PokemonCard = ({
                                         gap: '4px'
                                     }}
                                 >
-                                    <span>🐾</span> Skills ({(pokemon.pokemonSkills || []).length})
+                                    <span>🐾</span> Skills ({(pokemon.pokemonSkills || []).filter(s => s.value > 0).length})
                                 </button>
                             )}
                         </div>
@@ -628,7 +644,7 @@ const PokemonCard = ({
                         {/* Expanded Skills */}
                         {expandedSection === 'skills' && (
                             <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: 'var(--collapsed-skills-bg)', borderRadius: '8px' }}>
-                                {(pokemon.pokemonSkills || []).map((skill, idx) => (
+                                {(pokemon.pokemonSkills || []).filter(s => s.value > 0).map((skill, idx) => (
                                     <span
                                         key={idx}
                                         onClick={(e) => {
@@ -2065,13 +2081,13 @@ const PokemonCard = ({
                             Pokemon Skills (from species data)
                         </div>
 
-                        {(pokemon.pokemonSkills || []).length === 0 ? (
+                        {(pokemon.pokemonSkills || []).filter(s => s.value > 0).length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
                                 No skills data for this species
                             </div>
                         ) : (
                             <div style={{ display: 'grid', gap: '8px' }}>
-                                {(pokemon.pokemonSkills || []).map((skill, idx) => (
+                                {(pokemon.pokemonSkills || []).filter(s => s.value > 0).map((skill, idx) => (
                                     <div
                                         key={idx}
                                         onClick={() => {
@@ -2089,19 +2105,18 @@ const PokemonCard = ({
                                                 showDetail('pokemonSkill', skill.name, { ...skillData, value: skill.value });
                                             }
                                         }}
+                                        className="skill-display-item"
                                         style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
                                             padding: '10px 12px',
-                                            background: 'white',
+                                            background: 'var(--bg-primary)',
                                             borderRadius: '6px',
-                                            borderLeft: `4px solid ${skill.value !== undefined ? '#9c27b0' : '#4caf50'}`,
+                                            borderLeft: `4px solid ${skill.value !== undefined ? 'var(--skill-value-color, #9c27b0)' : 'var(--skill-no-value-color, #4caf50)'}`,
                                             cursor: showDetail ? 'pointer' : 'default',
                                             transition: 'background 0.2s ease'
                                         }}
-                                        onMouseEnter={(e) => { if (showDetail) e.currentTarget.style.background = '#f5f5f5'; }}
-                                        onMouseLeave={(e) => { if (showDetail) e.currentTarget.style.background = 'white'; }}
                                     >
                                         <div style={{ fontWeight: 'bold', fontSize: '13px' }}>
                                             {skill.name}
@@ -2109,7 +2124,7 @@ const PokemonCard = ({
                                         {skill.value !== undefined && (
                                             <div style={{
                                                 padding: '4px 10px',
-                                                background: '#9c27b0',
+                                                background: 'var(--skill-value-color, #9c27b0)',
                                                 color: 'white',
                                                 borderRadius: '12px',
                                                 fontSize: '12px',
@@ -2226,163 +2241,6 @@ const PokemonCard = ({
                 )}
             </div>
 
-            {/* Move Replacement Modal */}
-            {pendingMoveReplacement && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'rgba(0,0,0,0.6)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1000
-                    }}
-                    onClick={cancelMoveReplacement}
-                >
-                    <div
-                        style={{
-                            background: 'var(--card-bg, white)',
-                            borderRadius: '12px',
-                            padding: '20px',
-                            maxWidth: '450px',
-                            width: '90%',
-                            maxHeight: '80vh',
-                            overflow: 'auto',
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
-                            Learn {pendingMoveReplacement.moveName}?
-                        </h3>
-                        <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--text-secondary, #666)' }}>
-                            {pokemon.name || pokemon.species} already knows 4 {pendingMoveReplacement.source === 'natural' ? 'Natural' : 'Taught'} moves. Choose a move to forget:
-                        </p>
-
-                        {/* Current moves of the same type */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-                            {(pokemon.moves || [])
-                                .filter(m => m.source === pendingMoveReplacement.source)
-                                .map((move, idx) => {
-                                    const moveData = GAME_DATA.moves?.[move.name] || move;
-                                    return (
-                                        <button
-                                            key={idx}
-                                            onClick={() => handleMoveReplacement(move.name)}
-                                            style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                padding: '12px',
-                                                background: 'var(--bg-secondary, #f5f5f5)',
-                                                border: '2px solid transparent',
-                                                borderRadius: '8px',
-                                                cursor: 'pointer',
-                                                textAlign: 'left',
-                                                transition: 'all 0.15s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.borderColor = '#f44336';
-                                                e.currentTarget.style.background = 'rgba(244,67,54,0.1)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.borderColor = 'transparent';
-                                                e.currentTarget.style.background = 'var(--bg-secondary, #f5f5f5)';
-                                            }}
-                                        >
-                                            <div>
-                                                <div style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text-primary)' }}>
-                                                    {move.name}
-                                                </div>
-                                                <div style={{ fontSize: '11px', color: 'var(--text-secondary, #666)' }}>
-                                                    {moveData.damage || 'Status'} | {moveData.frequency}
-                                                </div>
-                                            </div>
-                                            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                                                <span style={{
-                                                    padding: '2px 6px',
-                                                    background: getTypeColor(moveData.type || move.type),
-                                                    color: 'white',
-                                                    borderRadius: '4px',
-                                                    fontSize: '10px',
-                                                    fontWeight: 'bold'
-                                                }}>
-                                                    {moveData.type || move.type}
-                                                </span>
-                                                <span style={{
-                                                    padding: '4px 8px',
-                                                    background: '#f44336',
-                                                    color: 'white',
-                                                    borderRadius: '4px',
-                                                    fontSize: '11px',
-                                                    fontWeight: 'bold'
-                                                }}>
-                                                    Forget
-                                                </span>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                        </div>
-
-                        {/* New move preview */}
-                        <div style={{
-                            padding: '12px',
-                            background: pendingMoveReplacement.source === 'natural'
-                                ? 'linear-gradient(135deg, rgba(76,175,80,0.1), rgba(76,175,80,0.05))'
-                                : 'linear-gradient(135deg, rgba(33,150,243,0.1), rgba(33,150,243,0.05))',
-                            borderRadius: '8px',
-                            border: `2px solid ${pendingMoveReplacement.source === 'natural' ? '#4caf50' : '#2196f3'}`,
-                            marginBottom: '16px'
-                        }}>
-                            <div style={{ fontSize: '11px', color: pendingMoveReplacement.source === 'natural' ? '#4caf50' : '#2196f3', fontWeight: 'bold', marginBottom: '4px' }}>
-                                NEW {pendingMoveReplacement.source === 'natural' ? 'NATURAL' : 'TAUGHT'} MOVE
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <div style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text-primary)' }}>
-                                        {pendingMoveReplacement.moveName}
-                                    </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-secondary, #666)' }}>
-                                        {pendingMoveReplacement.moveData.damage || 'Status'} | {pendingMoveReplacement.moveData.frequency}
-                                    </div>
-                                </div>
-                                <span style={{
-                                    padding: '2px 6px',
-                                    background: getTypeColor(pendingMoveReplacement.moveData.type),
-                                    color: 'white',
-                                    borderRadius: '4px',
-                                    fontSize: '10px',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {pendingMoveReplacement.moveData.type}
-                                </span>
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={cancelMoveReplacement}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                background: 'var(--bg-secondary, #f5f5f5)',
-                                border: '1px solid var(--border-medium, #ddd)',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                color: 'var(--text-primary)',
-                                fontWeight: 'bold'
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

@@ -5,14 +5,17 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
+import { useUI, useTrainerContext } from '../../contexts/index.js';
 
-const CustomFeatureModal = ({
-    showCustomFeatureModal,
-    setShowCustomFeatureModal,
-    customFeature,
-    setCustomFeature,
-    setTrainer
-}) => {
+/**
+ * CustomFeatureModal - Modal for creating custom trainer features
+ * Uses UIContext for modal state, TrainerContext for updating trainer
+ */
+const CustomFeatureModal = () => {
+    // Get from contexts
+    const { showCustomFeatureModal, setShowCustomFeatureModal, customFeature, setCustomFeature } = useUI();
+    const { setTrainer } = useTrainerContext();
+
     const handleClose = () => setShowCustomFeatureModal(false);
 
     const { modalRef } = useModalKeyboard(showCustomFeatureModal, handleClose);

@@ -3,6 +3,7 @@
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
+import { useUI, useTrainerContext, useGameData } from '../../contexts/index.js';
 
 // Features that modify trainer stats when acquired
 // Format: { featureName: { stat: 'statName', value: number } } for auto-apply
@@ -34,7 +35,14 @@ const STAT_LABELS = {
     spd: 'Speed'
 };
 
-const TrainerFeatures = ({ trainer, setTrainer, GAME_DATA, showDetail }) => {
+/**
+ * TrainerFeatures - Manage trainer features/abilities
+ * Uses contexts for state management
+ */
+const TrainerFeatures = () => {
+    const { showDetail } = useUI();
+    const { trainer, setTrainer } = useTrainerContext();
+    const { GAME_DATA } = useGameData();
     const [featureFilter, setFeatureFilter] = useState('all');
     const [featureSearch, setFeatureSearch] = useState('');
     const [pendingStatFeature, setPendingStatFeature] = useState(null); // { name, data, featureData }

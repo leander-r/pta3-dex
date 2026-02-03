@@ -3,6 +3,7 @@
 // ============================================================
 
 import React from 'react';
+import { useTrainerContext, useGameData } from '../../contexts/index.js';
 
 const SKILL_STATS = ['HP', 'ATK', 'DEF', 'SATK', 'SDEF', 'SPD'];
 
@@ -50,7 +51,13 @@ const calculateSkillBonus = (rank, statValue) => {
     return baseBonus + modBonus;
 };
 
-const TrainerSkills = ({ trainer, setTrainer, GAME_DATA }) => {
+/**
+ * TrainerSkills - Manage trainer skills
+ * Uses contexts for state management
+ */
+const TrainerSkills = () => {
+    const { trainer, setTrainer } = useTrainerContext();
+    const { GAME_DATA } = useGameData();
     const currentSkills = trainer.skills || {};
 
     const handleCycleRank = (skillName, isHPSkill) => {

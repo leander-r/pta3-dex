@@ -9,38 +9,18 @@ import { MAX_PARTY_SIZE } from '../../data/constants.js';
 import { importSinglePokemon } from '../../utils/exportUtils.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
+import { useGameData, useUI, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
 
 /**
  * PokemonTab - Main Pokemon management container
+ * Uses contexts directly for all state
  */
-const PokemonTab = ({
-    party,
-    reserve,
-    pokemonView,
-    setPokemonView,
-    editingPokemonId,
-    setEditingPokemonId,
-    addPokemon,
-    updatePokemon,
-    deletePokemon,
-    moveToParty,
-    moveToReserve,
-    movePokemonUp,
-    movePokemonDown,
-    sortPokemonList,
-    pokedex,
-    pokedexLoading,
-    GAME_DATA,
-    showDetail,
-    getEvolutionOptions,
-    evolvePokemon,
-    devolvePokemon,
-    importPokemon,
-    customSpecies,
-    setCustomSpecies,
-    setShowCustomSpeciesModal,
-    setEditingCustomSpeciesId
-}) => {
+const PokemonTab = () => {
+    // Get state from contexts
+    const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
+    const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId } = useUI();
+    const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList } = useTrainerContext();
+    const { addPokemon, updatePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
     const [filter, setFilter] = useState({
         search: '',
         type: ''
@@ -425,17 +405,8 @@ const PokemonTab = ({
                             onMoveDown={() => movePokemonDown(pokemon.id, pokemonView === 'party')}
                             canMoveUp={index > 0}
                             canMoveDown={index < filteredList.length - 1}
-                            pokedex={pokedex}
-                            pokedexLoading={pokedexLoading}
-                            GAME_DATA={GAME_DATA}
-                            showDetail={showDetail}
-                            getEvolutionOptions={getEvolutionOptions}
                             evolvePokemon={evolvePokemon}
                             devolvePokemon={devolvePokemon}
-                            customSpecies={customSpecies}
-                            setCustomSpecies={setCustomSpecies}
-                            setShowCustomSpeciesModal={setShowCustomSpeciesModal}
-                            setEditingCustomSpeciesId={setEditingCustomSpeciesId}
                         />
                     ))}
                 </div>

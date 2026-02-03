@@ -16,7 +16,16 @@ export const useUI = () => {
     return context;
 };
 
-export const UIProvider = ({ children }) => {
+export const UIProvider = ({
+    children,
+    // Move Learn Modal props (from App.jsx via AppProviders)
+    showMoveLearnModal: propShowMoveLearnModal,
+    setShowMoveLearnModal: propSetShowMoveLearnModal,
+    moveLearnData: propMoveLearnData,
+    setMoveLearnData: propSetMoveLearnData,
+    pendingMoveLearn: propPendingMoveLearn,
+    setPendingMoveLearn: propSetPendingMoveLearn
+}) => {
     // Navigation & UI State
     const [activeTab, setActiveTab] = useState('trainer');
     const [referenceTab, setReferenceTab] = useState('types');
@@ -52,10 +61,18 @@ export const UIProvider = ({ children }) => {
     const [showRegionalFormModal, setShowRegionalFormModal] = useState(false);
     const [regionalFormData, setRegionalFormData] = useState(null);
 
-    // Move Learning Modal State
-    const [showMoveLearnModal, setShowMoveLearnModal] = useState(false);
-    const [moveLearnData, setMoveLearnData] = useState(null);
-    const [pendingMoveLearn, setPendingMoveLearn] = useState([]);
+    // Move Learning Modal State - use props if provided, otherwise use local state (for backwards compat)
+    const [localShowMoveLearnModal, setLocalShowMoveLearnModal] = useState(false);
+    const [localMoveLearnData, setLocalMoveLearnData] = useState(null);
+    const [localPendingMoveLearn, setLocalPendingMoveLearn] = useState([]);
+
+    // Use props if provided, otherwise fall back to local state
+    const showMoveLearnModal = propShowMoveLearnModal !== undefined ? propShowMoveLearnModal : localShowMoveLearnModal;
+    const setShowMoveLearnModal = propSetShowMoveLearnModal || setLocalShowMoveLearnModal;
+    const moveLearnData = propMoveLearnData !== undefined ? propMoveLearnData : localMoveLearnData;
+    const setMoveLearnData = propSetMoveLearnData || setLocalMoveLearnData;
+    const pendingMoveLearn = propPendingMoveLearn !== undefined ? propPendingMoveLearn : localPendingMoveLearn;
+    const setPendingMoveLearn = propSetPendingMoveLearn || setLocalPendingMoveLearn;
 
     // Card Export Modal State
     const [showCardModal, setShowCardModal] = useState(false);

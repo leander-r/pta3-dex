@@ -3,8 +3,15 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useTrainerContext, useGameData } from '../../contexts/index.js';
 
-const TrainerClasses = ({ trainer, setTrainer, GAME_DATA }) => {
+/**
+ * TrainerClasses - Manage trainer classes
+ * Uses contexts for state management
+ */
+const TrainerClasses = () => {
+    const { trainer, setTrainer } = useTrainerContext();
+    const { GAME_DATA } = useGameData();
     const maxClasses = trainer.level < 5 ? 1 : trainer.level < 12 ? 2 : trainer.level < 24 ? 3 : 4;
     const currentClasses = trainer.classes || [];
 

@@ -4,8 +4,14 @@
 
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
+import { useData } from '../../contexts/index.js';
 
-const InventoryTab = ({ inventory, setInventory, showDetail }) => {
+/**
+ * InventoryTab - Inventory management interface
+ * Uses DataContext for inventory state
+ */
+const InventoryTab = () => {
+    const { inventory, setInventory } = useData();
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddItem, setShowAddItem] = useState(false);

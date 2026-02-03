@@ -4,25 +4,31 @@
 // App header with trainer selector and menu
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTrainerContext, useData, useUI } from '../../contexts/index.js';
 
 /**
  * Header - App header with trainer selector and character menu
+ * Uses TrainerContext for trainer data, DataContext for import/export, UIContext for theme
  */
-const Header = ({
-    trainers,
-    trainer,
-    activeTrainerId,
-    setActiveTrainerId,
-    addNewTrainer,
-    deleteTrainer,
-    duplicateTrainer,
-    exportSingleTrainer,
-    exportAllData,
-    onImport,
-    onExportCard,
-    theme,
-    setTheme
-}) => {
+const Header = () => {
+    // Get from contexts
+    const {
+        trainers,
+        trainer,
+        activeTrainerId,
+        setActiveTrainerId,
+        addNewTrainer,
+        deleteTrainer,
+        duplicateTrainer
+    } = useTrainerContext();
+    const { exportSingleTrainer, exportAllData, importData } = useData();
+    const { theme, setTheme, setShowCardModal, setEditingPokemon } = useUI();
+
+    // Handler for trainer selection that also clears editing state
+    const handleTrainerChange = (id) => {
+        setActiveTrainerId(id);
+        setEditingPokemon(null);
+    };
     const [showCharacterMenu, setShowCharacterMenu] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -219,7 +225,7 @@ const Header = ({
                 >
                     <select
                         value={activeTrainerId || ''}
-                        onChange={(e) => setActiveTrainerId(parseInt(e.target.value))}
+                        onChange={(e) => handleTrainerChange(parseInt(e.target.value))}
                         className="header-trainer-select"
                         style={{
                             paddingTop: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
@@ -402,7 +408,7 @@ const Header = ({
                                     }
                                     label="Export Cards"
                                     onClick={() => {
-                                        if (onExportCard) onExportCard();
+                                        setShowCardModal(true);
                                         setShowCharacterMenu(false);
                                     }}
                                 />
@@ -484,7 +490,7 @@ const Header = ({
                                         accept=".json"
                                         onChange={(e) => {
                                             if (e.target.files[0]) {
-                                                onImport(e.target.files[0]);
+                                                importData(e.target.files[0]);
                                                 setShowCharacterMenu(false);
                                             }
                                         }}

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
+import { useUI, usePokemonContext } from '../../contexts/index.js';
 
 const TYPE_LIST = [
     'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
@@ -20,25 +21,28 @@ const FREQUENCY_OPTIONS = [
     'Daily'
 ];
 
-const CustomMoveModal = ({
-    showCustomMoveModal,
-    setShowCustomMoveModal,
-    customMove,
-    setCustomMove,
-    customMoveForPokemon,
-    pokemon,
-    updatePokemon
-}) => {
+/**
+ * CustomMoveModal - Modal for creating custom Pokemon moves
+ * Uses UIContext for modal state, PokemonContext for pokemon data
+ */
+const CustomMoveModal = () => {
+    // Get from contexts
+    const { showCustomMoveModal, setShowCustomMoveModal, customMove, setCustomMove, customMoveForPokemon } = useUI();
+    const { party, reserve, updatePokemon } = usePokemonContext();
+
     const handleClose = () => setShowCustomMoveModal(false);
 
     const { modalRef } = useModalKeyboard(showCustomMoveModal, handleClose);
 
     if (!showCustomMoveModal) return null;
 
+    // Combine party and reserve for searching
+    const allPokemon = [...(party || []), ...(reserve || [])];
+
     const handleAddMove = () => {
         if (!customMove.name || !customMoveForPokemon) return;
 
-        const targetPoke = pokemon.find(p => p.id === customMoveForPokemon);
+        const targetPoke = allPokemon.find(p => p.id === customMoveForPokemon);
         if (!targetPoke) return;
 
         // Check for duplicate move

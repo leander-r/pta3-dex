@@ -4,14 +4,14 @@
 // Campaign notes editor
 
 import React, { useState } from 'react';
+import { useTrainerContext } from '../../contexts/index.js';
 
 /**
  * NotesTab - Campaign notes editor
- * @param {Object} props
- * @param {Object} props.trainer - Current trainer object
- * @param {Function} props.setTrainer - Function to update trainer
+ * Uses TrainerContext for trainer state
  */
-const NotesTab = ({ trainer, setTrainer }) => {
+const NotesTab = () => {
+    const { trainer, setTrainer } = useTrainerContext();
     const [isFocused, setIsFocused] = useState(false);
 
     const handleNotesChange = (e) => {

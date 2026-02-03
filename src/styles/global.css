@@ -44,6 +44,34 @@
             --text-muted: #6b7280;
             --text-light: #9ca3af;
 
+            /* Status colors */
+            --warning-bg: #fff3cd;
+            --warning-border: #ffc107;
+            --warning-text: #856404;
+            --success-bg: #e8f5e9;
+            --success-border: #4caf50;
+            --success-text: #2e7d32;
+
+            /* Button gradient colors */
+            --success-header-start: #4caf50;
+            --success-header-end: #2e7d32;
+            --danger-btn-start: #f44336;
+            --danger-btn-end: #d32f2f;
+
+            /* Skill display colors */
+            --skill-value-color: #9c27b0;
+            --skill-no-value-color: #4caf50;
+
+            /* Move replacement modal colors */
+            --move-replace-hover-bg: rgba(244,67,54,0.1);
+            --move-preview-natural-bg: linear-gradient(135deg, rgba(76,175,80,0.1), rgba(76,175,80,0.05));
+            --move-preview-taught-bg: linear-gradient(135deg, rgba(33,150,243,0.1), rgba(33,150,243,0.05));
+            --info-border: #2196f3;
+            --info-text: #1976d2;
+            --info-bg: rgba(33, 150, 243, 0.1);
+            --info-header-start: #2196f3;
+            --info-header-end: #1565c0;
+
             /* NEW: Consistent component colors */
             --section-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             --section-border: #e0e0e0;
@@ -190,6 +218,34 @@
             --input-border-focus: var(--poke-orange);
             --input-bg: #2a2a3a;
             --input-bg-hover: #323242;
+
+            /* Status colors - dark mode */
+            --warning-bg: #3d3520;
+            --warning-border: #b8860b;
+            --warning-text: #ffd93d;
+            --success-bg: #1a3a2a;
+            --success-border: #4caf50;
+            --success-text: #81c784;
+
+            /* Button gradient colors - dark mode */
+            --success-header-start: #2e7d32;
+            --success-header-end: #1b5e20;
+            --danger-btn-start: #c62828;
+            --danger-btn-end: #b71c1c;
+
+            /* Skill display colors - dark mode */
+            --skill-value-color: #ce93d8;
+            --skill-no-value-color: #81c784;
+
+            /* Move replacement modal colors - dark mode */
+            --move-replace-hover-bg: rgba(244,67,54,0.2);
+            --move-preview-natural-bg: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
+            --move-preview-taught-bg: linear-gradient(135deg, rgba(33,150,243,0.2), rgba(33,150,243,0.1));
+            --info-border: #42a5f5;
+            --info-text: #64b5f6;
+            --info-bg: rgba(33, 150, 243, 0.2);
+            --info-header-start: #1976d2;
+            --info-header-end: #0d47a1;
 
             /* Body background - dark theme */
             --body-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -1619,6 +1675,354 @@
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        /* Move Learn Modal Items */
+        .move-learn-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-medium);
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .move-learn-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .move-learn-item .move-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .move-learn-item .move-level {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .move-learn-item .move-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Move Learn Modal Full Styles */
+        .move-learn-modal {
+            max-width: 500px;
+            padding: 0;
+        }
+
+        .move-learn-header {
+            background: linear-gradient(135deg, var(--success-header-start, #4caf50), var(--success-header-end, #2e7d32));
+            padding: 15px 20px;
+            border-radius: 17px 17px 0 0;
+        }
+
+        .move-learn-header h3 {
+            margin: 0;
+            color: white;
+            font-size: 18px;
+        }
+
+        .move-learn-content {
+            padding: 20px;
+        }
+
+        .move-learn-new-move-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .move-learn-pokemon-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .move-learn-new-move {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--success-text);
+            padding: 10px 20px;
+            background: var(--success-bg);
+            border-radius: 10px;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .move-learn-new-move:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .move-learn-info-icon {
+            font-size: 12px;
+            margin-left: 8px;
+            opacity: 0.7;
+        }
+
+        .move-learn-info-icon-small {
+            font-size: 11px;
+            margin-left: 6px;
+            opacity: 0.6;
+        }
+
+        .move-learn-move-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .move-learn-move-info .type-badge {
+            margin-right: 8px;
+        }
+
+        .move-learn-level {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .move-learn-warning {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--warning-text);
+        }
+
+        /* Taught move variants (blue instead of green) */
+        .move-learn-header.taught {
+            background: linear-gradient(135deg, var(--info-header-start, #2196f3), var(--info-header-end, #1565c0));
+        }
+
+        .move-learn-modal.taught .move-learn-new-move {
+            color: var(--info-text);
+            background: var(--info-bg, rgba(33, 150, 243, 0.1));
+        }
+
+        .move-learn-warning-text {
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .move-learn-current-moves {
+            margin-bottom: 20px;
+        }
+
+        .move-learn-section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .move-learn-moves-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .move-learn-item-info {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .move-learn-forget-btn {
+            background: linear-gradient(135deg, var(--danger-btn-start, #f44336), var(--danger-btn-end, #d32f2f));
+            color: white;
+            padding: 3px 8px;
+            font-size: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .move-learn-forget-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .move-learn-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .move-learn-actions .btn {
+            padding: 10px 24px;
+        }
+
+        .type-badge-small {
+            font-size: 10px;
+            padding: 1px 6px;
+            margin-right: 6px;
+        }
+
+        /* Skill display item hover */
+        .skill-display-item:hover {
+            background: var(--hover-bg) !important;
+        }
+
+        /* Move Replacement Modal */
+        .move-replacement-overlay {
+            z-index: 2001;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            isolation: isolate;
+        }
+
+        .move-replacement-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg, var(--poke-cream));
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 2002;
+        }
+
+        .move-replacement-title {
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+        }
+
+        .move-replacement-subtitle {
+            margin: 0 0 16px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .move-replacement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .move-replacement-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color 0.15s, background-color 0.15s;
+        }
+
+        .move-replacement-item:hover {
+            border-color: var(--danger-btn-start, #f44336);
+            background: var(--move-replace-hover-bg, rgba(244,67,54,0.1));
+        }
+
+        .move-replacement-item-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .move-replacement-item-info {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .move-replacement-item-badges {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .move-replacement-type-badge {
+            padding: 2px 6px;
+            color: white;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .move-replacement-forget-badge {
+            padding: 4px 8px;
+            background: var(--danger-btn-start, #f44336);
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .move-replacement-preview {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 2px solid;
+        }
+
+        .move-replacement-preview.natural {
+            background: var(--move-preview-natural-bg, linear-gradient(135deg, rgba(76,175,80,0.1), rgba(76,175,80,0.05)));
+            border-color: var(--success-border, #4caf50);
+        }
+
+        .move-replacement-preview.taught {
+            background: var(--move-preview-taught-bg, linear-gradient(135deg, rgba(33,150,243,0.1), rgba(33,150,243,0.05)));
+            border-color: var(--info-border, #2196f3);
+        }
+
+        .move-replacement-preview-label {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .move-replacement-preview.natural .move-replacement-preview-label {
+            color: var(--success-text, #4caf50);
+        }
+
+        .move-replacement-preview.taught .move-replacement-preview-label {
+            color: var(--info-text, #2196f3);
+        }
+
+        .move-replacement-preview-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .move-replacement-cancel {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: bold;
+            transition: background-color 0.15s;
+        }
+
+        .move-replacement-cancel:hover {
+            background: var(--hover-bg);
         }
 
         .modal-footer {

@@ -7,6 +7,7 @@ import React, { createContext, useContext, useCallback, useEffect } from 'react'
 import { GAME_DATA } from '../data/configs.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '../utils/dataUtils.js';
+import { useGameData } from './GameDataContext.jsx';
 
 const PokemonContext = createContext(null);
 
@@ -41,7 +42,6 @@ export const PokemonProvider = ({
     setPokemonView,
     editingPokemon,
     setEditingPokemon,
-    pokedex,
     customSpecies,
     pendingMoveLearn,
     setPendingMoveLearn,
@@ -51,8 +51,12 @@ export const PokemonProvider = ({
     onLevelUp,
     getMovesForLevelRange,
     inventory,
-    setInventory
+    setInventory,
+    showNotification
 }) => {
+    // Get pokedex from GameDataContext
+    const { pokedex } = useGameData();
+
     const pokemon = [...(party || []), ...(reserve || [])];
 
     // Add new Pokemon
@@ -111,12 +115,12 @@ export const PokemonProvider = ({
             const newMoveObj = {
                 name: moveName,
                 type: moveData.type || newMove.type || 'Normal',
-                category: moveData.category || 'Physical',
-                frequency: moveData.frequency || 'At-Will',
-                damage: moveData.damage || '',
-                range: moveData.range || 'Melee',
-                effect: moveData.effect || '',
-                source: 'natural',
+                category: moveData.category || newMove.category || 'Physical',
+                frequency: moveData.frequency || newMove.frequency || 'At-Will',
+                damage: moveData.damage || newMove.damage || '',
+                range: moveData.range || newMove.range || 'Melee',
+                effect: moveData.effect || newMove.effect || '',
+                source: newMove.source || 'natural',
                 learnedAtLevel: newMove.level
             };
 
@@ -564,6 +568,437 @@ export const PokemonProvider = ({
         return calcSTAB(level);
     }, []);
 
+    // Apply species data to a Pokemon (called directly or after regional form selection)
+    const applySpeciesToPokemon = useCallback((pokemonId, speciesData, regionalForm) => {
+        // Get the current Pokemon to check its level
+        const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
+        const currentLevel = currentPoke?.level || 1;
+
+        // Determine which data to use (base or regional form)
+        const isRegional = regionalForm && !regionalForm.isBase;
+        const formData = isRegional ? regionalForm : null;
+
+        // Determine which move lists to use based on form
+        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
+        const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
+        const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
+
+        const updates = {
+            species: speciesData.species,
+            types: formData ? [...formData.types] : [...speciesData.types],
+            baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
+            availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
+            pokedexId: speciesData.id,
+            regionalForm: isRegional ? regionalForm.name : null,
+            availableLevelUpMoves: levelUpMoves,
+            availableEggMoves: eggMoves,
+            availableTutorMoves: tutorMoves
+        };
+
+        // Set abilities using the correct field names (ability, ability2, ability3)
+        const abilities = formData?.abilities || speciesData.abilities;
+        if (abilities) {
+            if (abilities.basic && abilities.basic.length > 0) {
+                updates.ability = abilities.basic[0];
+            }
+            updates.ability2 = '';
+            updates.ability3 = '';
+        }
+
+        // Build Pokemon skills array from Pokédex skills object
+        const pokemonSkills = [];
+        if (speciesData.skills) {
+            const skillMappings = [
+                ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
+                ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
+                ['power', 'Power'], ['intelligence', 'Intelligence']
+            ];
+
+            skillMappings.forEach(([key, name]) => {
+                if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
+                    pokemonSkills.push({ name, value: speciesData.skills[key] });
+                }
+            });
+
+            const capabilityMappings = [
+                ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
+                ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
+                ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
+                ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
+                ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
+                ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
+                ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+                ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
+                ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
+                ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
+                ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
+                ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
+            ];
+            capabilityMappings.forEach(([key, name]) => {
+                if (speciesData.skills[key]) {
+                    pokemonSkills.push({ name });
+                }
+            });
+
+            if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
+                speciesData.skills.naturewalk.forEach(terrain => {
+                    pokemonSkills.push({ name: `Naturewalk (${terrain})` });
+                });
+            }
+        }
+        updates.pokemonSkills = pokemonSkills;
+
+        // Add starting moves based on current level
+        if (levelUpMoves && levelUpMoves.length > 0) {
+            const seenMoves = new Set();
+            const startingMoves = levelUpMoves
+                .filter(m => m.level <= currentLevel)
+                .filter(m => {
+                    const moveLower = m.move?.toLowerCase();
+                    if (seenMoves.has(moveLower)) return false;
+                    seenMoves.add(moveLower);
+                    return true;
+                })
+                .slice(0, 4)
+                .map(m => {
+                    const moveData = GAME_DATA.moves[m.move] || {};
+                    return {
+                        name: m.move,
+                        type: moveData.type || m.type || 'Normal',
+                        category: moveData.category || 'Physical',
+                        frequency: moveData.frequency || 'At-Will',
+                        damage: moveData.damage || '',
+                        range: moveData.range || 'Melee',
+                        effect: moveData.effect || '',
+                        source: 'natural',
+                        learnedAtLevel: m.level
+                    };
+                });
+
+            const hasNoMoves = !currentPoke?.moves || currentPoke.moves.length === 0;
+            const hasNoSpecies = !currentPoke?.species;
+            const speciesIsChanging = currentPoke?.species && currentPoke.species !== speciesData.species;
+
+            if (hasNoMoves || hasNoSpecies || speciesIsChanging) {
+                updates.moves = startingMoves;
+            }
+        }
+
+        updatePokemon(pokemonId, updates);
+    }, [party, reserve, updatePokemon]);
+
+    // Apply evolution to a Pokemon - preserves moves and only adds evolution (E) moves
+    const applyEvolutionToPokemon = useCallback((pokemonId, speciesData, regionalForm, inParty, consumedItem = null, previousSpecies = null) => {
+        const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
+        if (!currentPoke) return;
+
+        const isRegional = regionalForm && !regionalForm.isBase;
+        const formData = isRegional ? regionalForm : null;
+
+        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
+        const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
+        const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
+
+        const updates = {
+            species: speciesData.species,
+            types: formData ? [...formData.types] : [...speciesData.types],
+            baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
+            availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
+            pokedexId: speciesData.id,
+            regionalForm: isRegional ? regionalForm.name : null,
+            availableLevelUpMoves: levelUpMoves,
+            availableEggMoves: eggMoves,
+            availableTutorMoves: tutorMoves,
+            evolvedFrom: previousSpecies || currentPoke.species,
+            evolutionStoneUsed: consumedItem || null
+        };
+
+        // Update abilities
+        const newAbilities = formData?.abilities || speciesData.abilities;
+        if (newAbilities) {
+            const allValidAbilities = [
+                ...(newAbilities.basic || []),
+                ...(newAbilities.adv || []),
+                ...(newAbilities.high || [])
+            ];
+            if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
+                if (newAbilities.basic && newAbilities.basic.length > 0) {
+                    updates.ability = newAbilities.basic[0];
+                }
+            }
+            if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
+                updates.ability2 = '';
+            }
+            if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
+                updates.ability3 = '';
+            }
+        }
+
+        // Build Pokemon skills
+        const pokemonSkills = [];
+        if (speciesData.skills) {
+            const skillMappings = [
+                ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
+                ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
+                ['power', 'Power'], ['intelligence', 'Intelligence']
+            ];
+            skillMappings.forEach(([key, name]) => {
+                if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
+                    pokemonSkills.push({ name, value: speciesData.skills[key] });
+                }
+            });
+
+            const capabilityMappings = [
+                ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
+                ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
+                ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
+                ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
+                ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
+                ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
+                ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+                ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
+                ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
+                ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
+                ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
+                ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
+            ];
+            capabilityMappings.forEach(([key, name]) => {
+                if (speciesData.skills[key]) {
+                    pokemonSkills.push({ name });
+                }
+            });
+
+            if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
+                speciesData.skills.naturewalk.forEach(terrain => {
+                    pokemonSkills.push({ name: `Naturewalk (${terrain})` });
+                });
+            }
+        }
+        updates.pokemonSkills = pokemonSkills;
+
+        updatePokemon(pokemonId, updates);
+
+        // Queue evolution moves (level 0)
+        const evolutionMoves = levelUpMoves.filter(m => m.level === 0);
+        const currentMoves = currentPoke.moves || [];
+
+        if (evolutionMoves.length > 0) {
+            const movesToQueue = [];
+            evolutionMoves.forEach(evoMove => {
+                const alreadyKnows = currentMoves.some(m =>
+                    m.name?.toLowerCase() === evoMove.move?.toLowerCase()
+                );
+                if (!alreadyKnows) {
+                    movesToQueue.push({
+                        pokemonId: pokemonId,
+                        pokemonName: currentPoke.name || speciesData.species,
+                        newMove: { move: evoMove.move, type: evoMove.type || 'Normal', level: 0 },
+                        inParty: inParty,
+                        isEvolutionMove: true
+                    });
+                }
+            });
+            if (movesToQueue.length > 0) {
+                setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
+            }
+        }
+    }, [party, reserve, updatePokemon, setPendingMoveLearn]);
+
+    // Apply devolution to a Pokemon
+    const applyDevolutionToPokemon = useCallback((pokemonId, speciesData, regionalForm, inParty) => {
+        const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
+        if (!currentPoke) return;
+
+        const isRegional = regionalForm && !regionalForm.isBase;
+        const formData = isRegional ? regionalForm : null;
+
+        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
+        const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
+        const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
+
+        const updates = {
+            species: speciesData.species,
+            types: formData ? [...formData.types] : [...speciesData.types],
+            baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
+            availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
+            pokedexId: speciesData.id,
+            regionalForm: isRegional ? regionalForm.name : null,
+            availableLevelUpMoves: levelUpMoves,
+            availableEggMoves: eggMoves,
+            availableTutorMoves: tutorMoves,
+            evolvedFrom: null,
+            evolutionStoneUsed: null
+        };
+
+        // Update abilities
+        const newAbilities = formData?.abilities || speciesData.abilities;
+        if (newAbilities) {
+            const allValidAbilities = [
+                ...(newAbilities.basic || []),
+                ...(newAbilities.adv || []),
+                ...(newAbilities.high || [])
+            ];
+            if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
+                if (newAbilities.basic && newAbilities.basic.length > 0) {
+                    updates.ability = newAbilities.basic[0];
+                }
+            }
+            if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
+                updates.ability2 = '';
+            }
+            if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
+                updates.ability3 = '';
+            }
+        }
+
+        // Build Pokemon skills
+        const pokemonSkills = [];
+        if (speciesData.skills) {
+            const skillMappings = [
+                ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
+                ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
+                ['power', 'Power'], ['intelligence', 'Intelligence']
+            ];
+            skillMappings.forEach(([key, name]) => {
+                if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
+                    pokemonSkills.push({ name, value: speciesData.skills[key] });
+                }
+            });
+
+            const capabilityMappings = [
+                ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
+                ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
+                ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
+                ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
+                ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
+                ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
+                ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+                ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
+                ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
+                ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
+                ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
+                ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
+            ];
+            capabilityMappings.forEach(([key, name]) => {
+                if (speciesData.skills[key]) {
+                    pokemonSkills.push({ name });
+                }
+            });
+
+            if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
+                speciesData.skills.naturewalk.forEach(terrain => {
+                    pokemonSkills.push({ name: `Naturewalk (${terrain})` });
+                });
+            }
+        }
+        updates.pokemonSkills = pokemonSkills;
+
+        updatePokemon(pokemonId, updates);
+    }, [party, reserve, updatePokemon]);
+
+    // Handle Pokemon evolution
+    const evolvePokemon = useCallback((pokemonId, targetSpecies, targetRegionalForm, consumeItem) => {
+        const inParty = party.some(p => p.id === pokemonId);
+        const poke = inParty ? party.find(p => p.id === pokemonId) : reserve.find(p => p.id === pokemonId);
+        if (!poke) return;
+
+        let targetPokedexEntry = pokedex?.find(p => p.species === targetSpecies);
+        if (!targetPokedexEntry) {
+            targetPokedexEntry = customSpecies?.find(p => p.species === targetSpecies);
+        }
+        if (!targetPokedexEntry) {
+            alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
+            return;
+        }
+
+        if (consumeItem) {
+            if (!hasItemInInventory(consumeItem)) {
+                alert(`You don't have a ${consumeItem} in your inventory!`);
+                return;
+            }
+            removeItemFromInventory(consumeItem);
+        }
+
+        let finalRegionalForm = null;
+        if (targetRegionalForm) {
+            const matchingForm = targetPokedexEntry.regionalForms?.find(rf => rf.name === targetRegionalForm);
+            if (matchingForm) {
+                finalRegionalForm = { name: targetRegionalForm, isBase: false, ...matchingForm };
+            }
+        } else if (poke.regionalForm) {
+            const matchingForm = targetPokedexEntry.regionalForms?.find(rf => rf.name === poke.regionalForm);
+            if (matchingForm) {
+                finalRegionalForm = { name: poke.regionalForm, isBase: false, ...matchingForm };
+            }
+        }
+
+        applyEvolutionToPokemon(pokemonId, targetPokedexEntry, finalRegionalForm, inParty, consumeItem, poke.species);
+
+        const formName = finalRegionalForm?.name || targetRegionalForm;
+        if (showNotification) {
+            showNotification({
+                pokemon: poke.name || poke.species,
+                message: `evolved into ${formName ? formName + ' ' : ''}${targetSpecies}!`,
+                type: 'evolution'
+            });
+        }
+    }, [party, reserve, pokedex, customSpecies, hasItemInInventory, removeItemFromInventory, applyEvolutionToPokemon, showNotification]);
+
+    // Handle Pokemon devolution
+    const devolvePokemon = useCallback((pokemonId, targetSpecies) => {
+        const inParty = party.some(p => p.id === pokemonId);
+        const poke = inParty ? party.find(p => p.id === pokemonId) : reserve.find(p => p.id === pokemonId);
+        if (!poke) return;
+
+        let targetPokedexEntry = pokedex?.find(p => p.species === targetSpecies);
+        if (!targetPokedexEntry) {
+            targetPokedexEntry = customSpecies?.find(p => p.species === targetSpecies);
+        }
+        if (!targetPokedexEntry) {
+            alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
+            return;
+        }
+
+        const currentRegionalForm = poke.regionalForm;
+        let targetRegionalForm = null;
+        if (currentRegionalForm && targetPokedexEntry.regionalForms) {
+            const matchingForm = targetPokedexEntry.regionalForms.find(rf => rf.name === currentRegionalForm);
+            if (matchingForm) {
+                targetRegionalForm = { name: currentRegionalForm, isBase: false, ...matchingForm };
+            }
+        }
+
+        const devolveTargetName = targetRegionalForm ? `${targetRegionalForm.name} ${targetSpecies}` : targetSpecies;
+        const stoneToRefund = poke.evolutionStoneUsed;
+        const evolvedFromSpecies = poke.evolvedFrom;
+
+        let confirmMsg = `Are you sure you want to devolve ${poke.name || poke.species} back to ${devolveTargetName}?`;
+        if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+            confirmMsg += `\n\nYou will receive back: 1x ${stoneToRefund}`;
+        }
+
+        if (!confirm(confirmMsg)) return;
+
+        if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+            addItemToInventory(stoneToRefund);
+        }
+
+        applyDevolutionToPokemon(pokemonId, targetPokedexEntry, targetRegionalForm, inParty);
+
+        let notificationMsg = `devolved back to ${targetRegionalForm ? targetRegionalForm.name + ' ' : ''}${targetSpecies}!`;
+        if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+            notificationMsg += ` (${stoneToRefund} refunded)`;
+        }
+
+        if (showNotification) {
+            showNotification({
+                pokemon: poke.name || poke.species,
+                message: notificationMsg,
+                type: 'devolution'
+            });
+        }
+    }, [party, reserve, pokedex, customSpecies, addItemToInventory, applyDevolutionToPokemon, showNotification]);
+
     const value = {
         // State
         party,
@@ -579,6 +1014,7 @@ export const PokemonProvider = ({
         updatePokemon,
         deletePokemon,
         importPokemon,
+        applySpeciesToPokemon,
 
         // Moves
         learnMove,
@@ -586,6 +1022,8 @@ export const PokemonProvider = ({
 
         // Evolution
         getEvolutionOptions,
+        evolvePokemon,
+        devolvePokemon,
 
         // Inventory helpers
         hasItemInInventory,

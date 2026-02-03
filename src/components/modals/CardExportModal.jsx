@@ -8,21 +8,22 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { copyToClipboard, downloadCardAsImage } from '../../utils/exportUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
+import { useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 
-const CardExportModal = ({
-    showCardModal,
-    setShowCardModal,
-    cardType,
-    setCardType,
-    selectedCardPokemon,
-    setSelectedCardPokemon,
-    trainer,
-    party,
-    pokemon,
-    exportTrainerText,
-    exportTeamText,
-    exportPokemonText
-}) => {
+/**
+ * CardExportModal - Modal for exporting trainer/team/pokemon cards as images or text
+ * Uses UIContext for modal state, TrainerContext for trainer, PokemonContext for pokemon, DataContext for export functions
+ */
+const CardExportModal = () => {
+    // Get from contexts
+    const { showCardModal, setShowCardModal, cardType, setCardType, selectedCardPokemon, setSelectedCardPokemon } = useUI();
+    const { trainer } = useTrainerContext();
+    const { party, reserve } = usePokemonContext();
+    const { exportTrainerText, exportTeamText, exportPokemonText } = useData();
+
+    // Combine party and reserve for all pokemon
+    const allPokemon = [...(party || []), ...(reserve || [])];
+
     const handleClose = () => setShowCardModal(false);
 
     const { modalRef } = useModalKeyboard(showCardModal, handleClose);
@@ -32,9 +33,9 @@ const CardExportModal = ({
     const handleCopyText = () => {
         let text = '';
         if (cardType === 'trainer') {
-            text = exportTrainerText();
+            text = exportTrainerText(trainer);
         } else if (cardType === 'team') {
-            text = exportTeamText();
+            text = exportTeamText(trainer, party);
         } else if (selectedCardPokemon) {
             text = exportPokemonText(selectedCardPokemon);
         }
@@ -104,11 +105,11 @@ const CardExportModal = ({
                         <div className="mt-10">
                             <select
                                 value={selectedCardPokemon?.id || ''}
-                                onChange={(e) => setSelectedCardPokemon(pokemon.find(p => p.id === parseInt(e.target.value)))}
+                                onChange={(e) => setSelectedCardPokemon(allPokemon.find(p => p.id === parseInt(e.target.value)))}
                                 className="w-full"
                             >
                                 <option value="">Select a Pokémon...</option>
-                                {pokemon.map(p => (
+                                {allPokemon.map(p => (
                                     <option key={p.id} value={p.id}>{p.name} (Lv.{p.level})</option>
                                 ))}
                             </select>
@@ -118,7 +119,7 @@ const CardExportModal = ({
 
                 {/* Trainer Card Preview */}
                 {cardType === 'trainer' && (
-                    <TrainerCard trainer={trainer} pokemon={pokemon} />
+                    <TrainerCard trainer={trainer} pokemon={allPokemon} />
                 )}
 
                 {/* Team Card Preview */}

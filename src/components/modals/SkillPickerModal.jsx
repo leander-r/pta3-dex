@@ -5,13 +5,17 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
+import { useUI, useTrainerContext, useGameData } from '../../contexts/index.js';
 
-const SkillPickerModal = ({
-    skillPickerModal,
-    setSkillPickerModal,
-    setTrainer,
-    GAME_DATA
-}) => {
+/**
+ * SkillPickerModal - Modal for picking skills when adding a trainer class
+ * Uses UIContext for modal state, TrainerContext for updating trainer, GameDataContext for skills data
+ */
+const SkillPickerModal = () => {
+    // Get from contexts
+    const { skillPickerModal, setSkillPickerModal } = useUI();
+    const { setTrainer } = useTrainerContext();
+    const { GAME_DATA } = useGameData();
     const handleClose = () => setSkillPickerModal({ ...skillPickerModal, show: false });
 
     const { modalRef } = useModalKeyboard(skillPickerModal.show, handleClose);

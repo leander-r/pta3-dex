@@ -21,43 +21,13 @@ import { getFromPokedexDB, saveToPokedexDB } from './data/pokedexLoader.js';
 
 // Utilities
 import { safeLocalStorageGet, safeLocalStorageSet } from './utils/storageUtils.js';
-import { TYPE_COLORS, STAT_COLORS, getTypeColor, getStatColor } from './utils/typeUtils.js';
 import {
-calcModifier,
-formatNumber,
-calcPokemonHP,
-calcSTAB,
-calculatePokemonLevel,
-getExpToNextLevel,
-applyNature,
-applyCombatStage,
-getCombatStagePercent,
-getSpeedSkillMod,
-calculateSTAB,
-getActualStats,
-calculatePokemonHP
+    calculatePokemonLevel,
+    calculateSTAB,
+    getActualStats,
+    calculatePokemonHP
 } from './utils/dataUtils.js';
-import {
-exportTrainerText as exportTrainerTextUtil,
-exportPokemonText as exportPokemonTextUtil,
-exportTeamText as exportTeamTextUtil,
-copyToClipboard,
-downloadCardAsImage,
-exportAllData as exportAllDataUtil,
-exportSingleTrainer as exportSingleTrainerUtil
-} from './utils/exportUtils.js';
-
-// Components
-import SectionCard from './components/SectionCard.jsx';
-import {
-StatDisplay,
-Badge,
-IconButton,
-EmptyState,
-ProgressBar,
-TypeBadge,
-Tooltip
-} from './components/UIComponents.jsx';
+import { exportTrainerText as exportTrainerTextUtil } from './utils/exportUtils.js';
 
 // Context
 import { AppContext } from './contexts/AppContext.js';
@@ -86,10 +56,6 @@ import {
 import { Header, SaveIndicator, LevelUpNotification } from './components/common';
 import AppProviders from './components/AppProviders.jsx';
 
-// Data
-import { EVOLUTION_CHAINS } from './data/evolutionChains.js';
-
-
 const PTAManager = () => {
 // ============================================================
 // STATE DECLARATIONS
@@ -101,56 +67,13 @@ const [showSaveIndicator, setShowSaveIndicator] = useState(false);
 const [isAutoSave, setIsAutoSave] = useState(false);
 const [lastSaveTime, setLastSaveTime] = useState(null);
 const [levelUpNotification, setLevelUpNotification] = useState(null);
-const [referenceTab, setReferenceTab] = useState('types');
 
-// --- Theme State ---
-const [theme, setTheme] = useState(() => {
-    // Load theme from localStorage or default to light
-    const savedTheme = safeLocalStorageGet('pta-theme', 'light');
-    // Apply theme to document immediately
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    return savedTheme;
-});
-
-// --- Moves Database Filters ---
-const [movesFilter, setMovesFilter] = useState({
-    search: '',
-    type: '',
-    category: '',
-    frequency: '',
-    sortBy: 'name', // 'name', 'type', 'category', 'damage'
-    sortDir: 'asc'
-});
-
-// --- Abilities Database Filters ---
-const [abilitiesFilter, setAbilitiesFilter] = useState({
-    search: '',
-    sortBy: 'name', // 'name'
-    sortDir: 'asc'
-});
-
-// --- Modal States ---
-const [showMoveModal, setShowMoveModal] = useState(false);
-const [selectedMove, setSelectedMove] = useState(null);
-const [showFeatureModal, setShowFeatureModal] = useState(false);
-const [selectedFeature, setSelectedFeature] = useState(null);
-const [showReferenceModal, setShowReferenceModal] = useState(false);
-const [showCustomFeatureModal, setShowCustomFeatureModal] = useState(false);
-const [showCustomMoveModal, setShowCustomMoveModal] = useState(false);
-const [customMoveForPokemon, setCustomMoveForPokemon] = useState(null);
-const [showCustomSpeciesModal, setShowCustomSpeciesModal] = useState(false);
+// --- Custom Species State ---
 const [customSpecies, setCustomSpecies] = useState([]);
-const [editingCustomSpeciesId, setEditingCustomSpeciesId] = useState(null);
-
-// --- Regional Form Selector State ---
-const [showRegionalFormModal, setShowRegionalFormModal] = useState(false);
-const [regionalFormData, setRegionalFormData] = useState(null);
-// regionalFormData structure: { pokemonId, speciesData, forms: [{name, types, ...}] }
 
 // --- Move Learning Modal State ---
 const [showMoveLearnModal, setShowMoveLearnModal] = useState(false);
 const [moveLearnData, setMoveLearnData] = useState(null);
-// moveLearnData structure: { pokemonId, pokemonName, newMove, currentMoves, inParty }
 const [pendingMoveLearn, setPendingMoveLearn] = useState([]);
 
 // --- Pokédex State ---
@@ -158,31 +81,6 @@ const [pokedex, setPokedex] = useState([]);
 const [pokedexLoading, setPokedexLoading] = useState(true);
 const [pokedexError, setPokedexError] = useState(null);
 const [gameDataLoaded, setGameDataLoaded] = useState(GAME_DATA._loaded || false);
-const [speciesSearch, setSpeciesSearch] = useState('');
-
-// --- Custom Feature Template ---
-const [customFeature, setCustomFeature] = useState({
-    name: '',
-    category: 'Custom',
-    prerequisites: '',
-    frequency: '',
-    trigger: '',
-    target: '',
-    effect: ''
-});
-
-// --- Custom Move Template ---
-const [customMove, setCustomMove] = useState({
-    name: '',
-    type: 'Normal',
-    category: 'Physical',
-    frequency: 'At-Will',
-    damage: '',
-    range: 'Melee',
-    effect: '',
-    description: '',
-    source: 'natural'
-});
 
 // ============================================================
 // TRAINER DATA STRUCTURE
@@ -258,206 +156,12 @@ const setReserve = (updater) => {
     }));
 };
 
-// Legacy setPokemon - adds to party if room, otherwise reserve
-const setPokemon = (updater) => {
-    setTrainers(prev => prev.map(t => {
-        if (t.id === (activeTrainerId || prev[0]?.id)) {
-            const currentAll = [...(t.party || []), ...(t.reserve || [])];
-            const newPokemon = typeof updater === 'function' ? updater(currentAll) : updater;
-            // Distribute: first 6 go to party, rest to reserve
-            return { 
-                ...t, 
-                party: newPokemon.slice(0, 6),
-                reserve: newPokemon.slice(6)
-            };
-        }
-        return t;
-    }));
-};
-
-// Move pokemon to party
-const moveToParty = (pokemonId) => {
-    if (party.length >= 6) {
-        alert('Your party is full! (Maximum 6 Pokémon)\n\nMove a Pokémon to reserve first.');
-        return;
-    }
-    const poke = reserve.find(p => p.id === pokemonId);
-    if (poke) {
-        setReserve(prev => prev.filter(p => p.id !== pokemonId));
-        setParty(prev => [...prev, poke]);
-    }
-};
-
-// Move pokemon to reserve
-const moveToReserve = (pokemonId) => {
-    const poke = party.find(p => p.id === pokemonId);
-    if (poke) {
-        setParty(prev => prev.filter(p => p.id !== pokemonId));
-        setReserve(prev => [...prev, poke]);
-    }
-};
-
-// Reorder pokemon in party (move up)
-const movePokemonUp = (pokemonId, isParty) => {
-    const setList = isParty ? setParty : setReserve;
-    setList(prev => {
-        const index = prev.findIndex(p => p.id === pokemonId);
-        if (index <= 0) return prev; // Already at top
-        const newList = [...prev];
-        [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
-        return newList;
-    });
-};
-
-// Reorder pokemon in party (move down)
-const movePokemonDown = (pokemonId, isParty) => {
-    const setList = isParty ? setParty : setReserve;
-    setList(prev => {
-        const index = prev.findIndex(p => p.id === pokemonId);
-        if (index < 0 || index >= prev.length - 1) return prev; // Already at bottom
-        const newList = [...prev];
-        [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
-        return newList;
-    });
-};
-
-// Sort pokemon list by specified criteria
-const sortPokemonList = (isParty, sortBy, sortDir = 'asc') => {
-    const setList = isParty ? setParty : setReserve;
-    setList(prev => {
-        const sorted = [...prev].sort((a, b) => {
-            let cmp = 0;
-            switch (sortBy) {
-                case 'level':
-                    cmp = (b.level || 1) - (a.level || 1);
-                    break;
-                case 'species':
-                    cmp = (a.species || '').localeCompare(b.species || '');
-                    break;
-                case 'type':
-                    cmp = (a.types?.[0] || '').localeCompare(b.types?.[0] || '');
-                    break;
-                case 'name':
-                default:
-                    cmp = (a.name || a.species || '').localeCompare(b.name || b.species || '');
-            }
-            return sortDir === 'asc' ? cmp : -cmp;
-        });
-        return sorted;
-    });
-};
-
-// ============================================================
-// TRAINER MANAGEMENT FUNCTIONS
-// ============================================================
-
-/** Add a new trainer to the roster */
-const addNewTrainer = () => {
-    const newTrainer = {
-        ...defaultTrainer,
-        id: Date.now(),
-        name: 'New Trainer'
-    };
-    setTrainers(prev => [...prev, newTrainer]);
-    setActiveTrainerId(newTrainer.id);
-};
-
-/** Delete a trainer from the roster */
-const deleteTrainer = (trainerId) => {
-    if (trainers.length <= 1) {
-        alert('You must have at least one trainer.');
-        return;
-    }
-    if (confirm('Are you sure you want to delete this trainer and all their Pokémon? This cannot be undone.')) {
-        setTrainers(prev => {
-            const filtered = prev.filter(t => t.id !== trainerId);
-            // If we deleted the active trainer, switch to the first one
-            if (trainerId === activeTrainerId) {
-                setActiveTrainerId(filtered[0]?.id);
-            }
-            return filtered;
-        });
-    }
-};
-
-// Duplicate a trainer
-const duplicateTrainer = (trainerId) => {
-    const trainerToCopy = trainers.find(t => t.id === trainerId);
-    if (trainerToCopy) {
-        const newTrainer = {
-            ...JSON.parse(JSON.stringify(trainerToCopy)), // Deep clone
-            id: Date.now(),
-            name: `${trainerToCopy.name} (Copy)`,
-            party: (trainerToCopy.party || []).map(p => ({ ...p, id: Date.now() + Math.random() })),
-            reserve: (trainerToCopy.reserve || []).map(p => ({ ...p, id: Date.now() + Math.random() }))
-        };
-        setTrainers(prev => [...prev, newTrainer]);
-        setActiveTrainerId(newTrainer.id);
-    }
-};
-
 // Pokemon state (for selected/editing)
 const [selectedPokemon, setSelectedPokemon] = useState(null);
 const [editingPokemon, setEditingPokemon] = useState(null);
 
-// Move search/filter state
-const [moveSearchQuery, setMoveSearchQuery] = useState('');
-const [moveTypeFilter, setMoveTypeFilter] = useState('all');
-const [moveCategoryFilter, setMoveCategoryFilter] = useState('all');
-
-// Inventory state (shared across all trainers for simplicity, or could be per-trainer)
+// Inventory state
 const [inventory, setInventory] = useState([]);
-const [showItemModal, setShowItemModal] = useState(false);
-const [inventoryFilter, setInventoryFilter] = useState('all');
-
-// Item picker state for adding items
-const [itemPickerSearch, setItemPickerSearch] = useState('');
-const [itemPickerCategory, setItemPickerCategory] = useState('all');
-const [itemPickerSortBy, setItemPickerSortBy] = useState('name'); // 'name', 'price-asc', 'price-desc'
-const [showItemPicker, setShowItemPicker] = useState(false);
-const [itemPickerQuantity, setItemPickerQuantity] = useState(1);
-
-// Search for items in current inventory
-const [inventorySearchQuery, setInventorySearchQuery] = useState('');
-
-// Feature picker state for adding features
-const [showFeaturePicker, setShowFeaturePicker] = useState(false);
-const [featurePickerSearch, setFeaturePickerSearch] = useState('');
-const [featurePickerCategory, setFeaturePickerCategory] = useState('all');
-const [featurePickerShowOwned, setFeaturePickerShowOwned] = useState(true);
-
-// Pokemon card edit tab state - tracks which tab is active for each pokemon
-const [pokemonEditTab, setPokemonEditTab] = useState({}); // { [pokemonId]: 'info' | 'stats' | 'abilities' | 'moves' }
-
-// Card export state
-const [showCardModal, setShowCardModal] = useState(false);
-const [cardType, setCardType] = useState('trainer');
-const [selectedCardPokemon, setSelectedCardPokemon] = useState(null);
-
-// Character menu dropdown state
-
-// Class skill picker state
-const [skillPickerModal, setSkillPickerModal] = useState({
-    show: false,
-    className: '',
-    skillPool: [],
-    skillCount: 0,
-    selectedSkills: [],
-    pendingClassData: null // Store class data while picking skills
-});
-
-// Detail modal state - for showing full info on moves, features, abilities, skills, items
-const [detailModal, setDetailModal] = useState({
-    show: false,
-    type: '', // 'move', 'feature', 'ability', 'skill', 'item'
-    name: '',
-    data: null
-});
-
-// Helper to show detail modal
-const showDetail = (type, name, data) => {
-    setDetailModal({ show: true, type, name, data });
-};
 
 // Battle calculator state
 const [diceRoller, setDiceRoller] = useState({
@@ -493,12 +197,6 @@ useEffect(() => {
         console.warn('Could not save Discord webhook settings');
     }
 }, [discordWebhook.url, discordWebhook.enabled]);
-
-// Save theme to localStorage and apply to document
-useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    safeLocalStorageSet('pta-theme', theme);
-}, [theme]);
 
 // Send roll result to Discord webhook
 const sendToDiscord = useCallback(async (roll) => {
@@ -826,744 +524,6 @@ useEffect(() => {
     fetchPokedex();
 }, []);
 
-// Filtered species list (memoized for performance)
-const filteredSpecies = useMemo(() => {
-    if (!pokedex || pokedex.length === 0) return [];
-    if (!speciesSearch.trim()) return pokedex;
-    
-    const search = speciesSearch.toLowerCase().trim();
-    return pokedex.filter(p => 
-        p.species.toLowerCase().includes(search) ||
-        p.types.some(t => t.toLowerCase().includes(search)) ||
-        p.id.toString() === search
-    );
-}, [pokedex, speciesSearch]);
-
-// ============================================================
-// EVOLUTION HELPER FUNCTIONS
-// ============================================================
-
-// Get evolution options for a Pokemon
-const getEvolutionOptions = (pokemon) => {
-    if (!pokemon?.species) return { canEvolve: [], canDevolve: null };
-
-    const species = pokemon.species;
-    const level = pokemon.level || 1;
-    const regionalForm = pokemon.regionalForm || null;
-
-    // Check for custom species evolution data first
-    const customSpeciesData = customSpecies?.find(p =>
-        p.species?.toLowerCase() === species.toLowerCase()
-    );
-
-    // Use custom species evolution data if available, otherwise use EVOLUTION_CHAINS
-    let evolutionData;
-    if (customSpeciesData) {
-        evolutionData = {
-            evolvesTo: customSpeciesData.evolvesTo || [],
-            evolvesFrom: customSpeciesData.evolvesFrom || null
-        };
-        // Skip if no evolution data defined
-        if (evolutionData.evolvesTo.length === 0 && !evolutionData.evolvesFrom) {
-            evolutionData = null;
-        }
-    } else {
-        evolutionData = EVOLUTION_CHAINS[species];
-    }
-    if (!evolutionData) return { canEvolve: [], canDevolve: null };
-    
-    const canEvolve = [];
-    let canDevolve = null;
-    
-    // Check evolution options
-    if (evolutionData.evolvesTo) {
-        evolutionData.evolvesTo.forEach(evo => {
-            // Special case: Pikachu can evolve into both normal Raichu and Alolan Raichu
-            // even though there's no Alolan Pikachu (only Pokemon where this happens)
-            const isPikachuToAlolanRaichu = species === 'Pikachu' && evo.species === 'Raichu' && evo.regionalForm === 'Alolan';
-
-            // Special case: Rockruff can evolve into any Lycanroc form (Day/Night/Dusk)
-            // The form is a player choice, not based on the Pokemon's current form
-            const isRockruffToLycanroc = species === 'Rockruff' && evo.species === 'Lycanroc';
-
-            // Filter by regional form if applicable
-            if (evo.regionalForm && evo.regionalForm !== regionalForm && !isPikachuToAlolanRaichu && !isRockruffToLycanroc) {
-                // This evolution is for a different regional form
-                // Only show if the Pokemon IS that regional form
-                if (regionalForm !== evo.regionalForm) return;
-            }
-
-            // For non-regional evolutions, show if Pokemon has no regional form or matches
-            if (!evo.regionalForm && regionalForm) {
-                // Normal evolution but Pokemon is regional - check if regional form has same evo
-                // Allow it as the regional forms typically follow same pattern
-            }
-            
-            let canEvolveNow = false;
-            let reason = '';
-            let needsItem = null;
-            
-            switch (evo.method) {
-                case 'level':
-                    canEvolveNow = level >= evo.requirement;
-                    reason = canEvolveNow ? '' : `Needs Level ${evo.requirement}`;
-                    break;
-                case 'stone':
-                    needsItem = evo.requirement;
-                    canEvolveNow = true; // Will check inventory separately
-                    reason = `Requires ${evo.requirement}`;
-                    break;
-                case 'trade':
-                    canEvolveNow = true;
-                    reason = evo.requirement === 'Trade' ? 'Trade Evolution' : `Trade with ${evo.requirement}`;
-                    if (evo.requirement !== 'Trade') needsItem = evo.requirement;
-                    break;
-                case 'happiness':
-                    canEvolveNow = true; // Assume happiness is met if player wants to evolve
-                    reason = evo.requirement;
-                    break;
-                case 'other':
-                    canEvolveNow = true;
-                    reason = evo.requirement;
-                    break;
-            }
-            
-            canEvolve.push({
-                species: evo.species,
-                method: evo.method,
-                requirement: evo.requirement,
-                regionalForm: evo.regionalForm || null,
-                note: evo.note || null,
-                canEvolveNow,
-                reason,
-                needsItem
-            });
-        });
-    }
-    
-    // Check devolution option
-    if (evolutionData.evolvesFrom) {
-        const devo = evolutionData.evolvesFrom;
-        canDevolve = {
-            species: devo.species,
-            method: devo.method,
-            requirement: devo.requirement
-        };
-    }
-    
-    return { canEvolve, canDevolve };
-};
-
-// Check if inventory has a specific item
-const hasItemInInventory = (itemName) => {
-    if (!itemName) return true;
-    return inventory.some(item => 
-        item.name.toLowerCase() === itemName.toLowerCase() && 
-        (item.quantity || 1) > 0
-    );
-};
-
-// Remove item from inventory
-const removeItemFromInventory = (itemName) => {
-    setInventory(prev => {
-        const idx = prev.findIndex(item => 
-            item.name.toLowerCase() === itemName.toLowerCase()
-        );
-        if (idx === -1) return prev;
-        
-        const newInventory = [...prev];
-        if ((newInventory[idx].quantity || 1) <= 1) {
-            newInventory.splice(idx, 1);
-        } else {
-            newInventory[idx] = {
-                ...newInventory[idx],
-                quantity: (newInventory[idx].quantity || 1) - 1
-            };
-        }
-        return newInventory;
-    });
-};
-
-// Handle Pokemon evolution
-const handleEvolution = (pokemonId, targetSpecies, targetRegionalForm, consumeItem) => {
-    // Find Pokemon
-    const inParty = party.some(p => p.id === pokemonId);
-    const pokemon = inParty 
-        ? party.find(p => p.id === pokemonId)
-        : reserve.find(p => p.id === pokemonId);
-    
-    if (!pokemon) return;
-    
-    // Find target species in Pokedex or Custom Species
-    let targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
-    if (!targetPokedexEntry) {
-        // Check custom species
-        targetPokedexEntry = customSpecies.find(p => p.species === targetSpecies);
-    }
-    if (!targetPokedexEntry) {
-        alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
-        return;
-    }
-
-    // Consume item if needed
-    if (consumeItem) {
-        if (!hasItemInInventory(consumeItem)) {
-            alert(`You don't have a ${consumeItem} in your inventory!`);
-            return;
-        }
-        removeItemFromInventory(consumeItem);
-    }
-    
-    // Determine the regional form to use
-    // Priority: 1) Explicitly specified targetRegionalForm, 2) Current Pokemon's regional form if target has it
-    let finalRegionalForm = null;
-    
-    if (targetRegionalForm) {
-        // Explicit regional form specified (e.g., evolving to specifically Alolan Raichu)
-        const matchingForm = targetPokedexEntry.regionalForms?.find(rf => rf.name === targetRegionalForm);
-        if (matchingForm) {
-            finalRegionalForm = { name: targetRegionalForm, isBase: false, ...matchingForm };
-        }
-    } else if (pokemon.regionalForm) {
-        // Preserve current Pokemon's regional form if target species has the same form
-        const matchingForm = targetPokedexEntry.regionalForms?.find(rf => rf.name === pokemon.regionalForm);
-        if (matchingForm) {
-            finalRegionalForm = { name: pokemon.regionalForm, isBase: false, ...matchingForm };
-        }
-    }
-    
-    // Apply evolution - this updates species data but PRESERVES moves
-    // Also store the consumed item for potential refund on devolution
-    applyEvolutionToPokemon(pokemonId, targetPokedexEntry, finalRegionalForm, inParty, consumeItem, pokemon.species);
-    
-    // Show notification
-    const formName = finalRegionalForm?.name || targetRegionalForm;
-    setLevelUpNotification({
-        pokemon: pokemon.name || pokemon.species,
-        message: `evolved into ${formName ? formName + ' ' : ''}${targetSpecies}!`,
-        type: 'evolution'
-    });
-    setTimeout(() => setLevelUpNotification(null), 3000);
-};
-
-// Apply evolution to a Pokemon - preserves moves and only adds evolution (E) moves
-const applyEvolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty, consumedItem = null, previousSpecies = null) => {
-    // Get the current Pokemon
-    const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
-    if (!currentPoke) return;
-    
-    // Determine which data to use (base or regional form)
-    const isRegional = regionalForm && !regionalForm.isBase;
-    const formData = isRegional ? regionalForm : null;
-    
-    // Determine which move lists to use based on form
-    const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
-    const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
-    const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
-    
-    // Build updates - similar to applySpeciesToPokemon but WITHOUT replacing moves
-    const updates = {
-        species: speciesData.species,
-        types: formData ? [...formData.types] : [...speciesData.types],
-        baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
-        availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
-        pokedexId: speciesData.id,
-        regionalForm: isRegional ? regionalForm.name : null,
-        availableLevelUpMoves: levelUpMoves,
-        availableEggMoves: eggMoves,
-        availableTutorMoves: tutorMoves,
-        // Store evolution info for potential refund on devolution
-        evolvedFrom: previousSpecies || currentPoke.species,
-        evolutionStoneUsed: consumedItem || null
-    };
-    
-    // Update abilities - keep current ability if it's still valid, otherwise set default
-    const newAbilities = formData?.abilities || speciesData.abilities;
-    if (newAbilities) {
-        const allValidAbilities = [
-            ...(newAbilities.basic || []),
-            ...(newAbilities.adv || []),
-            ...(newAbilities.high || [])
-        ];
-        
-        // Check if current ability is still valid for evolved form
-        if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
-            // Set first basic ability as default
-            if (newAbilities.basic && newAbilities.basic.length > 0) {
-                updates.ability = newAbilities.basic[0];
-            }
-        }
-        // Keep ability2 and ability3 only if they're still valid
-        if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
-            updates.ability2 = '';
-        }
-        if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
-            updates.ability3 = '';
-        }
-    }
-    
-    // Build Pokemon skills array from Pokédex skills object
-    const pokemonSkills = [];
-    if (speciesData.skills) {
-        const skillMappings = [
-            ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
-            ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
-            ['power', 'Power'], ['intelligence', 'Intelligence']
-        ];
-
-        skillMappings.forEach(([key, name]) => {
-            if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
-                pokemonSkills.push({ name, value: speciesData.skills[key] });
-            }
-        });
-
-        // Capability skills - map pokedex key to display name
-        const capabilityMappings = [
-            ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
-            ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
-            ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
-            ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
-            ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
-            ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
-            ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
-            ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
-            ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
-            ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
-            // Legendary skills
-            ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
-            ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
-        ];
-        capabilityMappings.forEach(([key, name]) => {
-            if (speciesData.skills[key]) {
-                pokemonSkills.push({ name });
-            }
-        });
-
-        if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
-            speciesData.skills.naturewalk.forEach(terrain => {
-                pokemonSkills.push({ name: `Naturewalk (${terrain})` });
-            });
-        }
-    }
-    updates.pokemonSkills = pokemonSkills;
-
-    // DO NOT replace moves - keep current moveset
-    // Apply the species updates first
-    updatePokemon(pokemonId, updates);
-    
-    // Now check for evolution moves (moves at level 0) and queue them
-    const evolutionMoves = levelUpMoves.filter(m => m.level === 0);
-    const currentMoves = currentPoke.moves || [];
-    
-    if (evolutionMoves.length > 0) {
-        // Build queue of evolution moves to learn
-        const movesToQueue = [];
-        
-        evolutionMoves.forEach(evoMove => {
-            // Check if Pokemon already knows this move
-            const alreadyKnows = currentMoves.some(m => 
-                m.name?.toLowerCase() === evoMove.move?.toLowerCase()
-            );
-            
-            if (!alreadyKnows) {
-                movesToQueue.push({
-                    pokemonId: pokemonId,
-                    pokemonName: currentPoke.name || speciesData.species,
-                    newMove: {
-                        move: evoMove.move,
-                        type: evoMove.type || 'Normal',
-                        level: 0
-                    },
-                    inParty: inParty,
-                    isEvolutionMove: true
-                });
-            }
-        });
-        
-        // Add to pending move learn queue - the useEffect will handle showing modals
-        if (movesToQueue.length > 0) {
-            setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
-        }
-    }
-};
-
-// Handle Pokemon devolution
-const handleDevolution = (pokemonId, targetSpecies) => {
-    // Find Pokemon
-    const inParty = party.some(p => p.id === pokemonId);
-    const pokemon = inParty 
-        ? party.find(p => p.id === pokemonId)
-        : reserve.find(p => p.id === pokemonId);
-    
-    if (!pokemon) return;
-    
-    // Find target species in Pokedex or Custom Species
-    let targetPokedexEntry = pokedex.find(p => p.species === targetSpecies);
-    if (!targetPokedexEntry) {
-        // Check custom species
-        targetPokedexEntry = customSpecies.find(p => p.species === targetSpecies);
-    }
-    if (!targetPokedexEntry) {
-        alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
-        return;
-    }
-
-    // Check if regional form should carry over
-    const currentRegionalForm = pokemon.regionalForm;
-    let targetRegionalForm = null;
-    
-    // If the target has the same regional form available, keep it
-    if (currentRegionalForm && targetPokedexEntry.regionalForms) {
-        const matchingForm = targetPokedexEntry.regionalForms.find(rf => rf.name === currentRegionalForm);
-        if (matchingForm) {
-            targetRegionalForm = { name: currentRegionalForm, isBase: false, ...matchingForm };
-        }
-    }
-    
-    // Build display name for confirmation
-    const devolveTargetName = targetRegionalForm ? `${targetRegionalForm.name} ${targetSpecies}` : targetSpecies;
-    
-    // Check if there's an evolution stone to refund
-    const stoneToRefund = pokemon.evolutionStoneUsed;
-    const evolvedFromSpecies = pokemon.evolvedFrom;
-    
-    // Build confirmation message
-    let confirmMsg = `Are you sure you want to devolve ${pokemon.name || pokemon.species} back to ${devolveTargetName}?`;
-    if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
-        confirmMsg += `\n\nYou will receive back: 1x ${stoneToRefund}`;
-    }
-    
-    // Confirm devolution
-    if (!confirm(confirmMsg)) {
-        return;
-    }
-    
-    // Refund evolution stone if devolving to the species it evolved from
-    if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
-        addItemToInventory(stoneToRefund);
-    }
-    
-    // Apply devolution (this will also clear the evolution tracking fields)
-    applyDevolutionToPokemon(pokemonId, targetPokedexEntry, targetRegionalForm, inParty);
-    
-    // Show notification
-    let notificationMsg = `devolved back to ${targetRegionalForm ? targetRegionalForm.name + ' ' : ''}${targetSpecies}!`;
-    if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
-        notificationMsg += ` (${stoneToRefund} refunded)`;
-    }
-    
-    setLevelUpNotification({
-        pokemon: pokemon.name || pokemon.species,
-        message: notificationMsg,
-        type: 'devolution'
-    });
-    setTimeout(() => setLevelUpNotification(null), 3000);
-};
-
-// Add item to inventory (for refunding evolution stones)
-const addItemToInventory = (itemName) => {
-    setInventory(prev => {
-        const existingIdx = prev.findIndex(item => 
-            item.name.toLowerCase() === itemName.toLowerCase()
-        );
-        
-        if (existingIdx >= 0) {
-            // Item exists, increment quantity
-            const newInventory = [...prev];
-            newInventory[existingIdx] = {
-                ...newInventory[existingIdx],
-                quantity: (newInventory[existingIdx].quantity || 1) + 1
-            };
-            return newInventory;
-        } else {
-            // New item, add to inventory
-            return [...prev, { name: itemName, quantity: 1 }];
-        }
-    });
-};
-
-// Apply devolution to a Pokemon - similar to applySpeciesToPokemon but clears evolution tracking
-const applyDevolutionToPokemon = (pokemonId, speciesData, regionalForm, inParty) => {
-    // Get the current Pokemon
-    const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
-    if (!currentPoke) return;
-    const currentLevel = currentPoke?.level || 1;
-    
-    // Determine which data to use (base or regional form)
-    const isRegional = regionalForm && !regionalForm.isBase;
-    const formData = isRegional ? regionalForm : null;
-    
-    // Determine which move lists to use based on form
-    const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
-    const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
-    const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
-    
-    // Build updates
-    const updates = {
-        species: speciesData.species,
-        types: formData ? [...formData.types] : [...speciesData.types],
-        baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
-        availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
-        pokedexId: speciesData.id,
-        regionalForm: isRegional ? regionalForm.name : null,
-        availableLevelUpMoves: levelUpMoves,
-        availableEggMoves: eggMoves,
-        availableTutorMoves: tutorMoves,
-        // Clear evolution tracking on devolution
-        evolvedFrom: null,
-        evolutionStoneUsed: null
-    };
-    
-    // Update abilities - keep current ability if it's still valid, otherwise set default
-    const newAbilities = formData?.abilities || speciesData.abilities;
-    if (newAbilities) {
-        const allValidAbilities = [
-            ...(newAbilities.basic || []),
-            ...(newAbilities.adv || []),
-            ...(newAbilities.high || [])
-        ];
-        
-        if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
-            if (newAbilities.basic && newAbilities.basic.length > 0) {
-                updates.ability = newAbilities.basic[0];
-            }
-        }
-        if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
-            updates.ability2 = '';
-        }
-        if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
-            updates.ability3 = '';
-        }
-    }
-    
-    // Build Pokemon skills
-    const pokemonSkills = [];
-    if (speciesData.skills) {
-        const skillMappings = [
-            ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
-            ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
-            ['power', 'Power'], ['intelligence', 'Intelligence']
-        ];
-
-        skillMappings.forEach(([key, name]) => {
-            if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
-                pokemonSkills.push({ name, value: speciesData.skills[key] });
-            }
-        });
-
-        // Capability skills - map pokedex key to display name
-        const capabilityMappings = [
-            ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
-            ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
-            ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
-            ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
-            ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
-            ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
-            ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
-            ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
-            ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
-            ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
-            // Legendary skills
-            ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
-            ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
-        ];
-        capabilityMappings.forEach(([key, name]) => {
-            if (speciesData.skills[key]) {
-                pokemonSkills.push({ name });
-            }
-        });
-
-        if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
-            speciesData.skills.naturewalk.forEach(terrain => {
-                pokemonSkills.push({ name: `Naturewalk (${terrain})` });
-            });
-        }
-    }
-    updates.pokemonSkills = pokemonSkills;
-
-    // Keep current moves (don't reset on devolution)
-    // But we could optionally remove moves that the devolved form can't learn
-    
-    // Apply updates
-    updatePokemon(pokemonId, updates);
-};
-
-// Handle species selection from Pokédex
-// Handle species selection - regular function to ensure updatePokemon is accessible
-const handleSpeciesSelect = (speciesName, pokemonId) => {
-    const speciesData = pokedex.find(p => p.species === speciesName);
-    if (!speciesData) return;
-    
-    // Check if this species has regional forms
-    if (speciesData.regionalForms && speciesData.regionalForms.length > 0) {
-        // Show regional form selector modal
-        setRegionalFormData({
-            pokemonId,
-            speciesData,
-            forms: [
-                { name: 'Normal', isBase: true },
-                ...speciesData.regionalForms
-            ]
-        });
-        setShowRegionalFormModal(true);
-        setSpeciesSearch('');
-        return;
-    }
-    
-    // No regional forms, apply species directly
-    applySpeciesToPokemon(pokemonId, speciesData, null);
-    setSpeciesSearch('');
-};
-
-// Apply species data to a Pokemon (called directly or after regional form selection)
-const applySpeciesToPokemon = (pokemonId, speciesData, regionalForm) => {
-    // Get the current Pokemon to check its level
-    const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
-    const currentLevel = currentPoke?.level || 1;
-    
-    // Determine which data to use (base or regional form)
-    const isRegional = regionalForm && !regionalForm.isBase;
-    const formData = isRegional ? regionalForm : null;
-    
-    // Determine which move lists to use based on form
-    const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
-    const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
-    const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
-    
-    const updates = {
-        species: speciesData.species,
-        types: formData ? [...formData.types] : [...speciesData.types],
-        baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
-        // Store available abilities for reference
-        availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
-        // Store Pokédex reference data
-        pokedexId: speciesData.id,
-        // Store regional form info
-        regionalForm: isRegional ? regionalForm.name : null,
-        // Store available move lists for this form (used for move learning/validation)
-        availableLevelUpMoves: levelUpMoves,
-        availableEggMoves: eggMoves,
-        availableTutorMoves: tutorMoves
-    };
-    
-    // Set abilities using the correct field names (ability, ability2, ability3)
-    const abilities = formData?.abilities || speciesData.abilities;
-    if (abilities) {
-        // Set first basic ability as default
-        if (abilities.basic && abilities.basic.length > 0) {
-            updates.ability = abilities.basic[0];
-        }
-        // Clear the other ability slots (user can add them manually)
-        updates.ability2 = '';
-        updates.ability3 = '';
-    }
-    
-    // Build Pokemon skills array from Pokédex skills object
-    const pokemonSkills = [];
-    if (speciesData.skills) {
-        // Movement skills with values
-        const skillMappings = [
-            ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
-            ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
-            ['power', 'Power'], ['intelligence', 'Intelligence']
-        ];
-
-        skillMappings.forEach(([key, name]) => {
-            if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
-                pokemonSkills.push({ name, value: speciesData.skills[key] });
-            }
-        });
-
-        // Capability skills - map pokedex key to display name
-        const capabilityMappings = [
-            ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
-            ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
-            ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
-            ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
-            ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
-            ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
-            ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
-            ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
-            ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
-            ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
-            // Legendary skills
-            ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
-            ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
-        ];
-        capabilityMappings.forEach(([key, name]) => {
-            if (speciesData.skills[key]) {
-                pokemonSkills.push({ name });
-            }
-        });
-
-        // Naturewalk (array of terrain types)
-        if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
-            speciesData.skills.naturewalk.forEach(terrain => {
-                pokemonSkills.push({ name: `Naturewalk (${terrain})` });
-            });
-        }
-    }
-    updates.pokemonSkills = pokemonSkills;
-
-    // Add starting moves based on current level (moves at level 0 and 1, plus any up to current level)
-    if (levelUpMoves && levelUpMoves.length > 0) {
-        // Filter to moves at or below current level, then deduplicate by move name
-        const seenMoves = new Set();
-        const startingMoves = levelUpMoves
-            .filter(m => m.level <= currentLevel)
-            .filter(m => {
-                const moveLower = m.move?.toLowerCase();
-                if (seenMoves.has(moveLower)) return false;
-                seenMoves.add(moveLower);
-                return true;
-            })
-            .slice(0, 4) // Max 4 natural moves
-            .map(m => {
-                const moveData = GAME_DATA.moves[m.move] || {};
-                return {
-                    name: m.move,
-                    type: moveData.type || m.type || 'Normal',
-                    category: moveData.category || 'Physical',
-                    frequency: moveData.frequency || 'At-Will',
-                    damage: moveData.damage || '',
-                    range: moveData.range || 'Melee',
-                    effect: moveData.effect || '',
-                    source: 'natural',
-                    learnedAtLevel: m.level
-                };
-            });
-        
-        // Set moves when:
-        // - Pokemon has no moves yet (new Pokemon)
-        // - Pokemon has no species yet (first time setting species)
-        // - Species is changing to a different one
-        const hasNoMoves = !currentPoke?.moves || currentPoke.moves.length === 0;
-        const hasNoSpecies = !currentPoke?.species;
-        const speciesIsChanging = currentPoke?.species && currentPoke.species !== speciesData.species;
-        
-        if (hasNoMoves || hasNoSpecies || speciesIsChanging) {
-            updates.moves = startingMoves;
-        }
-    }
-    
-    // Call updatePokemon
-    updatePokemon(pokemonId, updates);
-};
-
-// Handle regional form selection
-const handleRegionalFormSelect = (form) => {
-    if (!regionalFormData) return;
-    
-    applySpeciesToPokemon(
-        regionalFormData.pokemonId,
-        regionalFormData.speciesData,
-        form
-    );
-    
-    setShowRegionalFormModal(false);
-    setRegionalFormData(null);
-};
-
 // Auto-save functionality
 useEffect(() => {
     const saveTimeout = setTimeout(() => {
@@ -1572,117 +532,6 @@ useEffect(() => {
     
     return () => clearTimeout(saveTimeout);
 }, [trainers, inventory, activeTrainerId]);
-
-// Calculate trainer level from experience
-const calculateTrainerLevel = (exp) => {
-    // Trainers gain levels from achievements, not exp
-    // This is just for reference
-    return trainer.level;
-};
-
-// Calculate Pokémon level from experience
-const calculatePokemonLevel = (exp) => {
-    let level = 1;
-    for (let lvl in GAME_DATA.pokemonExpChart) {
-        if (exp >= GAME_DATA.pokemonExpChart[lvl]) {
-            level = parseInt(lvl);
-        } else {
-            break;
-        }
-    }
-    return level;
-};
-
-// Calculate exp needed for next level
-const getExpToNextLevel = (currentExp, currentLevel) => {
-    const nextLevel = Math.min(currentLevel + 1, 100);
-    const expNeeded = GAME_DATA.pokemonExpChart[nextLevel] || 0;
-    return expNeeded - currentExp;
-};
-
-// Apply nature to Pokémon stats
-// HP modifications are +1/-1, all other stats are +2/-2
-const applyNature = (baseStats, nature) => {
-    const natureData = GAME_DATA.natures[nature];
-    if (!natureData) return baseStats;
-    
-    let modifiedStats = { ...baseStats };
-    if (natureData.buff) {
-        // HP gets +1, other stats get +2
-        const buffAmount = natureData.buff === 'hp' ? 1 : 2;
-        modifiedStats[natureData.buff] = baseStats[natureData.buff] + buffAmount;
-    }
-    if (natureData.nerf) {
-        // HP gets -1, other stats get -2
-        const nerfAmount = natureData.nerf === 'hp' ? 1 : 2;
-        modifiedStats[natureData.nerf] = Math.max(1, baseStats[natureData.nerf] - nerfAmount);
-    }
-    return modifiedStats;
-};
-
-// Calculate Combat Stage modifier for a stat
-// +25% per positive stage (rounded down), -10% per negative stage (rounded up)
-// At +6: 250% of original, at -6: 40% of original
-const applyCombatStage = (baseStat, stages) => {
-    if (stages === 0) return baseStat;
-    
-    if (stages > 0) {
-        // +25% per positive stage, rounded down
-        return Math.floor(baseStat * (1 + (stages * 0.25)));
-    } else {
-        // -10% per negative stage, rounded up
-        // At -6, should be 40% of original (1 - 0.6 = 0.4)
-        const reduction = Math.abs(stages) * 0.10;
-        return Math.ceil(baseStat * (1 - reduction));
-    }
-};
-
-// Get combat stage percentage display
-const getCombatStagePercent = (stages) => {
-    if (stages === 0) return '100%';
-    if (stages > 0) {
-        return `${100 + (stages * 25)}%`;
-    } else {
-        return `${100 - (Math.abs(stages) * 10)}%`;
-    }
-};
-
-// Calculate Speed Skill modifier from combat stages
-// +1 per 2 positive stages, -1 per 3 negative stages (min 1)
-const getSpeedSkillMod = (spdStages) => {
-    if (spdStages >= 0) {
-        return Math.floor(spdStages / 2);
-    } else {
-        return -Math.floor(Math.abs(spdStages) / 3);
-    }
-};
-
-// Calculate STAB bonus
-const calculateSTAB = (level) => {
-    // STAB bonus based on level thresholds - OFFICIAL P:TA HANDBOOK
-    // You get the bonus AT the listed level
-    if (level >= 100) return 20;
-    if (level >= 95) return 19;
-    if (level >= 90) return 18;
-    if (level >= 85) return 17;
-    if (level >= 80) return 16;
-    if (level >= 75) return 15;
-    if (level >= 70) return 14;
-    if (level >= 65) return 13;
-    if (level >= 60) return 12;
-    if (level >= 55) return 11;
-    if (level >= 50) return 10;
-    if (level >= 45) return 9;
-    if (level >= 40) return 8;
-    if (level >= 35) return 7;
-    if (level >= 30) return 6;
-    if (level >= 25) return 5;
-    if (level >= 20) return 4;
-    if (level >= 15) return 3;
-    if (level >= 10) return 2;
-    if (level >= 5) return 1;
-    return 0; // Below level 5, no STAB bonus
-};
 
 // Save data to storage
 const saveData = async (isAuto = false) => {
@@ -3108,76 +1957,46 @@ const deletePokemon = (id) => {
     }
 };
 
-// Get filtered moves based on search query and filters
-const getFilteredMoves = useMemo(() => {
-    return Object.entries(GAME_DATA.moves || {})
-        .filter(([moveName, moveData]) => {
-            // Type filter
-            if (moveTypeFilter !== 'all' && moveData.type !== moveTypeFilter) {
-                return false;
-            }
-            // Category filter
-            if (moveCategoryFilter !== 'all' && moveData.category !== moveCategoryFilter) {
-                return false;
-            }
-            // Search query (name or type)
-            if (moveSearchQuery) {
-                const query = moveSearchQuery.toLowerCase();
-                return moveName.toLowerCase().includes(query) || 
-                       moveData.type.toLowerCase().includes(query) ||
-                       (moveData.effect && moveData.effect.toLowerCase().includes(query));
-            }
-            return true;
-        })
-        .sort((a, b) => {
-            // Sort by type first, then by name
-            const typeCompare = a[1].type.localeCompare(b[1].type);
-            return typeCompare !== 0 ? typeCompare : a[0].localeCompare(b[0]);
-        });
-}, [moveSearchQuery, moveTypeFilter, moveCategoryFilter]);
-
-// Get all unique types from moves
-const allMoveTypes = useMemo(() => {
-    const types = new Set(Object.values(GAME_DATA.moves).map(m => m.type));
-    return Array.from(types).sort();
-}, []);
-
-// Calculate Pokemon max HP
-const calculatePokemonHP = (pokemon) => {
-    const actualStats = getActualStats(pokemon);
-    return pokemon.level + (actualStats.hp * 3);
-};
-
-// Get actual stats (base + added + nature)
-const getActualStats = (pokemon) => {
-    const baseWithNature = applyNature(pokemon.baseStats, pokemon.nature);
-    return {
-        hp: baseWithNature.hp + (pokemon.addedStats?.hp || 0),
-        atk: baseWithNature.atk + (pokemon.addedStats?.atk || 0),
-        def: baseWithNature.def + (pokemon.addedStats?.def || 0),
-        satk: baseWithNature.satk + (pokemon.addedStats?.satk || 0),
-        sdef: baseWithNature.sdef + (pokemon.addedStats?.sdef || 0),
-        spd: baseWithNature.spd + (pokemon.addedStats?.spd || 0)
-    };
-};
-
-// Get evasion bonuses
-const getEvasionBonuses = (pokemon) => {
-    const actualStats = getActualStats(pokemon);
-    return {
-        physical: Math.floor(actualStats.def / 5),
-        special: Math.floor(actualStats.sdef / 5),
-        speed: Math.floor(actualStats.spd / 10)
-    };
-};
-
-// Check if move gets STAB
-const hasSTAB = (moveType, pokemonTypes) => {
-    return pokemonTypes.includes(moveType);
-};
-
 return (
-    <AppProviders customSpecies={customSpecies} setCustomSpecies={setCustomSpecies}>
+    <AppProviders
+        customSpecies={customSpecies}
+        setCustomSpecies={setCustomSpecies}
+        trainers={trainers}
+        setTrainers={setTrainers}
+        activeTrainerId={activeTrainerId}
+        setActiveTrainerId={setActiveTrainerId}
+        onLevelUp={(notification) => {
+            setLevelUpNotification(notification);
+            setTimeout(() => setLevelUpNotification(null), 5000);
+        }}
+        party={party}
+        reserve={reserve}
+        setParty={setParty}
+        setReserve={setReserve}
+        pokemonView={pokemonView}
+        setPokemonView={setPokemonView}
+        editingPokemon={editingPokemon}
+        setEditingPokemon={setEditingPokemon}
+        pendingMoveLearn={pendingMoveLearn}
+        setPendingMoveLearn={setPendingMoveLearn}
+        showMoveLearnModal={showMoveLearnModal}
+        setShowMoveLearnModal={setShowMoveLearnModal}
+        moveLearnData={moveLearnData}
+        setMoveLearnData={setMoveLearnData}
+        inventory={inventory}
+        setInventory={setInventory}
+        getMovesForLevelRange={getMovesForLevelRange}
+        onSaveComplete={(isAuto) => {
+            setIsAutoSave(isAuto);
+            setLastSaveTime(new Date());
+            setShowSaveIndicator(true);
+            setTimeout(() => setShowSaveIndicator(false), 2000);
+        }}
+        showNotification={(notification) => {
+            setLevelUpNotification(notification);
+            setTimeout(() => setLevelUpNotification(null), 3000);
+        }}
+    >
     <div className="container">
         {/* Save Indicator */}
         <SaveIndicator
@@ -3204,24 +2023,7 @@ return (
         )}
         
         {/* Header */}
-        <Header
-            trainers={trainers}
-            trainer={trainer}
-            activeTrainerId={activeTrainerId}
-            setActiveTrainerId={(id) => {
-                setActiveTrainerId(id);
-                setEditingPokemon(null);
-            }}
-            addNewTrainer={addNewTrainer}
-            deleteTrainer={deleteTrainer}
-            duplicateTrainer={duplicateTrainer}
-            exportSingleTrainer={exportSingleTrainer}
-            exportAllData={exportAllData}
-            onImport={importData}
-            onExportCard={() => setShowCardModal(true)}
-            theme={theme}
-            setTheme={setTheme}
-        />
+        <Header />
 
 
         {/* Main Content */}
@@ -3285,160 +2087,57 @@ return (
             
                 {/* ========== TRAINER TAB ========== */}
                 {activeTab === 'trainer' && (
-                    <TrainerTab
-                        trainer={trainer}
-                        setTrainer={setTrainer}
-                        levelUpTrainer={levelUpTrainer}
-                        levelDownTrainer={levelDownTrainer}
-                        respecTrainer={respecTrainer}
-                        updateTrainerStat={updateTrainerStat}
-                        calculateMaxHP={calculateMaxHP}
-                        calculateModifier={calculateModifier}
-                        GAME_DATA={GAME_DATA}
-                        showDetail={showDetail}
-                    />
+                    <TrainerTab />
                 )}
 
 
                 {/* ========== POKEMON TEAM TAB ========== */}
                 {activeTab === 'pokemon' && (
-                    <PokemonTab
-                        party={party}
-                        reserve={reserve}
-                        pokemonView={pokemonView}
-                        setPokemonView={setPokemonView}
-                        editingPokemonId={editingPokemon}
-                        setEditingPokemonId={setEditingPokemon}
-                        addPokemon={addPokemon}
-                        updatePokemon={updatePokemon}
-                        deletePokemon={deletePokemon}
-                        moveToParty={moveToParty}
-                        moveToReserve={moveToReserve}
-                        movePokemonUp={movePokemonUp}
-                        movePokemonDown={movePokemonDown}
-                        sortPokemonList={sortPokemonList}
-                        pokedex={pokedex}
-                        pokedexLoading={pokedexLoading}
-                        GAME_DATA={GAME_DATA}
-                        showDetail={showDetail}
-                        getEvolutionOptions={getEvolutionOptions}
-                        evolvePokemon={handleEvolution}
-                        devolvePokemon={handleDevolution}
-                        importPokemon={importPokemon}
-                        customSpecies={customSpecies}
-                        setCustomSpecies={setCustomSpecies}
-                        setShowCustomSpeciesModal={setShowCustomSpeciesModal}
-                        setEditingCustomSpeciesId={setEditingCustomSpeciesId}
-                    />
+                    <PokemonTab />
                 )}
 
 
                 {/* ========== INVENTORY TAB ========== */}
                 {activeTab === 'inventory' && (
-                    <InventoryTab inventory={inventory} setInventory={setInventory} />
+                    <InventoryTab />
                 )}
 
 
                 {/* ========== DICE ROLLER TAB ========== */}
                 {activeTab === 'battle' && (
-                    <BattleTab
-                        trainer={trainer}
-                        party={party}
-                        discordWebhook={discordWebhook}
-                        setDiscordWebhook={setDiscordWebhook}
-                        sendToDiscord={sendToDiscord}
-                        updatePokemon={updatePokemon}
-                        showDetail={showDetail}
-                        pokedex={pokedex}
-                    />
+                    <BattleTab />
                 )}
 
 
                 {/* ========== QUICK REFERENCE TAB ========== */}
                 {activeTab === 'reference' && (
-                    <ReferenceTab showDetail={showDetail} />
+                    <ReferenceTab />
                 )}
 
 
                 {/* ========== CAMPAIGN NOTES TAB ========== */}
                 {activeTab === 'notes' && (
-                    <NotesTab trainer={trainer} setTrainer={setTrainer} />
+                    <NotesTab />
                 )}
             </div>
         </div>
         
         {/* ========== MODALS ========== */}
-        <CustomFeatureModal
-            showCustomFeatureModal={showCustomFeatureModal}
-            setShowCustomFeatureModal={setShowCustomFeatureModal}
-            customFeature={customFeature}
-            setCustomFeature={setCustomFeature}
-            setTrainer={setTrainer}
-        />
+        <CustomFeatureModal />
 
-        <CustomMoveModal
-            showCustomMoveModal={showCustomMoveModal}
-            setShowCustomMoveModal={setShowCustomMoveModal}
-            customMove={customMove}
-            setCustomMove={setCustomMove}
-            customMoveForPokemon={customMoveForPokemon}
-            pokemon={pokemon}
-            updatePokemon={updatePokemon}
-        />
+        <CustomMoveModal />
 
-        <CustomSpeciesModal
-            showCustomSpeciesModal={showCustomSpeciesModal}
-            setShowCustomSpeciesModal={setShowCustomSpeciesModal}
-            customSpecies={customSpecies}
-            setCustomSpecies={setCustomSpecies}
-            editingCustomSpeciesId={editingCustomSpeciesId}
-            setEditingCustomSpeciesId={setEditingCustomSpeciesId}
-        />
+        <CustomSpeciesModal />
 
-        <MoveLearnModal
-            showMoveLearnModal={showMoveLearnModal}
-            setShowMoveLearnModal={setShowMoveLearnModal}
-            moveLearnData={moveLearnData}
-            setMoveLearnData={setMoveLearnData}
-            learnMove={learnMove}
-            showDetail={showDetail}
-            GAME_DATA={GAME_DATA}
-        />
+        <MoveLearnModal />
 
-        <RegionalFormModal
-            showRegionalFormModal={showRegionalFormModal}
-            setShowRegionalFormModal={setShowRegionalFormModal}
-            regionalFormData={regionalFormData}
-            setRegionalFormData={setRegionalFormData}
-            handleRegionalFormSelect={handleRegionalFormSelect}
-        />
+        <RegionalFormModal />
 
-        <CardExportModal
-            showCardModal={showCardModal}
-            setShowCardModal={setShowCardModal}
-            cardType={cardType}
-            setCardType={setCardType}
-            selectedCardPokemon={selectedCardPokemon}
-            setSelectedCardPokemon={setSelectedCardPokemon}
-            trainer={trainer}
-            party={party}
-            pokemon={pokemon}
-            exportTrainerText={exportTrainerText}
-            exportTeamText={exportTeamText}
-            exportPokemonText={exportPokemonText}
-        />
+        <CardExportModal />
 
-        <SkillPickerModal
-            skillPickerModal={skillPickerModal}
-            setSkillPickerModal={setSkillPickerModal}
-            setTrainer={setTrainer}
-            GAME_DATA={GAME_DATA}
-        />
+        <SkillPickerModal />
 
-        <DetailModal
-            detailModal={detailModal}
-            setDetailModal={setDetailModal}
-        />
+        <DetailModal />
 
 
         {/* Footer with Legal Disclaimer */}

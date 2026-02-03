@@ -6,8 +6,11 @@
 import React from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
+import { useUI } from '../../contexts/index.js';
 
-const DetailModal = ({ detailModal, setDetailModal }) => {
+const DetailModal = () => {
+    // Get state from context
+    const { detailModal, setDetailModal } = useUI();
     const closeModal = () => setDetailModal({ show: false, type: '', name: '', data: null });
 
     const { modalRef } = useModalKeyboard(detailModal.show, closeModal);

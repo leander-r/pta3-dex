@@ -3,7 +3,7 @@
 // ============================================================
 // Manages trainer state and actions
 
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
 
 const TrainerContext = createContext(null);
@@ -45,6 +45,11 @@ export const TrainerProvider = ({
     onTrainersChange,
     onLevelUp
 }) => {
+    // Track if we're doing an external sync to avoid notifying parent
+    const isExternalUpdate = useRef(false);
+    // Track if initial mount is complete
+    const isInitialMount = useRef(true);
+
     // Multi-Trainer Management
     const [trainers, setTrainersState] = useState(() => {
         if (initialTrainers && initialTrainers.length > 0) {
@@ -53,19 +58,48 @@ export const TrainerProvider = ({
         return [{ ...defaultTrainer }];
     });
 
-    const [activeTrainerId, setActiveTrainerId] = useState(() => {
+    const [activeTrainerId, setActiveTrainerIdState] = useState(() => {
         if (initialActiveId) return initialActiveId;
         if (initialTrainers && initialTrainers.length > 0) return initialTrainers[0].id;
-        return trainers[0]?.id || null;
+        return null;
     });
+
+    // Sync internal state when props change (e.g., from DataContext import)
+    // Always sync from props to ensure external updates (like imports) are reflected
+    useEffect(() => {
+        // Skip on initial mount since state is already initialized from props
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
+        if (initialTrainers && initialTrainers.length > 0) {
+            isExternalUpdate.current = true;
+            setTrainersState(initialTrainers);
+        }
+    }, [initialTrainers]);
+
+    // Sync activeTrainerId when prop changes
+    useEffect(() => {
+        if (initialActiveId && initialActiveId !== activeTrainerId) {
+            setActiveTrainerIdState(initialActiveId);
+        }
+    }, [initialActiveId, activeTrainerId]);
+
+    // Wrapper for setActiveTrainerId to notify parent
+    const setActiveTrainerId = useCallback((id) => {
+        setActiveTrainerIdState(id);
+    }, []);
 
     // Wrapper to notify parent of changes
     const setTrainers = useCallback((updater) => {
         setTrainersState(prev => {
             const newTrainers = typeof updater === 'function' ? updater(prev) : updater;
-            if (onTrainersChange) {
+            // Only notify parent if this wasn't triggered by a prop change
+            if (onTrainersChange && !isExternalUpdate.current) {
                 onTrainersChange(newTrainers);
             }
+            isExternalUpdate.current = false;
             return newTrainers;
         });
     }, [onTrainersChange]);

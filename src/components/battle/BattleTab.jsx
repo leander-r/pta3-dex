@@ -3,20 +3,17 @@
 // ============================================================
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { GAME_DATA } from '../../data/configs.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
+import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 
-const BattleTab = ({
-    trainer,
-    party,
-    discordWebhook,
-    setDiscordWebhook,
-    sendToDiscord,
-    updatePokemon,
-    showDetail,
-    pokedex
-}) => {
+const BattleTab = () => {
+    // Get state from contexts
+    const { GAME_DATA, pokedex } = useGameData();
+    const { showDetail } = useUI();
+    const { trainer, party } = useTrainerContext();
+    const { updatePokemon } = usePokemonContext();
+    const { discordWebhook, setDiscordWebhook, sendToDiscord } = useData();
     const [mode, setMode] = useState('pokemon');
     const [selectedMove, setSelectedMove] = useState(null);
     const [selectedSkill, setSelectedSkill] = useState('');

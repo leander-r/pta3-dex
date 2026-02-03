@@ -5,14 +5,17 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
+import { useUI, usePokemonContext } from '../../contexts/index.js';
 
-const RegionalFormModal = ({
-    showRegionalFormModal,
-    setShowRegionalFormModal,
-    regionalFormData,
-    setRegionalFormData,
-    handleRegionalFormSelect
-}) => {
+/**
+ * RegionalFormModal - Modal for selecting regional form variants
+ * Uses UIContext for modal state, PokemonContext for applying species
+ */
+const RegionalFormModal = () => {
+    // Get from contexts
+    const { showRegionalFormModal, setShowRegionalFormModal, regionalFormData, setRegionalFormData } = useUI();
+    const { applySpeciesToPokemon } = usePokemonContext();
+
     const handleClose = () => {
         setShowRegionalFormModal(false);
         setRegionalFormData(null);
@@ -21,6 +24,19 @@ const RegionalFormModal = ({
     const { modalRef } = useModalKeyboard(showRegionalFormModal && !!regionalFormData, handleClose);
 
     if (!showRegionalFormModal || !regionalFormData) return null;
+
+    const handleRegionalFormSelect = (form) => {
+        if (!regionalFormData) return;
+
+        applySpeciesToPokemon(
+            regionalFormData.pokemonId,
+            regionalFormData.speciesData,
+            form
+        );
+
+        setShowRegionalFormModal(false);
+        setRegionalFormData(null);
+    };
 
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
@@ -69,6 +85,7 @@ const RegionalFormModal = ({
                                 <div
                                     key={index}
                                     onClick={() => handleRegionalFormSelect(form)}
+                                    className="regional-form-option"
                                     style={{
                                         padding: '16px',
                                         background: isBase

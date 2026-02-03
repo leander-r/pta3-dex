@@ -6,8 +6,14 @@ import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
+import { useUI } from '../../contexts/index.js';
 
-const MovesSection = ({ showDetail }) => {
+/**
+ * MovesSection - Display and search moves database
+ * Uses UIContext for showDetail
+ */
+const MovesSection = () => {
+    const { showDetail } = useUI();
     const [filter, setFilter] = useState({
         search: '',
         type: '',

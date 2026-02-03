@@ -8,6 +8,7 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { GAME_DATA } from '../../data/configs.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
+import { useUI, useGameData } from '../../contexts/index.js';
 
 const TYPE_LIST = [
     'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
@@ -65,14 +66,11 @@ const EVOLUTION_STONES = [
     'Everstone'
 ];
 
-const CustomSpeciesModal = ({
-    showCustomSpeciesModal,
-    setShowCustomSpeciesModal,
-    customSpecies,
-    setCustomSpecies,
-    editingCustomSpeciesId,
-    setEditingCustomSpeciesId
-}) => {
+const CustomSpeciesModal = () => {
+    // Get state from contexts
+    const { showCustomSpeciesModal, setShowCustomSpeciesModal, editingCustomSpeciesId, setEditingCustomSpeciesId } = useUI();
+    const { customSpecies, setCustomSpecies } = useGameData();
+
     const [species, setSpecies] = useState({ ...DEFAULT_SPECIES });
     const [editingIndex, setEditingIndex] = useState(null);
 
@@ -319,8 +317,6 @@ const CustomSpeciesModal = ({
         spd: '#e91e63'
     };
 
-    const tierLabels = { basic: 'Basic', adv: 'Advanced', high: 'High' };
-
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
@@ -407,60 +403,62 @@ const CustomSpeciesModal = ({
                     <div className="form-group">
                         <label>Ability Pool</label>
                         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                            Available abilities trainers can choose from when catching this species. Basic abilities are available at capture, Advanced at trainer level 15+, High at level 30+.
+                            Available abilities trainers can choose from when catching this species.
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {['basic', 'adv', 'high'].map(tier => (
-                                <div key={tier}>
-                                    <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#667eea' }}>{tierLabels[tier]}</div>
 
-                                    {/* Selected abilities */}
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '6px' }}>
-                                        {species.abilities[tier].map((ability, idx) => (
-                                            <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', background: '#667eea', color: 'white', borderRadius: '12px', fontSize: '11px' }}>
-                                                {ability}
-                                                <button onClick={() => removeAbility(tier, idx)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '0 2px', fontSize: '12px', lineHeight: 1 }}>×</button>
-                                            </span>
-                                        ))}
-                                    </div>
+                        {/* Selected abilities (combined from all tiers) */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
+                            {[...species.abilities.basic, ...species.abilities.adv, ...species.abilities.high].map((ability, idx) => {
+                                // Determine which tier this ability is in for removal
+                                const tier = species.abilities.basic.includes(ability) ? 'basic' :
+                                             species.abilities.adv.includes(ability) ? 'adv' : 'high';
+                                const tierIdx = species.abilities[tier].indexOf(ability);
+                                return (
+                                    <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', background: '#667eea', color: 'white', borderRadius: '12px', fontSize: '11px' }}>
+                                        {ability}
+                                        <button onClick={() => removeAbility(tier, tierIdx)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '0 2px', fontSize: '12px', lineHeight: 1 }}>×</button>
+                                    </span>
+                                );
+                            })}
+                            {[...species.abilities.basic, ...species.abilities.adv, ...species.abilities.high].length === 0 && (
+                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>No abilities added yet</span>
+                            )}
+                        </div>
 
-                                    {/* Add ability button */}
-                                    <button onClick={() => { setShowAbilityPicker(showAbilityPicker === tier ? null : tier); setAbilityFilter({ search: '' }); }} style={{ padding: '6px 12px', background: showAbilityPicker === tier ? '#f44336' : '#667eea', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}>
-                                        {showAbilityPicker === tier ? 'Close' : `+ Add ${tierLabels[tier]} Ability`}
-                                    </button>
+                        {/* Add ability button */}
+                        <button onClick={() => { setShowAbilityPicker(showAbilityPicker === 'basic' ? null : 'basic'); setAbilityFilter({ search: '' }); }} style={{ padding: '6px 12px', background: showAbilityPicker === 'basic' ? '#f44336' : '#667eea', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}>
+                            {showAbilityPicker === 'basic' ? 'Close' : '+ Add Ability'}
+                        </button>
 
-                                    {/* Ability picker */}
-                                    {showAbilityPicker === tier && (
-                                        <div style={{ marginTop: '8px', padding: '10px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '8px' }}>
-                                            <input
-                                                type="text"
-                                                placeholder="Search abilities..."
-                                                value={abilityFilter.search}
-                                                onChange={(e) => setAbilityFilter({ search: e.target.value })}
-                                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-medium)', marginBottom: '8px', fontSize: '12px' }}
-                                            />
-                                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                                                Showing {filteredAbilities.length} of {totalAbilities} abilities
-                                            </div>
-                                            <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                                {filteredAbilities.slice(0, 100).map(([name, desc]) => (
-                                                    <div
-                                                        key={name}
-                                                        onClick={() => { addAbility(tier, name); setShowAbilityPicker(null); }}
-                                                        style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', fontSize: '12px' }}
-                                                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
-                                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                                    >
-                                                        <div style={{ fontWeight: 'bold' }}>{name}</div>
-                                                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>{desc?.substring(0, 100)}{desc?.length > 100 ? '...' : ''}</div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
+                        {/* Ability picker */}
+                        {showAbilityPicker === 'basic' && (
+                            <div style={{ marginTop: '8px', padding: '10px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '8px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Search abilities..."
+                                    value={abilityFilter.search}
+                                    onChange={(e) => setAbilityFilter({ search: e.target.value })}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-medium)', marginBottom: '8px', fontSize: '12px' }}
+                                />
+                                <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                                    Showing {filteredAbilities.length} of {totalAbilities} abilities
                                 </div>
-                            ))}
-                        </div>
+                                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                    {filteredAbilities.slice(0, 100).map(([name, desc]) => (
+                                        <div
+                                            key={name}
+                                            onClick={() => { addAbility('basic', name); setShowAbilityPicker(null); }}
+                                            style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', fontSize: '12px' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                        >
+                                            <div style={{ fontWeight: 'bold' }}>{name}</div>
+                                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>{desc?.substring(0, 100)}{desc?.length > 100 ? '...' : ''}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Level-Up Moves */}
