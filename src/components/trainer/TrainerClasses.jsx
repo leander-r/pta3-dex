@@ -52,6 +52,28 @@ const TrainerClasses = () => {
         return isHPSkill ? rank >= 1 : rank >= 2;
     };
 
+    // Get base features for a class
+    // Base classes: features with isBase: true
+    // Advanced classes: first 2 features without prerequisites
+    const getClassBaseFeatures = (className) => {
+        const classData = GAME_DATA.trainerClasses?.[className];
+        const isBaseClass = classData?.type === 'base';
+        const classFeatures = Object.entries(GAME_DATA.features || {})
+            .filter(([_, f]) => f.category === className);
+
+        if (isBaseClass) {
+            return classFeatures
+                .filter(([_, f]) => f.isBase)
+                .map(([name, _]) => name);
+        } else {
+            // Advanced classes: first 2 features without prerequisites
+            return classFeatures
+                .filter(([_, f]) => !f.prerequisites)
+                .slice(0, 2)
+                .map(([name, _]) => name);
+        }
+    };
+
     const handleRemoveClass = (cls) => {
         if (!confirm(`Remove ${cls} class? This will also remove associated skills and features.`)) {
             return;
@@ -62,10 +84,7 @@ const TrainerClasses = () => {
         const isFirstClass = currentClasses.indexOf(cls) === 0 && currentClasses.length > 0;
 
         // Find base features for this class that should be removed
-        // Both base and advanced classes can have base features
-        const baseFeaturesToRemove = Object.entries(GAME_DATA.features || {})
-            .filter(([_, f]) => f.category === cls && f.isBase)
-            .map(([name, _]) => name);
+        const baseFeaturesToRemove = getClassBaseFeatures(cls);
 
         // Get skills that were granted by this class
         const classSkillsToRemove = (trainer.classSkills || {})[cls] || [];
@@ -171,10 +190,7 @@ const TrainerClasses = () => {
         }
 
         // Get base features for this class
-        // Both base and advanced classes get their base features automatically
-        const baseFeatures = Object.entries(GAME_DATA.features || {})
-            .filter(([_, f]) => f.category === pendingClass && f.isBase)
-            .map(([name, _]) => name);
+        const baseFeatures = getClassBaseFeatures(pendingClass);
 
         setTrainer(prev => {
             // Handle skills - convert legacy array to object if needed
