@@ -62,9 +62,10 @@ const TrainerClasses = () => {
         const isFirstClass = currentClasses.indexOf(cls) === 0 && currentClasses.length > 0;
 
         // Find base features for this class that should be removed
-        const baseFeaturesToRemove = isBaseClass ? Object.entries(GAME_DATA.features || {})
+        // Both base and advanced classes can have base features
+        const baseFeaturesToRemove = Object.entries(GAME_DATA.features || {})
             .filter(([_, f]) => f.category === cls && f.isBase)
-            .map(([name, _]) => name) : [];
+            .map(([name, _]) => name);
 
         // Get skills that were granted by this class
         const classSkillsToRemove = (trainer.classSkills || {})[cls] || [];
@@ -170,9 +171,10 @@ const TrainerClasses = () => {
         }
 
         // Get base features for this class
-        const baseFeatures = isBaseClass ? Object.entries(GAME_DATA.features || {})
+        // Both base and advanced classes get their base features automatically
+        const baseFeatures = Object.entries(GAME_DATA.features || {})
             .filter(([_, f]) => f.category === pendingClass && f.isBase)
-            .map(([name, _]) => name) : [];
+            .map(([name, _]) => name);
 
         setTrainer(prev => {
             // Handle skills - convert legacy array to object if needed
