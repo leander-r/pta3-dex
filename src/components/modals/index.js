@@ -10,3 +10,4 @@ export { default as MoveLearnModal } from './MoveLearnModal.jsx';
 export { default as RegionalFormModal } from './RegionalFormModal.jsx';
 export { default as SkillPickerModal } from './SkillPickerModal.jsx';
 export { default as CardExportModal } from './CardExportModal.jsx';
+export { default as BulkExpModal } from './BulkExpModal.jsx';

@@ -18,7 +18,7 @@ import { useGameData, useUI, useTrainerContext, usePokemonContext } from '../../
 const PokemonTab = () => {
     // Get state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
-    const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId } = useUI();
+    const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId, setShowBulkExpModal } = useUI();
     const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList } = useTrainerContext();
     const { addPokemon, updatePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
     const [filter, setFilter] = useState({
@@ -267,6 +267,15 @@ const PokemonTab = () => {
                         style={{ display: 'none' }}
                     />
                 </div>
+
+                <button
+                    onClick={() => setShowBulkExpModal(true)}
+                    className="btn btn-secondary"
+                    style={{ padding: '10px 16px' }}
+                    title="Award EXP to multiple party Pokemon"
+                >
+                    Award EXP
+                </button>
 
                 <button
                     onClick={handleAddPokemon}

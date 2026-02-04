@@ -39,7 +39,8 @@ import {
     MoveLearnModal,
     RegionalFormModal,
     SkillPickerModal,
-    CardExportModal
+    CardExportModal,
+    BulkExpModal
 } from './components/modals';
 
 // Common Components
@@ -584,6 +585,8 @@ return (
         <SkillPickerModal />
 
         <DetailModal />
+
+        <BulkExpModal />
 
 
         {/* Footer with Legal Disclaimer */}

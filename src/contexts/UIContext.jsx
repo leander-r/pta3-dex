@@ -79,6 +79,9 @@ export const UIProvider = ({
     const [cardType, setCardType] = useState('trainer');
     const [selectedCardPokemon, setSelectedCardPokemon] = useState(null);
 
+    // Bulk EXP Modal State
+    const [showBulkExpModal, setShowBulkExpModal] = useState(false);
+
     // Skill Picker Modal State
     const [skillPickerModal, setSkillPickerModal] = useState({
         show: false,
@@ -236,6 +239,10 @@ export const UIProvider = ({
         setCardType,
         selectedCardPokemon,
         setSelectedCardPokemon,
+
+        // Bulk EXP Modal
+        showBulkExpModal,
+        setShowBulkExpModal,
 
         // Skill Picker
         skillPickerModal,
