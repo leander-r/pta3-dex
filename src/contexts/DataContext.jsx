@@ -521,13 +521,13 @@ export const DataProvider = ({
     }, []);
 
     // Send to Discord
-    const sendToDiscord = useCallback(async (roll, trainer) => {
+    const sendToDiscord = useCallback(async (roll, trainerName) => {
         if (!discordWebhook.enabled || !discordWebhook.url) return;
 
         try {
             let embed = {
                 timestamp: new Date().toISOString(),
-                footer: { text: `${trainer?.name || 'Trainer'} • PTA Manager` }
+                footer: { text: `${trainerName || 'Trainer'} • PTA Manager` }
             };
 
             const colors = {
@@ -541,9 +541,73 @@ export const DataProvider = ({
             };
             embed.color = colors[roll.type] || 0x667EEA;
 
-            // Build embed based on roll type (simplified)
-            embed.title = `🎲 Roll Result`;
-            embed.description = `**${roll.total}**`;
+            // Build title and description based on roll type
+            if (roll.type === 'pokemon') {
+                embed.title = `🎲 ${roll.pokemon} used ${roll.move}!`;
+
+                if (roll.isHit === false) {
+                    embed.description = `**MISS!** (Rolled ${roll.accRoll}${roll.accModifier ? ` + ${roll.accModifier}` : ''} = ${roll.modifiedAccRoll || roll.accRoll} vs AC ${roll.moveAC})`;
+                    embed.color = 0x95A5A6;
+                } else {
+                    embed.fields = [
+                        { name: '📊 Damage Roll', value: `**${roll.total}** damage`, inline: true },
+                        { name: '🎯 Accuracy', value: roll.isCrit ? `**${roll.accRoll}** - CRITICAL HIT! 💥` : `**${roll.accRoll}** vs AC ${roll.moveAC}${roll.acWasOverridden ? ' (DM)' : ''}`, inline: true }
+                    ];
+
+                    if (roll.dice && roll.rolls) {
+                        embed.fields.push({ name: '🎲 Dice', value: `${roll.dice} → [${roll.rolls.join(', ')}] = ${roll.diceTotal}`, inline: false });
+                    }
+
+                    let breakdown = [];
+                    if (roll.statBonus) breakdown.push(`+${roll.statBonus} stat`);
+                    if (roll.stabBonus) breakdown.push(`+${roll.stabBonus} STAB`);
+                    if (breakdown.length > 0) {
+                        embed.fields.push({ name: '📈 Bonuses', value: breakdown.join(', '), inline: true });
+                    }
+
+                    embed.fields.push({ name: '⚔️ Type', value: `${roll.moveType} (${roll.category})`, inline: true });
+                }
+
+            } else if (roll.type === 'accuracy') {
+                embed.title = `🎯 ${roll.pokemon} - Accuracy Check`;
+                embed.description = roll.isCrit
+                    ? `**${roll.total}** - CRITICAL HIT! 💥`
+                    : `**${roll.total}**`;
+
+            } else if (roll.type === 'trainer_skill' || roll.type === 'trainer') {
+                embed.title = `🧑‍🏫 Trainer Skill: ${roll.skill}`;
+                embed.fields = [
+                    { name: '🎲 Result', value: `**${roll.total}**`, inline: true },
+                    { name: '📊 Rolls', value: `[${roll.rolls.join(', ')}]`, inline: true }
+                ];
+                if (roll.hasSkill) {
+                    embed.fields.push({ name: '✅ Trained', value: `+${roll.bonus} bonus`, inline: true });
+                }
+                if (roll.skillStat) {
+                    embed.fields.push({ name: '📈 Stat', value: roll.skillStat, inline: true });
+                }
+
+            } else if (roll.type === 'trainer_d20') {
+                embed.title = `🎯 Trainer: ${roll.skill}`;
+                embed.description = `Rolled **${roll.total}** on d20`;
+
+            } else if (roll.type === 'pokemonSkill') {
+                embed.title = `🐾 ${roll.pokemon} - ${roll.skill}`;
+                embed.fields = [
+                    { name: '🎲 Result', value: `**${roll.total}**`, inline: true },
+                    { name: '📊 Dice', value: `${roll.dice} → [${roll.rolls.join(', ')}]`, inline: true }
+                ];
+                if (roll.modifier) {
+                    embed.fields.push({ name: '📈 Modifier', value: `+${roll.modifier}`, inline: true });
+                }
+
+            } else if (roll.type === 'custom') {
+                embed.title = `🎲 Custom Roll: ${roll.dice}`;
+                embed.fields = [
+                    { name: '🎲 Result', value: `**${roll.total}**`, inline: true },
+                    { name: '📊 Rolls', value: `[${roll.rolls.join(', ')}]`, inline: true }
+                ];
+            }
 
             await fetch(discordWebhook.url, {
                 method: 'POST',
@@ -558,6 +622,53 @@ export const DataProvider = ({
             console.error('Failed to send to Discord:', error);
         }
     }, [discordWebhook.enabled, discordWebhook.url]);
+
+    // Load data on mount
+    useEffect(() => {
+        loadData();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Debounced auto-save on data changes (1 second delay)
+    useEffect(() => {
+        if (!dataLoadedRef.current) return;
+
+        const saveTimeout = setTimeout(() => {
+            saveData();
+        }, 1000);
+
+        return () => clearTimeout(saveTimeout);
+    }, [trainers, inventory, activeTrainerId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Interval-based auto-save (every 2 minutes, only if changed)
+    useEffect(() => {
+        if (!dataLoadedRef.current) return;
+
+        const AUTO_SAVE_INTERVAL = 2 * 60 * 1000;
+
+        const autoSaveInterval = setInterval(() => {
+            const currentDataSnapshot = JSON.stringify({
+                trainers,
+                activeTrainerId,
+                inventory,
+                customSpecies
+            });
+
+            if (lastAutoSaveDataRef.current !== currentDataSnapshot) {
+                console.log('Auto-saving...');
+                saveData(true);
+                lastAutoSaveDataRef.current = currentDataSnapshot;
+            }
+        }, AUTO_SAVE_INTERVAL);
+
+        lastAutoSaveDataRef.current = JSON.stringify({
+            trainers,
+            activeTrainerId,
+            inventory,
+            customSpecies
+        });
+
+        return () => clearInterval(autoSaveInterval);
+    }, [trainers, activeTrainerId, inventory, customSpecies]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const value = {
         // Inventory State
