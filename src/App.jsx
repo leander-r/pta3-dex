@@ -163,12 +163,13 @@ const [diceRoller, setDiceRoller] = useState({
     stabApplied: false
 });
 
-// Initialize activeTrainerId on first load
+// Initialize activeTrainerId on first load, but don't override if already set to a valid trainer
 useEffect(() => {
-    if (!activeTrainerId && trainers.length > 0) {
+    const activeTrainerExists = trainers.some(t => t.id === activeTrainerId);
+    if (!activeTrainerExists && trainers.length > 0) {
         setActiveTrainerId(trainers[0].id);
     }
-}, [trainers]);
+}, [trainers, activeTrainerId]);
 
 // ============================================================
 // GAME DATA & POKÉDEX FETCH & CACHE

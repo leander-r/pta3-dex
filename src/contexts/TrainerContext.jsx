@@ -59,9 +59,7 @@ export const TrainerProvider = ({
     });
 
     const [activeTrainerId, setActiveTrainerIdState] = useState(() => {
-        if (initialActiveId) return initialActiveId;
-        if (initialTrainers && initialTrainers.length > 0) return initialTrainers[0].id;
-        return null;
+        return initialActiveId || (initialTrainers && initialTrainers.length > 0 ? initialTrainers[0].id : null);
     });
 
     // Sync internal state when props change (e.g., from DataContext import)
@@ -76,6 +74,9 @@ export const TrainerProvider = ({
         if (initialTrainers && initialTrainers.length > 0) {
             isExternalUpdate.current = true;
             setTrainersState(initialTrainers);
+            // Reset flag immediately - it only needed to be true during this sync
+            // to prevent redundant onTrainersChange calls, but we're using setTrainersState directly
+            isExternalUpdate.current = false;
         }
     }, [initialTrainers]);
 
@@ -91,18 +92,28 @@ export const TrainerProvider = ({
         setActiveTrainerIdState(id);
     }, []);
 
-    // Wrapper to notify parent of changes
+    // Track if change was internal (user action) vs external (prop sync)
+    const pendingNotify = useRef(false);
+
+    // Wrapper to update trainers and mark for parent notification
     const setTrainers = useCallback((updater) => {
+        if (!isExternalUpdate.current) {
+            pendingNotify.current = true;
+        }
         setTrainersState(prev => {
             const newTrainers = typeof updater === 'function' ? updater(prev) : updater;
-            // Only notify parent if this wasn't triggered by a prop change
-            if (onTrainersChange && !isExternalUpdate.current) {
-                onTrainersChange(newTrainers);
-            }
             isExternalUpdate.current = false;
             return newTrainers;
         });
-    }, [onTrainersChange]);
+    }, []);
+
+    // Notify parent when trainers change due to user action
+    useEffect(() => {
+        if (pendingNotify.current && onTrainersChange) {
+            pendingNotify.current = false;
+            onTrainersChange(trainers);
+        }
+    }, [trainers, onTrainersChange]);
 
     // Current active trainer (computed)
     const trainer = useMemo(() => {

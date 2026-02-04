@@ -56,12 +56,7 @@ export const DataProvider = ({
         }
     }, [discordWebhook.url, discordWebhook.enabled]);
 
-    // Mark data as loaded
-    useEffect(() => {
-        if (trainers && trainers.length > 0 && trainers[0].id) {
-            dataLoadedRef.current = true;
-        }
-    }, [trainers]);
+    // Note: dataLoadedRef is now set in loadData after data is actually loaded
 
     // Save data to storage
     const saveData = useCallback(async (isAuto = false) => {
@@ -194,14 +189,22 @@ export const DataProvider = ({
                 const migratedData = migrateOldData(loadedData);
 
                 if (migratedData.trainers && Array.isArray(migratedData.trainers) && migratedData.trainers.length > 0) {
+                    // Validate activeTrainerId exists in trainers array, otherwise use first trainer
+                    const validActiveId = migratedData.trainers.some(t => t.id === migratedData.activeTrainerId)
+                        ? migratedData.activeTrainerId
+                        : migratedData.trainers[0].id;
                     setTrainers(migratedData.trainers);
-                    setActiveTrainerId(migratedData.activeTrainerId || migratedData.trainers[0].id);
+                    setActiveTrainerId(validActiveId);
                 }
                 setInventory(Array.isArray(migratedData.inventory) ? migratedData.inventory : []);
                 setCustomSpecies(Array.isArray(migratedData.customSpecies) ? migratedData.customSpecies : []);
             }
+            // Mark data as loaded AFTER loading completes
+            dataLoadedRef.current = true;
         } catch (error) {
             console.error('Error loading data:', error);
+            // Still enable auto-save on error so user can save their work
+            dataLoadedRef.current = true;
         }
     }, [migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
 
