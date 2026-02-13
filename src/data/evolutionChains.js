@@ -427,4 +427,106 @@ export const EVOLUTION_CHAINS = {
     // Pumpkaboo line (size form preserved on evolution)
     'Pumpkaboo': { evolvesTo: [{ species: 'Gourgeist', method: 'level', requirement: 25 }] },
     'Gourgeist': { evolvesFrom: { species: 'Pumpkaboo', method: 'level', requirement: 25 } },
+
+    // Gen 7 Starters
+    'Rowlet': { evolvesTo: [{ species: 'Dartrix', method: 'level', requirement: 17 }] },
+    'Dartrix': { evolvesFrom: { species: 'Rowlet', method: 'level', requirement: 17 }, evolvesTo: [{ species: 'Decidueye', method: 'level', requirement: 34 }] },
+    'Decidueye': { evolvesFrom: { species: 'Dartrix', method: 'level', requirement: 34 } },
+
+    'Litten': { evolvesTo: [{ species: 'Torracat', method: 'level', requirement: 17 }] },
+    'Torracat': { evolvesFrom: { species: 'Litten', method: 'level', requirement: 17 }, evolvesTo: [{ species: 'Incineroar', method: 'level', requirement: 34 }] },
+    'Incineroar': { evolvesFrom: { species: 'Torracat', method: 'level', requirement: 34 } },
+
+    'Popplio': { evolvesTo: [{ species: 'Brionne', method: 'level', requirement: 17 }] },
+    'Brionne': { evolvesFrom: { species: 'Popplio', method: 'level', requirement: 17 }, evolvesTo: [{ species: 'Primarina', method: 'level', requirement: 34 }] },
+    'Primarina': { evolvesFrom: { species: 'Brionne', method: 'level', requirement: 34 } },
+
+    // Pikipek line
+    'Pikipek': { evolvesTo: [{ species: 'Trumbeak', method: 'level', requirement: 14 }] },
+    'Trumbeak': { evolvesFrom: { species: 'Pikipek', method: 'level', requirement: 14 }, evolvesTo: [{ species: 'Toucannon', method: 'level', requirement: 28 }] },
+    'Toucannon': { evolvesFrom: { species: 'Trumbeak', method: 'level', requirement: 28 } },
+
+    // Yungoos line
+    'Yungoos': { evolvesTo: [{ species: 'Gumshoos', method: 'level', requirement: 20 }] },
+    'Gumshoos': { evolvesFrom: { species: 'Yungoos', method: 'level', requirement: 20 } },
+
+    // Grubbin line
+    'Grubbin': { evolvesTo: [{ species: 'Charjabug', method: 'level', requirement: 20 }] },
+    'Charjabug': { evolvesFrom: { species: 'Grubbin', method: 'level', requirement: 20 }, evolvesTo: [{ species: 'Vikavolt', method: 'stone', requirement: 'Thunder Stone' }] },
+    'Vikavolt': { evolvesFrom: { species: 'Charjabug', method: 'stone', requirement: 'Thunder Stone' } },
+
+    // Cutiefly line
+    'Cutiefly': { evolvesTo: [{ species: 'Ribombee', method: 'level', requirement: 25 }] },
+    'Ribombee': { evolvesFrom: { species: 'Cutiefly', method: 'level', requirement: 25 } },
+
+    // Crabrawler line
+    'Crabrawler': { evolvesTo: [{ species: 'Crabominable', method: 'stone', requirement: 'Ice Stone' }] },
+    'Crabominable': { evolvesFrom: { species: 'Crabrawler', method: 'stone', requirement: 'Ice Stone' } },
+
+    // Mareanie line
+    'Mareanie': { evolvesTo: [{ species: 'Toxapex', method: 'level', requirement: 38 }] },
+    'Toxapex': { evolvesFrom: { species: 'Mareanie', method: 'level', requirement: 38 } },
+
+    // Mudbray line
+    'Mudbray': { evolvesTo: [{ species: 'Mudsdale', method: 'level', requirement: 30 }] },
+    'Mudsdale': { evolvesFrom: { species: 'Mudbray', method: 'level', requirement: 30 } },
+
+    // Dewpider line
+    'Dewpider': { evolvesTo: [{ species: 'Araquanid', method: 'level', requirement: 22 }] },
+    'Araquanid': { evolvesFrom: { species: 'Dewpider', method: 'level', requirement: 22 } },
+
+    // Fomantis line
+    'Fomantis': { evolvesTo: [{ species: 'Lurantis', method: 'level', requirement: 34 }] },
+    'Lurantis': { evolvesFrom: { species: 'Fomantis', method: 'level', requirement: 34 } },
+
+    // Morelull line
+    'Morelull': { evolvesTo: [{ species: 'Shiinotic', method: 'level', requirement: 24 }] },
+    'Shiinotic': { evolvesFrom: { species: 'Morelull', method: 'level', requirement: 24 } },
+
+    // Salandit line
+    'Salandit': { evolvesTo: [{ species: 'Salazzle', method: 'level', requirement: 33, note: 'Female only' }] },
+    'Salazzle': { evolvesFrom: { species: 'Salandit', method: 'level', requirement: 33 } },
+
+    // Stufful line
+    'Stufful': { evolvesTo: [{ species: 'Bewear', method: 'level', requirement: 27 }] },
+    'Bewear': { evolvesFrom: { species: 'Stufful', method: 'level', requirement: 27 } },
+
+    // Bounsweet line
+    'Bounsweet': { evolvesTo: [{ species: 'Steenee', method: 'level', requirement: 18 }] },
+    'Steenee': { evolvesFrom: { species: 'Bounsweet', method: 'level', requirement: 18 }, evolvesTo: [{ species: 'Tsareena', method: 'other', requirement: 'Knows Stomp' }] },
+    'Tsareena': { evolvesFrom: { species: 'Steenee', method: 'other', requirement: 'Knows Stomp' } },
+
+    // Wimpod line
+    'Wimpod': { evolvesTo: [{ species: 'Golisopod', method: 'level', requirement: 30 }] },
+    'Golisopod': { evolvesFrom: { species: 'Wimpod', method: 'level', requirement: 30 } },
+
+    // Sandygast line
+    'Sandygast': { evolvesTo: [{ species: 'Palossand', method: 'level', requirement: 42 }] },
+    'Palossand': { evolvesFrom: { species: 'Sandygast', method: 'level', requirement: 42 } },
+
+    // Type: Null line
+    'Type: Null': { evolvesTo: [{ species: 'Silvally', method: 'happiness', requirement: 'High Friendship' }] },
+    'Silvally': { evolvesFrom: { species: 'Type: Null', method: 'happiness', requirement: 'High Friendship' } },
+
+    // Jangmo-o line
+    'Jangmo-O': { evolvesTo: [{ species: 'Hakamo-O', method: 'level', requirement: 35 }] },
+    'Hakamo-O': { evolvesFrom: { species: 'Jangmo-O', method: 'level', requirement: 35 }, evolvesTo: [{ species: 'Kommo-O', method: 'level', requirement: 45 }] },
+    'Kommo-O': { evolvesFrom: { species: 'Hakamo-O', method: 'level', requirement: 45 } },
+
+    // Cosmog line
+    'Cosmog': { evolvesTo: [{ species: 'Cosmoem', method: 'level', requirement: 43 }] },
+    'Cosmoem': { evolvesFrom: { species: 'Cosmog', method: 'level', requirement: 43 }, evolvesTo: [
+        { species: 'Solgaleo', method: 'level', requirement: 53, note: 'Sun' },
+        { species: 'Lunala', method: 'level', requirement: 53, note: 'Moon' }
+    ]},
+    'Solgaleo': { evolvesFrom: { species: 'Cosmoem', method: 'level', requirement: 53 } },
+    'Lunala': { evolvesFrom: { species: 'Cosmoem', method: 'level', requirement: 53 } },
+
+    // Poipole line
+    'Poipole': { evolvesTo: [{ species: 'Naganadel', method: 'other', requirement: 'Knows Dragon Pulse' }] },
+    'Naganadel': { evolvesFrom: { species: 'Poipole', method: 'other', requirement: 'Knows Dragon Pulse' } },
+
+    // Meltan line
+    'Meltan': { evolvesTo: [{ species: 'Melmetal', method: 'level', requirement: 40 }] },
+    'Melmetal': { evolvesFrom: { species: 'Meltan', method: 'level', requirement: 40 } },
 };
