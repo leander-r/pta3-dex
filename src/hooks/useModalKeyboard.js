@@ -36,6 +36,10 @@ const useModalKeyboard = (isOpen, onClose, options = {}) => {
 
     const modalRef = useRef(null);
     const previousActiveElement = useRef(null);
+    const onCloseRef = useRef(onClose);
+
+    // Keep onClose ref current without triggering re-renders
+    useEffect(() => { onCloseRef.current = onClose; });
 
     // Get all focusable elements within the modal
     const getFocusableElements = useCallback(() => {
@@ -51,7 +55,7 @@ const useModalKeyboard = (isOpen, onClose, options = {}) => {
         if (event.key === 'Escape' && closeOnEscape) {
             event.preventDefault();
             event.stopPropagation();
-            onClose();
+            onCloseRef.current();
             return;
         }
 
@@ -77,45 +81,38 @@ const useModalKeyboard = (isOpen, onClose, options = {}) => {
                 }
             }
         }
-    }, [isOpen, onClose, closeOnEscape, trapFocus, getFocusableElements]);
+    }, [isOpen, closeOnEscape, trapFocus, getFocusableElements]);
 
-    // Set up event listeners and focus management
+    // Auto-focus on open, restore focus on close (only runs when isOpen changes)
     useEffect(() => {
         if (isOpen) {
-            // Store the previously focused element
             previousActiveElement.current = document.activeElement;
 
-            // Add keydown listener
-            document.addEventListener('keydown', handleKeyDown);
-
-            // Auto-focus first focusable element
             if (autoFocus) {
-                // Small delay to ensure modal is rendered
                 const timer = setTimeout(() => {
                     const focusableElements = getFocusableElements();
                     if (focusableElements.length > 0) {
-                        // Try to focus the close button or first input
                         const closeBtn = modalRef.current?.querySelector('button[aria-label="Close modal"]');
                         const firstInput = modalRef.current?.querySelector('input, select, textarea');
                         (firstInput || closeBtn || focusableElements[0])?.focus();
                     }
                 }, 50);
-                return () => {
-                    clearTimeout(timer);
-                    document.removeEventListener('keydown', handleKeyDown);
-                };
+                return () => clearTimeout(timer);
             }
-
-            return () => {
-                document.removeEventListener('keydown', handleKeyDown);
-            };
         } else {
-            // Restore focus when modal closes
             if (previousActiveElement.current && typeof previousActiveElement.current.focus === 'function') {
                 previousActiveElement.current.focus();
             }
         }
-    }, [isOpen, handleKeyDown, autoFocus, getFocusableElements]);
+    }, [isOpen, autoFocus, getFocusableElements]);
+
+    // Keydown listener (separate from auto-focus so re-renders don't steal focus)
+    useEffect(() => {
+        if (isOpen) {
+            document.addEventListener('keydown', handleKeyDown);
+            return () => document.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [isOpen, handleKeyDown]);
 
     return { modalRef };
 };
