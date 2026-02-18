@@ -72,7 +72,6 @@ export const loadGameDataFromGitHub = async () => {
         if (cachedMetadata && (Date.now() - cachedMetadata.timestamp) < DATA_CONFIG.cacheDuration) {
             const cachedData = await getFromGameDataDB('gamedata');
             if (cachedData) {
-                console.log('Game data loaded from cache');
                 updateGameData(cachedData);
                 GAME_DATA._loaded = true;
                 return true;
@@ -80,7 +79,6 @@ export const loadGameDataFromGitHub = async () => {
         }
         
         // 2. Fetch from GitHub (with 15s timeout)
-        console.log('Fetching game data from GitHub...');
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
         const response = await fetch(DATA_CONFIG.gameDataUrl, { signal: controller.signal });
@@ -128,27 +126,17 @@ export const loadGameDataFromGitHub = async () => {
         await saveToGameDataDB('gamedata', data);
         await saveToGameDataDB('metadata', { timestamp: Date.now(), count: Object.keys(data).length });
         
-        console.log('Game data loaded from GitHub:', 
-            Object.keys(data.moves || {}).length, 'moves,',
-            Object.keys(data.abilities || {}).length, 'abilities,',
-            Object.keys(data.items || {}).length, 'items,',
-            Object.keys(data.features || {}).length, 'features');
-        
         return true;
         
     } catch (error) {
-        console.warn('Failed to load game data from GitHub:', error.message);
-        
         // Try stale cache
         const staleData = await getFromGameDataDB('gamedata');
         if (staleData) {
-            console.log('Using stale cached game data');
             updateGameData(staleData);
             GAME_DATA._loaded = true;
             return true;
         }
         
-        console.log('Using fallback minimal game data');
         return false;
     }
 };

@@ -76,7 +76,6 @@ const SkillPickerModal = () => {
             };
         });
 
-        console.log(`Added ${cls} with skills:`, skillPickerModal.selectedSkills);
         setSkillPickerModal({
             show: false,
             className: '',

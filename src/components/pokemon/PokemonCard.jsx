@@ -852,6 +852,7 @@ const PokemonCard = ({
                                                 alignItems: 'center',
                                                 justifyContent: 'center'
                                             }}
+                                            aria-label="Clear species search"
                                         >✕</button>
                                     )}
                                 </div>
@@ -1048,6 +1049,7 @@ const PokemonCard = ({
                                                                                 cursor: 'pointer'
                                                                             }}
                                                                             title="Delete custom species"
+                                                                            aria-label="Delete custom species"
                                                                         >×</button>
                                                                     </>
                                                                 )}
@@ -1885,6 +1887,7 @@ const PokemonCard = ({
                                                 alignItems: 'center',
                                                 justifyContent: 'center'
                                             }}
+                                            aria-label="Clear move search"
                                         >✕</button>
                                     )}
                                 </div>

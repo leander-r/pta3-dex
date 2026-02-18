@@ -31,10 +31,7 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
         gameDataLoadPromise.then(loaded => {
             setGameDataLoaded(loaded);
             if (loaded && GAME_DATA._loaded) {
-                console.log('Game data ready:',
-                    Object.keys(GAME_DATA.moves || {}).length, 'moves,',
-                    Object.keys(GAME_DATA.abilities || {}).length, 'abilities,',
-                    Object.keys(GAME_DATA.features || {}).length, 'features');
+                // Game data loaded successfully
             }
         });
     }, []);
@@ -51,7 +48,6 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
                 if (cachedMeta && (Date.now() - cachedMeta.timestamp) < POKEDEX_CONFIG.cacheDuration) {
                     const cachedData = await getFromPokedexDB('pokedex');
                     if (cachedData && Array.isArray(cachedData)) {
-                        console.log('Pokédex loaded from cache:', cachedData.length, 'species');
                         setPokedex(cachedData);
                         setPokedexLoading(false);
                         return;
@@ -59,7 +55,6 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
                 }
 
                 // Fetch from GitHub
-                console.log('Fetching Pokédex from remote...');
                 const response = await fetch(POKEDEX_CONFIG.remoteUrl);
 
                 if (!response.ok) {
@@ -68,8 +63,6 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
 
                 const arrayBuffer = await response.arrayBuffer();
                 const uint8Array = new Uint8Array(arrayBuffer);
-
-                console.log('Response size:', uint8Array.length, 'bytes');
 
                 let responseText;
                 let encoding = 'utf-8';
@@ -126,20 +119,15 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
                     count: pokemonList.length
                 });
 
-                console.log('Pokédex loaded:', pokemonList.length, 'species');
                 setPokedex(pokemonList);
 
             } catch (error) {
-                console.warn('Pokédex fetch failed:', error.message);
-
                 // Try stale cache
                 const staleCache = await getFromPokedexDB('pokedex');
                 if (staleCache && Array.isArray(staleCache)) {
-                    console.log('Using stale cache');
                     setPokedex(staleCache);
                     setPokedexError('Using cached data');
                 } else if (POKEDEX_CONFIG.fallbackEnabled) {
-                    console.log('Using fallback Pokédex');
                     setPokedex(FALLBACK_POKEDEX);
                     setPokedexError('Using offline mini-dex (19 Pokémon)');
                 } else {

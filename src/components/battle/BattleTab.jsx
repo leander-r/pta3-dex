@@ -645,6 +645,7 @@ const BattleTab = () => {
                                                                     <button
                                                                         onClick={() => updateCombatStage(stat.key, -1)}
                                                                         style={{ width: '24px', height: '24px', border: 'none', borderRadius: '4px', background: '#ffcdd2', cursor: 'pointer', fontSize: '14px' }}
+                                                                        aria-label={`Decrease ${stat.label}`}
                                                                     >−</button>
                                                                     <span style={{
                                                                         fontSize: '12px',
@@ -657,6 +658,7 @@ const BattleTab = () => {
                                                                     <button
                                                                         onClick={() => updateCombatStage(stat.key, 1)}
                                                                         style={{ width: '24px', height: '24px', border: 'none', borderRadius: '4px', background: '#c8e6c9', cursor: 'pointer', fontSize: '14px' }}
+                                                                        aria-label={`Increase ${stat.label}`}
                                                                     >+</button>
                                                                 </div>
                                                             </div>
@@ -732,6 +734,7 @@ const BattleTab = () => {
                                                     fontSize: '10px'
                                                 }}
                                                 title="Clear AC override"
+                                                aria-label="Clear AC override"
                                             >
                                                 ✕
                                             </button>
@@ -794,6 +797,7 @@ const BattleTab = () => {
                                                         fontSize: '14px'
                                                     }}
                                                     title="View move details"
+                                                    aria-label={`View details for ${move.name}`}
                                                 >
                                                     ℹ
                                                 </button>

@@ -346,6 +346,7 @@ const InventoryTab = () => {
                                             alignItems: 'center',
                                             justifyContent: 'center'
                                         }}
+                                        aria-label="Clear item search"
                                     >✕</button>
                                 )}
                             </div>

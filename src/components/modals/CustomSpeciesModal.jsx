@@ -349,7 +349,7 @@ const CustomSpeciesModal = () => {
                                     <div key={s.id || idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'var(--bg-primary, white)', borderRadius: '4px', fontSize: '12px' }}>
                                         <span>{s.species}</span>
                                         <button onClick={() => handleEditSpecies(idx)} style={{ background: '#667eea', color: 'white', border: 'none', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer', fontSize: '10px' }}>Edit</button>
-                                        <button onClick={() => handleDeleteSpecies(idx)} style={{ background: '#f44336', color: 'white', border: 'none', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer', fontSize: '10px' }}>×</button>
+                                        <button onClick={() => handleDeleteSpecies(idx)} style={{ background: '#f44336', color: 'white', border: 'none', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer', fontSize: '10px' }} aria-label={`Delete ${s.species}`}>×</button>
                                     </div>
                                 ))}
                             </div>
@@ -416,7 +416,7 @@ const CustomSpeciesModal = () => {
                                 return (
                                     <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', background: '#667eea', color: 'white', borderRadius: '12px', fontSize: '11px' }}>
                                         {ability}
-                                        <button onClick={() => removeAbility(tier, tierIdx)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '0 2px', fontSize: '12px', lineHeight: 1 }}>×</button>
+                                        <button onClick={() => removeAbility(tier, tierIdx)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '0 2px', fontSize: '12px', lineHeight: 1 }} aria-label={`Remove ${ability}`}>×</button>
                                     </span>
                                 );
                             })}
@@ -479,7 +479,7 @@ const CustomSpeciesModal = () => {
                                                 <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-secondary)', minWidth: '35px' }}>Lv.{moveEntry.level}</span>
                                                 <span style={{ fontWeight: 'bold', fontSize: '12px', flex: 1 }}>{moveEntry.move}</span>
                                                 {moveData && <span style={{ padding: '2px 6px', background: getTypeColor(moveData.type), color: 'white', borderRadius: '8px', fontSize: '9px', fontWeight: 'bold' }}>{moveData.type}</span>}
-                                                <button onClick={() => removeLevelUpMove(idx)} style={{ background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '11px' }}>×</button>
+                                                <button onClick={() => removeLevelUpMove(idx)} style={{ background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '11px' }} aria-label={`Remove ${moveEntry.move}`}>×</button>
                                             </div>
                                         );
                                     })}

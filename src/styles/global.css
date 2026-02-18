@@ -208,7 +208,7 @@
             --text-primary: #f0f0f5;
             --text-secondary: #b8b8c8;
             --text-muted: #a0a0b8;
-            --text-light: #8888a8;
+            --text-light: #9898b0;
 
             /* Component colors - dark mode */
             --section-bg: linear-gradient(135deg, #252535 0%, #2a2a3a 100%);
@@ -292,7 +292,7 @@
             --moves-frequency-text: #a0a0b8;
             --moves-range-text: #b0b0c0;
             --moves-effect-text: #b8b8c8;
-            --moves-empty-text: #8888a8;
+            --moves-empty-text: #9898b0;
             --moves-type-btn-border: #f0f0f5;
 
             /* Abilities database colors - dark mode */
@@ -301,7 +301,7 @@
             --abilities-card-border: #8b9cf7;
             --abilities-name-text: #f0f0f5;
             --abilities-desc-text: #b8b8c8;
-            --abilities-empty-text: #8888a8;
+            --abilities-empty-text: #9898b0;
             --abilities-quick-btn-bg: #2a2a3a;
             --abilities-quick-btn-border: #4d4d5d;
             --abilities-quick-btn-text: #b8b8c8;
@@ -316,7 +316,7 @@
             --skill-btn-border: #4d4d5d;
             --skill-btn-has-bg: #3d3020;
             --skill-btn-disabled-bg: #1e1e28;
-            --skill-btn-disabled-text: #666;
+            --skill-btn-disabled-text: #999;
             --skill-btn-disabled-border: #3a3a4a;
         }
 

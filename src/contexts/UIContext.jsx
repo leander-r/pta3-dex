@@ -30,11 +30,12 @@ export const UIProvider = ({
     const [activeTab, setActiveTab] = useState('trainer');
     const [referenceTab, setReferenceTab] = useState('types');
 
-    // Theme State
+    // Theme State - respects saved preference, falls back to system preference
     const [theme, setTheme] = useState(() => {
-        const savedTheme = safeLocalStorageGet('pta-theme', 'light');
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        return savedTheme;
+        const saved = safeLocalStorageGet('pta-theme', null);
+        const initial = saved || (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', initial);
+        return initial;
     });
 
     // Save Indicator State

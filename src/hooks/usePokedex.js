@@ -28,7 +28,6 @@ export const usePokedex = () => {
             if (cachedMeta && (Date.now() - cachedMeta.timestamp) < POKEDEX_CONFIG.cacheDuration) {
                 const cachedData = await getFromPokedexDB('pokedex');
                 if (cachedData && Array.isArray(cachedData)) {
-                    console.log('Pokedex loaded from cache:', cachedData.length, 'species');
                     setPokedex(cachedData);
                     setLoading(false);
                     return;
@@ -36,7 +35,6 @@ export const usePokedex = () => {
             }
 
             // 2. Fetch from GitHub
-            console.log('Fetching Pokedex from remote...');
             const response = await fetch(POKEDEX_CONFIG.remoteUrl);
 
             if (!response.ok) {
@@ -104,20 +102,15 @@ export const usePokedex = () => {
                 count: pokemonList.length
             });
 
-            console.log('Pokedex loaded:', pokemonList.length, 'species');
             setPokedex(pokemonList);
 
         } catch (err) {
-            console.warn('Pokedex fetch failed:', err.message);
-
             // Try stale cache
             const staleCache = await getFromPokedexDB('pokedex');
             if (staleCache && Array.isArray(staleCache)) {
-                console.log('Using stale cache');
                 setPokedex(staleCache);
                 setError('Using cached data');
             } else if (POKEDEX_CONFIG.fallbackEnabled) {
-                console.log('Using fallback Pokedex');
                 setPokedex(FALLBACK_POKEDEX);
                 setError('Using offline mini-dex (limited Pokemon)');
             } else {

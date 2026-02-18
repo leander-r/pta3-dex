@@ -107,7 +107,6 @@ export const PokemonProvider = ({
             );
 
             if (alreadyKnows) {
-                console.log(`${p.name || p.species} already knows ${moveName}, skipping`);
                 return p;
             }
 
