@@ -152,18 +152,6 @@ const [editingPokemon, setEditingPokemon] = useState(null);
 // Inventory state
 const [inventory, setInventory] = useState([]);
 
-// Battle calculator state
-const [diceRoller, setDiceRoller] = useState({
-    mode: 'pokemon',
-    selectedPokemon: null,
-    selectedMove: null,
-    selectedSkill: '',
-    customDice: '',
-    combatStages: { atk: 0, satk: 0, def: 0, sdef: 0, spd: 0, acc: 0, eva: 0 },
-    rollHistory: [],
-    stabApplied: false
-});
-
 // Initialize activeTrainerId on first load, but don't override if already set to a valid trainer
 useEffect(() => {
     const activeTrainerExists = trainers.some(t => t.id === activeTrainerId);
@@ -551,9 +539,10 @@ return (
 
 
                 {/* ========== DICE ROLLER TAB ========== */}
-                {activeTab === 'battle' && (
+                {/* Always mounted so combat stages and roll history persist across tab switches */}
+                <div style={{ display: activeTab === 'battle' ? undefined : 'none' }}>
                     <BattleTab />
-                )}
+                </div>
 
 
                 {/* ========== QUICK REFERENCE TAB ========== */}
