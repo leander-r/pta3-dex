@@ -9,6 +9,179 @@ import { copyToClipboard, downloadCardAsImage } from '../../utils/exportUtils.js
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
+import { GAME_DATA } from '../../data/configs.js';
+
+// ============================================================
+// Shared Design Tokens & Helper Components
+// ============================================================
+
+const CARD_TOKENS = {
+    fontSm: '10px',
+    fontMd: '12px',
+    fontLg: '14px',
+    fontXl: '18px',
+    radiusSm: '6px',
+    radiusMd: '10px',
+    radiusLg: '16px',
+    statColors: {
+        HP: '#ef5350',
+        ATK: '#ff7043',
+        DEF: '#66bb6a',
+        SATK: '#42a5f5',
+        SDEF: '#ab47bc',
+        SPD: '#26c6da'
+    },
+    categoryIcons: {
+        Physical: '💥',
+        Special: '✨',
+        Status: '🔄'
+    },
+    frequencyMap: {
+        'At-Will': 'AW',
+        'EOT': 'EOT',
+        'Scene': 'SC',
+        'Scene x2': 'SC×2',
+        'Scene x3': 'SC×3',
+        'Daily': 'DY',
+        'Daily x2': 'DY×2',
+        'Daily x3': 'DY×3'
+    }
+};
+
+/** Horizontal colored bar showing stat magnitude */
+const StatBar = ({ label, value, maxStat, color, indicator }) => {
+    const barPercent = Math.min((value / maxStat) * 100, 100);
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <span style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                width: '36px',
+                textAlign: 'right',
+                opacity: 0.95,
+                flexShrink: 0
+            }}>
+                {label}
+            </span>
+            {indicator && (
+                <span style={{
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    width: '14px',
+                    textAlign: 'center',
+                    color: indicator === '+' ? '#69f0ae' : '#ff8a80',
+                    flexShrink: 0
+                }}>
+                    {indicator}
+                </span>
+            )}
+            {!indicator && <span style={{ width: '14px', flexShrink: 0 }} />}
+            <div style={{
+                flex: 1,
+                height: '10px',
+                background: 'rgba(0,0,0,0.3)',
+                borderRadius: '5px',
+                overflow: 'hidden'
+            }}>
+                <div style={{
+                    height: '100%',
+                    width: `${barPercent}%`,
+                    background: `linear-gradient(90deg, ${color}cc, ${color})`,
+                    borderRadius: '5px',
+                    boxShadow: `0 0 6px ${color}66`
+                }} />
+            </div>
+            <span style={{
+                fontSize: '11px',
+                fontWeight: 800,
+                width: '24px',
+                textAlign: 'right',
+                flexShrink: 0
+            }}>
+                {value}
+            </span>
+        </div>
+    );
+};
+
+/** Rounded pill badge for features/skills */
+const PillTag = ({ text, color }) => (
+    <span style={{
+        display: 'inline-block',
+        background: color || 'rgba(255,255,255,0.15)',
+        padding: '3px 10px',
+        borderRadius: '20px',
+        fontSize: '10px',
+        fontWeight: 600,
+        margin: '2px 3px',
+        border: '1px solid rgba(255,255,255,0.2)',
+        whiteSpace: 'nowrap'
+    }}>
+        {text}
+    </span>
+);
+
+/** Uppercase label with decorative gradient line */
+const SectionHeader = ({ label, rightContent, color }) => (
+    <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '8px'
+    }}>
+        <span style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '1.5px',
+            opacity: 0.95,
+            flexShrink: 0,
+            color: color || 'inherit'
+        }}>
+            {label}
+        </span>
+        <div style={{
+            flex: 1,
+            height: '2px',
+            background: `linear-gradient(90deg, ${color || 'rgba(255,255,255,0.4)'}, transparent)`,
+            borderRadius: '1px'
+        }} />
+        {rightContent && (
+            <span style={{
+                fontSize: '10px',
+                background: 'rgba(255,255,255,0.15)',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontWeight: 600,
+                flexShrink: 0
+            }}>
+                {rightContent}
+            </span>
+        )}
+    </div>
+);
+
+/** Returns '+' or '-' for nature buff/nerf on a given stat key */
+const getNatureIndicator = (nature, statKey) => {
+    if (!nature || !GAME_DATA?.natures) return null;
+    const natureData = GAME_DATA.natures[nature];
+    if (!natureData) return null;
+    if (natureData.buff === statKey) return '+';
+    if (natureData.nerf === statKey) return '-';
+    return null;
+};
+
+/** Shortens frequency strings: "At-Will" -> "AW", "Battle - 2" -> "B-2", etc. */
+const getFrequencyAbbr = (frequency) => {
+    if (!frequency) return '';
+    if (CARD_TOKENS.frequencyMap[frequency]) return CARD_TOKENS.frequencyMap[frequency];
+    // Handle "Battle - X" pattern
+    const battleMatch = frequency.match(/^Battle\s*[-–]\s*(\d+)$/i);
+    if (battleMatch) return `B-${battleMatch[1]}`;
+    // Handle "Center" or other
+    if (frequency.toLowerCase() === 'center') return 'CTR';
+    return frequency.length > 4 ? frequency.substring(0, 3) : frequency;
+};
 
 /**
  * CardExportModal - Modal for exporting trainer/team/pokemon cards as images or text
@@ -62,7 +235,7 @@ const CardExportModal = () => {
             <div
                 ref={modalRef}
                 className="modal"
-                style={{ maxWidth: cardType === 'team' ? '650px' : '550px', maxHeight: '90vh', overflow: 'auto' }}
+                style={{ maxWidth: cardType === 'team' ? '680px' : '550px', maxHeight: '90vh', overflow: 'auto' }}
                 onClick={e => e.stopPropagation()}
                 role="dialog"
                 aria-modal="true"
@@ -206,7 +379,9 @@ const CardExportModal = () => {
     );
 };
 
+// ============================================================
 // Trainer Card Sub-component
+// ============================================================
 const TrainerCard = ({ trainer, pokemon }) => (
     <div
         id="trainerCardExport"
@@ -216,40 +391,51 @@ const TrainerCard = ({ trainer, pokemon }) => (
             padding: '24px',
             color: 'white',
             fontFamily: 'system-ui, -apple-system, sans-serif',
-            boxShadow: '0 12px 40px rgba(245, 166, 35, 0.4), 0 4px 12px rgba(0,0,0,0.2)',
+            boxShadow: '0 12px 40px rgba(245, 166, 35, 0.4), 0 4px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)',
             position: 'relative',
             overflow: 'hidden',
             border: '3px solid rgba(255,255,255,0.3)'
         }}
     >
-        {/* Decorative pokeball pattern */}
+        {/* Decorative pokeball watermark - outer ring */}
         <div style={{
             position: 'absolute',
-            top: '-80px',
-            right: '-80px',
+            top: '-60px',
+            right: '-60px',
             width: '200px',
             height: '200px',
             borderRadius: '50%',
-            border: '20px solid rgba(255,255,255,0.1)',
+            border: '16px solid rgba(255,255,255,0.08)',
             background: 'transparent'
         }} />
+        {/* Pokeball center band */}
         <div style={{
             position: 'absolute',
-            top: '20px',
-            right: '20px',
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.15)',
-            border: '3px solid rgba(255,255,255,0.2)'
+            top: '36px',
+            right: '-60px',
+            width: '200px',
+            height: '10px',
+            background: 'rgba(255,255,255,0.06)'
         }} />
+        {/* Pokeball center dot */}
         <div style={{
             position: 'absolute',
-            bottom: '-40px',
-            left: '-40px',
-            width: '120px',
-            height: '120px',
-            background: 'rgba(255,255,255,0.08)',
+            top: '26px',
+            right: '26px',
+            width: '30px',
+            height: '30px',
+            borderRadius: '50%',
+            border: '4px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.05)'
+        }} />
+        {/* Bottom-left decorative circle */}
+        <div style={{
+            position: 'absolute',
+            bottom: '-50px',
+            left: '-50px',
+            width: '140px',
+            height: '140px',
+            background: 'rgba(255,255,255,0.06)',
             borderRadius: '50%'
         }} />
 
@@ -292,7 +478,7 @@ const TrainerCard = ({ trainer, pokemon }) => (
             </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats - Horizontal bar rows */}
         <div style={{
             background: 'rgba(0,0,0,0.2)',
             borderRadius: '16px',
@@ -300,132 +486,122 @@ const TrainerCard = ({ trainer, pokemon }) => (
             marginBottom: '14px',
             border: '1px solid rgba(255,255,255,0.1)'
         }}>
-            <div style={{
-                fontSize: '11px',
-                opacity: 0.9,
-                marginBottom: '10px',
-                textTransform: 'uppercase',
-                letterSpacing: '1.5px',
-                fontWeight: 700,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <span>Stats</span>
-                <span style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    padding: '2px 8px',
-                    borderRadius: '10px',
-                    fontSize: '10px'
-                }}>
-                    Max HP: {(trainer.stats.hp * 4) + (trainer.level * 4)}
-                </span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {[
-                    { label: 'HP', value: trainer.stats.hp, color: '#ef5350' },
-                    { label: 'ATK', value: trainer.stats.atk, color: '#ff7043' },
-                    { label: 'DEF', value: trainer.stats.def, color: '#66bb6a' },
-                    { label: 'SATK', value: trainer.stats.satk, color: '#42a5f5' },
-                    { label: 'SDEF', value: trainer.stats.sdef, color: '#ab47bc' },
-                    { label: 'SPD', value: trainer.stats.spd, color: '#26c6da' }
-                ].map(stat => (
-                    <div key={stat.label} style={{
-                        background: `linear-gradient(135deg, ${stat.color}dd, ${stat.color}99)`,
-                        borderRadius: '10px',
-                        padding: '8px 10px',
-                        textAlign: 'center',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                    }}>
-                        <div style={{ fontSize: '10px', fontWeight: 600, opacity: 0.9 }}>{stat.label}</div>
-                        <div style={{ fontSize: '20px', fontWeight: 800 }}>{stat.value}</div>
-                    </div>
-                ))}
-            </div>
+            <SectionHeader
+                label="Stats"
+                rightContent={`Max HP: ${(trainer.stats.hp * 4) + (trainer.level * 4)}`}
+            />
+            {[
+                { label: 'HP', key: 'hp', value: trainer.stats.hp },
+                { label: 'ATK', key: 'atk', value: trainer.stats.atk },
+                { label: 'DEF', key: 'def', value: trainer.stats.def },
+                { label: 'SATK', key: 'satk', value: trainer.stats.satk },
+                { label: 'SDEF', key: 'sdef', value: trainer.stats.sdef },
+                { label: 'SPD', key: 'spd', value: trainer.stats.spd }
+            ].map(stat => (
+                <StatBar
+                    key={stat.label}
+                    label={stat.label}
+                    value={stat.value}
+                    maxStat={20}
+                    color={CARD_TOKENS.statColors[stat.label]}
+                />
+            ))}
         </div>
 
-        {/* Features */}
+        {/* Features - Pill badges */}
         {trainer.features.length > 0 && (
-            <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
-                    Features
-                </div>
+            <div style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
+                <SectionHeader label="Features" />
                 <div style={{
-                    fontSize: '12px',
-                    lineHeight: 1.5,
                     background: 'rgba(0,0,0,0.15)',
-                    padding: '8px 12px',
-                    borderRadius: '8px'
+                    padding: '8px 8px 6px',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    flexWrap: 'wrap'
                 }}>
-                    {trainer.features.map(f => typeof f === 'object' ? f.name : f).join(' • ')}
+                    {trainer.features.map((f, i) => (
+                        <PillTag key={i} text={typeof f === 'object' ? f.name : f} color="rgba(255,255,255,0.12)" />
+                    ))}
                 </div>
             </div>
         )}
 
-        {/* Skills */}
+        {/* Skills - Pill badges */}
         {(Array.isArray(trainer.skills) ? trainer.skills.length > 0 : Object.keys(trainer.skills || {}).length > 0) && (
-            <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '11px', opacity: 0.9, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
-                    Skills
-                </div>
+            <div style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
+                <SectionHeader label="Skills" />
                 <div style={{
-                    fontSize: '12px',
                     background: 'rgba(0,0,0,0.15)',
-                    padding: '8px 12px',
-                    borderRadius: '8px'
+                    padding: '8px 8px 6px',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    flexWrap: 'wrap'
                 }}>
                     {Array.isArray(trainer.skills)
-                        ? trainer.skills.join(' • ')
+                        ? trainer.skills.map((s, i) => (
+                            <PillTag key={i} text={s} color="rgba(255,215,0,0.15)" />
+                        ))
                         : Object.entries(trainer.skills || {})
                             .filter(([_, rank]) => rank > 0)
-                            .map(([name, rank]) => rank === 2 ? `${name} ★★` : name)
-                            .join(' • ')
+                            .map(([name, rank]) => (
+                                <PillTag
+                                    key={name}
+                                    text={rank === 2 ? `${name} ★★` : name}
+                                    color={rank === 2 ? 'rgba(255,215,0,0.25)' : 'rgba(255,215,0,0.15)'}
+                                />
+                            ))
                     }
                 </div>
             </div>
         )}
 
-        {/* Footer */}
+        {/* Footer - Three mini-cards */}
         <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            background: 'rgba(0,0,0,0.2)',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            marginTop: '14px'
+            gap: '10px',
+            marginTop: '14px',
+            position: 'relative',
+            zIndex: 1
         }}>
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>Money</div>
-                <div style={{ fontSize: '14px', fontWeight: 700 }}>₽{(trainer.money || 0).toLocaleString()}</div>
-            </div>
-            <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.2)' }} />
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>Badges</div>
-                <div style={{ fontSize: '14px', fontWeight: 700 }}>{trainer.badges?.length || 0}</div>
-            </div>
-            <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.2)' }} />
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>Pokémon</div>
-                <div style={{ fontSize: '14px', fontWeight: 700 }}>{pokemon.length}</div>
-            </div>
+            {[
+                { icon: '💰', label: 'Money', value: `₽${(trainer.money || 0).toLocaleString()}` },
+                { icon: '🏅', label: 'Badges', value: trainer.badges?.length || 0 },
+                { icon: '⚡', label: 'Pokémon', value: pokemon.length }
+            ].map(item => (
+                <div key={item.label} style={{
+                    flex: 1,
+                    background: 'rgba(0,0,0,0.2)',
+                    borderRadius: '12px',
+                    padding: '10px 8px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                    <div style={{ fontSize: '16px', marginBottom: '2px' }}>{item.icon}</div>
+                    <div style={{ fontSize: '10px', opacity: 0.8, fontWeight: 600, marginBottom: '2px' }}>{item.label}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700 }}>{item.value}</div>
+                </div>
+            ))}
         </div>
 
         {/* Branding */}
         <div style={{
             textAlign: 'center',
             marginTop: '12px',
-            fontSize: '9px',
+            fontSize: '10px',
             opacity: 0.6,
             letterSpacing: '2px',
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
+            position: 'relative',
+            zIndex: 1
         }}>
             PTA Dex • Trainer Card
         </div>
     </div>
 );
 
+// ============================================================
 // Team Card Sub-component
+// ============================================================
 const TeamCard = ({ trainer, party }) => (
     <div
         id="teamCardExport"
@@ -438,7 +614,7 @@ const TeamCard = ({ trainer, party }) => (
             boxShadow: '0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
             position: 'relative',
             overflow: 'hidden',
-            minWidth: '500px',
+            minWidth: '520px',
             border: '2px solid rgba(255,255,255,0.1)'
         }}
     >
@@ -553,10 +729,10 @@ const TeamCard = ({ trainer, party }) => (
             }}>{party.length}/6</span>
         </div>
 
-        {/* Party Pokemon Grid */}
+        {/* Party Pokemon Grid - 2 columns */}
         <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '12px',
             position: 'relative',
             zIndex: 1
@@ -592,7 +768,9 @@ const TeamCard = ({ trainer, party }) => (
     </div>
 );
 
-// Team Pokemon Slot Sub-component
+// ============================================================
+// Team Pokemon Slot Sub-component (horizontal layout)
+// ============================================================
 const TeamPokemonSlot = ({ poke, idx }) => {
     const pokeStats = getActualStats(poke);
     const maxHP = calculatePokemonHP(poke);
@@ -605,6 +783,11 @@ const TeamPokemonSlot = ({ poke, idx }) => {
         ? `linear-gradient(145deg, ${getTypeColor(primaryType)}cc, ${getTypeColor(secondaryType)}cc)`
         : `linear-gradient(145deg, ${getTypeColor(primaryType)}cc, ${getTypeColor(primaryType)}66)`;
 
+    // Get primary ability
+    const abilityText = poke.abilities && poke.abilities.length > 0
+        ? poke.abilities[0]
+        : poke.ability || '';
+
     return (
         <div style={{
             background: bgGradient,
@@ -612,7 +795,10 @@ const TeamPokemonSlot = ({ poke, idx }) => {
             padding: '12px',
             border: '2px solid rgba(255,255,255,0.25)',
             position: 'relative',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'flex-start'
         }}>
             {/* Slot number */}
             <div style={{
@@ -634,8 +820,8 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                 {idx + 1}
             </div>
 
-            {/* Pokemon avatar/icon */}
-            <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            {/* Left: Avatar */}
+            <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                 {poke.avatar ? (
                     <img src={poke.avatar} alt={poke.name} style={{
                         width: '56px',
@@ -649,7 +835,6 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                     <div style={{
                         width: '56px',
                         height: '56px',
-                        margin: '0 auto',
                         borderRadius: '10px',
                         background: 'rgba(255,255,255,0.2)',
                         border: '2px solid rgba(255,255,255,0.3)',
@@ -661,10 +846,27 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                         🎴
                     </div>
                 )}
+                {/* Types under avatar */}
+                <div style={{ display: 'flex', gap: '3px' }}>
+                    {poke.types?.map(type => (
+                        <span key={type} style={{
+                            padding: '1px 6px',
+                            borderRadius: '8px',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            background: 'rgba(0,0,0,0.35)',
+                            border: `1px solid ${getTypeColor(type)}`,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+                        }}>
+                            {type}
+                        </span>
+                    ))}
+                </div>
             </div>
 
-            {/* Name and level */}
-            <div style={{ textAlign: 'center' }}>
+            {/* Right: Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+                {/* Name and level */}
                 <div style={{
                     fontSize: '13px',
                     fontWeight: 700,
@@ -675,97 +877,97 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                     textOverflow: 'ellipsis'
                 }}>
                     {poke.name || poke.species || 'Unknown'} {genderIcon}
-                </div>
-                <div style={{
-                    fontSize: '11px',
-                    opacity: 0.9,
-                    background: 'rgba(0,0,0,0.2)',
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: '10px'
-                }}>
-                    Lv.{poke.level}
-                </div>
-            </div>
-
-            {/* Types */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '6px' }}>
-                {poke.types?.map(type => (
-                    <span key={type} style={{
-                        padding: '2px 8px',
-                        borderRadius: '10px',
-                        fontSize: '9px',
-                        fontWeight: 'bold',
-                        background: 'rgba(0,0,0,0.35)',
-                        border: `1px solid ${getTypeColor(type)}`,
-                        textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+                    <span style={{
+                        fontSize: '11px',
+                        opacity: 0.9,
+                        background: 'rgba(0,0,0,0.2)',
+                        padding: '1px 6px',
+                        borderRadius: '8px',
+                        marginLeft: '6px',
+                        fontWeight: 600
                     }}>
-                        {type}
+                        Lv.{poke.level}
                     </span>
-                ))}
-            </div>
-
-            {/* HP Bar */}
-            <div style={{ marginTop: '8px' }}>
-                <div style={{
-                    fontSize: '9px',
-                    marginBottom: '3px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <span style={{ opacity: 0.8 }}>HP</span>
-                    <span style={{ fontWeight: 600 }}>{currentHP}/{maxHP}</span>
                 </div>
-                <div style={{
-                    height: '6px',
-                    background: 'rgba(0,0,0,0.4)',
-                    borderRadius: '3px',
-                    overflow: 'hidden'
-                }}>
+
+                {/* Ability */}
+                {abilityText && (
                     <div style={{
-                        height: '100%',
-                        width: `${hpPercent}%`,
-                        background: hpPercent > 50 ? 'linear-gradient(90deg, #4caf50, #8bc34a)' :
-                            hpPercent > 25 ? 'linear-gradient(90deg, #ff9800, #ffc107)' : 'linear-gradient(90deg, #f44336, #e91e63)',
-                        borderRadius: '3px',
-                        boxShadow: '0 0 6px rgba(255,255,255,0.3)'
-                    }} />
-                </div>
-            </div>
-
-            {/* All 6 stats */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '3px',
-                marginTop: '8px',
-                fontSize: '9px',
-                textAlign: 'center'
-            }}>
-                {[
-                    { label: 'HP', value: pokeStats.hp, color: '#ef5350' },
-                    { label: 'ATK', value: pokeStats.atk, color: '#ff7043' },
-                    { label: 'DEF', value: pokeStats.def, color: '#66bb6a' },
-                    { label: 'SATK', value: pokeStats.satk, color: '#42a5f5' },
-                    { label: 'SDEF', value: pokeStats.sdef, color: '#ab47bc' },
-                    { label: 'SPD', value: pokeStats.spd, color: '#26c6da' }
-                ].map(stat => (
-                    <div key={stat.label} style={{
-                        background: `linear-gradient(135deg, ${stat.color}aa, ${stat.color}66)`,
-                        borderRadius: '4px',
-                        padding: '2px 3px'
+                        fontSize: '10px',
+                        opacity: 0.85,
+                        marginBottom: '4px',
+                        fontStyle: 'italic'
                     }}>
-                        <div style={{ opacity: 0.9, fontSize: '7px', fontWeight: 600 }}>{stat.label}</div>
-                        <div style={{ fontWeight: 700, fontSize: '10px' }}>{stat.value}</div>
+                        {abilityText}
                     </div>
-                ))}
+                )}
+
+                {/* HP Bar */}
+                <div style={{ marginBottom: '6px' }}>
+                    <div style={{
+                        fontSize: '11px',
+                        marginBottom: '3px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <span style={{ opacity: 0.8, fontWeight: 600, fontSize: '10px' }}>HP</span>
+                        <span style={{ fontWeight: 700, fontSize: '11px' }}>{currentHP}/{maxHP}</span>
+                    </div>
+                    <div style={{
+                        height: '8px',
+                        background: 'rgba(0,0,0,0.4)',
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            height: '100%',
+                            width: `${hpPercent}%`,
+                            background: hpPercent > 50 ? 'linear-gradient(90deg, #4caf50, #8bc34a)' :
+                                hpPercent > 25 ? 'linear-gradient(90deg, #ff9800, #ffc107)' : 'linear-gradient(90deg, #f44336, #e91e63)',
+                            borderRadius: '4px',
+                            boxShadow: '0 0 6px rgba(255,255,255,0.3)'
+                        }} />
+                    </div>
+                </div>
+
+                {/* Stats - Compact inline colored labels */}
+                <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '3px'
+                }}>
+                    {[
+                        { label: 'HP', value: pokeStats.hp, color: CARD_TOKENS.statColors.HP },
+                        { label: 'ATK', value: pokeStats.atk, color: CARD_TOKENS.statColors.ATK },
+                        { label: 'DEF', value: pokeStats.def, color: CARD_TOKENS.statColors.DEF },
+                        { label: 'SAT', value: pokeStats.satk, color: CARD_TOKENS.statColors.SATK },
+                        { label: 'SDF', value: pokeStats.sdef, color: CARD_TOKENS.statColors.SDEF },
+                        { label: 'SPD', value: pokeStats.spd, color: CARD_TOKENS.statColors.SPD }
+                    ].map(stat => (
+                        <span key={stat.label} style={{
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            background: `${stat.color}99`,
+                            padding: '1px 5px',
+                            borderRadius: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '2px'
+                        }}>
+                            <span style={{ fontSize: '10px', opacity: 0.85, fontWeight: 600 }}>{stat.label}</span>
+                            {stat.value}
+                        </span>
+                    ))}
+                </div>
             </div>
         </div>
     );
 };
 
+// ============================================================
 // Empty Slot Sub-component
+// ============================================================
 const EmptySlot = () => (
     <div style={{
         background: 'rgba(255,255,255,0.03)',
@@ -775,19 +977,19 @@ const EmptySlot = () => (
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '140px',
+        minHeight: '80px',
         flexDirection: 'column',
         gap: '8px'
     }}>
         <div style={{
-            width: '40px',
-            height: '40px',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
             border: '2px dashed rgba(255,255,255,0.2)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '18px',
+            fontSize: '16px',
             opacity: 0.3
         }}>
             +
@@ -796,11 +998,14 @@ const EmptySlot = () => (
     </div>
 );
 
+// ============================================================
 // Pokemon Card Sub-component
+// ============================================================
 const PokemonCard = ({ poke }) => {
     const actualStats = getActualStats(poke);
     const maxHP = calculatePokemonHP(poke);
     const currentHP = maxHP - (poke.currentDamage || 0);
+    const hpPercent = (currentHP / maxHP) * 100;
     const genderSymbol = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : poke.gender === 'genderless' ? '⚪' : '';
     const primaryType = poke.types[0] || 'Normal';
     const secondaryType = poke.types[1];
@@ -808,14 +1013,22 @@ const PokemonCard = ({ poke }) => {
         ? `linear-gradient(145deg, ${getTypeColor(primaryType)} 0%, ${getTypeColor(secondaryType)} 100%)`
         : `linear-gradient(145deg, ${getTypeColor(primaryType)} 0%, ${getTypeColor(primaryType)}bb 100%)`;
 
-    const statColors = {
-        HP: '#ef5350',
-        ATK: '#ff7043',
-        DEF: '#66bb6a',
-        SATK: '#42a5f5',
-        SDEF: '#ab47bc',
-        SPD: '#26c6da'
-    };
+    // Build nature display with buff/nerf
+    const natureData = poke.nature && GAME_DATA?.natures ? GAME_DATA.natures[poke.nature] : null;
+    const natureDisplay = poke.nature ? (
+        <span>
+            {poke.nature}
+            {natureData && (
+                <span style={{ fontSize: '11px' }}>
+                    {' ('}
+                    <span style={{ color: '#69f0ae', fontWeight: 700 }}>+{natureData.buff?.toUpperCase()}</span>
+                    {' / '}
+                    <span style={{ color: '#ff8a80', fontWeight: 700 }}>-{natureData.nerf?.toUpperCase()}</span>
+                    {')'}
+                </span>
+            )}
+        </span>
+    ) : null;
 
     return (
         <div
@@ -899,7 +1112,7 @@ const PokemonCard = ({ poke }) => {
                         fontSize: '12px',
                         fontWeight: 600
                     }}>
-                        Level {poke.level} • {poke.nature}
+                        Level {poke.level} • {natureDisplay || 'Unknown'}
                     </div>
                     <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                         {poke.types.map(type => (
@@ -938,47 +1151,66 @@ const PokemonCard = ({ poke }) => {
                     <span style={{ fontSize: '14px', fontWeight: 700 }}>{currentHP} / {maxHP}</span>
                 </div>
                 <div style={{
-                    height: '10px',
+                    height: '12px',
                     background: 'rgba(0,0,0,0.4)',
-                    borderRadius: '5px',
+                    borderRadius: '6px',
                     overflow: 'hidden'
                 }}>
                     <div style={{
                         height: '100%',
-                        width: `${(currentHP / maxHP) * 100}%`,
-                        background: (currentHP / maxHP) > 0.5
+                        width: `${hpPercent}%`,
+                        background: hpPercent > 50
                             ? 'linear-gradient(90deg, #4caf50, #8bc34a)'
-                            : (currentHP / maxHP) > 0.25
+                            : hpPercent > 25
                                 ? 'linear-gradient(90deg, #ff9800, #ffc107)'
                                 : 'linear-gradient(90deg, #f44336, #e91e63)',
-                        borderRadius: '5px',
+                        borderRadius: '6px',
                         boxShadow: '0 0 10px rgba(255,255,255,0.3)'
                     }} />
                 </div>
             </div>
 
-            {/* Abilities */}
+            {/* Abilities - Prominent glass panel */}
             {((poke.abilities && poke.abilities.length > 0) || poke.ability) && (
                 <div style={{
-                    background: 'rgba(0,0,0,0.25)',
-                    borderRadius: '10px',
-                    padding: '10px 14px',
+                    background: 'rgba(0,0,0,0.2)',
+                    borderRadius: '12px',
+                    padding: '12px 14px',
                     marginBottom: '14px',
-                    fontSize: '12px',
                     position: 'relative',
-                    zIndex: 1
+                    zIndex: 1,
+                    border: '1px solid rgba(255,255,255,0.1)'
                 }}>
-                    <div style={{ fontSize: '10px', fontWeight: 700, opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Abilities</div>
-                    <div style={{ fontWeight: 600 }}>
-                        {poke.abilities && poke.abilities.length > 0
-                            ? poke.abilities.join(' • ')
-                            : poke.ability
-                        }
-                    </div>
+                    <SectionHeader label="Abilities" />
+                    {poke.abilities && poke.abilities.length > 0
+                        ? poke.abilities.map((ability, i) => (
+                            <div key={i} style={{
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                padding: '4px 10px',
+                                background: 'rgba(255,255,255,0.08)',
+                                borderRadius: '8px',
+                                marginBottom: i < poke.abilities.length - 1 ? '4px' : 0
+                            }}>
+                                {ability}
+                            </div>
+                        ))
+                        : (
+                            <div style={{
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                padding: '4px 10px',
+                                background: 'rgba(255,255,255,0.08)',
+                                borderRadius: '8px'
+                            }}>
+                                {poke.ability}
+                            </div>
+                        )
+                    }
                 </div>
             )}
 
-            {/* Stats Grid */}
+            {/* Stats - Horizontal bar rows with nature indicators */}
             <div style={{
                 background: 'rgba(0,0,0,0.2)',
                 borderRadius: '14px',
@@ -988,80 +1220,114 @@ const PokemonCard = ({ poke }) => {
                 zIndex: 1,
                 border: '1px solid rgba(255,255,255,0.1)'
             }}>
-                <div style={{
-                    fontSize: '10px',
-                    opacity: 0.9,
-                    marginBottom: '10px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1.5px',
-                    fontWeight: 700,
-                    display: 'flex',
-                    justifyContent: 'space-between'
-                }}>
-                    <span>Stats</span>
-                    <span style={{ background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '8px' }}>
-                        STAB: +{calculateSTAB(poke.level)}
-                    </span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                    {[
-                        { label: 'HP', value: actualStats.hp },
-                        { label: 'ATK', value: actualStats.atk },
-                        { label: 'DEF', value: actualStats.def },
-                        { label: 'SATK', value: actualStats.satk },
-                        { label: 'SDEF', value: actualStats.sdef },
-                        { label: 'SPD', value: actualStats.spd }
-                    ].map(stat => (
-                        <div key={stat.label} style={{
-                            background: `linear-gradient(135deg, ${statColors[stat.label]}dd, ${statColors[stat.label]}99)`,
-                            borderRadius: '10px',
-                            padding: '8px 10px',
-                            textAlign: 'center',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-                        }}>
-                            <div style={{ fontSize: '10px', fontWeight: 600, opacity: 0.9 }}>{stat.label}</div>
-                            <div style={{ fontSize: '20px', fontWeight: 800 }}>{stat.value}</div>
-                        </div>
-                    ))}
-                </div>
+                <SectionHeader
+                    label="Stats"
+                    rightContent={`STAB: +${calculateSTAB(poke.level)}`}
+                />
+                {[
+                    { label: 'HP', key: 'hp', value: actualStats.hp },
+                    { label: 'ATK', key: 'atk', value: actualStats.atk },
+                    { label: 'DEF', key: 'def', value: actualStats.def },
+                    { label: 'SATK', key: 'satk', value: actualStats.satk },
+                    { label: 'SDEF', key: 'sdef', value: actualStats.sdef },
+                    { label: 'SPD', key: 'spd', value: actualStats.spd }
+                ].map(stat => (
+                    <StatBar
+                        key={stat.label}
+                        label={stat.label}
+                        value={stat.value}
+                        maxStat={30}
+                        color={CARD_TOKENS.statColors[stat.label]}
+                        indicator={getNatureIndicator(poke.nature, stat.key)}
+                    />
+                ))}
             </div>
 
-            {/* Moves */}
+            {/* Moves - Enhanced 2-column grid */}
             {poke.moves && poke.moves.length > 0 && (
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                    <div style={{ fontSize: '10px', fontWeight: 700, opacity: 0.9, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Moves</div>
+                <div style={{ position: 'relative', zIndex: 1, marginBottom: '14px' }}>
+                    <SectionHeader label="Moves" />
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                        {poke.moves.slice(0, 8).map((move, i) => (
-                            <div key={i} style={{
-                                background: 'rgba(0,0,0,0.25)',
-                                borderRadius: '8px',
-                                padding: '8px 12px',
-                                fontSize: '11px',
-                                borderLeft: `4px solid ${getTypeColor(move.type)}`
-                            }}>
-                                <div style={{ fontWeight: 700, marginBottom: '2px' }}>{move.name}</div>
-                                <div style={{ opacity: 0.8, fontSize: '10px' }}>
-                                    {move.type} • {move.damage || 'Status'}
+                        {poke.moves.slice(0, 8).map((move, i) => {
+                            const freqAbbr = getFrequencyAbbr(move.frequency);
+                            const catIcon = CARD_TOKENS.categoryIcons[move.category] || '';
+                            return (
+                                <div key={i} style={{
+                                    background: 'rgba(0,0,0,0.25)',
+                                    borderRadius: '8px',
+                                    padding: '8px 10px',
+                                    borderLeft: `4px solid ${getTypeColor(move.type)}`,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '4px'
+                                }}>
+                                    {/* Top row: Name + frequency pill */}
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <span style={{ fontSize: '12px', fontWeight: 700 }}>{move.name}</span>
+                                        {freqAbbr && (
+                                            <span style={{
+                                                fontSize: '10px',
+                                                fontWeight: 700,
+                                                background: 'rgba(255,255,255,0.15)',
+                                                padding: '1px 6px',
+                                                borderRadius: '8px',
+                                                flexShrink: 0
+                                            }}>
+                                                {freqAbbr}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {/* Bottom row: Category + damage */}
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        fontSize: '10px',
+                                        opacity: 0.85
+                                    }}>
+                                        {catIcon && <span style={{ fontSize: '10px' }}>{catIcon}</span>}
+                                        <span style={{ fontWeight: 600 }}>{move.category || move.type}</span>
+                                        {move.damage && (
+                                            <span style={{
+                                                marginLeft: 'auto',
+                                                fontWeight: 700,
+                                                background: 'rgba(255,255,255,0.1)',
+                                                padding: '0 5px',
+                                                borderRadius: '4px'
+                                            }}>
+                                                {move.damage}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
 
-            {/* Held Item */}
+            {/* Held Item - Gold-themed glass panel */}
             {poke.heldItem && (
                 <div style={{
-                    marginTop: '12px',
-                    fontSize: '12px',
-                    background: 'rgba(255,215,0,0.2)',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(255,215,0,0.4)',
+                    background: 'rgba(255,215,0,0.15)',
+                    borderRadius: '10px',
+                    padding: '10px 14px',
+                    border: '1px solid rgba(255,215,0,0.35)',
                     position: 'relative',
-                    zIndex: 1
+                    zIndex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
                 }}>
-                    <span style={{ opacity: 0.8 }}>Held Item:</span> <strong>{poke.heldItem}</strong>
+                    <span style={{ fontSize: '16px' }}>💎</span>
+                    <div>
+                        <div style={{ fontSize: '10px', fontWeight: 600, opacity: 0.8, textTransform: 'uppercase', letterSpacing: '1px' }}>Held Item</div>
+                        <div style={{ fontSize: '13px', fontWeight: 700 }}>{poke.heldItem}</div>
+                    </div>
                 </div>
             )}
 
@@ -1069,7 +1335,7 @@ const PokemonCard = ({ poke }) => {
             <div style={{
                 textAlign: 'center',
                 marginTop: '14px',
-                fontSize: '9px',
+                fontSize: '10px',
                 opacity: 0.5,
                 letterSpacing: '2px',
                 textTransform: 'uppercase',
