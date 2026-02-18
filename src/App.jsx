@@ -45,6 +45,7 @@ import {
 
 // Common Components
 import { Header, SaveIndicator, LevelUpNotification } from './components/common';
+import ToastContainer from './components/common/ToastContainer.jsx';
 import AppProviders from './components/AppProviders.jsx';
 
 const PTAManager = () => {
@@ -408,6 +409,9 @@ return (
         }}
     >
     <div className="container">
+        {/* Toast Notifications */}
+        <ToastContainer />
+
         {/* Save Indicator */}
         <SaveIndicator
             show={showSaveIndicator}

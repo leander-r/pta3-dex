@@ -9,6 +9,7 @@ import { GAME_DATA } from '../../data/configs.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useUI, useGameData } from '../../contexts/index.js';
+import toast from '../../utils/toast.js';
 
 const TYPE_LIST = [
     'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
@@ -158,7 +159,7 @@ const CustomSpeciesModal = () => {
 
     const handleSaveSpecies = () => {
         if (!species.species.trim()) {
-            alert('Species name is required!');
+            toast.warning('Species name is required!');
             return;
         }
 
@@ -167,7 +168,7 @@ const CustomSpeciesModal = () => {
             (editingIndex === null || customSpecies.indexOf(s) !== editingIndex)
         );
         if (existingIndex !== -1) {
-            alert('A custom species with this name already exists!');
+            toast.warning('A custom species with this name already exists!');
             return;
         }
 
@@ -291,7 +292,7 @@ const CustomSpeciesModal = () => {
     const addLevelUpMove = (moveName) => {
         if (!moveName) return;
         if (species.levelUpMoves.some(m => m.move === moveName)) {
-            alert('This move is already in the level-up list!');
+            toast.warning('This move is already in the level-up list!');
             return;
         }
         setSpecies(prev => ({

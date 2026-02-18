@@ -6,6 +6,7 @@
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useUI, usePokemonContext } from '../../contexts/index.js';
+import toast from '../../utils/toast.js';
 
 const TYPE_LIST = [
     'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
@@ -50,7 +51,7 @@ const CustomMoveModal = () => {
             m.name?.toLowerCase() === customMove.name?.toLowerCase()
         );
         if (alreadyKnows) {
-            alert(`${targetPoke.name || targetPoke.species} already knows ${customMove.name}!`);
+            toast.warning(`${targetPoke.name || targetPoke.species} already knows ${customMove.name}!`);
             return;
         }
 
@@ -59,15 +60,15 @@ const CustomMoveModal = () => {
         const taughtMoves = targetPoke.moves.filter(m => m.source === 'taught').length;
 
         if (customMove.source === 'natural' && naturalMoves >= 4) {
-            alert('This Pokémon already has 4 Natural moves.');
+            toast.warning('This Pokemon already has 4 Natural moves.');
             return;
         }
         if (customMove.source === 'taught' && taughtMoves >= 4) {
-            alert('This Pokémon already has 4 Taught moves.');
+            toast.warning('This Pokemon already has 4 Taught moves.');
             return;
         }
         if (targetPoke.moves.length >= 8) {
-            alert('This Pokémon already has 8 moves.');
+            toast.warning('This Pokemon already has 8 moves.');
             return;
         }
 

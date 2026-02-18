@@ -9,6 +9,7 @@ import { MAX_PARTY_SIZE } from '../../data/constants.js';
 import { importSinglePokemon } from '../../utils/exportUtils.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
+import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
 
 /**
@@ -54,7 +55,7 @@ const PokemonTab = () => {
         // Security: Check file size before reading (100KB max)
         const MAX_FILE_SIZE = 100 * 1024;
         if (file.size > MAX_FILE_SIZE) {
-            alert('File too large. Maximum file size is 100KB.');
+            toast.error('File too large. Maximum file size is 100KB.');
             event.target.value = '';
             setShowImportOptions(false);
             return;
@@ -62,7 +63,7 @@ const PokemonTab = () => {
 
         // Security: Check file type
         if (!file.name.endsWith('.json') && file.type !== 'application/json') {
-            alert('Invalid file type. Please select a JSON file.');
+            toast.error('Invalid file type. Please select a JSON file.');
             event.target.value = '';
             setShowImportOptions(false);
             return;
@@ -74,11 +75,10 @@ const PokemonTab = () => {
                 const pokemon = importSinglePokemon(e.target.result);
                 if (pokemon) {
                     importPokemon(pokemon, pokemonView === 'party');
-                    alert(`${pokemon.name || pokemon.species} was added to your ${pokemonView}!`);
+                    toast.success(`${pokemon.name || pokemon.species} was added to your ${pokemonView}!`);
                 }
-                // Note: importSinglePokemon now shows its own error alerts
             } catch (err) {
-                alert('Error reading file: ' + err.message);
+                toast.error('Error reading file: ' + err.message);
             }
         };
         reader.readAsText(file);
@@ -93,12 +93,12 @@ const PokemonTab = () => {
             const pokemon = importSinglePokemon(text);
             if (pokemon) {
                 importPokemon(pokemon, pokemonView === 'party');
-                alert(`${pokemon.name || pokemon.species} was added to your ${pokemonView}!`);
+                toast.success(`${pokemon.name || pokemon.species} was added to your ${pokemonView}!`);
             } else {
-                alert('Invalid Pokemon data in clipboard. Make sure you copied a valid PTA Pokemon export.');
+                toast.error('Invalid Pokemon data in clipboard. Make sure you copied a valid PTA Pokemon export.');
             }
         } catch (err) {
-            alert('Could not read from clipboard. Please use the file import option instead.');
+            toast.error('Could not read from clipboard. Please use the file import option instead.');
         }
         setShowImportOptions(false);
     };

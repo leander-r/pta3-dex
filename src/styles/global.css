@@ -2063,7 +2063,7 @@
         }
         
         .close {
-            color: #666;
+            color: #555;
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
@@ -2945,6 +2945,16 @@
         @keyframes shimmerSkeleton {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
         }
 
         .animate-fade-in {
@@ -4853,4 +4863,17 @@
         [data-theme="dark"] [style*="background: #e0f7fa"],
         [data-theme="dark"] [style*="background:#e0f7fa"] {
             background: #1a3d3d !important;
+        }
+
+        /* ============================================================
+           REDUCED MOTION - Accessibility
+           ============================================================ */
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }

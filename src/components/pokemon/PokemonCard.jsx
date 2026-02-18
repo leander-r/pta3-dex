@@ -6,6 +6,7 @@ import React, { useState, useMemo } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
+import toast from '../../utils/toast.js';
 import { useGameData, useUI, usePokemonContext } from '../../contexts/index.js';
 
 const PokemonCard = ({
@@ -175,7 +176,7 @@ const PokemonCard = ({
             m.name?.toLowerCase() === moveName?.toLowerCase()
         );
         if (alreadyKnows) {
-            alert(`${pokemon.name || pokemon.species} already knows ${moveName}!`);
+            toast.warning(`${pokemon.name || pokemon.species} already knows ${moveName}!`);
             return;
         }
 
@@ -186,7 +187,7 @@ const PokemonCard = ({
         // If trying to add a natural move when at limit, show replacement modal
         if (source === 'natural' && (naturalCount >= 4 || (pokemon.moves?.length || 0) >= 8)) {
             if (naturalCount === 0) {
-                alert('Cannot add natural move - no natural moves to replace.');
+                toast.warning('Cannot add natural move - no natural moves to replace.');
                 return;
             }
             // Use the shared MoveLearnModal
@@ -214,7 +215,7 @@ const PokemonCard = ({
         // If trying to add a taught move when at limit, show replacement modal
         if (source === 'taught' && (taughtCount >= 4 || (pokemon.moves?.length || 0) >= 8)) {
             if (taughtCount === 0) {
-                alert('Cannot add taught move - no taught moves to replace.');
+                toast.warning('Cannot add taught move - no taught moves to replace.');
                 return;
             }
             // Use the shared MoveLearnModal

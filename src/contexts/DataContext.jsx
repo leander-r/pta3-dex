@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
+import toast from '../utils/toast.js';
 
 const DataContext = createContext(null);
 
@@ -305,11 +306,7 @@ export const DataProvider = ({
                     const totalPokemon = migratedTrainers.reduce((sum, t) => sum + (t.party?.length || 0) + (t.reserve?.length || 0), 0);
                     const inventoryCount = data.inventory?.length || 0;
 
-                    alert(`Data imported successfully!\n\n` +
-                        `• ${migratedTrainers.length} trainer(s) loaded\n` +
-                        `• ${totalPokemon} Pokémon total\n` +
-                        `• ₽${totalMoney.toLocaleString()} total money\n` +
-                        `• ${inventoryCount} inventory item(s)`);
+                    toast.success(`Data imported successfully!\n${migratedTrainers.length} trainer(s), ${totalPokemon} Pokemon, ${inventoryCount} item(s)`);
                 } else if (data.trainer) {
                     let trainerData = data.trainer;
 
@@ -380,17 +377,13 @@ export const DataProvider = ({
                     const pokemonCount = (trainerData.party?.length || 0) + (trainerData.reserve?.length || 0);
                     const inventoryCount = data.inventory?.length || 0;
 
-                    alert(`Trainer imported successfully!\n\n` +
-                        `• ${trainerData.name || 'Unnamed'} (Level ${trainerData.level || 0})\n` +
-                        `• ${pokemonCount} Pokémon\n` +
-                        `• ₽${(trainerData.money || 0).toLocaleString()} money\n` +
-                        (inventoryCount > 0 ? `• ${inventoryCount} inventory item(s)` : ''));
+                    toast.success(`Trainer "${trainerData.name || 'Unnamed'}" imported! (Lv ${trainerData.level || 0}, ${pokemonCount} Pokemon)`);
                 } else {
-                    alert('Error: No trainer data found in file.');
+                    toast.error('No trainer data found in file.');
                 }
             } catch (err) {
                 console.error('Import error:', err);
-                alert('Error importing data: Invalid file format');
+                toast.error('Error importing data: Invalid file format');
             }
         };
         reader.readAsText(file);
@@ -515,7 +508,7 @@ export const DataProvider = ({
     // Copy to clipboard
     const copyToClipboard = useCallback((text) => {
         navigator.clipboard.writeText(text).then(() => {
-            alert('Copied to clipboard! Paste in Discord or anywhere.');
+            toast.success('Copied to clipboard!');
         }).catch(err => {
             const textArea = document.createElement('textarea');
             textArea.value = text;
@@ -523,7 +516,7 @@ export const DataProvider = ({
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
-            alert('Copied to clipboard!');
+            toast.success('Copied to clipboard!');
         });
     }, []);
 

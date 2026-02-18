@@ -3,6 +3,7 @@
 // ============================================================
 
 import { getActualStats, calculatePokemonHP } from './dataUtils.js';
+import toast from './toast.js';
 
 /**
  * Export trainer data as formatted text for Discord/sharing
@@ -144,7 +145,7 @@ export const exportTeamText = (trainer, party) => {
  */
 export const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-        alert('Copied to clipboard! Paste in Discord or anywhere.');
+        toast.success('Copied to clipboard!');
     }).catch(err => {
         // Fallback
         const textArea = document.createElement('textarea');
@@ -153,7 +154,7 @@ export const copyToClipboard = (text) => {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('Copied to clipboard!');
+        toast.success('Copied to clipboard!');
     });
 };
 
@@ -163,7 +164,7 @@ export const copyToClipboard = (text) => {
 export const downloadCardAsImage = async (cardId, filename) => {
     const card = document.getElementById(cardId);
     if (!card) {
-        alert('Card element not found. Please try again.');
+        toast.error('Card element not found. Please try again.');
         return;
     }
     
@@ -187,9 +188,9 @@ export const downloadCardAsImage = async (cardId, filename) => {
             try {
                 const text = card.innerText;
                 await navigator.clipboard.writeText(text);
-                alert('Card data copied to clipboard!');
+                toast.success('Card data copied to clipboard!');
             } catch (clipErr) {
-                alert('Export failed. Try taking a screenshot manually (Print Screen key).');
+                toast.error('Export failed. Try taking a screenshot manually (Print Screen key).');
             }
         }
     }
@@ -223,7 +224,7 @@ const captureCard = async (card, filename) => {
         link.click();
     } catch (err) {
         console.error('Error capturing card:', err);
-        alert('Error creating image. Try right-clicking the card and using "Save image as..." or take a screenshot.');
+        toast.error('Error creating image. Try right-clicking the card and using "Save image as..." or take a screenshot.');
     }
 };
 
@@ -622,7 +623,7 @@ export const importSinglePokemon = (jsonData) => {
         return importedPokemon;
     } catch (error) {
         console.error('Error importing Pokemon:', error);
-        alert(`Import failed: ${error.message}`);
+        toast.error(`Import failed: ${error.message}`);
         return null;
     }
 };
@@ -644,7 +645,7 @@ export const copyPokemonToClipboard = (pokemon) => {
     const dataStr = JSON.stringify(exportData);
 
     navigator.clipboard.writeText(dataStr).then(() => {
-        alert(`${pokemon.name || pokemon.species || 'Pokemon'} copied to clipboard! Share this with another player to trade.`);
+        toast.success(`${pokemon.name || pokemon.species || 'Pokemon'} copied to clipboard!`);
     }).catch(err => {
         // Fallback
         const textArea = document.createElement('textarea');
@@ -653,6 +654,6 @@ export const copyPokemonToClipboard = (pokemon) => {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert(`${pokemon.name || pokemon.species || 'Pokemon'} copied to clipboard!`);
+        toast.success(`${pokemon.name || pokemon.species || 'Pokemon'} copied to clipboard!`);
     });
 };

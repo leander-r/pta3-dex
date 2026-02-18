@@ -5,6 +5,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTrainerContext, useData, useUI } from '../../contexts/index.js';
+import toast from '../../utils/toast.js';
 
 /**
  * Header - App header with trainer selector and character menu
@@ -520,7 +521,7 @@ const Header = () => {
                                                 deleteTrainer(activeTrainerId);
                                             }
                                         } else {
-                                            alert('You must have at least one trainer.');
+                                            toast.warning('You must have at least one trainer.');
                                         }
                                         setShowCharacterMenu(false);
                                     }}

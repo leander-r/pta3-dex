@@ -6,6 +6,7 @@
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useUI, useTrainerContext, useGameData } from '../../contexts/index.js';
+import toast from '../../utils/toast.js';
 
 /**
  * SkillPickerModal - Modal for picking skills when adding a trainer class
@@ -41,7 +42,7 @@ const SkillPickerModal = () => {
 
     const handleConfirm = () => {
         if (skillPickerModal.selectedSkills.length !== skillPickerModal.skillCount) {
-            alert(`Please select exactly ${skillPickerModal.skillCount} skill(s)`);
+            toast.warning(`Please select exactly ${skillPickerModal.skillCount} skill(s)`);
             return;
         }
 

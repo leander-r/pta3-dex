@@ -5,6 +5,7 @@
 
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
+import toast from '../utils/toast.js';
 
 const TrainerContext = createContext(null);
 
@@ -172,7 +173,7 @@ export const TrainerProvider = ({
     // Delete a trainer from the roster
     const deleteTrainer = useCallback((trainerId) => {
         if (trainers.length <= 1) {
-            alert('You must have at least one trainer.');
+            toast.warning('You must have at least one trainer.');
             return false;
         }
         if (confirm('Are you sure you want to delete this trainer and all their Pokémon? This cannot be undone.')) {
@@ -325,7 +326,7 @@ export const TrainerProvider = ({
     const levelUpTrainer = useCallback(() => {
         const newLevel = trainer.level + 1;
         if (newLevel > 50) {
-            alert('Maximum trainer level is 50!');
+            toast.warning('Maximum trainer level is 50!');
             return;
         }
 
@@ -342,7 +343,7 @@ export const TrainerProvider = ({
             }
 
             if (issues.length > 0) {
-                alert(`Before becoming Level 1, you must complete character creation:\n\n${issues.join('\n')}`);
+                toast.warning(`Before becoming Level 1, you must complete character creation:\n${issues.join('\n')}`);
                 return;
             }
         }
@@ -377,7 +378,7 @@ export const TrainerProvider = ({
     // Level down the trainer
     const levelDownTrainer = useCallback(() => {
         if (trainer.level <= 1) {
-            alert('Cannot go below level 1! Use "Respec Trainer" to reset to level 0 for character recreation.');
+            toast.warning('Cannot go below level 1! Use "Respec Trainer" to reset to level 0.');
             return;
         }
 
@@ -395,7 +396,7 @@ export const TrainerProvider = ({
 
         if (levelPointsSpent > totalLevelStatsAtNewLevel) {
             const pointsToRefund = levelPointsSpent - totalLevelStatsAtNewLevel;
-            alert(`Cannot level down! You have spent ${levelPointsSpent} level stat points, but level ${newLevel} only provides ${totalLevelStatsAtNewLevel}.\n\nPlease reduce your stats by ${pointsToRefund} point(s) first.`);
+            toast.warning(`Cannot level down! You have ${levelPointsSpent} level stat points spent, but level ${newLevel} only provides ${totalLevelStatsAtNewLevel}.\nReduce your stats by ${pointsToRefund} point(s) first.`);
             return;
         }
 
@@ -420,13 +421,13 @@ export const TrainerProvider = ({
 
         if (currentClassCount > maxClassesAtNewLevel) {
             const classesToRemove = currentClassCount - maxClassesAtNewLevel;
-            alert(`Cannot level down! You have ${currentClassCount} classes, but level ${newLevel} only allows ${maxClassesAtNewLevel}.\n\nPlease remove ${classesToRemove} class(es) first.`);
+            toast.warning(`Cannot level down! You have ${currentClassCount} classes, but level ${newLevel} only allows ${maxClassesAtNewLevel}.\nRemove ${classesToRemove} class(es) first.`);
             return;
         }
 
         if (totalFeatPointsSpent > totalFeatsAtNewLevel) {
             const pointsToFree = totalFeatPointsSpent - totalFeatsAtNewLevel;
-            alert(`Cannot level down! You have spent ${totalFeatPointsSpent} feat points, but level ${newLevel} only provides ${totalFeatsAtNewLevel} feat points.\n\nPlease remove ${pointsToFree} feature(s) or class(es) first.`);
+            toast.warning(`Cannot level down! You have ${totalFeatPointsSpent} feat points spent, but level ${newLevel} only provides ${totalFeatsAtNewLevel}.\nRemove ${pointsToFree} feature(s) or class(es) first.`);
             return;
         }
 
@@ -475,13 +476,13 @@ export const TrainerProvider = ({
             currentHP: 24 + 0
         }));
 
-        alert('Trainer has been reset to Level 0!\n\nYou can now rebuild your character. Remember to level up to 1 and pick your first class to get your base features!');
+        toast.success('Trainer has been reset to Level 0! You can now rebuild your character.');
     }, [setTrainer]);
 
     // Move pokemon to party
     const moveToParty = useCallback((pokemonId) => {
         if (party.length >= 6) {
-            alert('Your party is full! (Maximum 6 Pokémon)\n\nMove a Pokémon to reserve first.');
+            toast.warning('Your party is full! (Maximum 6 Pokemon)\nMove a Pokemon to reserve first.');
             return;
         }
         const poke = reserve.find(p => p.id === pokemonId);

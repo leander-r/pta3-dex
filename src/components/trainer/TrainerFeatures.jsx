@@ -4,6 +4,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useUI, useTrainerContext, useGameData } from '../../contexts/index.js';
+import toast from '../../utils/toast.js';
 
 // Features that modify trainer stats when acquired
 // Format: { featureName: { stat: 'statName', value: number } } for auto-apply
@@ -85,7 +86,7 @@ const TrainerFeatures = () => {
         const isFree = featureData?.category === 'General (Free)' || featureData?.isBase;
 
         if (!isFree && (trainer.featPoints || 0) <= 0) {
-            alert('Not enough feat points!');
+            toast.warning('Not enough feat points!');
             return;
         }
 

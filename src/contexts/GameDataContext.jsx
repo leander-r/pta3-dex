@@ -4,9 +4,9 @@
 // Provides Pokedex, GAME_DATA, and custom species management
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { DATA_CONFIG, POKEDEX_CONFIG, FALLBACK_POKEDEX, GAME_DATA } from '../data/configs.js';
+import { GAME_DATA } from '../data/configs.js';
 import { gameDataLoadPromise } from '../data/gameDataLoader.js';
-import { getFromPokedexDB, saveToPokedexDB } from '../data/pokedexLoader.js';
+import { loadPokedexFromGitHub } from '../data/pokedexLoader.js';
 
 const GameDataContext = createContext(null);
 
@@ -36,109 +36,9 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
         });
     }, []);
 
-    // Fetch Pokedex
+    // Fetch Pokedex (uses shared loader with timeout and caching)
     useEffect(() => {
-        const fetchPokedex = async () => {
-            setPokedexLoading(true);
-            setPokedexError(null);
-
-            try {
-                // Check IndexedDB cache first
-                const cachedMeta = await getFromPokedexDB('metadata');
-                if (cachedMeta && (Date.now() - cachedMeta.timestamp) < POKEDEX_CONFIG.cacheDuration) {
-                    const cachedData = await getFromPokedexDB('pokedex');
-                    if (cachedData && Array.isArray(cachedData)) {
-                        setPokedex(cachedData);
-                        setPokedexLoading(false);
-                        return;
-                    }
-                }
-
-                // Fetch from GitHub
-                const response = await fetch(POKEDEX_CONFIG.remoteUrl);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const arrayBuffer = await response.arrayBuffer();
-                const uint8Array = new Uint8Array(arrayBuffer);
-
-                let responseText;
-                let encoding = 'utf-8';
-
-                // Detect encoding from BOM
-                if (uint8Array.length >= 2) {
-                    if (uint8Array[0] === 0xFF && uint8Array[1] === 0xFE) {
-                        encoding = 'utf-16le';
-                    } else if (uint8Array[0] === 0xFE && uint8Array[1] === 0xFF) {
-                        encoding = 'utf-16be';
-                    } else if (uint8Array.length >= 3 && uint8Array[0] === 0xEF && uint8Array[1] === 0xBB && uint8Array[2] === 0xBF) {
-                        encoding = 'utf-8';
-                    } else if (uint8Array[0] === 0x1F && uint8Array[1] === 0x8B) {
-                        // Gzip
-                        if (typeof DecompressionStream === 'undefined') {
-                            throw new Error('Gzip decompression not supported');
-                        }
-
-                        const stream = new ReadableStream({
-                            start(controller) {
-                                controller.enqueue(uint8Array);
-                                controller.close();
-                            }
-                        });
-
-                        const ds = new DecompressionStream('gzip');
-                        const decompressedStream = stream.pipeThrough(ds);
-                        const decompressedResponse = new Response(decompressedStream);
-                        responseText = await decompressedResponse.text();
-                    }
-                }
-
-                if (!responseText) {
-                    const decoder = new TextDecoder(encoding);
-                    responseText = decoder.decode(uint8Array);
-                }
-
-                const trimmed = responseText.trim();
-                if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
-                    throw new Error('Response is not valid JSON');
-                }
-
-                const data = JSON.parse(responseText);
-                const pokemonList = data.pokemon || data;
-
-                if (!Array.isArray(pokemonList)) {
-                    throw new Error('Invalid Pokédex format - expected array');
-                }
-
-                // Cache in IndexedDB
-                await saveToPokedexDB('pokedex', pokemonList);
-                await saveToPokedexDB('metadata', {
-                    timestamp: Date.now(),
-                    count: pokemonList.length
-                });
-
-                setPokedex(pokemonList);
-
-            } catch (error) {
-                // Try stale cache
-                const staleCache = await getFromPokedexDB('pokedex');
-                if (staleCache && Array.isArray(staleCache)) {
-                    setPokedex(staleCache);
-                    setPokedexError('Using cached data');
-                } else if (POKEDEX_CONFIG.fallbackEnabled) {
-                    setPokedex(FALLBACK_POKEDEX);
-                    setPokedexError('Using offline mini-dex (19 Pokémon)');
-                } else {
-                    setPokedexError('Pokédex unavailable - manual entry only');
-                }
-            } finally {
-                setPokedexLoading(false);
-            }
-        };
-
-        fetchPokedex();
+        loadPokedexFromGitHub(setPokedex, setPokedexLoading, setPokedexError);
     }, []);
 
     // Filtered species list

@@ -7,6 +7,7 @@ import React, { createContext, useContext, useCallback, useEffect } from 'react'
 import { GAME_DATA } from '../data/configs.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '../utils/dataUtils.js';
+import toast from '../utils/toast.js';
 import { useGameData } from './GameDataContext.jsx';
 
 const PokemonContext = createContext(null);
@@ -906,13 +907,13 @@ export const PokemonProvider = ({
             targetPokedexEntry = customSpecies?.find(p => p.species === targetSpecies);
         }
         if (!targetPokedexEntry) {
-            alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
+            toast.error(`Could not find ${targetSpecies} in the Pokedex or Custom Species!`);
             return;
         }
 
         if (consumeItem) {
             if (!hasItemInInventory(consumeItem)) {
-                alert(`You don't have a ${consumeItem} in your inventory!`);
+                toast.warning(`You don't have a ${consumeItem} in your inventory!`);
                 return;
             }
             removeItemFromInventory(consumeItem);
@@ -954,7 +955,7 @@ export const PokemonProvider = ({
             targetPokedexEntry = customSpecies?.find(p => p.species === targetSpecies);
         }
         if (!targetPokedexEntry) {
-            alert(`Could not find ${targetSpecies} in the Pokédex or Custom Species!`);
+            toast.error(`Could not find ${targetSpecies} in the Pokedex or Custom Species!`);
             return;
         }
 

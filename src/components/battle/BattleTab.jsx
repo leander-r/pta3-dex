@@ -5,6 +5,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
+import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 
 const BattleTab = () => {
@@ -45,10 +46,11 @@ const BattleTab = () => {
         return speciesData?.megaForms || [];
     }, [selectedPokemon, pokedex]);
 
-    // Reset mega evolution when switching Pokemon
+    // Reset battle state when switching Pokemon
     useEffect(() => {
         setMegaEvolved(false);
         setCurrentMegaForm(null);
+        setAcOverride('');
     }, [selectedPokemonId]);
 
     // Handle Escape key for mega modal
@@ -294,7 +296,7 @@ const BattleTab = () => {
     const rollCustomDice = () => {
         const diceData = parseDice(customDice);
         if (diceData.count === 0 || diceData.sides === 0) {
-            alert('Invalid dice format. Use format like "2d6+5" or "1d20"');
+            toast.warning('Invalid dice format. Use format like "2d6+5" or "1d20"');
             return;
         }
 
@@ -1078,7 +1080,7 @@ const BattleTab = () => {
                                 <button
                                     onClick={() => {
                                         if (!discordWebhook?.url) {
-                                            alert('Please enter a webhook URL first');
+                                            toast.warning('Please enter a webhook URL first');
                                             return;
                                         }
                                         // Send test message
@@ -1095,12 +1097,12 @@ const BattleTab = () => {
                                         })
                                         .then(res => {
                                             if (res.ok) {
-                                                alert('Test message sent! Check your Discord channel.');
+                                                toast.success('Test message sent! Check your Discord channel.');
                                             } else {
-                                                alert('Failed to send. Check if the webhook URL is correct.');
+                                                toast.error('Failed to send. Check if the webhook URL is correct.');
                                             }
                                         })
-                                        .catch(() => alert('Failed to send. Check the webhook URL.'));
+                                        .catch(() => toast.error('Failed to send. Check the webhook URL.'));
                                     }}
                                     style={{
                                         width: '100%',

@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import { useTrainerContext, useGameData } from '../../contexts/index.js';
+import toast from '../../utils/toast.js';
 
 /**
  * TrainerClasses - Manage trainer classes
@@ -148,13 +149,13 @@ const TrainerClasses = () => {
 
         // Check if can afford
         if (featPointChange < 0 && (trainer.featPoints || 0) < Math.abs(featPointChange)) {
-            alert('Not enough feat points for another class!');
+            toast.warning('Not enough feat points for another class!');
             return;
         }
 
         // Check max classes
         if (currentClasses.length >= maxClasses) {
-            alert(`Maximum ${maxClasses} class(es) at level ${trainer.level}`);
+            toast.warning(`Maximum ${maxClasses} class(es) at level ${trainer.level}`);
             return;
         }
 
