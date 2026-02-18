@@ -520,41 +520,31 @@ return (
             {/* ============================================== */}
             <div className="content-area">
             
-                {/* ========== TRAINER TAB ========== */}
-                {activeTab === 'trainer' && (
+                {/* All tabs stay mounted (CSS-hidden) so local state like search filters,
+                   combat stages, and note drafts persist across tab switches */}
+                <div style={{ display: activeTab === 'trainer' ? undefined : 'none' }}>
                     <TrainerTab />
-                )}
+                </div>
 
-
-                {/* ========== POKEMON TEAM TAB ========== */}
-                {activeTab === 'pokemon' && (
+                <div style={{ display: activeTab === 'pokemon' ? undefined : 'none' }}>
                     <PokemonTab />
-                )}
+                </div>
 
-
-                {/* ========== INVENTORY TAB ========== */}
-                {activeTab === 'inventory' && (
+                <div style={{ display: activeTab === 'inventory' ? undefined : 'none' }}>
                     <InventoryTab />
-                )}
+                </div>
 
-
-                {/* ========== DICE ROLLER TAB ========== */}
-                {/* Always mounted so combat stages and roll history persist across tab switches */}
                 <div style={{ display: activeTab === 'battle' ? undefined : 'none' }}>
                     <BattleTab />
                 </div>
 
-
-                {/* ========== QUICK REFERENCE TAB ========== */}
-                {activeTab === 'reference' && (
+                <div style={{ display: activeTab === 'reference' ? undefined : 'none' }}>
                     <ReferenceTab />
-                )}
+                </div>
 
-
-                {/* ========== CAMPAIGN NOTES TAB ========== */}
-                {activeTab === 'notes' && (
+                <div style={{ display: activeTab === 'notes' ? undefined : 'none' }}>
                     <NotesTab />
-                )}
+                </div>
             </div>
         </div>
         

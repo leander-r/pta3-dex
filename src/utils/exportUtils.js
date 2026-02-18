@@ -40,10 +40,10 @@ export const exportTrainerText = (trainer) => {
     if (skillsList.length > 0) {
         text += `**Skills:** ${skillsList.join(', ')}\n`;
     }
-    if (trainer.badges.length > 0) {
+    if (trainer.badges?.length > 0) {
         text += `**Badges:** ${trainer.badges.length}\n`;
     }
-    text += `**Money:** ₽${trainer.money.toLocaleString()}\n`;
+    text += `**Money:** ₽${(trainer.money || 0).toLocaleString()}\n`;
     text += `**━━━━━━━━━━━━━━━━━━━━━**`;
     
     return text;

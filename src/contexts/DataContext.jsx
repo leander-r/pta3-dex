@@ -42,6 +42,7 @@ export const DataProvider = ({
     // Auto-save refs
     const dataLoadedRef = useRef(false);
     const lastAutoSaveDataRef = useRef(null);
+    const saveDataRef = useRef(null);
 
     // Save Discord webhook settings
     useEffect(() => {
@@ -86,6 +87,9 @@ export const DataProvider = ({
             console.error('Error saving data:', error);
         }
     }, [trainers, activeTrainerId, inventory, customSpecies, onSaveComplete]);
+
+    // Keep ref current so auto-save effects always call the latest version
+    useEffect(() => { saveDataRef.current = saveData; });
 
     // Migrate old data format
     const migrateOldData = useCallback((loadedData) => {
@@ -636,11 +640,11 @@ export const DataProvider = ({
         if (!dataLoadedRef.current) return;
 
         const saveTimeout = setTimeout(() => {
-            saveData();
+            saveDataRef.current?.();
         }, 1000);
 
         return () => clearTimeout(saveTimeout);
-    }, [trainers, inventory, activeTrainerId]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [trainers, inventory, activeTrainerId, customSpecies]);
 
     // Interval-based auto-save (every 2 minutes, only if changed)
     useEffect(() => {
@@ -657,8 +661,7 @@ export const DataProvider = ({
             });
 
             if (lastAutoSaveDataRef.current !== currentDataSnapshot) {
-                console.log('Auto-saving...');
-                saveData(true);
+                saveDataRef.current?.(true);
                 lastAutoSaveDataRef.current = currentDataSnapshot;
             }
         }, AUTO_SAVE_INTERVAL);
@@ -671,7 +674,7 @@ export const DataProvider = ({
         });
 
         return () => clearInterval(autoSaveInterval);
-    }, [trainers, activeTrainerId, inventory, customSpecies]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [trainers, activeTrainerId, inventory, customSpecies]);
 
     const value = {
         // Inventory State

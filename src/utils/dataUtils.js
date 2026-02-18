@@ -15,25 +15,6 @@ export const calcModifier = (stat) => Math.floor(stat / 2) - 5;
 export const formatNumber = (num) => (num || 0).toLocaleString();
 
 /**
- * Calculate Pokemon HP
- */
-export const calcPokemonHP = (pokemon) => {
-    if (!pokemon) return 0;
-    return pokemon.level + (pokemon.stats?.hp || 1) * 3;
-};
-
-/**
- * Calculate STAB bonus based on level
- */
-export const calcSTAB = (level) => {
-    if (level < 5) return 0;
-    if (level < 10) return 1;
-    if (level < 15) return 2;
-    if (level < 20) return 3;
-    return Math.floor(level / 5) - 1;
-};
-
-/**
  * Calculate Pokémon level from experience
  */
 export const calculatePokemonLevel = (exp) => {
