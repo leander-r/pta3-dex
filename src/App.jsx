@@ -519,7 +519,38 @@ return (
             {/* MAIN CONTENT AREA                             */}
             {/* ============================================== */}
             <div className="content-area">
-            
+
+                {/* Loading overlay while fetching Pokédex/game data */}
+                {(pokedexLoading || !gameDataLoaded) && (
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '60px 20px',
+                        textAlign: 'center',
+                        color: 'var(--text-secondary)'
+                    }}>
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            border: '4px solid var(--border-light)',
+                            borderTopColor: '#667eea',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite',
+                            marginBottom: '20px'
+                        }} />
+                        <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                            Loading Game Data...
+                        </div>
+                        <div style={{ fontSize: '13px' }}>
+                            {pokedexLoading ? 'Fetching Pokédex...' : `Pokédex loaded (${pokedex.length} species)`}
+                            {' / '}
+                            {!gameDataLoaded ? 'Fetching moves & abilities...' : 'Game data ready'}
+                        </div>
+                    </div>
+                )}
+
                 {/* All tabs stay mounted (CSS-hidden) so local state like search filters,
                    combat stages, and note drafts persist across tab switches */}
                 <div style={{ display: activeTab === 'trainer' ? undefined : 'none' }}>
@@ -609,8 +640,10 @@ return (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
                     <button
                         onClick={async () => {
-                            if (confirm('Clear cached Pokédex and game data, then reload from the server?\n\nThis is useful if the data has been updated online or if you are experiencing issues with moves, abilities, or Pokémon not appearing correctly.')) {
+                            if (confirm('Clear cached Pokédex and game data, then reload from the server?\n\nYour trainer data will be saved before refreshing.\n\nThis is useful if the data has been updated online or if you are experiencing issues with moves, abilities, or Pokémon not appearing correctly.')) {
                                 try {
+                                    // Wait for any pending auto-save to complete (1s debounce + buffer)
+                                    await new Promise(resolve => setTimeout(resolve, 1200));
                                     indexedDB.deleteDatabase('PTAPokedex');
                                     indexedDB.deleteDatabase(DATA_CONFIG.dbName);
                                     window.location.reload();

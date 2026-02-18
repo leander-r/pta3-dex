@@ -79,9 +79,12 @@ export const loadGameDataFromGitHub = async () => {
             }
         }
         
-        // 2. Fetch from GitHub
+        // 2. Fetch from GitHub (with 15s timeout)
         console.log('Fetching game data from GitHub...');
-        const response = await fetch(DATA_CONFIG.gameDataUrl);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const response = await fetch(DATA_CONFIG.gameDataUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);

@@ -109,7 +109,7 @@ const BulkExpModal = () => {
     if (!showBulkExpModal) return null;
 
     return (
-        <div className="modal-overlay" onClick={handleClose}>
+        <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
                 ref={modalRef}
                 className="modal"

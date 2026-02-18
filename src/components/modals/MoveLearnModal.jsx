@@ -54,7 +54,7 @@ const MoveLearnModal = () => {
     const moveData = GAME_DATA.moves[moveLearnData.newMove.move] || {};
 
     return (
-        <div className="modal-overlay" onClick={() => {}} role="presentation">
+        <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
                 ref={modalRef}
                 className={`modal move-learn-modal ${isNatural ? 'natural' : 'taught'}`}
