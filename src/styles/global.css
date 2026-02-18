@@ -4158,11 +4158,7 @@
             background: var(--poke-white) !important;
         }
 
-        /* Header in modals */
-        [data-theme="dark"] .modal-header {
-            background: var(--bg-section) !important;
-            border-color: var(--border-light) !important;
-        }
+        /* Modal headers use inline gradient backgrounds, no dark override needed */
 
         /* Theme toggle button */
         .theme-toggle {

@@ -328,9 +328,61 @@ const CustomSpeciesModal = () => {
                 aria-modal="true"
                 aria-labelledby="custom-species-modal-title"
             >
-                <div className="modal-header">
-                    <h3 id="custom-species-modal-title">{editingIndex !== null ? 'Edit Custom Species' : 'Create Custom Species'}</h3>
-                    <button onClick={handleClose} aria-label="Close modal" style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>×</button>
+                <div
+                    className="modal-header"
+                    style={{
+                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        color: 'white',
+                        margin: '-25px -25px 20px -25px',
+                        padding: '18px 20px',
+                        borderRadius: '17px 17px 0 0',
+                        borderBottom: 'none'
+                    }}
+                >
+                    <h3
+                        id="custom-species-modal-title"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            margin: 0,
+                            fontSize: '18px',
+                            fontWeight: '800',
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        <span style={{ fontSize: '22px' }}>🧬</span>
+                        {editingIndex !== null ? 'Edit Custom Species' : 'Create Custom Species'}
+                    </h3>
+                    <button
+                        onClick={handleClose}
+                        aria-label="Close modal"
+                        style={{
+                            background: 'rgba(255,255,255,0.2)',
+                            border: '2px solid rgba(255,255,255,0.3)',
+                            fontSize: '18px',
+                            cursor: 'pointer',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease',
+                            fontWeight: 'bold'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.background = 'rgba(255,255,255,0.35)';
+                            e.target.style.transform = 'rotate(90deg)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(255,255,255,0.2)';
+                            e.target.style.transform = 'rotate(0deg)';
+                        }}
+                    >
+                        ×
+                    </button>
                 </div>
                 <div className="modal-content">
                     {/* Data Status */}

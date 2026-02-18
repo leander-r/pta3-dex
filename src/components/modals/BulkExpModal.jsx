@@ -119,14 +119,58 @@ const BulkExpModal = () => {
                 aria-labelledby="bulk-exp-modal-title"
                 style={{ maxWidth: '500px', width: '95%' }}
             >
-                <div className="modal-header" style={{ background: 'linear-gradient(135deg, #f5a623, #f7b731)' }}>
-                    <h3 id="bulk-exp-modal-title" style={{ margin: 0, color: 'white' }}>
+                <div
+                    className="modal-header"
+                    style={{
+                        background: 'linear-gradient(135deg, #f5a623, #f7b731)',
+                        color: 'white',
+                        margin: '-25px -25px 20px -25px',
+                        padding: '18px 20px',
+                        borderRadius: '17px 17px 0 0',
+                        borderBottom: 'none'
+                    }}
+                >
+                    <h3
+                        id="bulk-exp-modal-title"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            margin: 0,
+                            fontSize: '18px',
+                            fontWeight: '800',
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        <span style={{ fontSize: '22px' }}>⭐</span>
                         Award EXP
                     </h3>
                     <button
                         onClick={handleClose}
-                        className="modal-close-btn"
                         aria-label="Close modal"
+                        style={{
+                            background: 'rgba(255,255,255,0.2)',
+                            border: '2px solid rgba(255,255,255,0.3)',
+                            fontSize: '18px',
+                            cursor: 'pointer',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease',
+                            fontWeight: 'bold'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.background = 'rgba(255,255,255,0.35)';
+                            e.target.style.transform = 'rotate(90deg)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(255,255,255,0.2)';
+                            e.target.style.transform = 'rotate(0deg)';
+                        }}
                     >
                         ×
                     </button>
