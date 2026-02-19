@@ -4,7 +4,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
-import { calculateSTAB, getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
+import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 
@@ -19,7 +19,9 @@ const BattleTab = () => {
     const [selectedMove, setSelectedMove] = useState(null);
     const [selectedSkill, setSelectedSkill] = useState('');
     const [customDice, setCustomDice] = useState('');
-    const [rollHistory, setRollHistory] = useState([]);
+    const [rollHistory, setRollHistory] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem('pta-roll-history') || '[]'); } catch { return []; }
+    });
     const [combatStages, setCombatStages] = useState({
         atk: 0, satk: 0, def: 0, sdef: 0, spd: 0, acc: 0, eva: 0
     });
@@ -45,6 +47,11 @@ const BattleTab = () => {
         const speciesData = pokedex.find(p => p.species === selectedPokemon.species);
         return speciesData?.megaForms || [];
     }, [selectedPokemon, pokedex]);
+
+    // Persist roll history to sessionStorage
+    useEffect(() => {
+        try { sessionStorage.setItem('pta-roll-history', JSON.stringify(rollHistory)); } catch {}
+    }, [rollHistory]);
 
     // Reset battle state when switching Pokemon
     useEffect(() => {
@@ -114,18 +121,6 @@ const BattleTab = () => {
     // Reset combat stages
     const resetCombatStages = () => {
         setCombatStages({ atk: 0, satk: 0, def: 0, sdef: 0, spd: 0, acc: 0, eva: 0 });
-    };
-
-    // Parse dice notation
-    const parseDice = (diceStr) => {
-        if (!diceStr) return { count: 0, sides: 0, bonus: 0 };
-        const match = diceStr.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
-        if (!match) return { count: 0, sides: 0, bonus: 0 };
-        return {
-            count: parseInt(match[1]) || 0,
-            sides: parseInt(match[2]) || 0,
-            bonus: parseInt(match[3]) || 0
-        };
     };
 
     // Roll dice
@@ -421,9 +416,105 @@ const BattleTab = () => {
                                                 </button>
                                             ))}
                                         </div>
+                                        {/* Custom HP adjust */}
+                                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px', justifyContent: 'center' }}>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                placeholder="Custom"
+                                                id="customHpInput"
+                                                style={{
+                                                    width: '70px',
+                                                    padding: '4px 6px',
+                                                    borderRadius: '4px',
+                                                    border: '1px solid var(--border-medium)',
+                                                    fontSize: '11px',
+                                                    textAlign: 'center'
+                                                }}
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    const input = document.getElementById('customHpInput');
+                                                    const val = parseInt(input?.value);
+                                                    if (val > 0) {
+                                                        updatePokemon && updatePokemon(selectedPokemon.id, {
+                                                            currentDamage: Math.min(hp.max, (selectedPokemon.currentDamage || 0) + val)
+                                                        });
+                                                        input.value = '';
+                                                    }
+                                                }}
+                                                style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                            >
+                                                Damage
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const input = document.getElementById('customHpInput');
+                                                    const val = parseInt(input?.value);
+                                                    if (val > 0) {
+                                                        updatePokemon && updatePokemon(selectedPokemon.id, {
+                                                            currentDamage: Math.max(0, (selectedPokemon.currentDamage || 0) - val)
+                                                        });
+                                                        input.value = '';
+                                                    }
+                                                }}
+                                                style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                            >
+                                                Heal
+                                            </button>
+                                        </div>
                                     </div>
                                 );
                             })()}
+
+                            {/* Status Conditions */}
+                            {selectedPokemon && (
+                                <div style={{ marginBottom: '12px', padding: '8px 10px', borderRadius: '8px', background: 'var(--bg-secondary, #f5f5f5)' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-secondary)' }}>
+                                        Status Conditions
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                        {[
+                                            { key: 'burned', label: 'Burned', icon: '🔥', color: '#f44336' },
+                                            { key: 'frozen', label: 'Frozen', icon: '🧊', color: '#42a5f5' },
+                                            { key: 'paralyzed', label: 'Paralyzed', icon: '⚡', color: '#ffc107' },
+                                            { key: 'poisoned', label: 'Poisoned', icon: '☠️', color: '#9c27b0' },
+                                            { key: 'asleep', label: 'Asleep', icon: '💤', color: '#607d8b' },
+                                            { key: 'confused', label: 'Confused', icon: '💫', color: '#ff9800' },
+                                            { key: 'flinched', label: 'Flinched', icon: '😵', color: '#795548' },
+                                            { key: 'fainted', label: 'Fainted', icon: '✖', color: '#333' }
+                                        ].map(cond => {
+                                            const conditions = selectedPokemon.statusConditions || {};
+                                            const isActive = conditions[cond.key];
+                                            return (
+                                                <button
+                                                    key={cond.key}
+                                                    onClick={() => updatePokemon && updatePokemon(selectedPokemon.id, {
+                                                        statusConditions: {
+                                                            ...conditions,
+                                                            [cond.key]: !isActive
+                                                        }
+                                                    })}
+                                                    style={{
+                                                        padding: '3px 8px',
+                                                        borderRadius: '12px',
+                                                        border: isActive ? `2px solid ${cond.color}` : '1px solid var(--border-medium, #ccc)',
+                                                        background: isActive ? cond.color : 'transparent',
+                                                        color: isActive ? 'white' : 'var(--text-secondary)',
+                                                        cursor: 'pointer',
+                                                        fontSize: '10px',
+                                                        fontWeight: isActive ? 'bold' : 'normal',
+                                                        transition: 'all 0.15s ease'
+                                                    }}
+                                                    title={`Toggle ${cond.label}`}
+                                                >
+                                                    {cond.icon} {cond.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Mega Evolution */}
                             {selectedPokemon && megaForms.length > 0 && (
@@ -630,17 +721,19 @@ const BattleTab = () => {
                                                         { key: 'satk', label: 'SATK', color: '#9c27b0', desc: 'Special Attack - affects Special move damage' },
                                                         { key: 'sdef', label: 'SDEF', color: '#ff9800', desc: 'Special Defense - reduces Special damage taken' },
                                                         { key: 'spd', label: 'SPD', color: '#00bcd4', desc: 'Speed - determines turn order in battle' },
-                                                        { key: 'acc', label: 'ACC', color: '#4caf50', desc: 'Accuracy - adds/subtracts from hit roll (1d20)' }
+                                                        { key: 'acc', label: 'ACC', color: '#4caf50', desc: 'Accuracy - adds/subtracts from hit roll (1d20)' },
+                                                        { key: 'eva', label: 'EVA', color: '#607d8b', desc: 'Evasion - subtracts from opponent hit rolls' }
                                                     ].map(stat => {
                                                         const baseStat = actualStats[stat.key] || 0;
                                                         const stages = combatStages[stat.key] || 0;
-                                                        const modifiedStat = stat.key === 'acc' ? stages : getModifiedStat(baseStat, stages);
+                                                        const isModOnly = stat.key === 'acc' || stat.key === 'eva';
+                                                        const modifiedStat = isModOnly ? stages : getModifiedStat(baseStat, stages);
                                                         return (
                                                             <div key={stat.key} className="combat-stat-box" style={{ textAlign: 'center', padding: '6px', borderRadius: '4px' }} title={stat.desc}>
                                                                 <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
                                                                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                                                                    {stat.key === 'acc' ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>
-                                                                        {stat.key === 'acc' ? (stages >= 0 ? '+' : '') + stages : modifiedStat}
+                                                                    {isModOnly ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>
+                                                                        {isModOnly ? (stages >= 0 ? '+' : '') + stages : modifiedStat}
                                                                     </strong>
                                                                 </div>
                                                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
@@ -1134,7 +1227,12 @@ const BattleTab = () => {
                         <span>📜</span> Roll History
                         {rollHistory.length > 0 && (
                             <button
-                                onClick={() => setRollHistory([])}
+                                onClick={() => {
+                                    if (rollHistory.length > 3) {
+                                        if (!confirm(`Clear ${rollHistory.length} rolls from history?`)) return;
+                                    }
+                                    setRollHistory([]);
+                                }}
                                 style={{
                                     marginLeft: 'auto',
                                     padding: '4px 8px',

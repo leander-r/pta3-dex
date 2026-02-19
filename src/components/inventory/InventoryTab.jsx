@@ -5,6 +5,7 @@
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 import { useData } from '../../contexts/index.js';
+import toast from '../../utils/toast.js';
 
 /**
  * InventoryTab - Inventory management interface
@@ -18,6 +19,7 @@ const InventoryTab = () => {
     const [itemSearch, setItemSearch] = useState('');
     const [addQuantity, setAddQuantity] = useState(1);
     const [expandedItem, setExpandedItem] = useState(null);
+    const [inventorySort, setInventorySort] = useState('');
     // New states for add item panel
     const [addItemFilter, setAddItemFilter] = useState('all');
     const [addItemSort, setAddItemSort] = useState('name'); // 'name', 'price-low', 'price-high', 'type'
@@ -206,16 +208,53 @@ const InventoryTab = () => {
         }
     };
 
+    const handleUseItem = (itemName) => {
+        setInventory(prev => {
+            const idx = prev.findIndex(item =>
+                item.name.toLowerCase() === itemName.toLowerCase()
+            );
+            if (idx === -1) return prev;
+            const currentQty = prev[idx].quantity || 1;
+            if (currentQty <= 1) {
+                toast.info(`Used last ${itemName}`);
+                return prev.filter((_, i) => i !== idx);
+            }
+            const newInventory = [...prev];
+            newInventory[idx] = { ...newInventory[idx], quantity: currentQty - 1 };
+            toast.info(`Used ${itemName} (${currentQty - 1} remaining)`);
+            return newInventory;
+        });
+    };
+
     const handleSetQuantity = (itemName, quantity) => {
-        const qty = parseInt(quantity) || 0;
-        if (qty <= 0) {
-            handleDeleteItem(itemName);
+        // Allow empty string while typing — treat as 1 temporarily
+        const raw = String(quantity).trim();
+        if (raw === '') {
+            // User is clearing the field; keep the item but show empty
+            setInventory(prev => prev.map(item => {
+                if (item.name.toLowerCase() === itemName.toLowerCase()) {
+                    return { ...item, quantity: 0, _editing: true };
+                }
+                return item;
+            }));
             return;
         }
+        const qty = Math.min(Math.max(parseInt(quantity) || 1, 1), 9999);
 
         setInventory(prev => prev.map(item => {
             if (item.name.toLowerCase() === itemName.toLowerCase()) {
-                return { ...item, quantity: qty };
+                return { ...item, quantity: qty, _editing: undefined };
+            }
+            return item;
+        }));
+    };
+
+    // Commit quantity on blur — if still 0 or empty, reset to 1
+    const handleQuantityBlur = (itemName) => {
+        setInventory(prev => prev.map(item => {
+            if (item.name.toLowerCase() === itemName.toLowerCase()) {
+                const qty = item.quantity || 1;
+                return { ...item, quantity: Math.max(qty, 1), _editing: undefined };
             }
             return item;
         }));
@@ -273,20 +312,20 @@ const InventoryTab = () => {
                         ))}
                     </select>
                     <select
-                        value=""
-                        onChange={(e) => sortInventory(e.target.value)}
+                        value={inventorySort}
+                        onChange={(e) => { setInventorySort(e.target.value); sortInventory(e.target.value); }}
                         style={{
                             padding: '8px 12px',
                             borderRadius: '6px',
-                            border: '1px solid var(--border-medium)',
-                            background: 'var(--input-bg)',
+                            border: inventorySort ? '2px solid #667eea' : '1px solid var(--border-medium)',
+                            background: inventorySort ? 'var(--input-bg-hover, var(--input-bg))' : 'var(--input-bg)',
                             color: 'var(--text-primary)'
                         }}
                     >
                         <option value="">Sort by...</option>
-                        <option value="name">Name</option>
-                        <option value="type">Type</option>
-                        <option value="quantity">Quantity</option>
+                        <option value="name">Name {inventorySort === 'name' ? '✓' : ''}</option>
+                        <option value="type">Type {inventorySort === 'type' ? '✓' : ''}</option>
+                        <option value="quantity">Quantity {inventorySort === 'quantity' ? '✓' : ''}</option>
                     </select>
                     <button
                         onClick={() => setShowAddItem(!showAddItem)}
@@ -645,9 +684,11 @@ const InventoryTab = () => {
                                         </button>
                                         <input
                                             type="number"
-                                            value={item.quantity || 1}
+                                            value={item._editing ? '' : (item.quantity || 1)}
                                             onChange={(e) => handleSetQuantity(item.name, e.target.value)}
-                                            min="0"
+                                            onBlur={() => handleQuantityBlur(item.name)}
+                                            min="1"
+                                            max="9999"
                                             style={{
                                                 width: '50px',
                                                 textAlign: 'center',
@@ -675,6 +716,22 @@ const InventoryTab = () => {
                                             }}
                                         >
                                             +
+                                        </button>
+                                        <button
+                                            onClick={() => handleUseItem(item.name)}
+                                            style={{
+                                                padding: '4px 8px',
+                                                background: '#ff9800',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontSize: '10px',
+                                                fontWeight: 'bold'
+                                            }}
+                                            title={`Use one ${item.name}`}
+                                        >
+                                            Use
                                         </button>
                                         <button
                                             onClick={() => handleDeleteItem(item.name)}

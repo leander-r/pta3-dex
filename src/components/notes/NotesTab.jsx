@@ -55,21 +55,14 @@ Examples of what you could track:
                         padding: '16px',
                         fontSize: '14px',
                         lineHeight: '1.7',
-                        border: '2px solid #e8e3f3',
+                        border: `2px solid ${isFocused ? 'var(--poke-orange, #667eea)' : 'var(--border-light, #e8e3f3)'}`,
                         borderRadius: '10px',
                         resize: 'vertical',
                         fontFamily: 'inherit',
-                        background: '#fafafa',
+                        background: isFocused ? 'var(--input-bg, #fff)' : 'var(--hover-bg, #fafafa)',
+                        color: 'var(--text-primary, #333)',
                         transition: 'border-color 0.2s ease, background-color 0.2s ease',
                         outline: 'none'
-                    }}
-                    onFocusCapture={(e) => {
-                        e.target.style.borderColor = '#667eea';
-                        e.target.style.backgroundColor = '#fff';
-                    }}
-                    onBlurCapture={(e) => {
-                        e.target.style.borderColor = '#e8e3f3';
-                        e.target.style.backgroundColor = '#fafafa';
                     }}
                 />
 
@@ -80,8 +73,8 @@ Examples of what you could track:
                     marginTop: '12px',
                     padding: '8px 4px',
                     fontSize: '12px',
-                    color: '#666',
-                    borderTop: '1px solid #e8e3f3'
+                    color: 'var(--text-muted, #666)',
+                    borderTop: '1px solid var(--border-light, #e8e3f3)'
                 }}>
                     <div style={{ display: 'flex', gap: '16px' }}>
                         <span>

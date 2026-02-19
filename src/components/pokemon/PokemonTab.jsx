@@ -27,6 +27,7 @@ const PokemonTab = () => {
         type: ''
     });
     const [sortDir, setSortDir] = useState('asc');
+    const [lastSortBy, setLastSortBy] = useState('');
     const [showImportOptions, setShowImportOptions] = useState(false);
     const fileInputRef = useRef(null);
     const importDropdownRef = useRef(null);
@@ -135,9 +136,10 @@ const PokemonTab = () => {
     };
 
     // Handle sort action - sorts the actual data
-    const handleSort = (sortBy) => {
+    const handleSort = (sortBy, direction) => {
         if (sortBy) {
-            sortPokemonList(pokemonView === 'party', sortBy, sortDir);
+            setLastSortBy(sortBy);
+            sortPokemonList(pokemonView === 'party', sortBy, direction || sortDir);
         }
     };
 
@@ -338,10 +340,14 @@ const PokemonTab = () => {
                     </select>
 
                     <button
-                        onClick={() => setSortDir(prev => prev === 'asc' ? 'desc' : 'asc')}
+                        onClick={() => {
+                            const newDir = sortDir === 'asc' ? 'desc' : 'asc';
+                            setSortDir(newDir);
+                            if (lastSortBy) handleSort(lastSortBy, newDir);
+                        }}
                         style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}
                     >
-                        {sortDir === 'asc' ? ' A-Z' : ' Z-A'}
+                        {sortDir === 'asc' ? 'A-Z' : 'Z-A'}
                     </button>
 
                     {(filter.search || filter.type) && (
@@ -398,26 +404,30 @@ const PokemonTab = () => {
                 </div>
             ) : (
                 <div style={{ display: 'grid', gap: '15px' }}>
-                    {filteredList.map((pokemon, index) => (
-                        <PokemonCard
-                            key={pokemon.id}
-                            pokemon={pokemon}
-                            isEditing={editingPokemonId === pokemon.id}
-                            setEditing={(editing) => setEditingPokemonId(editing ? pokemon.id : null)}
-                            updatePokemon={(updates) => updatePokemon(pokemon.id, updates)}
-                            deletePokemon={() => deletePokemon(pokemon.id)}
-                            isInParty={pokemonView === 'party'}
-                            canMoveToParty={pokemonView === 'reserve' && party.length < MAX_PARTY_SIZE}
-                            onMoveToParty={() => moveToParty(pokemon.id)}
-                            onMoveToReserve={() => moveToReserve(pokemon.id)}
-                            onMoveUp={() => movePokemonUp(pokemon.id, pokemonView === 'party')}
-                            onMoveDown={() => movePokemonDown(pokemon.id, pokemonView === 'party')}
-                            canMoveUp={index > 0}
-                            canMoveDown={index < filteredList.length - 1}
-                            evolvePokemon={evolvePokemon}
-                            devolvePokemon={devolvePokemon}
-                        />
-                    ))}
+                    {filteredList.map((pokemon) => {
+                        // Use actual position in unfiltered list for move up/down
+                        const actualIndex = currentList.findIndex(p => p.id === pokemon.id);
+                        return (
+                            <PokemonCard
+                                key={pokemon.id}
+                                pokemon={pokemon}
+                                isEditing={editingPokemonId === pokemon.id}
+                                setEditing={(editing) => setEditingPokemonId(editing ? pokemon.id : null)}
+                                updatePokemon={(updates) => updatePokemon(pokemon.id, updates)}
+                                deletePokemon={() => deletePokemon(pokemon.id)}
+                                isInParty={pokemonView === 'party'}
+                                canMoveToParty={pokemonView === 'reserve' && party.length < MAX_PARTY_SIZE}
+                                onMoveToParty={() => moveToParty(pokemon.id)}
+                                onMoveToReserve={() => moveToReserve(pokemon.id)}
+                                onMoveUp={() => movePokemonUp(pokemon.id, pokemonView === 'party')}
+                                onMoveDown={() => movePokemonDown(pokemon.id, pokemonView === 'party')}
+                                canMoveUp={actualIndex > 0}
+                                canMoveDown={actualIndex < currentList.length - 1}
+                                evolvePokemon={evolvePokemon}
+                                devolvePokemon={devolvePokemon}
+                            />
+                        );
+                    })}
                 </div>
             )}
         </div>

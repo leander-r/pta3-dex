@@ -2,6 +2,8 @@
 // SAFE STORAGE UTILITIES (with error handling)
 // ============================================================
 
+import toast from './toast.js';
+
 /**
  * Safely get item from localStorage with fallback
  */
@@ -15,6 +17,9 @@ export const safeLocalStorageGet = (key, fallback = null) => {
     }
 };
 
+// Track quota warning so we don't spam the user
+let _quotaWarned = false;
+
 /**
  * Safely set item in localStorage
  */
@@ -24,9 +29,12 @@ export const safeLocalStorageSet = (key, value) => {
         return true;
     } catch (error) {
         console.error(`Error writing to localStorage (${key}):`, error);
-        // Storage might be full, try to alert user
         if (error.name === 'QuotaExceededError') {
-            console.warn('localStorage quota exceeded. Consider clearing old data.');
+            if (!_quotaWarned) {
+                _quotaWarned = true;
+                toast.error('Storage is full! Export your data as a backup, then clear old trainers to free space.');
+                setTimeout(() => { _quotaWarned = false; }, 60000);
+            }
         }
         return false;
     }

@@ -206,6 +206,15 @@ export const DataProvider = ({
             }
             // Mark data as loaded AFTER loading completes
             dataLoadedRef.current = true;
+
+            // Backup reminder — nudge after 7 days without export
+            try {
+                const lastBackup = parseInt(localStorage.getItem('pta-last-backup') || '0');
+                const daysSince = lastBackup ? Math.floor((Date.now() - lastBackup) / 86400000) : -1;
+                if (daysSince > 7) {
+                    setTimeout(() => toast.info(`It's been ${daysSince} days since your last backup. Consider exporting your data!`), 3000);
+                }
+            } catch {}
         } catch (error) {
             console.error('Error loading data:', error);
             // Still enable auto-save on error so user can save their work
@@ -239,9 +248,10 @@ export const DataProvider = ({
         a.download = `pta-all-trainers-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
+        try { localStorage.setItem('pta-last-backup', Date.now().toString()); } catch {}
     }, [trainers, activeTrainerId, inventory, customSpecies]);
 
-    // Export single trainer
+    // Export single trainer (no global inventory — use exportAllData for that)
     const exportSingleTrainer = useCallback((trainerToExport) => {
         const exportData = {
             trainer: {
@@ -251,7 +261,6 @@ export const DataProvider = ({
                 reserve: trainerToExport.reserve || []
             },
             pokemon: [...(trainerToExport.party || []), ...(trainerToExport.reserve || [])],
-            inventory: inventory,
             exportedAt: new Date().toISOString(),
             version: '1.1',
             _m: { c: 'leander_rsr', h: '6c65616e6465725f727372' },
@@ -260,8 +269,7 @@ export const DataProvider = ({
                 trainerLevel: trainerToExport.level || 0,
                 money: trainerToExport.money || 0,
                 partyCount: (trainerToExport.party || []).length,
-                reserveCount: (trainerToExport.reserve || []).length,
-                inventoryItemCount: inventory.length
+                reserveCount: (trainerToExport.reserve || []).length
             }
         };
         const dataStr = JSON.stringify(exportData, null, 2);
@@ -272,7 +280,7 @@ export const DataProvider = ({
         a.download = `${trainerToExport.name || 'trainer'}-pta-data.json`;
         a.click();
         URL.revokeObjectURL(url);
-    }, [inventory]);
+    }, []);
 
     // Import data from JSON file
     const importData = useCallback((file) => {
@@ -402,7 +410,7 @@ export const DataProvider = ({
         text += `HP: ${trainer.stats.hp} | ATK: ${trainer.stats.atk} | DEF: ${trainer.stats.def}\n`;
         text += `SATK: ${trainer.stats.satk} | SDEF: ${trainer.stats.sdef} | SPD: ${trainer.stats.spd}\n\n`;
 
-        const featureNames = trainer.features.map(f => typeof f === 'object' ? f.name : f);
+        const featureNames = (trainer.features || []).map(f => typeof f === 'object' ? f.name : f);
         if (featureNames.length > 0) {
             text += `**Features:** ${featureNames.join(', ')}\n`;
         }
@@ -435,7 +443,7 @@ export const DataProvider = ({
             text += ` (${poke.species})`;
         }
         text += `\n`;
-        text += `Level ${poke.level} | ${poke.types.join('/')} | ${poke.nature} Nature\n`;
+        text += `Level ${poke.level} | ${(poke.types || []).join('/')} | ${poke.nature} Nature\n`;
 
         const abilities = [poke.ability, poke.ability2, poke.ability3].filter(a => a);
         text += `**Abilities:** ${abilities.length > 0 ? abilities.join(', ') : 'None'}\n`;
@@ -451,7 +459,7 @@ export const DataProvider = ({
         text += `HP: ${actualStats.hp} | ATK: ${actualStats.atk} | DEF: ${actualStats.def}\n`;
         text += `SATK: ${actualStats.satk} | SDEF: ${actualStats.sdef} | SPD: ${actualStats.spd}\n\n`;
 
-        if (poke.moves.length > 0) {
+        if ((poke.moves || []).length > 0) {
             text += `**Moves:**\n`;
             poke.moves.forEach(move => {
                 text += `• ${move.name} (${move.type}) - ${move.damage || 'Status'} [${move.frequency}]\n`;
@@ -640,34 +648,17 @@ export const DataProvider = ({
     }, [trainers, inventory, activeTrainerId, customSpecies]);
 
     // Interval-based auto-save (every 2 minutes, only if changed)
+    // No data dependencies — interval should not restart on every data change
     useEffect(() => {
-        if (!dataLoadedRef.current) return;
-
         const AUTO_SAVE_INTERVAL = 2 * 60 * 1000;
 
         const autoSaveInterval = setInterval(() => {
-            const currentDataSnapshot = JSON.stringify({
-                trainers,
-                activeTrainerId,
-                inventory,
-                customSpecies
-            });
-
-            if (lastAutoSaveDataRef.current !== currentDataSnapshot) {
-                saveDataRef.current?.(true);
-                lastAutoSaveDataRef.current = currentDataSnapshot;
-            }
+            if (!dataLoadedRef.current) return;
+            saveDataRef.current?.(true);
         }, AUTO_SAVE_INTERVAL);
 
-        lastAutoSaveDataRef.current = JSON.stringify({
-            trainers,
-            activeTrainerId,
-            inventory,
-            customSpecies
-        });
-
         return () => clearInterval(autoSaveInterval);
-    }, [trainers, activeTrainerId, inventory, customSpecies]);
+    }, []);
 
     const value = {
         // Inventory State

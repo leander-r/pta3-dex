@@ -842,6 +842,11 @@
             border-color: var(--poke-orange);
             box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
         }
+
+        select:focus-visible {
+            outline: 2px solid var(--poke-orange);
+            outline-offset: 1px;
+        }
         
         /* Styled select with gradient border accent */
         select.select-styled {
@@ -936,7 +941,7 @@
         .game-rules-content h4 {
             margin-top: 12px;
             margin-bottom: 8px;
-            color: #333;
+            color: var(--text-primary);
             font-size: 14px;
         }
 
@@ -1326,7 +1331,7 @@
             opacity: 0;
             transform: translateY(-10px) scale(0.95);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
+            z-index: 99999;
             font-weight: 700;
             pointer-events: none;
             display: flex;
@@ -1479,13 +1484,14 @@
         .info-tooltip .tooltip-text {
             visibility: hidden;
             width: 260px;
+            max-width: calc(100vw - 32px);
             background-color: var(--poke-dark);
             color: #fff;
             text-align: left;
             border-radius: 10px;
             padding: 14px;
             position: absolute;
-            z-index: 1;
+            z-index: 100;
             bottom: 130%;
             left: 50%;
             margin-left: -130px;
@@ -1493,9 +1499,11 @@
             line-height: 1.5;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             font-weight: 500;
+            word-wrap: break-word;
         }
         
-        .info-tooltip:hover .tooltip-text {
+        .info-tooltip:hover .tooltip-text,
+        .info-tooltip:focus-within .tooltip-text {
             visibility: visible;
         }
         
@@ -2144,7 +2152,7 @@
         }
         
         .reference-card p {
-            color: #666;
+            color: var(--text-muted);
             font-size: 13px;
             line-height: 1.4;
         }
@@ -2201,7 +2209,7 @@
         .hp-bar {
             width: 100%;
             height: 10px;
-            background: #333;
+            background: var(--border-medium, #333);
             border-radius: 6px;
             overflow: hidden;
             position: relative;
@@ -2256,20 +2264,26 @@
         }
         
         /* Pokémon-style scrollbar */
+        * {
+            scrollbar-color: var(--poke-orange) #f0f0f0;
+            scrollbar-width: thin;
+        }
+
         ::-webkit-scrollbar {
             width: 10px;
+            height: 10px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #f0f0f0;
             border-radius: 5px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: var(--poke-orange);
             border-radius: 5px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: var(--poke-orange-dark);
         }
@@ -2456,7 +2470,7 @@
         
         .stat-label {
             font-size: 10px;
-            color: #666;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -2623,76 +2637,6 @@
             color: white;
         }
         
-        /* Additional utility classes for common patterns */
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .flex-wrap { flex-wrap: wrap; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .justify-center { justify-content: center; }
-        .gap-sm { gap: 8px; }
-        .gap-md { gap: 10px; }
-        .gap-lg { gap: 15px; }
-        
-        .text-xs { font-size: var(--font-xs); }
-        .text-sm { font-size: var(--font-sm); }
-        .text-md { font-size: var(--font-base); }
-        .text-lg { font-size: var(--font-md); }
-        .text-xl { font-size: var(--font-lg); }
-        .text-14 { font-size: 14px; }
-        .font-bold { font-weight: bold; }
-        .font-semibold { font-weight: 600; }
-        
-        .text-muted { color: var(--text-muted); }
-        .text-light { color: var(--text-light); }
-        .text-success { color: #4caf50; }
-        .text-danger { color: #f44336; }
-        .text-warning { color: #ff9800; }
-        
-        .bg-white { background: white; }
-        .bg-light { background: #f5f5f5; }
-        .bg-success { background: #4caf50; }
-        .bg-danger { background: #f44336; }
-        .bg-warning { background: #ff9800; }
-        
-        .rounded { border-radius: 6px; }
-        .rounded-md { border-radius: 8px; }
-        .rounded-lg { border-radius: 12px; }
-        .rounded-full { border-radius: 50%; }
-        
-        .p-sm { padding: 8px; }
-        .p-md { padding: 12px; }
-        .p-lg { padding: 15px; }
-        .px-sm { padding-left: 8px; padding-right: 8px; }
-        .py-sm { padding-top: 8px; padding-bottom: 8px; }
-        
-        .m-0 { margin: 0; }
-        .mb-sm { margin-bottom: 8px; }
-        .mb-md { margin-bottom: 12px; }
-        .mb-lg { margin-bottom: 15px; }
-        .mt-sm { margin-top: 8px; }
-        .mt-md { margin-top: 12px; }
-        .mt-lg { margin-top: 15px; }
-        
-        .cursor-pointer { cursor: pointer; }
-        .overflow-auto { overflow: auto; }
-        .overflow-hidden { overflow: hidden; }
-        
-        /* Card styles */
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
         /* List item styles */
         .list-item {
             display: flex;
@@ -2817,93 +2761,6 @@
             line-height: 1.8;
             font-size: var(--font-sm);
         }
-        
-        /* More text utilities */
-        .text-13 { font-size: var(--font-sm); }
-        .text-16 { font-size: var(--font-md); }
-        .text-18 { font-size: var(--font-lg); }
-        .text-20 { font-size: 20px; }
-        .text-24 { font-size: var(--font-2xl); }
-        .font-bold { font-weight: bold; }
-        
-        /* Color utilities */
-        .text-purple { color: var(--color-purple); }
-        .text-green { color: var(--stat-hp); }
-        .text-red { color: var(--stat-atk); }
-        .text-orange { color: var(--stat-sdef); }
-        
-        /* Background utilities */
-        .bg-white { background: white; }
-        .bg-gray { background: #f5f5f5; }
-        
-        /* Spacing utilities */
-        .p-15 { padding: 15px; }
-        .p-20 { padding: 20px; }
-        .mb-8 { margin-bottom: 8px; }
-        .mb-10 { margin-bottom: 10px; }
-        .mb-20 { margin-bottom: 20px; }
-        .gap-8 { gap: 8px; }
-        
-        /* Flex utilities */
-        .flex { display: flex; }
-        .flex-wrap { flex-wrap: wrap; }
-        .cursor-pointer { cursor: pointer; }
-        
-        /* Scroll containers */
-        .scroll-container-sm {
-            max-height: 280px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        
-        .scroll-container-md {
-            max-height: 350px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        
-        /* More spacing utilities */
-        .p-10 { padding: 10px; }
-        .p-12 { padding: 12px; }
-        .mt-5 { margin-top: 5px; }
-        .mt-8 { margin-top: 8px; }
-        .mt-15 { margin-top: 15px; }
-        .mb-5 { margin-bottom: 5px; }
-        .mb-6 { margin-bottom: 6px; }
-        .gap-10 { gap: 10px; }
-        .gap-15 { gap: 15px; }
-        
-        /* Border radius */
-        .rounded-8 { border-radius: 8px; }
-        .rounded-10 { border-radius: 10px; }
-        .rounded-full { border-radius: 50%; }
-        
-        /* Line height */
-        .leading-normal { line-height: 1.6; }
-        .leading-relaxed { line-height: 1.6; }
-        
-        /* Opacity */
-        .opacity-80 { opacity: 0.8; }
-        .opacity-50 { opacity: 0.5; }
-        
-        /* Text transform */
-        .uppercase { text-transform: uppercase; }
-        
-        /* Width */
-        .w-full { width: 100%; }
-        
-        /* Position */
-        .relative { position: relative; }
-        
-        /* Flex direction */
-        .flex-col { flex-direction: column; }
-        .items-center { align-items: center; }
-        .justify-center { justify-content: center; }
-        
-        /* Grid layouts */
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
         
         /* Animation classes */
         @keyframes fadeIn {
@@ -3040,11 +2897,35 @@
 
         /* ========== RESPONSIVE ADJUSTMENTS ========== */
         
+        /* ===== TABLET BREAKPOINT ===== */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 180px 1fr;
+            }
+
+            .nav-button {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .grid-responsive-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal-content {
+                width: 80%;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
-            
+
             .sidebar {
                 position: static;
                 display: flex;
@@ -3054,7 +2935,7 @@
                 overflow-x: auto;
                 padding-bottom: 10px;
             }
-            
+
             .nav-button {
                 width: auto;
                 flex: 1;
@@ -3063,24 +2944,24 @@
                 justify-content: center;
                 padding: 12px 14px;
             }
-            
+
             .content-area {
                 padding: 12px;
             }
-            
+
             .modal-content {
                 width: 95%;
                 margin: 10% auto;
             }
-            
+
             .header h1 {
                 font-size: 1.2em;
             }
-            
+
             .header {
                 padding: 12px 15px;
             }
-            
+
             /* ===== MOBILE GRID STACKING ===== */
             /* Stack 2-column grids to single column on mobile */
             .grid-responsive-2 {
@@ -3278,8 +3159,6 @@
             .btn {
                 padding: 12px 20px;
                 font-size: 14px;
-                width: 100%;
-                justify-content: center;
             }
             
             .btn-primary,
@@ -3670,6 +3549,11 @@
             border-color: var(--section-border);
         }
 
+        [data-theme="dark"] .section-card-purple::before {
+            background: linear-gradient(90deg, #9c27b0, #667eea);
+            opacity: 0.7;
+        }
+
         [data-theme="dark"] .form-group input,
         [data-theme="dark"] .form-group select,
         [data-theme="dark"] .form-group textarea,
@@ -4049,12 +3933,12 @@
 
         /* Description text class - for help text and descriptions */
         .text-muted {
-            color: #666;
+            color: var(--text-muted, #666);
             transition: color 0.3s ease;
         }
 
         .text-secondary {
-            color: #888;
+            color: var(--text-secondary, #888);
             transition: color 0.3s ease;
         }
 
@@ -4078,7 +3962,7 @@
         /* Section description helper class */
         .section-description {
             font-size: 12px;
-            color: #666;
+            color: var(--text-muted, #666);
             margin-bottom: 15px;
             margin-top: -5px;
             line-height: 1.5;
@@ -4291,7 +4175,137 @@
         /* System preference dark mode (auto) */
         @media (prefers-color-scheme: dark) {
             :root:not([data-theme="light"]) {
-                /* Apply dark mode when no explicit theme is set and system prefers dark */
+                /* Brand colors - slightly muted for dark mode */
+                --poke-orange: #e89a1d;
+                --poke-orange-dark: #c47f15;
+                --poke-orange-light: #ffc966;
+                --poke-cream: #1e1e2e;
+                --poke-white: #252535;
+                --poke-gray: #2d2d3d;
+                --poke-dark: #e8e8e8;
+                --poke-shadow: rgba(0, 0, 0, 0.4);
+
+                /* UI colors - dark mode optimized */
+                --border-light: #3d3d4d;
+                --border-medium: #4d4d5d;
+                --bg-light: #2a2a3a;
+                --bg-section: #252535;
+                --bg-secondary: #252535;
+                --bg-primary: #2a2a3a;
+                --hover-bg: #3a3a4a;
+                --text-primary: #f0f0f5;
+                --text-secondary: #b8b8c8;
+                --text-muted: #a0a0b8;
+                --text-light: #9898b0;
+
+                /* Component colors - dark mode */
+                --section-bg: linear-gradient(135deg, #252535 0%, #2a2a3a 100%);
+                --section-border: #3d3d4d;
+                --section-border-accent: #c47f15;
+                --input-border: #4d4d5d;
+                --input-border-focus: var(--poke-orange);
+                --input-bg: #2a2a3a;
+                --input-bg-hover: #323242;
+
+                /* Status colors - dark mode */
+                --warning-bg: #3d3520;
+                --warning-border: #b8860b;
+                --warning-text: #ffd93d;
+                --success-bg: #1a3a2a;
+                --success-border: #4caf50;
+                --success-text: #81c784;
+
+                /* Button gradient colors - dark mode */
+                --success-header-start: #2e7d32;
+                --success-header-end: #1b5e20;
+                --danger-btn-start: #c62828;
+                --danger-btn-end: #b71c1c;
+
+                /* Skill display colors - dark mode */
+                --skill-value-color: #ce93d8;
+                --skill-no-value-color: #81c784;
+
+                /* Move replacement modal colors - dark mode */
+                --move-replace-hover-bg: rgba(244,67,54,0.2);
+                --move-preview-natural-bg: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
+                --move-preview-taught-bg: linear-gradient(135deg, rgba(33,150,243,0.2), rgba(33,150,243,0.1));
+                --info-border: #42a5f5;
+                --info-text: #64b5f6;
+                --info-bg: rgba(33, 150, 243, 0.2);
+                --info-header-start: #1976d2;
+                --info-header-end: #0d47a1;
+
+                /* Body background - dark theme */
+                --body-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                --body-bg-fallback: #1a1a2e;
+
+                /* Collapsed Pokemon card colors - dark mode */
+                --collapsed-btn-bg: #3a3a4a;
+                --collapsed-btn-text: #b0b0c0;
+                --collapsed-hp-track: #3a3a4a;
+                --collapsed-abilities-bg: #4a2a3a;
+                --collapsed-moves-bg: #3a2a4a;
+                --collapsed-skills-bg: #2a3a2a;
+                --collapsed-quick-btn-bg: #2a2a3a;
+                --collapsed-quick-btn-border: #4a4a5a;
+                --collapsed-party-btn-bg: #2a3a2a;
+                --collapsed-reserve-btn-bg: #3a3a2a;
+
+                /* Roll result backgrounds - dark mode */
+                --roll-hit-bg: #1a3a2a;
+                --roll-crit-bg: #3a3a1a;
+                --roll-miss-bg: #3a2a2a;
+
+                /* Species selection dropdown colors - dark mode */
+                --species-dropdown-bg: #2a2a3a;
+                --species-input-border: #4a4a5a;
+                --species-filter-bg: #252535;
+                --species-border: #3a3a4a;
+                --species-filter-inactive: #3a3a4a;
+                --species-hover-bg: #3a3a4a;
+                --species-regional-hover: #2a3a4a;
+                --species-label-text: #b0b0c0;
+                --species-muted-text: #a0a0b8;
+
+                /* Moves database colors - dark mode */
+                --moves-card-bg: #2a2a3a;
+                --moves-card-shadow: rgba(0, 0, 0, 0.3);
+                --moves-category-physical-bg: #4a2a2a;
+                --moves-category-physical-text: #ff8a80;
+                --moves-category-special-bg: #3a2a4a;
+                --moves-category-special-text: #ce93d8;
+                --moves-category-status-bg: #3a3a4a;
+                --moves-category-status-text: #90a4ae;
+                --moves-damage-text: #ff8a80;
+                --moves-frequency-text: #a0a0b8;
+                --moves-range-text: #b0b0c0;
+                --moves-effect-text: #b8b8c8;
+                --moves-empty-text: #9898b0;
+                --moves-type-btn-border: #f0f0f5;
+
+                /* Abilities database colors - dark mode */
+                --abilities-card-bg: #2a2a3a;
+                --abilities-card-shadow: rgba(0, 0, 0, 0.3);
+                --abilities-card-border: #8b9cf7;
+                --abilities-name-text: #f0f0f5;
+                --abilities-desc-text: #b8b8c8;
+                --abilities-empty-text: #9898b0;
+                --abilities-quick-btn-bg: #2a2a3a;
+                --abilities-quick-btn-border: #4d4d5d;
+                --abilities-quick-btn-text: #b8b8c8;
+                --abilities-quick-btn-active-bg: #8b9cf7;
+                --abilities-quick-btn-active-border: #8b9cf7;
+                --abilities-quick-btn-active-text: #1a1a2e;
+
+                /* Skill Picker (TrainerClasses) - dark mode */
+                --skill-picker-bg: linear-gradient(135deg, #1a3320, #1e3a28);
+                --skill-btn-bg: #2a2a3a;
+                --skill-btn-text: #e0e0e8;
+                --skill-btn-border: #4d4d5d;
+                --skill-btn-has-bg: #3d3020;
+                --skill-btn-disabled-bg: #1e1e28;
+                --skill-btn-disabled-text: #999;
+                --skill-btn-disabled-border: #3a3a4a;
             }
         }
 

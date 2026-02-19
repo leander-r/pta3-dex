@@ -50,7 +50,7 @@ export const IconButton = React.memo(({ onClick, icon, title, variant = 'seconda
     };
     const variants = {
         primary: { ...baseStyle, background: 'var(--poke-orange)', color: 'white' },
-        secondary: { ...baseStyle, background: '#e0e0e0', color: '#333' },
+        secondary: { ...baseStyle, background: 'var(--border-light, #e0e0e0)', color: 'var(--text-primary, #333)' },
         danger: { ...baseStyle, background: 'var(--poke-red)', color: 'white' }
     };
     return (
@@ -121,7 +121,7 @@ export const Skeleton = React.memo(({ width = '100%', height = '20px', rounded =
         style={{
             width,
             height,
-            background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+            background: 'linear-gradient(90deg, var(--hover-bg, #f0f0f0) 25%, var(--border-light, #e0e0e0) 50%, var(--hover-bg, #f0f0f0) 75%)',
             backgroundSize: '200% 100%',
             animation: 'shimmerSkeleton 1.5s infinite',
             borderRadius: rounded ? '50%' : '8px',

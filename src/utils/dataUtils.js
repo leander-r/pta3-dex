@@ -161,3 +161,17 @@ export const calculatePokemonHP = (pokemon) => {
     const actualStats = getActualStats(pokemon);
     return pokemon.level + (actualStats.hp * 3);
 };
+
+/**
+ * Parse dice notation string (e.g., "2d6+5", "3d12+14", "1d20")
+ */
+export const parseDice = (diceStr) => {
+    if (!diceStr) return { count: 0, sides: 0, bonus: 0 };
+    const match = diceStr.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
+    if (!match) return { count: 0, sides: 0, bonus: 0 };
+    return {
+        count: parseInt(match[1]) || 0,
+        sides: parseInt(match[2]) || 0,
+        bonus: parseInt(match[3]) || 0
+    };
+};
