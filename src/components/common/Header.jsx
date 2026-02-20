@@ -23,7 +23,7 @@ const Header = () => {
         duplicateTrainer
     } = useTrainerContext();
     const { exportSingleTrainer, exportAllData, importData } = useData();
-    const { theme, setTheme, setShowCardModal, setEditingPokemon } = useUI();
+    const { theme, setTheme, setShowCardModal, setEditingPokemon, showConfirm } = useUI();
 
     // Handler for trainer selection that also clears editing state
     const handleTrainerChange = (id) => {
@@ -517,9 +517,12 @@ const Header = () => {
                                     disabled={trainers.length <= 1}
                                     onClick={() => {
                                         if (trainers.length > 1) {
-                                            if (confirm(`Delete ${trainer.name || 'this trainer'}? This cannot be undone.`)) {
-                                                deleteTrainer(activeTrainerId);
-                                            }
+                                            showConfirm({
+                                                title: 'Delete Trainer',
+                                                message: `Delete ${trainer.name || 'this trainer'}? This cannot be undone.`,
+                                                danger: true,
+                                                onConfirm: () => deleteTrainer(activeTrainerId)
+                                            });
                                         } else {
                                             toast.warning('You must have at least one trainer.');
                                         }

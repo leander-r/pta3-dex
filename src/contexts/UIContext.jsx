@@ -75,6 +75,21 @@ export const UIProvider = ({
     const pendingMoveLearn = propPendingMoveLearn !== undefined ? propPendingMoveLearn : localPendingMoveLearn;
     const setPendingMoveLearn = propSetPendingMoveLearn || setLocalPendingMoveLearn;
 
+    // Confirm / Prompt Modal State
+    const [confirmModal, setConfirmModal] = useState({
+        show: false, title: '', message: '', confirmLabel: 'Confirm',
+        cancelLabel: 'Cancel', danger: false, inputConfig: null,
+        onConfirm: null, onCancel: null
+    });
+
+    const showConfirm = useCallback((options) => {
+        setConfirmModal({
+            show: true, confirmLabel: 'Confirm', cancelLabel: 'Cancel',
+            danger: false, inputConfig: null, onConfirm: null, onCancel: null,
+            ...options
+        });
+    }, []);
+
     // Card Export Modal State
     const [showCardModal, setShowCardModal] = useState(false);
     const [cardType, setCardType] = useState('trainer');
@@ -273,6 +288,11 @@ export const UIProvider = ({
         setMoveTypeFilter,
         moveCategoryFilter,
         setMoveCategoryFilter,
+
+        // Confirm Modal
+        confirmModal,
+        setConfirmModal,
+        showConfirm,
 
         // Custom Feature/Move Templates
         customFeature,

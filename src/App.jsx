@@ -40,13 +40,60 @@ import {
     RegionalFormModal,
     SkillPickerModal,
     CardExportModal,
-    BulkExpModal
+    BulkExpModal,
+    ConfirmModal
 } from './components/modals';
 
 // Common Components
 import { Header, SaveIndicator, LevelUpNotification } from './components/common';
 import ToastContainer from './components/common/ToastContainer.jsx';
 import AppProviders from './components/AppProviders.jsx';
+import { useUI } from './contexts/index.js';
+
+// Sub-component so it can access UIContext (rendered inside AppProviders/UIProvider)
+const ClearCacheButton = ({ pokedex, gameDataLoaded }) => {
+    const { showConfirm } = useUI();
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+                onClick={() => {
+                    showConfirm({
+                        title: 'Clear Cache',
+                        message: 'Clear cached Pokédex and game data, then reload from the server?\n\nYour trainer data will be saved before refreshing.\n\nThis is useful if the data has been updated online or if you are experiencing issues with moves, abilities, or Pokémon not appearing correctly.',
+                        confirmLabel: 'Clear & Reload',
+                        danger: true,
+                        onConfirm: async () => {
+                            try {
+                                await new Promise(resolve => setTimeout(resolve, 1200));
+                                indexedDB.deleteDatabase('PTAPokedex');
+                                indexedDB.deleteDatabase(DATA_CONFIG.dbName);
+                                window.location.reload();
+                            } catch (e) {
+                                window.location.reload();
+                            }
+                        }
+                    });
+                }}
+                style={{
+                    padding: '8px 16px',
+                    fontSize: '12px',
+                    background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    color: 'white',
+                    fontWeight: '500',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}
+            >
+                🔄 Refresh Game Data
+            </button>
+            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', maxWidth: '300px' }}>
+                Clears cached Pokédex and game data (moves, abilities, items, etc.) and reloads the latest version from the server.
+            </span>
+        </div>
+    );
+};
 
 const PTAManager = () => {
 // ============================================================
@@ -577,6 +624,7 @@ return (
 
         <BulkExpModal />
 
+        <ConfirmModal />
 
         {/* Footer with Legal Disclaimer */}
         <footer style={{
@@ -616,39 +664,7 @@ return (
                         {gameDataLoaded ? `✓ Game Data: ${Object.keys(GAME_DATA.moves || {}).length} moves, ${Object.keys(GAME_DATA.features || {}).length} features` : '⏳ Loading Game Data...'}
                     </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                    <button
-                        onClick={async () => {
-                            if (confirm('Clear cached Pokédex and game data, then reload from the server?\n\nYour trainer data will be saved before refreshing.\n\nThis is useful if the data has been updated online or if you are experiencing issues with moves, abilities, or Pokémon not appearing correctly.')) {
-                                try {
-                                    // Wait for any pending auto-save to complete (1s debounce + buffer)
-                                    await new Promise(resolve => setTimeout(resolve, 1200));
-                                    indexedDB.deleteDatabase('PTAPokedex');
-                                    indexedDB.deleteDatabase(DATA_CONFIG.dbName);
-                                    window.location.reload();
-                                } catch (e) {
-                                    window.location.reload();
-                                }
-                            }
-                        }}
-                        style={{
-                            padding: '8px 16px',
-                            fontSize: '12px',
-                            background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            color: 'white',
-                            fontWeight: '500',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                        }}
-                    >
-                        🔄 Refresh Game Data
-                    </button>
-                    <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', maxWidth: '300px' }}>
-                        Clears cached Pokédex and game data (moves, abilities, items, etc.) and reloads the latest version from the server.
-                    </span>
-                </div>
+                <ClearCacheButton pokedex={pokedex} gameDataLoaded={gameDataLoaded} />
             </div>
             
             <div className="mb-10">

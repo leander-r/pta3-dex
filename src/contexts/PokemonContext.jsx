@@ -9,6 +9,7 @@ import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
 import { useGameData } from './GameDataContext.jsx';
+import { useUI } from './UIContext.jsx';
 
 const PokemonContext = createContext(null);
 
@@ -57,6 +58,7 @@ export const PokemonProvider = ({
 }) => {
     // Get pokedex from GameDataContext
     const { pokedex } = useGameData();
+    const { showConfirm } = useUI();
 
     const pokemon = [...(party || []), ...(reserve || [])];
 
@@ -347,16 +349,22 @@ export const PokemonProvider = ({
 
     // Delete Pokemon
     const deletePokemon = useCallback((id) => {
-        if (confirm('Are you sure you want to release this Pokémon?')) {
-            const inParty = party.some(p => p.id === id);
-            if (inParty) {
-                setParty(prev => prev.filter(p => p.id !== id));
-            } else {
-                setReserve(prev => prev.filter(p => p.id !== id));
+        showConfirm({
+            title: 'Release Pokémon',
+            message: 'Are you sure you want to release this Pokémon?',
+            danger: true,
+            confirmLabel: 'Release',
+            onConfirm: () => {
+                const inParty = party.some(p => p.id === id);
+                if (inParty) {
+                    setParty(prev => prev.filter(p => p.id !== id));
+                } else {
+                    setReserve(prev => prev.filter(p => p.id !== id));
+                }
+                setEditingPokemon(null);
             }
-            setEditingPokemon(null);
-        }
-    }, [party, setParty, setReserve, setEditingPokemon]);
+        });
+    }, [party, setParty, setReserve, setEditingPokemon, showConfirm]);
 
     // Import Pokemon
     const importPokemon = useCallback((pokemonData, toParty = false) => {
@@ -977,27 +985,33 @@ export const PokemonProvider = ({
             confirmMsg += `\n\nYou will receive back: 1x ${stoneToRefund}`;
         }
 
-        if (!confirm(confirmMsg)) return;
+        showConfirm({
+            title: 'Devolve Pokémon',
+            message: confirmMsg,
+            danger: true,
+            confirmLabel: 'Devolve',
+            onConfirm: () => {
+                if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+                    addItemToInventory(stoneToRefund);
+                }
 
-        if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
-            addItemToInventory(stoneToRefund);
-        }
+                applyDevolutionToPokemon(pokemonId, targetPokedexEntry, targetRegionalForm, inParty);
 
-        applyDevolutionToPokemon(pokemonId, targetPokedexEntry, targetRegionalForm, inParty);
+                let notificationMsg = `devolved back to ${targetRegionalForm ? targetRegionalForm.name + ' ' : ''}${targetSpecies}!`;
+                if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
+                    notificationMsg += ` (${stoneToRefund} refunded)`;
+                }
 
-        let notificationMsg = `devolved back to ${targetRegionalForm ? targetRegionalForm.name + ' ' : ''}${targetSpecies}!`;
-        if (stoneToRefund && evolvedFromSpecies === targetSpecies) {
-            notificationMsg += ` (${stoneToRefund} refunded)`;
-        }
-
-        if (showNotification) {
-            showNotification({
-                pokemon: poke.name || poke.species,
-                message: notificationMsg,
-                type: 'devolution'
-            });
-        }
-    }, [party, reserve, pokedex, customSpecies, addItemToInventory, applyDevolutionToPokemon, showNotification]);
+                if (showNotification) {
+                    showNotification({
+                        pokemon: poke.name || poke.species,
+                        message: notificationMsg,
+                        type: 'devolution'
+                    });
+                }
+            }
+        });
+    }, [party, reserve, pokedex, customSpecies, addItemToInventory, applyDevolutionToPokemon, showNotification, showConfirm]);
 
     const value = {
         // State

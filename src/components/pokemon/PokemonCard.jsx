@@ -30,7 +30,7 @@ const PokemonCard = ({
 }) => {
     // Get shared state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
-    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData } = useUI();
+    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm } = useUI();
     const { getEvolutionOptions } = usePokemonContext();
     const [editTab, setEditTab] = useState('info');
     const [speciesSearch, setSpeciesSearch] = useState('');
@@ -1036,9 +1036,12 @@ const PokemonCard = ({
                                                                         <button
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
-                                                                                if (window.confirm(`Delete custom species "${sp.species}"?`)) {
-                                                                                    setCustomSpecies(prev => prev.filter(s => s.id !== sp.id));
-                                                                                }
+                                                                                showConfirm({
+                                                                                    title: 'Delete Species',
+                                                                                    message: `Delete custom species "${sp.species}"?`,
+                                                                                    danger: true,
+                                                                                    onConfirm: () => setCustomSpecies(prev => prev.filter(s => s.id !== sp.id))
+                                                                                });
                                                                             }}
                                                                             style={{
                                                                                 padding: '1px 5px',
@@ -1414,10 +1417,15 @@ const PokemonCard = ({
                                                 </span>
                                                 <button
                                                     onClick={() => {
-                                                        if (confirm(`Remove ${abilityName} from ${pokemon.name || pokemon.species}?`)) {
-                                                            const newAbilities = (pokemon.abilities || []).filter(a => a !== abilityName);
-                                                            updatePokemon({ abilities: newAbilities });
-                                                        }
+                                                        showConfirm({
+                                                            title: 'Remove Ability',
+                                                            message: `Remove ${abilityName} from ${pokemon.name || pokemon.species}?`,
+                                                            danger: true,
+                                                            onConfirm: () => {
+                                                                const newAbilities = (pokemon.abilities || []).filter(a => a !== abilityName);
+                                                                updatePokemon({ abilities: newAbilities });
+                                                            }
+                                                        });
                                                     }}
                                                     style={{
                                                         background: 'rgba(255,255,255,0.3)',
@@ -1683,9 +1691,12 @@ const PokemonCard = ({
                             </button>
                             <button
                                 onClick={() => {
-                                    if (confirm(`Delete ${pokemon.name || pokemon.species || 'this Pokemon'}?`)) {
-                                        deletePokemon();
-                                    }
+                                    showConfirm({
+                                        title: 'Delete Pokémon',
+                                        message: `Delete ${pokemon.name || pokemon.species || 'this Pokémon'}? This cannot be undone.`,
+                                        danger: true,
+                                        onConfirm: () => deletePokemon()
+                                    });
                                 }}
                                 style={{ padding: '8px 16px', background: '#f44336', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                             >
@@ -1813,11 +1824,16 @@ const PokemonCard = ({
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        if (confirm(`Remove ${move.name} from ${pokemon.name || pokemon.species}?`)) {
-                                            const newMoves = [...(pokemon.moves || [])];
-                                            newMoves.splice(idx, 1);
-                                            updatePokemon({ moves: newMoves });
-                                        }
+                                        showConfirm({
+                                            title: 'Remove Move',
+                                            message: `Remove ${move.name} from ${pokemon.name || pokemon.species}?`,
+                                            danger: true,
+                                            onConfirm: () => {
+                                                const newMoves = [...(pokemon.moves || [])];
+                                                newMoves.splice(idx, 1);
+                                                updatePokemon({ moves: newMoves });
+                                            }
+                                        });
                                     }}
                                     style={{
                                         background: '#f44336',

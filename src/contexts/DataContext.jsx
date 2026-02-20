@@ -7,6 +7,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
+import { useUI } from './UIContext.jsx';
 
 const DataContext = createContext(null);
 
@@ -30,6 +31,8 @@ export const DataProvider = ({
     setCustomSpecies,
     onSaveComplete
 }) => {
+    const { showConfirm } = useUI();
+
     // Discord webhook state
     const [discordWebhook, setDiscordWebhook] = useState(() => {
         try {
@@ -334,58 +337,63 @@ export const DataProvider = ({
                         skills: migrateSkills(trainerData.skills)
                     };
 
-                    if (trainers.length > 0 && trainers[0].name) {
-                        const choice = confirm(
-                            `You have existing trainers. Do you want to:\n\n` +
-                            `OK = Add "${trainerData.name || 'Imported Trainer'}" as a new trainer\n` +
-                            `Cancel = Replace all trainers with this import`
-                        );
-                        if (choice) {
-                            trainerData.id = Date.now();
-                            setTrainers(prev => [...prev, trainerData]);
-                            setActiveTrainerId(trainerData.id);
-                        } else {
-                            setTrainers([trainerData]);
-                            setActiveTrainerId(trainerData.id);
-                        }
-                    } else {
-                        setTrainers([trainerData]);
-                        setActiveTrainerId(trainerData.id);
-                    }
-
-                    if (data.inventory && data.inventory.length > 0) {
-                        if (inventory.length > 0) {
-                            const inventoryChoice = confirm(
-                                `The import file contains ${data.inventory.length} inventory item(s).\n\n` +
-                                `OK = Merge with existing inventory\n` +
-                                `Cancel = Replace existing inventory`
-                            );
-                            if (inventoryChoice) {
-                                const mergedInventory = [...inventory];
-                                data.inventory.forEach(importItem => {
-                                    const existingIndex = mergedInventory.findIndex(i => i.name === importItem.name);
-                                    if (existingIndex >= 0) {
-                                        mergedInventory[existingIndex] = {
-                                            ...mergedInventory[existingIndex],
-                                            quantity: (mergedInventory[existingIndex].quantity || 1) + (importItem.quantity || 1)
-                                        };
-                                    } else {
-                                        mergedInventory.push(importItem);
-                                    }
+                    const doInventoryImport = () => {
+                        if (data.inventory && data.inventory.length > 0) {
+                            if (inventory.length > 0) {
+                                showConfirm({
+                                    title: 'Import Inventory',
+                                    message: `The import file contains ${data.inventory.length} inventory item(s).\n\nHow would you like to handle your existing inventory?`,
+                                    confirmLabel: 'Merge',
+                                    cancelLabel: 'Replace All',
+                                    onConfirm: () => {
+                                        const mergedInventory = [...inventory];
+                                        data.inventory.forEach(importItem => {
+                                            const existingIndex = mergedInventory.findIndex(i => i.name === importItem.name);
+                                            if (existingIndex >= 0) {
+                                                mergedInventory[existingIndex] = {
+                                                    ...mergedInventory[existingIndex],
+                                                    quantity: (mergedInventory[existingIndex].quantity || 1) + (importItem.quantity || 1)
+                                                };
+                                            } else {
+                                                mergedInventory.push(importItem);
+                                            }
+                                        });
+                                        setInventory(mergedInventory);
+                                    },
+                                    onCancel: () => setInventory(data.inventory)
                                 });
-                                setInventory(mergedInventory);
                             } else {
                                 setInventory(data.inventory);
                             }
-                        } else {
-                            setInventory(data.inventory);
                         }
-                    }
+                    };
 
                     const pokemonCount = (trainerData.party?.length || 0) + (trainerData.reserve?.length || 0);
-                    const inventoryCount = data.inventory?.length || 0;
-
                     toast.success(`Trainer "${trainerData.name || 'Unnamed'}" imported! (Lv ${trainerData.level || 0}, ${pokemonCount} Pokemon)`);
+
+                    if (trainers.length > 0 && trainers[0].name) {
+                        showConfirm({
+                            title: 'Import Trainers',
+                            message: `You have existing trainers. How would you like to import "${trainerData.name || 'Imported Trainer'}"?`,
+                            confirmLabel: 'Add as New',
+                            cancelLabel: 'Replace All',
+                            onConfirm: () => {
+                                trainerData.id = Date.now();
+                                setTrainers(prev => [...prev, trainerData]);
+                                setActiveTrainerId(trainerData.id);
+                                doInventoryImport();
+                            },
+                            onCancel: () => {
+                                setTrainers([trainerData]);
+                                setActiveTrainerId(trainerData.id);
+                                doInventoryImport();
+                            }
+                        });
+                    } else {
+                        setTrainers([trainerData]);
+                        setActiveTrainerId(trainerData.id);
+                        doInventoryImport();
+                    }
                 } else {
                     toast.error('No trainer data found in file.');
                 }
@@ -395,7 +403,7 @@ export const DataProvider = ({
             }
         };
         reader.readAsText(file);
-    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, showConfirm]);
 
     // Export text functions
     const exportTrainerText = useCallback((trainer) => {

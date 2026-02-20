@@ -6,6 +6,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
+import { useUI } from '../contexts/UIContext.jsx';
 
 /**
  * Default trainer template
@@ -37,6 +38,8 @@ const defaultTrainer = {
  * This hook encapsulates the trainer management logic from App.jsx
  */
 export const useTrainerState = (onLevelUp) => {
+    const { showConfirm } = useUI();
+
     // Multi-Trainer Management
     const [trainers, setTrainers] = useState([{ ...defaultTrainer }]);
     const [activeTrainerId, setActiveTrainerId] = useState(null);
@@ -106,20 +109,23 @@ export const useTrainerState = (onLevelUp) => {
     const deleteTrainer = useCallback((trainerId) => {
         if (trainers.length <= 1) {
             alert('You must have at least one trainer.');
-            return false;
+            return;
         }
-        if (confirm('Are you sure you want to delete this trainer and all their Pokémon? This cannot be undone.')) {
-            setTrainers(prev => {
-                const filtered = prev.filter(t => t.id !== trainerId);
-                if (trainerId === activeTrainerId) {
-                    setActiveTrainerId(filtered[0]?.id);
-                }
-                return filtered;
-            });
-            return true;
-        }
-        return false;
-    }, [trainers.length, activeTrainerId]);
+        showConfirm({
+            title: 'Delete Trainer',
+            message: 'Are you sure you want to delete this trainer and all their Pokémon? This cannot be undone.',
+            danger: true,
+            onConfirm: () => {
+                setTrainers(prev => {
+                    const filtered = prev.filter(t => t.id !== trainerId);
+                    if (trainerId === activeTrainerId) {
+                        setActiveTrainerId(filtered[0]?.id);
+                    }
+                    return filtered;
+                });
+            }
+        });
+    }, [trainers.length, activeTrainerId, showConfirm]);
 
     // Duplicate a trainer
     const duplicateTrainer = useCallback((trainerId) => {
@@ -352,23 +358,34 @@ export const useTrainerState = (onLevelUp) => {
 
     // Respec trainer
     const respecTrainer = useCallback(() => {
-        if (!confirm('⚠️ RESPEC TRAINER ⚠️\n\nThis will reset to Level 0. Continue?')) return;
-        if (!confirm('Are you REALLY sure? This cannot be undone!')) return;
-
-        setTrainer(prev => ({
-            ...prev,
-            level: 0,
-            stats: { hp: 6, atk: 6, def: 6, satk: 6, sdef: 6, spd: 6 },
-            statPoints: 30,
-            levelStatPoints: 0,
-            featPoints: 0,
-            classes: [],
-            features: [],
-            skills: {}
-        }));
-
-        alert('Trainer has been reset to Level 0!');
-    }, [setTrainer]);
+        showConfirm({
+            title: '⚠️ Respec Trainer',
+            message: 'This will reset to Level 0. Continue?',
+            confirmLabel: 'Respec',
+            danger: true,
+            onConfirm: () => {
+                showConfirm({
+                    title: 'Final Confirmation',
+                    message: 'Are you REALLY sure? This cannot be undone!',
+                    confirmLabel: 'Yes, Respec',
+                    danger: true,
+                    onConfirm: () => {
+                        setTrainer(prev => ({
+                            ...prev,
+                            level: 0,
+                            stats: { hp: 6, atk: 6, def: 6, satk: 6, sdef: 6, spd: 6 },
+                            statPoints: 30,
+                            levelStatPoints: 0,
+                            featPoints: 0,
+                            classes: [],
+                            features: [],
+                            skills: {}
+                        }));
+                    }
+                });
+            }
+        });
+    }, [setTrainer, showConfirm]);
 
     // Pokemon movement functions
     const moveToParty = useCallback((pokemonId) => {

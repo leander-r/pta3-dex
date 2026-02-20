@@ -6,6 +6,7 @@
 import React from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { copyToClipboard, downloadCardAsImage } from '../../utils/exportUtils.js';
+import toast from '../../utils/toast.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
@@ -189,7 +190,7 @@ const getFrequencyAbbr = (frequency) => {
  */
 const CardExportModal = () => {
     // Get from contexts
-    const { showCardModal, setShowCardModal, cardType, setCardType, selectedCardPokemon, setSelectedCardPokemon } = useUI();
+    const { showCardModal, setShowCardModal, cardType, setCardType, selectedCardPokemon, setSelectedCardPokemon, showConfirm } = useUI();
     const { trainer } = useTrainerContext();
     const { party, reserve } = usePokemonContext();
     const { exportTrainerText, exportTeamText, exportPokemonText } = useData();
@@ -215,7 +216,7 @@ const CardExportModal = () => {
         if (text) copyToClipboard(text);
     };
 
-    const handleDownloadImage = () => {
+    const handleDownloadImage = async () => {
         let cardId, filename;
         if (cardType === 'trainer') {
             cardId = 'trainerCardExport';
@@ -227,7 +228,24 @@ const CardExportModal = () => {
             cardId = 'pokemonCardExport';
             filename = `${selectedCardPokemon?.name || 'pokemon'}-card`;
         }
-        downloadCardAsImage(cardId, filename);
+        try {
+            await downloadCardAsImage(cardId, filename);
+        } catch (err) {
+            const cardText = err.cardText || '';
+            showConfirm({
+                title: 'Export Failed',
+                message: 'Image export failed. Would you like to copy the card data as text instead?',
+                confirmLabel: 'Copy Text',
+                onConfirm: async () => {
+                    try {
+                        await navigator.clipboard.writeText(cardText);
+                        toast.success('Card data copied to clipboard!');
+                    } catch {
+                        toast.error('Export failed. Try taking a screenshot manually (Print Screen key).');
+                    }
+                }
+            });
+        }
     };
 
     return (

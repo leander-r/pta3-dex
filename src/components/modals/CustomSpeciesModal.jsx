@@ -69,7 +69,7 @@ const EVOLUTION_STONES = [
 
 const CustomSpeciesModal = () => {
     // Get state from contexts
-    const { showCustomSpeciesModal, setShowCustomSpeciesModal, editingCustomSpeciesId, setEditingCustomSpeciesId } = useUI();
+    const { showCustomSpeciesModal, setShowCustomSpeciesModal, editingCustomSpeciesId, setEditingCustomSpeciesId, showConfirm } = useUI();
     const { customSpecies, setCustomSpecies } = useGameData();
 
     const [species, setSpecies] = useState({ ...DEFAULT_SPECIES });
@@ -254,10 +254,15 @@ const CustomSpeciesModal = () => {
     };
 
     const handleDeleteSpecies = (index) => {
-        if (window.confirm(`Delete custom species "${customSpecies[index].species}"?`)) {
-            const updated = customSpecies.filter((_, i) => i !== index);
-            setCustomSpecies(updated);
-        }
+        showConfirm({
+            title: 'Delete Species',
+            message: `Delete custom species "${customSpecies[index].species}"?`,
+            danger: true,
+            onConfirm: () => {
+                const updated = customSpecies.filter((_, i) => i !== index);
+                setCustomSpecies(updated);
+            }
+        });
     };
 
     const updateStat = (stat, value) => {

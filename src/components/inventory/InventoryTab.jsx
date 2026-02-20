@@ -4,7 +4,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
-import { useData } from '../../contexts/index.js';
+import { useData, useUI } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 /**
@@ -13,6 +13,7 @@ import toast from '../../utils/toast.js';
  */
 const InventoryTab = () => {
     const { inventory, setInventory } = useData();
+    const { showConfirm } = useUI();
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddItem, setShowAddItem] = useState(false);
@@ -201,11 +202,14 @@ const InventoryTab = () => {
     };
 
     const handleDeleteItem = (itemName) => {
-        if (confirm(`Delete all "${itemName}" from inventory?`)) {
-            setInventory(prev => prev.filter(item =>
+        showConfirm({
+            title: 'Delete Item',
+            message: `Delete all "${itemName}" from inventory?`,
+            danger: true,
+            onConfirm: () => setInventory(prev => prev.filter(item =>
                 item.name.toLowerCase() !== itemName.toLowerCase()
-            ));
-        }
+            ))
+        });
     };
 
     const handleUseItem = (itemName) => {

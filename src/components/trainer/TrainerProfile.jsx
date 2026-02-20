@@ -3,7 +3,7 @@
 // ============================================================
 
 import React from 'react';
-import { useTrainerContext } from '../../contexts/index.js';
+import { useTrainerContext, useUI } from '../../contexts/index.js';
 
 /**
  * TrainerProfile - Trainer profile management
@@ -18,6 +18,7 @@ const TrainerProfile = () => {
         respecTrainer,
         calculateMaxHP
     } = useTrainerContext();
+    const { showConfirm } = useUI();
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -45,29 +46,41 @@ const TrainerProfile = () => {
     };
 
     const handleAddBadge = () => {
-        const badgeName = prompt('Enter badge name:');
-        if (badgeName && badgeName.trim()) {
-            setTrainer(prev => ({
-                ...prev,
-                badges: [...(prev.badges || []), {
-                    name: badgeName.trim(),
-                    id: Date.now(),
-                    earnedAt: new Date().toISOString()
-                }]
-            }));
-        }
+        showConfirm({
+            title: 'Add Badge',
+            message: 'Enter badge name:',
+            confirmLabel: 'Add',
+            inputConfig: { placeholder: 'Badge name...', defaultValue: '' },
+            onConfirm: (name) => {
+                if (name?.trim()) {
+                    setTrainer(prev => ({
+                        ...prev,
+                        badges: [...(prev.badges || []), {
+                            name: name.trim(),
+                            id: Date.now(),
+                            earnedAt: new Date().toISOString()
+                        }]
+                    }));
+                }
+            }
+        });
     };
 
     const handleRemoveBadge = (badgeId, badgeName, index) => {
-        if (confirm(`Remove "${badgeName}" badge?`)) {
-            setTrainer(prev => ({
-                ...prev,
-                badges: (prev.badges || []).filter((b, i) => {
-                    if (typeof b === 'string') return i !== index;
-                    return b.id !== badgeId;
-                })
-            }));
-        }
+        showConfirm({
+            title: 'Remove Badge',
+            message: `Remove "${badgeName}" badge?`,
+            danger: true,
+            onConfirm: () => {
+                setTrainer(prev => ({
+                    ...prev,
+                    badges: (prev.badges || []).filter((b, i) => {
+                        if (typeof b === 'string') return i !== index;
+                        return b.id !== badgeId;
+                    })
+                }));
+            }
+        });
     };
 
     const isLevel0 = trainer.level === 0;

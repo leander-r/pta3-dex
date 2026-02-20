@@ -160,6 +160,7 @@ export const copyToClipboard = (text) => {
 
 /**
  * Download card as image using html2canvas
+ * Throws an error with card text attached if export fails, so callers can handle the fallback UX.
  */
 export const downloadCardAsImage = async (cardId, filename) => {
     const card = document.getElementById(cardId);
@@ -167,7 +168,7 @@ export const downloadCardAsImage = async (cardId, filename) => {
         toast.error('Card element not found. Please try again.');
         return;
     }
-    
+
     try {
         // Use html2canvas library loaded from CDN
         if (typeof html2canvas === 'undefined') {
@@ -183,16 +184,9 @@ export const downloadCardAsImage = async (cardId, filename) => {
         await captureCard(card, filename);
     } catch (err) {
         console.error('Error loading html2canvas:', err);
-        // Offer alternative: copy to clipboard
-        if (confirm('Image export failed. Would you like to copy the card data as text instead?')) {
-            try {
-                const text = card.innerText;
-                await navigator.clipboard.writeText(text);
-                toast.success('Card data copied to clipboard!');
-            } catch (clipErr) {
-                toast.error('Export failed. Try taking a screenshot manually (Print Screen key).');
-            }
-        }
+        const exportErr = new Error('Image export failed.');
+        exportErr.cardText = card.innerText;
+        throw exportErr;
     }
 };
 

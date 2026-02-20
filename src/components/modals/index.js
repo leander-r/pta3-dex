@@ -11,3 +11,4 @@ export { default as RegionalFormModal } from './RegionalFormModal.jsx';
 export { default as SkillPickerModal } from './SkillPickerModal.jsx';
 export { default as CardExportModal } from './CardExportModal.jsx';
 export { default as BulkExpModal } from './BulkExpModal.jsx';
+export { default as ConfirmModal } from './ConfirmModal.jsx';

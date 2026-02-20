@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useTrainerContext, useGameData } from '../../contexts/index.js';
+import { useTrainerContext, useGameData, useUI } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 /**
@@ -13,6 +13,7 @@ import toast from '../../utils/toast.js';
 const TrainerClasses = () => {
     const { trainer, setTrainer } = useTrainerContext();
     const { GAME_DATA } = useGameData();
+    const { showConfirm } = useUI();
     const maxClasses = trainer.level < 5 ? 1 : trainer.level < 12 ? 2 : trainer.level < 24 ? 3 : 4;
     const currentClasses = trainer.classes || [];
 
@@ -76,10 +77,15 @@ const TrainerClasses = () => {
     };
 
     const handleRemoveClass = (cls) => {
-        if (!confirm(`Remove ${cls} class? This will also remove associated skills and features.`)) {
-            return;
-        }
+        showConfirm({
+            title: 'Remove Class',
+            message: `Remove ${cls} class? This will also remove associated skills and features.`,
+            danger: true,
+            onConfirm: () => doRemoveClass(cls)
+        });
+    };
 
+    const doRemoveClass = (cls) => {
         const classData = GAME_DATA.trainerClasses[cls];
         const isBaseClass = classData?.type === 'base';
         const isFirstClass = currentClasses.indexOf(cls) === 0 && currentClasses.length > 0;

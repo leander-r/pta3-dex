@@ -11,7 +11,7 @@ import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } fro
 const BattleTab = () => {
     // Get state from contexts
     const { GAME_DATA, pokedex } = useGameData();
-    const { showDetail } = useUI();
+    const { showDetail, showConfirm } = useUI();
     const { trainer, party } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const { discordWebhook, setDiscordWebhook, sendToDiscord } = useData();
@@ -1229,9 +1229,16 @@ const BattleTab = () => {
                             <button
                                 onClick={() => {
                                     if (rollHistory.length > 3) {
-                                        if (!confirm(`Clear ${rollHistory.length} rolls from history?`)) return;
+                                        showConfirm({
+                                            title: 'Clear History',
+                                            message: `Clear ${rollHistory.length} rolls from history?`,
+                                            danger: true,
+                                            confirmLabel: 'Clear',
+                                            onConfirm: () => setRollHistory([])
+                                        });
+                                    } else {
+                                        setRollHistory([]);
                                     }
-                                    setRollHistory([]);
                                 }}
                                 style={{
                                     marginLeft: 'auto',
