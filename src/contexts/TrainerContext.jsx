@@ -21,6 +21,39 @@ import {
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
 
+// ── Pure helper ─────────────────────────────────────────────
+// Returns { creationDelta, levelDelta } (negative = spend, positive = refund).
+// Returns null when the move is impossible (not enough points).
+function allocateStatPoints(difference, newValue, creationPoints, levelPoints, trainerLevel) {
+    if (difference > 0) {
+        if (newValue > CREATION_STAT_CAP && creationPoints > 0) {
+            // Crossing or above the cap with creation points remaining — split the spend
+            const creationUse = Math.min(creationPoints, Math.max(0, CREATION_STAT_CAP - (newValue - difference)));
+            const levelUse = difference - creationUse;
+            if (levelUse > levelPoints) return null;
+            return { creationDelta: -creationUse, levelDelta: -levelUse };
+        } else if (newValue <= CREATION_STAT_CAP && creationPoints >= difference) {
+            // Entirely within cap, enough creation points
+            return { creationDelta: -difference, levelDelta: 0 };
+        } else if (newValue <= CREATION_STAT_CAP && creationPoints < difference) {
+            // Within cap but creation points short — drain creation then use level points
+            const levelUse = difference - creationPoints;
+            if (levelUse > levelPoints) return null;
+            return { creationDelta: -creationPoints, levelDelta: -levelUse };
+        } else {
+            // Above cap, no creation points left — use level points only
+            if (difference > levelPoints) return null;
+            return { creationDelta: 0, levelDelta: -difference };
+        }
+    } else {
+        // Decreasing a stat — always a refund, never fails
+        const refund = Math.abs(difference);
+        return trainerLevel === 0
+            ? { creationDelta: refund, levelDelta: 0 }
+            : { creationDelta: 0, levelDelta: refund };
+    }
+}
+
 const TrainerContext = createContext(null);
 
 export const useTrainerContext = () => {
@@ -222,69 +255,18 @@ export const TrainerProvider = ({ children }) => {
         const oldValue = trainer.stats[stat];
         const difference = newValue - oldValue;
 
-        const totalAvailable = trainer.statPoints + (trainer.levelStatPoints || 0);
-
         if (newValue < BASE_STAT_VALUE) return;
-        if (totalAvailable - difference < 0) return;
 
-        if (difference > 0) {
-            if (newValue > CREATION_STAT_CAP && trainer.statPoints > 0) {
-                const pointsToReach14 = Math.max(0, CREATION_STAT_CAP - oldValue);
-                const creationPointsToUse = Math.min(trainer.statPoints, pointsToReach14);
-                const levelPointsToUse = difference - creationPointsToUse;
+        const levelPoints = trainer.levelStatPoints || 0;
+        const allocation = allocateStatPoints(difference, newValue, trainer.statPoints, levelPoints, trainer.level);
+        if (!allocation) return;
 
-                if (levelPointsToUse > (trainer.levelStatPoints || 0)) return;
-
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: prev.statPoints - creationPointsToUse,
-                    levelStatPoints: (prev.levelStatPoints || 0) - levelPointsToUse
-                }));
-            } else if (newValue <= CREATION_STAT_CAP && trainer.statPoints >= difference) {
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: prev.statPoints - difference
-                }));
-            } else if (newValue <= CREATION_STAT_CAP && trainer.statPoints < difference) {
-                const creationPointsToUse = trainer.statPoints;
-                const levelPointsToUse = difference - creationPointsToUse;
-
-                if (levelPointsToUse > (trainer.levelStatPoints || 0)) return;
-
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: 0,
-                    levelStatPoints: (prev.levelStatPoints || 0) - levelPointsToUse
-                }));
-            } else {
-                if (difference > (trainer.levelStatPoints || 0)) return;
-
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    levelStatPoints: (prev.levelStatPoints || 0) - difference
-                }));
-            }
-        } else {
-            const refund = Math.abs(difference);
-
-            if (trainer.level === 0) {
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: prev.statPoints + refund
-                }));
-            } else {
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    levelStatPoints: (prev.levelStatPoints || 0) + refund
-                }));
-            }
-        }
+        setTrainer(prev => ({
+            ...prev,
+            stats: { ...prev.stats, [stat]: newValue },
+            statPoints: (prev.statPoints || 0) + allocation.creationDelta,
+            levelStatPoints: (prev.levelStatPoints || 0) + allocation.levelDelta
+        }));
     }, [trainer, setTrainer]);
 
     // Level up the trainer

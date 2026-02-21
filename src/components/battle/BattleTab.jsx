@@ -5,14 +5,46 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { getCombinedTypeEffectiveness } from '../../data/typeChart.js';
-import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice } from '../../utils/dataUtils.js';
+import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
-import {
-    MAX_ROLL_HISTORY,
-    COMBAT_STAGE_POSITIVE_MULTIPLIER,
-    COMBAT_STAGE_NEGATIVE_MULTIPLIER
-} from '../../data/constants.js';
+import { MAX_ROLL_HISTORY } from '../../data/constants.js';
+
+// Parse the AC number from a move frequency string, e.g. "EOT – 2" → 2
+const parseACFromFrequency = (freq) => {
+    if (!freq) return 2;
+    const match = freq.match(/[-–]\s*(\d+)/);
+    return match ? parseInt(match[1]) : 2;
+};
+
+// Build a normalized roll-history entry for a Pokemon attack
+const buildPokemonRollEntry = ({
+    pokemon, move, moveType, category,
+    accRoll, accModifier, modifiedAccRoll, moveAC, acWasOverridden,
+    isHit, isCrit, isStatus,
+    dice, rolls, diceTotal, statBonus, stabBonus, total
+}) => ({
+    type: 'pokemon',
+    pokemon,
+    move,
+    moveType,
+    category,
+    accRoll,
+    accModifier,
+    modifiedAccRoll,
+    moveAC,
+    acWasOverridden,
+    isHit,
+    isCrit,
+    isStatus: isStatus || false,
+    dice: dice || null,
+    rolls: rolls || [],
+    diceTotal: diceTotal || 0,
+    statBonus: statBonus || 0,
+    stabBonus: stabBonus || 0,
+    total: total || 0,
+    timestamp: Date.now()
+});
 
 const BattleTab = () => {
     // Get state from contexts
@@ -148,110 +180,54 @@ const BattleTab = () => {
     const rollPokemonMove = () => {
         if (!selectedPokemon || !selectedMove) return;
 
+        // 1. Gather stats (with mega boost) and apply attack-stat combat stages
         const actualStats = getStatsWithMega(selectedPokemon);
         const isPhysical = selectedMove.category === 'Physical';
         const statKey = isPhysical ? 'atk' : 'satk';
-        const baseStat = actualStats[statKey] || 0;
+        const statMod = applyCombatStage(actualStats[statKey] || 0, combatStages[statKey] || 0);
 
-        // Apply combat stages to attack stat
-        const stages = combatStages[statKey] || 0;
-        let statMod = baseStat;
-        if (stages > 0) {
-            statMod = Math.floor(baseStat * (1 + stages * COMBAT_STAGE_POSITIVE_MULTIPLIER));
-        } else if (stages < 0) {
-            statMod = Math.ceil(baseStat * (1 - Math.abs(stages) * COMBAT_STAGE_NEGATIVE_MULTIPLIER));
-        }
-
-        // Get accuracy check value (AC) from frequency field (e.g., "EOT - 2" means AC 2)
-        // Parse the number after the dash in the frequency string
-        const parseACFromFrequency = (freq) => {
-            if (!freq) return 2;
-            const match = freq.match(/[-–]\s*(\d+)/); // Match "- 2" or "– 2" (different dash types)
-            return match ? parseInt(match[1]) : 2;
-        };
+        // 2. Determine AC and roll accuracy
         const defaultAC = parseACFromFrequency(selectedMove.frequency || selectedMove.freq);
         const moveAC = acOverride !== '' ? parseInt(acOverride) || defaultAC : defaultAC;
-
-        // Apply accuracy combat stages
-        const accStages = combatStages.acc || 0;
-        let accModifier = accStages; // Each stage is +1/-1 to the roll
-
-        // Roll accuracy (1d20)
+        const accModifier = combatStages.acc || 0;
         const accRoll = Math.floor(Math.random() * 20) + 1;
         const modifiedAccRoll = accRoll + accModifier;
-        const isCrit = accRoll === 20; // Natural 20 is always a crit
-        const isHit = accRoll === 20 || modifiedAccRoll >= moveAC; // Natural 20 always hits, otherwise compare to AC
-
-        // Parse damage dice
-        const diceData = parseDice(selectedMove.damage);
-
-        // Track if AC was overridden
+        const isCrit = accRoll === 20;
+        const isHit = accRoll === 20 || modifiedAccRoll >= moveAC;
         const acWasOverridden = acOverride !== '';
 
-        if (diceData.count === 0) {
-            // Status move
-            addToHistory({
-                type: 'pokemon',
-                pokemon: selectedPokemon.name || selectedPokemon.species,
-                move: selectedMove.name,
-                moveType: selectedMove.type,
-                category: selectedMove.category,
-                accRoll,
-                accModifier,
-                modifiedAccRoll,
-                moveAC,
-                acWasOverridden,
-                isHit,
-                isCrit,
-                isStatus: true,
-                total: 0,
-                timestamp: Date.now()
-            });
-            return;
-        }
-
-        // Only roll damage if the attack hits
-        let rolls = [];
-        let diceTotal = 0;
-        let stabBonus = 0;
-        let total = 0;
-        let diceCount = 0;
-
-        if (isHit) {
-            // Roll damage
-            diceCount = isCrit ? diceData.count * 2 : diceData.count;
-            rolls = rollDice(diceCount, diceData.sides);
-            diceTotal = rolls.reduce((sum, r) => sum + r, 0);
-
-            // STAB
-            if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
-                stabBonus = calculateSTAB(selectedPokemon.level || 1);
-            }
-
-            total = diceTotal + diceData.bonus + statMod + stabBonus;
-        }
-
-        addToHistory({
-            type: 'pokemon',
+        const commonFields = {
             pokemon: selectedPokemon.name || selectedPokemon.species,
             move: selectedMove.name,
             moveType: selectedMove.type,
             category: selectedMove.category,
+            accRoll, accModifier, modifiedAccRoll, moveAC, acWasOverridden, isHit, isCrit
+        };
+
+        // 3. Status moves have no damage dice
+        const diceData = parseDice(selectedMove.damage);
+        if (diceData.count === 0) {
+            addToHistory(buildPokemonRollEntry({ ...commonFields, isStatus: true }));
+            return;
+        }
+
+        // 4. Roll damage (only when hit)
+        let rolls = [], diceTotal = 0, stabBonus = 0, total = 0, diceCount = 0;
+        if (isHit) {
+            diceCount = isCrit ? diceData.count * 2 : diceData.count;
+            rolls = rollDice(diceCount, diceData.sides);
+            diceTotal = rolls.reduce((sum, r) => sum + r, 0);
+            if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
+                stabBonus = calculateSTAB(selectedPokemon.level || 1);
+            }
+            total = diceTotal + diceData.bonus + statMod + stabBonus;
+        }
+
+        addToHistory(buildPokemonRollEntry({
+            ...commonFields,
             dice: isHit ? `${diceCount}d${diceData.sides}+${diceData.bonus}` : null,
-            rolls,
-            diceTotal,
-            statBonus: statMod,
-            stabBonus,
-            accRoll,
-            accModifier,
-            modifiedAccRoll,
-            moveAC,
-            acWasOverridden,
-            isHit,
-            isCrit,
-            total,
-            timestamp: Date.now()
-        });
+            rolls, diceTotal, statBonus: statMod, stabBonus, total
+        }));
     };
 
     // Roll Trainer Skill

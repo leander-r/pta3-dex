@@ -77,6 +77,54 @@ const calculatePokemonLevel = (exp) => {
     return level;
 };
 
+// ── Pure stat-point helpers ──────────────────────────────────
+// Each returns a partial `updates` object to be spread into the Pokemon record.
+
+function statPointsForLevelUp(p, newLevel) {
+    const newPointsEarned = newLevel - (p.highestLevelReached || p.level);
+    return {
+        highestLevelReached: newLevel,
+        statPointsAvailable: (p.statPointsAvailable || 0) + newPointsEarned
+    };
+}
+
+function statPointsForLevelDown(p, newLevel) {
+    const maxPossiblePoints = Math.max(0, newLevel - 1);
+    const totalAddedStats = Object.values(p.addedStats || {}).reduce((sum, val) => sum + (val || 0), 0);
+
+    if (totalAddedStats > maxPossiblePoints) {
+        const pointsToRemove = totalAddedStats - maxPossiblePoints;
+        const history = [...(p.statAllocationHistory || [])];
+        const newAddedStats = { ...p.addedStats };
+
+        for (let i = 0; i < pointsToRemove && history.length > 0; i++) {
+            const lastStat = history.pop();
+            if (lastStat && newAddedStats[lastStat] > 0) {
+                newAddedStats[lastStat]--;
+            }
+        }
+
+        return {
+            addedStats: newAddedStats,
+            statAllocationHistory: history,
+            statPointsAvailable: 0,
+            highestLevelReached: newLevel
+        };
+    }
+
+    return {
+        statPointsAvailable: Math.max(0, maxPossiblePoints - totalAddedStats)
+    };
+}
+
+function statPointsForRelevel(p, newLevel, pendingAddedStats) {
+    const maxPossiblePoints = Math.max(0, newLevel - 1);
+    const currentAddedStats = Object.values(pendingAddedStats || p.addedStats || {}).reduce((sum, val) => sum + (val || 0), 0);
+    return {
+        statPointsAvailable: Math.max(0, maxPossiblePoints - currentAddedStats)
+    };
+}
+
 export const PokemonProvider = ({ children }) => {
     const { pokedex, getMovesForLevelRange, customSpecies } = useGameData();
     const { showConfirm, showLevelUpNotification,
@@ -225,11 +273,13 @@ export const PokemonProvider = ({ children }) => {
 
     // Update Pokemon (works on both party and reserve)
     const updatePokemon = useCallback((id, updates) => {
+        // 1. Find where the Pokemon lives
         const inParty = party.some(p => p.id === id);
         const currentPokemon = inParty
             ? party.find(p => p.id === id)
             : reserve.find(p => p.id === id);
 
+        // 2. Build the updater function (resolves level/exp sync + stat-point accounting)
         const updateFn = (prev) => prev.map(p => {
             if (p.id !== id) return p;
 
@@ -250,13 +300,9 @@ export const PokemonProvider = ({ children }) => {
                 const oldLevel = p.level;
                 const highestLevelReached = p.highestLevelReached || oldLevel;
 
-                const totalAddedStats = Object.values(p.addedStats || {}).reduce((sum, val) => sum + (val || 0), 0);
-
                 if (newLevel > highestLevelReached) {
                     const newPointsEarned = newLevel - highestLevelReached;
-                    updates.highestLevelReached = newLevel;
-                    updates.statPointsAvailable = (p.statPointsAvailable || 0) + newPointsEarned;
-
+                    Object.assign(updates, statPointsForLevelUp(p, newLevel));
                     showLevelUpNotification({
                         type: 'pokemon',
                         name: p.name,
@@ -264,112 +310,81 @@ export const PokemonProvider = ({ children }) => {
                         statPoints: newPointsEarned
                     });
                 } else if (newLevel < oldLevel) {
-                    const maxPossiblePoints = Math.max(0, newLevel - 1);
-
-                    if (totalAddedStats > maxPossiblePoints) {
-                        const pointsToRemove = totalAddedStats - maxPossiblePoints;
-                        const history = [...(p.statAllocationHistory || [])];
-                        const newAddedStats = { ...p.addedStats };
-
-                        for (let i = 0; i < pointsToRemove && history.length > 0; i++) {
-                            const lastStat = history.pop();
-                            if (lastStat && newAddedStats[lastStat] > 0) {
-                                newAddedStats[lastStat]--;
-                            }
-                        }
-
-                        updates.addedStats = newAddedStats;
-                        updates.statAllocationHistory = history;
-                        updates.statPointsAvailable = 0;
-                        updates.highestLevelReached = newLevel;
-                    } else {
-                        const newAvailable = Math.max(0, maxPossiblePoints - totalAddedStats);
-                        updates.statPointsAvailable = newAvailable;
-                    }
-                } else if (newLevel > oldLevel && newLevel <= highestLevelReached) {
-                    const maxPossiblePoints = Math.max(0, newLevel - 1);
-                    const currentAddedStats = Object.values(updates.addedStats || p.addedStats || {}).reduce((sum, val) => sum + (val || 0), 0);
-                    const newAvailable = Math.max(0, maxPossiblePoints - currentAddedStats);
-                    updates.statPointsAvailable = newAvailable;
+                    Object.assign(updates, statPointsForLevelDown(p, newLevel));
+                } else if (newLevel > oldLevel) {
+                    // Re-leveling within previously reached range
+                    Object.assign(updates, statPointsForRelevel(p, newLevel, updates.addedStats));
                 }
             }
 
             return { ...p, ...updates };
         });
 
+        // 3. Apply to party or reserve
         if (inParty) {
             setParty(updateFn);
         } else {
             setReserve(updateFn);
         }
 
-        // Handle move learning/forgetting after state update
-        const oldLevel = currentPokemon?.level;
-        let newLevel = oldLevel;
+        // 4. Handle move learning/forgetting after state update
+        const handleMoveLearning = (currentPoke, newLvl, oldLvl, pokemonInParty) => {
+            if (!currentPoke?.species || newLvl === oldLvl || !getMovesForLevelRange) return;
 
-        if (updates.exp !== undefined) {
-            newLevel = calculatePokemonLevel(updates.exp);
-        } else if (updates.level !== undefined) {
-            newLevel = updates.level;
-        }
-
-        if (currentPokemon?.species && newLevel !== oldLevel && getMovesForLevelRange) {
             const pokemonId = id;
-            const pokemonName = currentPokemon.name;
-            const pokemonInParty = inParty;
-            const startingMoves = currentPokemon.moves || [];
+            const startingMoves = currentPoke.moves || [];
 
-            if (newLevel > oldLevel) {
-                const movesToLearn = getMovesForLevelRange(currentPokemon, oldLevel, newLevel);
+            if (newLvl > oldLvl) {
+                const movesToLearn = getMovesForLevelRange(currentPoke, oldLvl, newLvl);
+                if (movesToLearn.length === 0) return;
 
-                if (movesToLearn.length > 0) {
-                    const naturalMoves = startingMoves.filter(m => m.source === 'natural');
-                    let currentNaturalCount = naturalMoves.length;
-                    const movesToQueue = [];
-                    const movesToLearnDirectly = [];
+                let currentNaturalCount = startingMoves.filter(m => m.source === 'natural').length;
+                const movesToLearnDirectly = [];
+                const movesToQueue = [];
 
-                    movesToLearn.forEach(newMove => {
-                        const alreadyKnows = startingMoves.some(m =>
-                            m.name.toLowerCase() === newMove.move.toLowerCase()
-                        );
+                movesToLearn.forEach(newMove => {
+                    const alreadyKnows = startingMoves.some(m =>
+                        m.name.toLowerCase() === newMove.move.toLowerCase()
+                    );
+                    if (alreadyKnows) return;
 
-                        if (!alreadyKnows) {
-                            if (currentNaturalCount < MAX_NATURAL_MOVES) {
-                                movesToLearnDirectly.push(newMove);
-                                currentNaturalCount++;
-                            } else {
-                                movesToQueue.push({
-                                    pokemonId: pokemonId,
-                                    pokemonName: pokemonName,
-                                    newMove: newMove,
-                                    currentMoves: startingMoves,
-                                    inParty: pokemonInParty,
-                                    needsReplacement: true
-                                });
-                            }
-                        }
-                    });
-
-                    if (movesToLearnDirectly.length > 0) {
-                        setTimeout(() => {
-                            movesToLearnDirectly.forEach(move => {
-                                learnMove(pokemonId, move, null, pokemonInParty);
-                            });
-                        }, 10);
+                    if (currentNaturalCount < MAX_NATURAL_MOVES) {
+                        movesToLearnDirectly.push(newMove);
+                        currentNaturalCount++;
+                    } else {
+                        movesToQueue.push({
+                            pokemonId,
+                            pokemonName: currentPoke.name,
+                            newMove,
+                            currentMoves: startingMoves,
+                            inParty: pokemonInParty,
+                            needsReplacement: true
+                        });
                     }
+                });
 
-                    if (movesToQueue.length > 0) {
-                        setTimeout(() => {
-                            setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
-                        }, 20);
-                    }
+                if (movesToLearnDirectly.length > 0) {
+                    setTimeout(() => {
+                        movesToLearnDirectly.forEach(move => learnMove(pokemonId, move, null, pokemonInParty));
+                    }, 10);
+                }
+                if (movesToQueue.length > 0) {
+                    setTimeout(() => {
+                        setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
+                    }, 20);
                 }
             } else {
                 setTimeout(() => {
-                    forgetMovesAboveLevel(pokemonId, newLevel, pokemonInParty);
+                    forgetMovesAboveLevel(pokemonId, newLvl, pokemonInParty);
                 }, 10);
             }
-        }
+        };
+
+        const oldLevel = currentPokemon?.level;
+        const newLevel = updates.exp !== undefined
+            ? calculatePokemonLevel(updates.exp)
+            : (updates.level !== undefined ? updates.level : oldLevel);
+        handleMoveLearning(currentPokemon, newLevel, oldLevel, inParty);
     }, [party, reserve, setParty, setReserve, showLevelUpNotification, getMovesForLevelRange, learnMove, forgetMovesAboveLevel, setPendingMoveLearn]);
 
     // Delete Pokemon (with 5-second undo window)

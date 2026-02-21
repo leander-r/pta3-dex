@@ -3,7 +3,11 @@
 // ============================================================
 
 import { GAME_DATA } from '../data/configs.js';
-import { POKEMON_HP_MULTIPLIER } from '../data/constants.js';
+import {
+    POKEMON_HP_MULTIPLIER,
+    COMBAT_STAGE_POSITIVE_MULTIPLIER,
+    COMBAT_STAGE_NEGATIVE_MULTIPLIER
+} from '../data/constants.js';
 
 /**
  * Calculate stat modifier (D&D style)
@@ -71,11 +75,11 @@ export const applyCombatStage = (baseStat, stages) => {
     
     if (stages > 0) {
         // +25% per positive stage, rounded down
-        return Math.floor(baseStat * (1 + (stages * 0.25)));
+        return Math.floor(baseStat * (1 + (stages * COMBAT_STAGE_POSITIVE_MULTIPLIER)));
     } else {
         // -10% per negative stage, rounded up
         // At -6, should be 40% of original (1 - 0.6 = 0.4)
-        const reduction = Math.abs(stages) * 0.10;
+        const reduction = Math.abs(stages) * COMBAT_STAGE_NEGATIVE_MULTIPLIER;
         return Math.ceil(baseStat * (1 - reduction));
     }
 };
