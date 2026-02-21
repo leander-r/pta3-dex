@@ -1153,6 +1153,18 @@ const BattleTab = () => {
                                     <span style={{ fontSize: '11px', color: '#72767d' }}>
                                         Server Settings → Integrations → Webhooks → New Webhook
                                     </span>
+                                    <div style={{
+                                        marginTop: '8px',
+                                        padding: '8px 10px',
+                                        background: 'rgba(250, 166, 26, 0.15)',
+                                        border: '1px solid rgba(250, 166, 26, 0.4)',
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        color: '#FAA61A',
+                                        lineHeight: '1.4'
+                                    }}>
+                                        ⚠️ Your webhook URL is stored in plain text in your browser's localStorage and is visible to anyone with access to your browser's Developer Tools. Do not use this on a shared or public computer.
+                                    </div>
                                 </div>
                                 <input
                                     type="text"
