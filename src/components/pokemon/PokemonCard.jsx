@@ -2,7 +2,7 @@
 // Pokemon Card Component
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
@@ -16,6 +16,7 @@ const PokemonCard = ({
     isEditing,
     setEditing,
     updatePokemon,
+    restorePokemon,
     deletePokemon,
     isInParty,
     canMoveToParty,
@@ -48,6 +49,22 @@ const PokemonCard = ({
     // Regional form selection state
     const [showRegionalFormSelect, setShowRegionalFormSelect] = useState(false);
     const [pendingSpeciesData, setPendingSpeciesData] = useState(null);
+
+    // Snapshot taken when editing opens — used to revert on Cancel.
+    // Only captured once per edit session (not updated as the user types).
+    const [snapshot, setSnapshot] = useState(null);
+    const snapshotTaken = useRef(false);
+    useEffect(() => {
+        if (isEditing && !snapshotTaken.current) {
+            snapshotTaken.current = true;
+            setSnapshot({ ...pokemon });
+        } else if (!isEditing) {
+            snapshotTaken.current = false;
+            setSnapshot(null);
+        }
+        // Intentionally omit `pokemon` — we want the state at edit-open, not on every change
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isEditing]);
 
     const actualStats = useMemo(() => getActualStats(pokemon), [pokemon]);
     const maxHP = useMemo(() => calculatePokemonHP(pokemon), [pokemon]);
@@ -772,19 +789,39 @@ const PokemonCard = ({
                         />
                         <span style={{ opacity: 0.8 }}>Lv.{pokemon.level}</span>
                     </div>
-                    <button
-                        onClick={() => setEditing(false)}
-                        style={{
-                            background: 'rgba(255,255,255,0.2)',
-                            border: 'none',
-                            borderRadius: '6px',
-                            padding: '8px 12px',
-                            color: 'white',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Done
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                            onClick={() => {
+                                if (snapshot && restorePokemon) {
+                                    restorePokemon(snapshot);
+                                }
+                                setEditing(false);
+                            }}
+                            style={{
+                                background: 'rgba(0,0,0,0.25)',
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                borderRadius: '6px',
+                                padding: '8px 12px',
+                                color: 'white',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => setEditing(false)}
+                            style={{
+                                background: 'rgba(255,255,255,0.2)',
+                                border: 'none',
+                                borderRadius: '6px',
+                                padding: '8px 12px',
+                                color: 'white',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Done
+                        </button>
+                    </div>
                 </div>
             </div>
 

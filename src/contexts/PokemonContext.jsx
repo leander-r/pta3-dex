@@ -387,6 +387,15 @@ export const PokemonProvider = ({ children }) => {
         handleMoveLearning(currentPokemon, newLevel, oldLevel, inParty);
     }, [party, reserve, setParty, setReserve, showLevelUpNotification, getMovesForLevelRange, learnMove, forgetMovesAboveLevel, setPendingMoveLearn]);
 
+    // Restore Pokemon to a previous snapshot (used by the Cancel button in edit mode).
+    // Bypasses updatePokemon's level-change / move-learn logic — it's a direct replace.
+    const restorePokemon = useCallback((id, snapshot) => {
+        const inParty = party.some(p => p.id === id);
+        const replaceFn = (prev) => prev.map(p => p.id === id ? { ...snapshot } : p);
+        if (inParty) setParty(replaceFn);
+        else setReserve(replaceFn);
+    }, [party, setParty, setReserve]);
+
     // Delete Pokemon (with 5-second undo window)
     const deletePokemon = useCallback((id) => {
         showConfirm({
@@ -962,6 +971,7 @@ export const PokemonProvider = ({ children }) => {
         // CRUD
         addPokemon,
         updatePokemon,
+        restorePokemon,
         deletePokemon,
         importPokemon,
         applySpeciesToPokemon,

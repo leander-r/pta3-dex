@@ -23,7 +23,7 @@ const PokemonTab = () => {
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
     const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId, setShowBulkExpModal } = useUI();
     const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList } = useTrainerContext();
-    const { addPokemon, updatePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
+    const { addPokemon, updatePokemon, restorePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
     const [filter, setFilter] = useState(() => ({
         search: '',
         type: safeLocalStorageGet('pta-pokemon-filter-type', '')
@@ -420,6 +420,7 @@ const PokemonTab = () => {
                                 isEditing={editingPokemonId === pokemon.id}
                                 setEditing={(editing) => setEditingPokemonId(editing ? pokemon.id : null)}
                                 updatePokemon={(updates) => updatePokemon(pokemon.id, updates)}
+                                restorePokemon={(snapshot) => restorePokemon(pokemon.id, snapshot)}
                                 deletePokemon={() => deletePokemon(pokemon.id)}
                                 isInParty={pokemonView === 'party'}
                                 canMoveToParty={pokemonView === 'reserve' && party.length < MAX_PARTY_SIZE}
