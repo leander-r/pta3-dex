@@ -488,24 +488,31 @@ return (
 
                 {/* Loading overlay while fetching Pokédex/game data */}
                 {(pokedexLoading || !gameDataLoaded) && (
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '60px 20px',
-                        textAlign: 'center',
-                        color: 'var(--text-secondary)'
-                    }}>
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            border: '4px solid var(--border-light)',
-                            borderTopColor: '#667eea',
-                            borderRadius: '50%',
-                            animation: 'spin 0.8s linear infinite',
-                            marginBottom: '20px'
-                        }} />
+                    <div
+                        role="status"
+                        aria-label="Loading application data"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '60px 20px',
+                            textAlign: 'center',
+                            color: 'var(--text-secondary)'
+                        }}
+                    >
+                        <div
+                            aria-hidden="true"
+                            style={{
+                                width: '48px',
+                                height: '48px',
+                                border: '4px solid var(--border-light)',
+                                borderTopColor: '#667eea',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite',
+                                marginBottom: '20px'
+                            }}
+                        />
                         <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', color: 'var(--text-primary)' }}>
                             Loading Game Data...
                         </div>

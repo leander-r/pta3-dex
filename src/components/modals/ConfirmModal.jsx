@@ -58,7 +58,7 @@ const ConfirmModal = () => {
             <div
                 ref={modalRef}
                 className="modal"
-                style={{ maxWidth: '480px' }}
+                style={{ maxWidth: 'min(95vw, 480px)' }}
                 onClick={e => e.stopPropagation()}
                 role="dialog"
                 aria-modal="true"
@@ -129,6 +129,7 @@ const ConfirmModal = () => {
                             value={inputValue}
                             onChange={e => setInputValue(e.target.value)}
                             placeholder={inputConfig.placeholder || ''}
+                            aria-label={inputConfig.label || inputConfig.placeholder || 'Input value'}
                             onKeyDown={e => { if (e.key === 'Enter') handleConfirm(); }}
                             style={{
                                 width: '100%',
