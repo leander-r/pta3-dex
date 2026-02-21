@@ -10,6 +10,8 @@ import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '.
 import toast from '../utils/toast.js';
 import { useGameData } from './GameDataContext.jsx';
 import { useUI } from './UIContext.jsx';
+import { useTrainerContext } from './TrainerContext.jsx';
+import { useData } from './DataContext.jsx';
 
 const PokemonContext = createContext(null);
 
@@ -34,30 +36,15 @@ const calculatePokemonLevel = (exp) => {
     return level;
 };
 
-export const PokemonProvider = ({
-    children,
-    party,
-    reserve,
-    setParty,
-    setReserve,
-    pokemonView,
-    setPokemonView,
-    editingPokemon,
-    setEditingPokemon,
-    customSpecies,
-    pendingMoveLearn,
-    setPendingMoveLearn,
-    showMoveLearnModal,
-    setShowMoveLearnModal,
-    setMoveLearnData,
-    onLevelUp,
-    inventory,
-    setInventory,
-    showNotification
-}) => {
-    // Get pokedex and move helpers from GameDataContext
-    const { pokedex, getMovesForLevelRange } = useGameData();
-    const { showConfirm } = useUI();
+export const PokemonProvider = ({ children }) => {
+    const { pokedex, getMovesForLevelRange, customSpecies } = useGameData();
+    const { showConfirm, showLevelUpNotification,
+            pokemonView, setPokemonView,
+            editingPokemon, setEditingPokemon,
+            pendingMoveLearn, setPendingMoveLearn,
+            showMoveLearnModal, setShowMoveLearnModal, setMoveLearnData } = useUI();
+    const { party, reserve, setParty, setReserve } = useTrainerContext();
+    const { inventory, setInventory } = useData();
 
     const pokemon = [...(party || []), ...(reserve || [])];
 
@@ -229,14 +216,12 @@ export const PokemonProvider = ({
                     updates.highestLevelReached = newLevel;
                     updates.statPointsAvailable = (p.statPointsAvailable || 0) + newPointsEarned;
 
-                    if (onLevelUp) {
-                        onLevelUp({
-                            type: 'pokemon',
-                            name: p.name,
-                            level: newLevel,
-                            statPoints: newPointsEarned
-                        });
-                    }
+                    showLevelUpNotification({
+                        type: 'pokemon',
+                        name: p.name,
+                        level: newLevel,
+                        statPoints: newPointsEarned
+                    });
                 } else if (newLevel < oldLevel) {
                     const maxPossiblePoints = Math.max(0, newLevel - 1);
 
@@ -344,7 +329,7 @@ export const PokemonProvider = ({
                 }, 10);
             }
         }
-    }, [party, reserve, setParty, setReserve, onLevelUp, getMovesForLevelRange, learnMove, forgetMovesAboveLevel, setPendingMoveLearn]);
+    }, [party, reserve, setParty, setReserve, showLevelUpNotification, getMovesForLevelRange, learnMove, forgetMovesAboveLevel, setPendingMoveLearn]);
 
     // Delete Pokemon
     const deletePokemon = useCallback((id) => {
@@ -942,14 +927,12 @@ export const PokemonProvider = ({
         applyEvolutionToPokemon(pokemonId, targetPokedexEntry, finalRegionalForm, inParty, consumeItem, poke.species);
 
         const formName = finalRegionalForm?.name || targetRegionalForm;
-        if (showNotification) {
-            showNotification({
-                pokemon: poke.name || poke.species,
-                message: `evolved into ${formName ? formName + ' ' : ''}${targetSpecies}!`,
-                type: 'evolution'
-            });
-        }
-    }, [party, reserve, pokedex, customSpecies, hasItemInInventory, removeItemFromInventory, applyEvolutionToPokemon, showNotification]);
+        showLevelUpNotification({
+            pokemon: poke.name || poke.species,
+            message: `evolved into ${formName ? formName + ' ' : ''}${targetSpecies}!`,
+            type: 'evolution'
+        });
+    }, [party, reserve, pokedex, customSpecies, hasItemInInventory, removeItemFromInventory, applyEvolutionToPokemon, showLevelUpNotification]);
 
     // Handle Pokemon devolution
     const devolvePokemon = useCallback((pokemonId, targetSpecies) => {
@@ -1001,16 +984,14 @@ export const PokemonProvider = ({
                     notificationMsg += ` (${stoneToRefund} refunded)`;
                 }
 
-                if (showNotification) {
-                    showNotification({
-                        pokemon: poke.name || poke.species,
-                        message: notificationMsg,
-                        type: 'devolution'
-                    });
-                }
+                showLevelUpNotification({
+                    pokemon: poke.name || poke.species,
+                    message: notificationMsg,
+                    type: 'devolution'
+                });
             }
         });
-    }, [party, reserve, pokedex, customSpecies, addItemToInventory, applyDevolutionToPokemon, showNotification, showConfirm]);
+    }, [party, reserve, pokedex, customSpecies, addItemToInventory, applyDevolutionToPokemon, showLevelUpNotification, showConfirm]);
 
     const value = {
         // State

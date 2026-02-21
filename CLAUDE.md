@@ -11,33 +11,33 @@ This file tracks the prioritized improvement list so it persists across sessions
 4. ✅ `sessionStorage` parse in BattleTab not wrapped (`BattleTab.jsx` line ~23)
 5. ✅ Discord send errors are silently swallowed (`useDiscordWebhook.js` / `DataContext.jsx`)
 
-## Priority 2 — Security
-6. No CORS mode specified on external fetches (`App.jsx`, `pokedexLoader.js`)
-7. `JSON.parse` used without try/catch in some non-utility spots
+## Priority 2 — Security ✅ DONE (commit 669b1ba)
+6. ✅ No CORS mode specified on external fetches (`App.jsx`, `pokedexLoader.js`)
+7. ✅ `JSON.parse` used without try/catch in some non-utility spots
 
-## Priority 3 — Performance
-8. Species/Pokédex dropdown renders all 1000+ entries on every keystroke (no memoization/virtualization in `PokemonCard.jsx`)
-9. `filteredSpecies` not memoized in `PokemonCard.jsx`
-10. Callback props not wrapped in `useCallback` (`updatePokemon`, `deletePokemon`, etc.)
-11. Duplicate level-up move lookup logic in both `App.jsx` and `GameDataContext.jsx`
-12. Roll history reads `sessionStorage` on every render instead of in `useState` initializer (`BattleTab.jsx`)
+## Priority 3 — Performance ✅ DONE (commit 0d7c590)
+8. ✅ Species/Pokédex dropdown renders all 1000+ entries on every keystroke (no memoization/virtualization in `PokemonCard.jsx`)
+9. ✅ `filteredSpecies` not memoized in `PokemonCard.jsx`
+10. ✅ Callback props not wrapped in `useCallback` (`updatePokemon`, `deletePokemon`, etc.)
+11. ✅ Duplicate level-up move lookup logic in both `App.jsx` and `GameDataContext.jsx`
+12. ✅ Roll history reads `sessionStorage` on every render instead of in `useState` initializer (`BattleTab.jsx`)
 
-## Priority 4 — UX / Accessibility
-13. No focus trap in modals (`ConfirmModal.jsx`)
-14. Loading spinner has no accessible label (`App.jsx`)
-15. Form inputs missing `<label>` elements (several modals)
-16. Nav buttons lack `aria-label` (`App.jsx` sidebar)
-17. Modal not clamped to viewport on very small screens (fixed `maxWidth: 480px`)
-18. No loading state UI on export/import operations
-19. Search filters reset on tab switch (Pokémon tab)
+## Priority 4 — UX / Accessibility ✅ DONE (commit 49acdbf)
+13. ✅ No focus trap in modals (`ConfirmModal.jsx`)
+14. ✅ Loading spinner has no accessible label (`App.jsx`)
+15. ✅ Form inputs missing `<label>` elements (several modals)
+16. ✅ Nav buttons lack `aria-label` (`App.jsx` sidebar)
+17. ✅ Modal not clamped to viewport on very small screens (fixed `maxWidth: 480px`)
+18. ✅ No loading state UI on export/import operations
+19. ✅ Search filters reset on tab switch (Pokémon tab)
 
-## Priority 5 — Code Quality / Maintainability
+## Priority 5 — Code Quality / Maintainability ✅ DONE
 *(Vitest tests, TypeScript types, Discord warning already done in previous session)*
-20. `App.jsx` is ~709 lines — extract `<AppLayout>`, `<MainNavigation>`, `<ModalsContainer>`
-21. Trainer state lives in 3 places — consolidate into `TrainerContext.jsx`
-22. Magic numbers scattered throughout — create `src/data/constants.js`
-23. Inconsistent error handling patterns across modules
-24. No React Error Boundaries — a crash in one tab takes down the whole app
+20. ✅ `App.jsx` is ~709 lines — extracted `<AppLayout>`, `<MainNavigation>`, `<ModalsContainer>`
+21. ✅ Trainer state lives in 3 places — consolidated into `TrainerContext.jsx`; contexts cross-consume via hooks
+22. ✅ Magic numbers scattered throughout — created `src/data/constants.js`
+23. ✅ Inconsistent error handling — standardized try/catch + toast in touched files; added guard in `duplicateTrainer`
+24. ✅ No React Error Boundaries — per-tab `<ErrorBoundary inline>` + top-level boundary added
 
 ## Priority 6 — Missing Features
 25. No undo for destructive actions (deleting trainer/Pokémon is permanent)

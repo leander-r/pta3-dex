@@ -18,9 +18,11 @@ export const useGameData = () => {
     return context;
 };
 
-export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecies }) => {
+export const GameDataProvider = ({ children }) => {
     // Pokedex state
     const [pokedex, setPokedex] = useState([]);
+    // Custom species owned here; DataProvider populates this after loading saved data
+    const [customSpecies, setCustomSpecies] = useState([]);
     const [pokedexLoading, setPokedexLoading] = useState(true);
     const [pokedexError, setPokedexError] = useState(null);
     const [gameDataLoaded, setGameDataLoaded] = useState(GAME_DATA._loaded || false);

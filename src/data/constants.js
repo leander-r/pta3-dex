@@ -144,3 +144,18 @@ export const CREATION_STAT_POINTS = 30;
  * Character creation stat cap
  */
 export const CREATION_STAT_CAP = 14;
+
+/**
+ * Network fetch timeout (milliseconds)
+ */
+export const FETCH_TIMEOUT_MS = 15000;
+
+/**
+ * Maximum full trainer data import file size (5 MB)
+ */
+export const MAX_TRAINER_IMPORT_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Maximum single-Pokemon import file size (100 KB)
+ */
+export const MAX_POKEMON_IMPORT_BYTES = 100 * 1024;

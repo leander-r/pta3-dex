@@ -3,6 +3,7 @@
 // ============================================================
 
 import { DATA_CONFIG, GAME_DATA, updateGameData } from './configs.js';
+import { FETCH_TIMEOUT_MS } from './constants.js';
 
 // ============================================================
 // INDEXEDDB HELPERS FOR GAME DATA CACHING
@@ -78,9 +79,9 @@ export const loadGameDataFromGitHub = async () => {
             }
         }
         
-        // 2. Fetch from GitHub (with 15s timeout)
+        // 2. Fetch from GitHub (with timeout)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
         const response = await fetch(DATA_CONFIG.gameDataUrl, { signal: controller.signal, mode: 'cors' });
         clearTimeout(timeoutId);
         

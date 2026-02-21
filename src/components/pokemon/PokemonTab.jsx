@@ -11,6 +11,7 @@ import { POKEMON_TYPES } from '../../data/typeChart.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
+import { MAX_POKEMON_IMPORT_BYTES } from '../../data/constants.js';
 
 /**
  * PokemonTab - Main Pokemon management container
@@ -53,9 +54,8 @@ const PokemonTab = () => {
         const file = event.target.files[0];
         if (!file) return;
 
-        // Security: Check file size before reading (100KB max)
-        const MAX_FILE_SIZE = 100 * 1024;
-        if (file.size > MAX_FILE_SIZE) {
+        // Security: Check file size before reading
+        if (file.size > MAX_POKEMON_IMPORT_BYTES) {
             toast.error('File too large. Maximum file size is 100KB.');
             event.target.value = '';
             setShowImportOptions(false);

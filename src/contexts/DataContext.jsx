@@ -8,6 +8,9 @@ import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
+import { useTrainerContext } from './TrainerContext.jsx';
+import { useGameData } from './GameDataContext.jsx';
+import { MAX_TRAINER_IMPORT_BYTES } from '../data/constants.js';
 
 const DataContext = createContext(null);
 
@@ -19,19 +22,13 @@ export const useData = () => {
     return context;
 };
 
-export const DataProvider = ({
-    children,
-    trainers,
-    setTrainers,
-    activeTrainerId,
-    setActiveTrainerId,
-    inventory,
-    setInventory,
-    customSpecies,
-    setCustomSpecies,
-    onSaveComplete
-}) => {
-    const { showConfirm } = useUI();
+export const DataProvider = ({ children }) => {
+    const { showConfirm, triggerSaveIndicator } = useUI();
+    const { trainers, setTrainers, activeTrainerId, setActiveTrainerId } = useTrainerContext();
+    const { customSpecies, setCustomSpecies } = useGameData();
+
+    // Inventory owned here; shared with PokemonProvider via useData()
+    const [inventory, setInventory] = useState([]);
 
     // Discord webhook state
     const [discordWebhook, setDiscordWebhook] = useState(() => {
@@ -84,13 +81,14 @@ export const DataProvider = ({
                 saveSuccess = safeLocalStorageSet('pta-enhanced-save-data', savePayload);
             }
 
-            if (saveSuccess && onSaveComplete) {
-                onSaveComplete(isAuto);
+            if (saveSuccess) {
+                triggerSaveIndicator(isAuto);
             }
         } catch (error) {
             console.error('Error saving data:', error);
+            toast.error('Failed to save. Check your browser storage settings.');
         }
-    }, [trainers, activeTrainerId, inventory, customSpecies, onSaveComplete]);
+    }, [trainers, activeTrainerId, inventory, customSpecies, triggerSaveIndicator]);
 
     // Keep ref current so auto-save effects always call the latest version
     useEffect(() => { saveDataRef.current = saveData; });
@@ -191,6 +189,7 @@ export const DataProvider = ({
             if (loadedData) {
                 if (typeof loadedData !== 'object') {
                     console.error('Invalid data format loaded');
+                    toast.error('Save data appears corrupt. Starting with a fresh trainer.');
                     return;
                 }
 
@@ -220,6 +219,7 @@ export const DataProvider = ({
             } catch {}
         } catch (error) {
             console.error('Error loading data:', error);
+            toast.error('Could not load saved data. Starting fresh.');
             // Still enable auto-save on error so user can save their work
             dataLoadedRef.current = true;
         }
@@ -287,8 +287,7 @@ export const DataProvider = ({
 
     // Import data from JSON file
     const importData = useCallback((file) => {
-        const MAX_IMPORT_SIZE = 5 * 1024 * 1024; // 5MB
-        if (file.size > MAX_IMPORT_SIZE) {
+        if (file.size > MAX_TRAINER_IMPORT_BYTES) {
             toast.error('File too large. Maximum import size is 5MB.');
             return;
         }

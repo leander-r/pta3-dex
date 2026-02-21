@@ -3,8 +3,9 @@
 // ============================================================
 // Manages trainer state and actions
 
-import React, { createContext, useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { GAME_DATA } from '../data/configs.js';
+import { DEFAULT_TRAINER } from '../data/constants.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
 
@@ -18,110 +19,16 @@ export const useTrainerContext = () => {
     return context;
 };
 
-const defaultTrainer = {
-    id: Date.now(),
-    name: '',
-    gender: '',
-    age: '',
-    avatar: '',
-    level: 0,
-    experience: 0,
-    classes: [],
-    stats: { hp: 6, atk: 6, def: 6, satk: 6, sdef: 6, spd: 6 },
-    statPoints: 30,
-    levelStatPoints: 0,
-    featPoints: 0,
-    skills: {},
-    features: [],
-    notes: '',
-    badges: [],
-    money: 0,
-    party: [],
-    reserve: []
-};
+export const TrainerProvider = ({ children }) => {
+    const { showConfirm, showLevelUpNotification } = useUI();
 
-export const TrainerProvider = ({
-    children,
-    initialTrainers = null,
-    initialActiveId = null,
-    onTrainersChange,
-    onLevelUp
-}) => {
-    const { showConfirm } = useUI();
-
-    // Track if we're doing an external sync to avoid notifying parent
-    const isExternalUpdate = useRef(false);
-    // Track if initial mount is complete
-    const isInitialMount = useRef(true);
-
-    // Multi-Trainer Management
-    const [trainers, setTrainersState] = useState(() => {
-        if (initialTrainers && initialTrainers.length > 0) {
-            return initialTrainers;
-        }
-        return [{ ...defaultTrainer }];
-    });
-
-    const [activeTrainerId, setActiveTrainerIdState] = useState(() => {
-        return initialActiveId || (initialTrainers && initialTrainers.length > 0 ? initialTrainers[0].id : null);
-    });
-
-    // Sync internal state when props change (e.g., from DataContext import)
-    // Always sync from props to ensure external updates (like imports) are reflected
-    useEffect(() => {
-        // Skip on initial mount since state is already initialized from props
-        if (isInitialMount.current) {
-            isInitialMount.current = false;
-            return;
-        }
-
-        if (initialTrainers && initialTrainers.length > 0) {
-            isExternalUpdate.current = true;
-            setTrainersState(initialTrainers);
-            // Reset flag immediately - it only needed to be true during this sync
-            // to prevent redundant onTrainersChange calls, but we're using setTrainersState directly
-            isExternalUpdate.current = false;
-        }
-    }, [initialTrainers]);
-
-    // Sync activeTrainerId when prop changes
-    useEffect(() => {
-        if (initialActiveId && initialActiveId !== activeTrainerId) {
-            setActiveTrainerIdState(initialActiveId);
-        }
-    }, [initialActiveId, activeTrainerId]);
-
-    // Wrapper for setActiveTrainerId to notify parent
-    const setActiveTrainerId = useCallback((id) => {
-        setActiveTrainerIdState(id);
-    }, []);
-
-    // Track if change was internal (user action) vs external (prop sync)
-    const pendingNotify = useRef(false);
-
-    // Wrapper to update trainers and mark for parent notification
-    const setTrainers = useCallback((updater) => {
-        if (!isExternalUpdate.current) {
-            pendingNotify.current = true;
-        }
-        setTrainersState(prev => {
-            const newTrainers = typeof updater === 'function' ? updater(prev) : updater;
-            isExternalUpdate.current = false;
-            return newTrainers;
-        });
-    }, []);
-
-    // Notify parent when trainers change due to user action
-    useEffect(() => {
-        if (pendingNotify.current && onTrainersChange) {
-            pendingNotify.current = false;
-            onTrainersChange(trainers);
-        }
-    }, [trainers, onTrainersChange]);
+    // Multi-Trainer Management (owned here; DataProvider populates after loading saved data)
+    const [trainers, setTrainers] = useState([{ ...DEFAULT_TRAINER, id: Date.now() }]);
+    const [activeTrainerId, setActiveTrainerId] = useState(null);
 
     // Current active trainer (computed)
     const trainer = useMemo(() => {
-        return trainers.find(t => t.id === activeTrainerId) || trainers[0] || defaultTrainer;
+        return trainers.find(t => t.id === activeTrainerId) || trainers[0] || DEFAULT_TRAINER;
     }, [trainers, activeTrainerId]);
 
     // Helper to update current trainer
@@ -164,7 +71,7 @@ export const TrainerProvider = ({
     // Add a new trainer to the roster
     const addNewTrainer = useCallback(() => {
         const newTrainer = {
-            ...defaultTrainer,
+            ...DEFAULT_TRAINER,
             id: Date.now(),
             name: 'New Trainer'
         };
@@ -198,7 +105,8 @@ export const TrainerProvider = ({
     // Duplicate a trainer
     const duplicateTrainer = useCallback((trainerId) => {
         const trainerToCopy = trainers.find(t => t.id === trainerId);
-        if (trainerToCopy) {
+        if (!trainerToCopy) return null;
+        try {
             const newTrainer = {
                 ...JSON.parse(JSON.stringify(trainerToCopy)),
                 id: Date.now(),
@@ -209,8 +117,11 @@ export const TrainerProvider = ({
             setTrainers(prev => [...prev, newTrainer]);
             setActiveTrainerId(newTrainer.id);
             return newTrainer;
+        } catch (err) {
+            console.error('Failed to duplicate trainer:', err);
+            toast.error('Could not duplicate trainer.');
+            return null;
         }
-        return null;
     }, [trainers, setTrainers]);
 
     // Calculate trainer modifiers
@@ -368,18 +279,16 @@ export const TrainerProvider = ({
         if (levelData.feats > 0) notifications.push(`+${levelData.feats} feature(s)`);
         if (levelData.note) notifications.push(levelData.note);
 
-        if (onLevelUp) {
-            onLevelUp({
-                type: 'trainer',
-                name: trainer.name,
-                level: newLevel,
-                statPoints: levelData.stats,
-                featPoints: levelData.feats,
-                note: levelData.note,
-                message: notifications.join(' | ')
-            });
-        }
-    }, [trainer, setTrainer, onLevelUp]);
+        showLevelUpNotification({
+            type: 'trainer',
+            name: trainer.name,
+            level: newLevel,
+            statPoints: levelData.stats,
+            featPoints: levelData.feats,
+            note: levelData.note,
+            message: notifications.join(' | ')
+        });
+    }, [trainer, setTrainer, showLevelUpNotification]);
 
     // Level down the trainer
     const levelDownTrainer = useCallback(() => {
@@ -471,15 +380,14 @@ export const TrainerProvider = ({
                         setTrainer(prev => ({
                             ...prev,
                             level: 0,
-                            stats: { hp: 6, atk: 6, def: 6, satk: 6, sdef: 6, spd: 6 },
-                            statPoints: 30,
+                            stats: { ...DEFAULT_TRAINER.stats },
+                            statPoints: DEFAULT_TRAINER.statPoints,
                             levelStatPoints: 0,
                             featPoints: 0,
                             classes: [],
                             features: [],
                             skills: {},
-                            edges: prev.edges || [],
-                            currentHP: 24 + 0
+                            edges: prev.edges || []
                         }));
                         toast.success('Trainer has been reset to Level 0! You can now rebuild your character.');
                     }

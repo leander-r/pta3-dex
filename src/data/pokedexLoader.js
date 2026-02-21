@@ -3,6 +3,7 @@
 // ============================================================
 
 import { POKEDEX_CONFIG, FALLBACK_POKEDEX } from './configs.js';
+import { FETCH_TIMEOUT_MS } from './constants.js';
 
 // ============================================================
 // INDEXEDDB HELPERS FOR POKÉDEX CACHING
@@ -83,9 +84,9 @@ export const loadPokedexFromGitHub = async (setPokedex, setPokedexLoading, setPo
             }
         }
         
-        // 2. Fetch from GitHub (with 15s timeout)
+        // 2. Fetch from GitHub (with timeout)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
         const response = await fetch(POKEDEX_CONFIG.remoteUrl, { signal: controller.signal, mode: 'cors' });
         clearTimeout(timeoutId);
         
