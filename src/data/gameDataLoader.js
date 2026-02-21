@@ -81,7 +81,7 @@ export const loadGameDataFromGitHub = async () => {
         // 2. Fetch from GitHub (with 15s timeout)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
-        const response = await fetch(DATA_CONFIG.gameDataUrl, { signal: controller.signal });
+        const response = await fetch(DATA_CONFIG.gameDataUrl, { signal: controller.signal, mode: 'cors' });
         clearTimeout(timeoutId);
         
         if (!response.ok) {
@@ -107,7 +107,12 @@ export const loadGameDataFromGitHub = async () => {
         const decoder = new TextDecoder(encoding);
         responseText = decoder.decode(uint8Array);
         
-        const data = JSON.parse(responseText);
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            throw new Error('Failed to parse game data JSON');
+        }
         
         // 3. Merge with GAME_DATA
         if (data.natures) GAME_DATA.natures = data.natures;

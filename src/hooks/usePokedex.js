@@ -34,8 +34,11 @@ export const usePokedex = () => {
                 }
             }
 
-            // 2. Fetch from GitHub
-            const response = await fetch(POKEDEX_CONFIG.remoteUrl);
+            // 2. Fetch from GitHub (with 15s timeout)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const response = await fetch(POKEDEX_CONFIG.remoteUrl, { signal: controller.signal, mode: 'cors' });
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -76,9 +79,13 @@ export const usePokedex = () => {
             }
 
             // Decode if not already decompressed
-            if (!responseText) {
+            if (responseText === undefined) {
                 const decoder = new TextDecoder(encoding);
                 responseText = decoder.decode(uint8Array);
+            }
+
+            if (!responseText) {
+                throw new Error('Pokédex response was empty after decoding');
             }
 
             // Validate JSON
@@ -88,7 +95,12 @@ export const usePokedex = () => {
             }
 
             // Parse JSON
-            const data = JSON.parse(responseText);
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                throw new Error('Failed to parse Pokédex JSON');
+            }
             const pokemonList = data.pokemon || data;
 
             if (!Array.isArray(pokemonList)) {

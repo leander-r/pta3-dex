@@ -240,8 +240,11 @@ useEffect(() => {
                 }
             }
             
-            // 2. Fetch from GitHub
-            const response = await fetch(POKEDEX_CONFIG.remoteUrl);
+            // 2. Fetch from GitHub (with 15s timeout)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const response = await fetch(POKEDEX_CONFIG.remoteUrl, { signal: controller.signal, mode: 'cors' });
+            clearTimeout(timeoutId);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -290,9 +293,13 @@ useEffect(() => {
             }
             
             // If not already decompressed (gzip case), decode with detected encoding
-            if (!responseText) {
+            if (responseText === undefined) {
                 const decoder = new TextDecoder(encoding);
                 responseText = decoder.decode(uint8Array);
+            }
+
+            if (!responseText) {
+                throw new Error('Pokédex response was empty after decoding');
             }
             
             // Validate JSON structure

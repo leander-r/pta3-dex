@@ -86,7 +86,7 @@ export const loadPokedexFromGitHub = async (setPokedex, setPokedexLoading, setPo
         // 2. Fetch from GitHub (with 15s timeout)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
-        const response = await fetch(POKEDEX_CONFIG.remoteUrl, { signal: controller.signal });
+        const response = await fetch(POKEDEX_CONFIG.remoteUrl, { signal: controller.signal, mode: 'cors' });
         clearTimeout(timeoutId);
         
         if (!response.ok) {

@@ -4,7 +4,7 @@ This file tracks the prioritized improvement list so it persists across sessions
 
 ---
 
-## Priority 1 — Bugs (Data Loss / Crash Risk) ✅ DONE
+## Priority 1 — Bugs (Data Loss / Crash Risk) ✅ DONE (commit 36086d6)
 1. ✅ File import has no size check before reading (`DataContext.jsx`)
 2. ✅ Pokédex load falls through on undefined `responseText` (`pokedexLoader.js`)
 3. ✅ IndexedDB connection not closed on transaction error (`pokedexLoader.js`)
