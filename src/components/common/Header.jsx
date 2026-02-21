@@ -20,10 +20,16 @@ const Header = () => {
         setActiveTrainerId,
         addNewTrainer,
         deleteTrainer,
-        duplicateTrainer
+        duplicateTrainer,
+        archiveTrainer,
+        unarchiveTrainer
     } = useTrainerContext();
-    const { exportSingleTrainer, exportAllData, importData } = useData();
+    const { exportSingleTrainer, exportAllData, importData, restoreAutoBackup } = useData();
     const { theme, setTheme, setShowCardModal, setEditingPokemon, showConfirm } = useUI();
+
+    // Active (non-archived) and archived trainer lists
+    const activeTrainers = trainers.filter(t => !t.archived);
+    const archivedTrainers = trainers.filter(t => t.archived);
 
     // Handler for trainer selection that also clears editing state
     const handleTrainerChange = (id) => {
@@ -31,6 +37,7 @@ const Header = () => {
         setEditingPokemon(null);
     };
     const [showCharacterMenu, setShowCharacterMenu] = useState(false);
+    const [showArchivedSection, setShowArchivedSection] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
@@ -251,7 +258,7 @@ const Header = () => {
                             whiteSpace: 'nowrap'
                         }}
                     >
-                        {trainers.map(t => (
+                        {activeTrainers.map(t => (
                             <option key={t.id} value={t.id}>
                                 {t.name || 'Unnamed'} (Lv.{t.level})
                             </option>
@@ -449,6 +456,20 @@ const Header = () => {
                                         setShowCharacterMenu(false);
                                     }}
                                 />
+                                <MenuItem
+                                    id="restore-backup"
+                                    icon={
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <polyline points="1 4 1 10 7 10"></polyline>
+                                            <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+                                        </svg>
+                                    }
+                                    label="Restore Auto-Backup"
+                                    onClick={() => {
+                                        restoreAutoBackup();
+                                        setShowCharacterMenu(false);
+                                    }}
+                                />
                                 <label
                                     onMouseEnter={() => setHoveredItem('import')}
                                     onMouseLeave={() => setHoveredItem(null)}
@@ -505,6 +526,22 @@ const Header = () => {
                             {/* Danger Zone */}
                             <div style={{ padding: '8px 0' }}>
                                 <MenuItem
+                                    id="archive"
+                                    icon={
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                                            <rect x="1" y="3" width="22" height="5"></rect>
+                                            <line x1="10" y1="12" x2="14" y2="12"></line>
+                                        </svg>
+                                    }
+                                    label="Archive Trainer"
+                                    disabled={activeTrainers.length <= 1}
+                                    onClick={() => {
+                                        archiveTrainer(activeTrainerId);
+                                        setShowCharacterMenu(false);
+                                    }}
+                                />
+                                <MenuItem
                                     id="delete"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -514,22 +551,78 @@ const Header = () => {
                                     }
                                     label="Delete Trainer"
                                     danger
-                                    disabled={trainers.length <= 1}
+                                    disabled={activeTrainers.length <= 1 && archivedTrainers.length === 0}
                                     onClick={() => {
-                                        if (trainers.length > 1) {
-                                            showConfirm({
-                                                title: 'Delete Trainer',
-                                                message: `Delete ${trainer.name || 'this trainer'}? This cannot be undone.`,
-                                                danger: true,
-                                                onConfirm: () => deleteTrainer(activeTrainerId)
-                                            });
-                                        } else {
-                                            toast.warning('You must have at least one trainer.');
-                                        }
+                                        deleteTrainer(activeTrainerId);
                                         setShowCharacterMenu(false);
                                     }}
                                 />
                             </div>
+
+                            {/* Archived Trainers Section */}
+                            {archivedTrainers.length > 0 && (
+                                <>
+                                    <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
+                                    <div style={{ padding: '4px 0' }}>
+                                        <button
+                                            onClick={() => setShowArchivedSection(p => !p)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 18px',
+                                                border: 'none',
+                                                background: 'none',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                fontSize: '12px',
+                                                fontWeight: 700,
+                                                color: '#888',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px'
+                                            }}
+                                        >
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                                style={{ transform: showArchivedSection ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>
+                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                            </svg>
+                                            Archived ({archivedTrainers.length})
+                                        </button>
+                                        {showArchivedSection && archivedTrainers.map(t => (
+                                            <div key={t.id} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                padding: '6px 18px',
+                                                gap: '8px'
+                                            }}>
+                                                <span style={{ fontSize: '13px', color: '#888', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                    {t.name || 'Unnamed'} (Lv.{t.level})
+                                                </span>
+                                                <button
+                                                    onClick={() => {
+                                                        unarchiveTrainer(t.id);
+                                                        setShowCharacterMenu(false);
+                                                    }}
+                                                    style={{
+                                                        padding: '3px 10px',
+                                                        fontSize: '11px',
+                                                        fontWeight: 700,
+                                                        background: '#f5a623',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        flexShrink: 0
+                                                    }}
+                                                >
+                                                    Restore
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>

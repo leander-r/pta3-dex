@@ -7,9 +7,10 @@ let listeners = [];
 let toastId = 0;
 
 const toast = {
-    show(message, type = 'info', duration = 4000) {
+    // action: optional { label: string, onClick: () => void } — renders a button inside the toast
+    show(message, type = 'info', duration = 4000, action = null) {
         const id = ++toastId;
-        const t = { id, message, type, duration };
+        const t = { id, message, type, duration, action };
         listeners.forEach(fn => fn(t));
         return id;
     },

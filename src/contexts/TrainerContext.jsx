@@ -80,27 +80,63 @@ export const TrainerProvider = ({ children }) => {
         return newTrainer;
     }, [setTrainers]);
 
-    // Delete a trainer from the roster
+    // Delete a trainer from the roster (with 5-second undo window)
     const deleteTrainer = useCallback((trainerId) => {
-        if (trainers.length <= 1) {
-            toast.warning('You must have at least one trainer.');
+        const activeTrainers = trainers.filter(t => !t.archived);
+        if (activeTrainers.length <= 1 && !trainers.find(t => t.id === trainerId)?.archived) {
+            toast.warning('You must have at least one active trainer. Archive it instead to hide it.');
             return;
         }
         showConfirm({
             title: 'Delete Trainer',
-            message: 'Are you sure you want to delete this trainer and all their Pokémon? This cannot be undone.',
+            message: 'Are you sure you want to permanently delete this trainer and all their Pokémon?',
             danger: true,
             onConfirm: () => {
-                setTrainers(prev => {
-                    const filtered = prev.filter(t => t.id !== trainerId);
-                    if (trainerId === activeTrainerId) {
-                        setActiveTrainerId(filtered[0]?.id);
+                const deleted = trainers.find(t => t.id === trainerId);
+                const remaining = trainers.filter(t => t.id !== trainerId);
+                const nextActive = remaining.find(t => !t.archived) || remaining[0];
+
+                setTrainers(remaining);
+                if (trainerId === activeTrainerId) {
+                    setActiveTrainerId(nextActive?.id ?? null);
+                }
+
+                toast.show(
+                    `Trainer "${deleted?.name || 'Unnamed'}" deleted.`,
+                    'warning',
+                    5000,
+                    {
+                        label: 'Undo',
+                        onClick: () => {
+                            setTrainers(prev => [...prev, deleted]);
+                            setActiveTrainerId(deleted.id);
+                        }
                     }
-                    return filtered;
-                });
+                );
             }
         });
-    }, [trainers.length, activeTrainerId, setTrainers, showConfirm]);
+    }, [trainers, activeTrainerId, setTrainers, showConfirm]);
+
+    // Archive a trainer (soft-delete — hidden from active selector but recoverable)
+    const archiveTrainer = useCallback((trainerId) => {
+        const activeCount = trainers.filter(t => !t.archived && t.id !== trainerId).length;
+        if (activeCount === 0) {
+            toast.warning('You must keep at least one active trainer.');
+            return;
+        }
+        const nextActive = trainers.find(t => !t.archived && t.id !== trainerId);
+        setTrainers(prev => prev.map(t => t.id === trainerId ? { ...t, archived: true } : t));
+        if (trainerId === activeTrainerId && nextActive) {
+            setActiveTrainerId(nextActive.id);
+        }
+        toast.info('Trainer archived. Restore them from the character menu.');
+    }, [trainers, activeTrainerId, setTrainers]);
+
+    // Restore an archived trainer
+    const unarchiveTrainer = useCallback((trainerId) => {
+        setTrainers(prev => prev.map(t => t.id === trainerId ? { ...t, archived: false } : t));
+        setActiveTrainerId(trainerId);
+    }, [setTrainers]);
 
     // Duplicate a trainer
     const duplicateTrainer = useCallback((trainerId) => {
@@ -488,6 +524,8 @@ export const TrainerProvider = ({ children }) => {
         addNewTrainer,
         deleteTrainer,
         duplicateTrainer,
+        archiveTrainer,
+        unarchiveTrainer,
 
         // Trainer Stats/Leveling
         calculateModifier,

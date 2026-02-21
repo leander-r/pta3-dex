@@ -63,6 +63,12 @@ export const DataProvider = ({ children }) => {
     // Save data to storage
     const saveData = useCallback(async (isAuto = false) => {
         try {
+            // Auto-backup: snapshot the previous save before overwriting
+            try {
+                const prev = localStorage.getItem('pta-enhanced-save-data');
+                if (prev) localStorage.setItem('pta-auto-backup', prev);
+            } catch {}
+
             const savePayload = {
                 trainers,
                 activeTrainerId,
@@ -224,6 +230,40 @@ export const DataProvider = ({ children }) => {
             dataLoadedRef.current = true;
         }
     }, [migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+
+    // Restore from the rolling auto-backup snapshot
+    const restoreAutoBackup = useCallback(() => {
+        showConfirm({
+            title: 'Restore Auto-Backup',
+            message: 'This will replace your current data with the snapshot taken before your last save. Any changes since then will be lost. Continue?',
+            danger: true,
+            confirmLabel: 'Restore',
+            onConfirm: async () => {
+                try {
+                    const backup = localStorage.getItem('pta-auto-backup');
+                    if (!backup) {
+                        toast.warning('No auto-backup found. Save at least once to create a backup snapshot.');
+                        return;
+                    }
+                    const parsed = JSON.parse(backup);
+                    const migrated = migrateOldData(parsed);
+                    if (migrated.trainers && Array.isArray(migrated.trainers) && migrated.trainers.length > 0) {
+                        const validActiveId = migrated.trainers.some(t => t.id === migrated.activeTrainerId)
+                            ? migrated.activeTrainerId
+                            : migrated.trainers[0].id;
+                        setTrainers(migrated.trainers);
+                        setActiveTrainerId(validActiveId);
+                    }
+                    setInventory(Array.isArray(migrated.inventory) ? migrated.inventory : []);
+                    setCustomSpecies(Array.isArray(migrated.customSpecies) ? migrated.customSpecies : []);
+                    toast.success('Auto-backup restored successfully!');
+                } catch (err) {
+                    console.error('Restore auto-backup error:', err);
+                    toast.error('Could not restore auto-backup. The snapshot may be corrupt.');
+                }
+            }
+        });
+    }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
 
     // Export all data as JSON file
     const exportAllData = useCallback(() => {
@@ -680,6 +720,7 @@ export const DataProvider = ({ children }) => {
         // Persistence
         saveData,
         loadData,
+        restoreAutoBackup,
         exportAllData,
         exportSingleTrainer,
         importData,

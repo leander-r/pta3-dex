@@ -32,7 +32,8 @@ export const DEFAULT_TRAINER = {
     badges: [],
     money: 0,
     party: [],             // Active party - max 6 Pokemon
-    reserve: []            // Reserve/PC storage - unlimited
+    reserve: [],           // Reserve/PC storage - unlimited
+    archived: false        // Soft-delete: archived trainers are hidden but recoverable
 };
 
 /**

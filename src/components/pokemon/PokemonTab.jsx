@@ -12,6 +12,7 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
 import { MAX_POKEMON_IMPORT_BYTES } from '../../data/constants.js';
+import { safeLocalStorageGet, safeLocalStorageSet } from '../../utils/storageUtils.js';
 
 /**
  * PokemonTab - Main Pokemon management container
@@ -23,15 +24,20 @@ const PokemonTab = () => {
     const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId, setShowBulkExpModal } = useUI();
     const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList } = useTrainerContext();
     const { addPokemon, updatePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
-    const [filter, setFilter] = useState({
+    const [filter, setFilter] = useState(() => ({
         search: '',
-        type: ''
-    });
-    const [sortDir, setSortDir] = useState('asc');
-    const [lastSortBy, setLastSortBy] = useState('');
+        type: safeLocalStorageGet('pta-pokemon-filter-type', '')
+    }));
+    const [sortDir, setSortDir] = useState(() => safeLocalStorageGet('pta-pokemon-sort-dir', 'asc'));
+    const [lastSortBy, setLastSortBy] = useState(() => safeLocalStorageGet('pta-pokemon-sort-by', ''));
     const [showImportOptions, setShowImportOptions] = useState(false);
     const fileInputRef = useRef(null);
     const importDropdownRef = useRef(null);
+
+    // Persist filter and sort preferences across sessions
+    useEffect(() => { safeLocalStorageSet('pta-pokemon-filter-type', filter.type); }, [filter.type]);
+    useEffect(() => { safeLocalStorageSet('pta-pokemon-sort-dir', sortDir); }, [sortDir]);
+    useEffect(() => { safeLocalStorageSet('pta-pokemon-sort-by', lastSortBy); }, [lastSortBy]);
 
     // Close import dropdown when clicking outside
     useEffect(() => {

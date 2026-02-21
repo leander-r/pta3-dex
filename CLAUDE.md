@@ -39,10 +39,10 @@ This file tracks the prioritized improvement list so it persists across sessions
 23. ✅ Inconsistent error handling — standardized try/catch + toast in touched files; added guard in `duplicateTrainer`
 24. ✅ No React Error Boundaries — per-tab `<ErrorBoundary inline>` + top-level boundary added
 
-## Priority 6 — Missing Features
-25. No undo for destructive actions (deleting trainer/Pokémon is permanent)
-26. No explicit dark mode toggle (OS preference only)
-27. No trainer archiving (old trainers can only be deleted)
-28. Bulk Pokémon operations not fully integrated (`BulkExpModal` exists but not wired up)
-29. No auto-backup (reminder triggers after 7 days but no automatic export)
-30. Filter persistence across sessions (sort/filter should survive page reloads)
+## Priority 6 — Missing Features ✅ DONE
+25. ✅ Undo for destructive deletes — 5-second toast with Undo button after releasing Pokémon or deleting trainer (`PokemonContext.jsx`, `TrainerContext.jsx`, `toast.js`, `ToastContainer.jsx`)
+26. ✅ Dark mode toggle — already present in `Header.jsx` (OS preference + manual toggle)
+27. ✅ Trainer archiving — soft-delete with Archive/Restore in character menu; archived trainers hidden from selector (`TrainerContext.jsx`, `Header.jsx`)
+28. ✅ Bulk Pokémon EXP — `BulkExpModal` wired to "Award EXP" button in `PokemonTab.jsx`
+29. ✅ Auto-backup — rolling snapshot of previous save written to `pta-auto-backup` before each save; "Restore Auto-Backup" in character menu (`DataContext.jsx`, `Header.jsx`)
+30. ✅ Filter persistence — type filter, sort direction, and sort field persisted to localStorage across sessions (`PokemonTab.jsx`)

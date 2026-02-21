@@ -331,7 +331,7 @@ export const PokemonProvider = ({ children }) => {
         }
     }, [party, reserve, setParty, setReserve, showLevelUpNotification, getMovesForLevelRange, learnMove, forgetMovesAboveLevel, setPendingMoveLearn]);
 
-    // Delete Pokemon
+    // Delete Pokemon (with 5-second undo window)
     const deletePokemon = useCallback((id) => {
         showConfirm({
             title: 'Release Pokémon',
@@ -340,15 +340,36 @@ export const PokemonProvider = ({ children }) => {
             confirmLabel: 'Release',
             onConfirm: () => {
                 const inParty = party.some(p => p.id === id);
+                const deleted = inParty
+                    ? party.find(p => p.id === id)
+                    : reserve.find(p => p.id === id);
+
                 if (inParty) {
                     setParty(prev => prev.filter(p => p.id !== id));
                 } else {
                     setReserve(prev => prev.filter(p => p.id !== id));
                 }
                 setEditingPokemon(null);
+
+                toast.show(
+                    `${deleted?.name || 'Pokémon'} was released.`,
+                    'warning',
+                    5000,
+                    {
+                        label: 'Undo',
+                        onClick: () => {
+                            if (inParty) {
+                                setParty(prev => [...prev, deleted]);
+                            } else {
+                                setReserve(prev => [...prev, deleted]);
+                            }
+                            setEditingPokemon(deleted.id);
+                        }
+                    }
+                );
             }
         });
-    }, [party, setParty, setReserve, setEditingPokemon, showConfirm]);
+    }, [party, reserve, setParty, setReserve, setEditingPokemon, showConfirm]);
 
     // Import Pokemon
     const importPokemon = useCallback((pokemonData, toParty = false) => {

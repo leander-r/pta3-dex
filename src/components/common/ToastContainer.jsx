@@ -82,9 +82,34 @@ const ToastContainer = () => {
                             marginTop: '1px',
                             color: s.color
                         }}>{s.icon}</span>
-                        <span style={{ color: s.color, flex: 1, fontWeight: 500 }}>
-                            {t.message}
-                        </span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ color: s.color, fontWeight: 500 }}>
+                                {t.message}
+                            </span>
+                            {t.action && (
+                                <div style={{ marginTop: '6px' }}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            t.action.onClick();
+                                            dismissToast(t.id);
+                                        }}
+                                        style={{
+                                            padding: '3px 12px',
+                                            background: s.color,
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            fontSize: '12px',
+                                            fontWeight: 700
+                                        }}
+                                    >
+                                        {t.action.label}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 );
             })}
