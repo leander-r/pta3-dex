@@ -259,64 +259,6 @@ const TrainerProfile = () => {
                 </div>
             </div>
 
-            {/* Trainer HP Tracker */}
-            {(() => {
-                const maxHP = calculateMaxHP();
-                const currentHP = Math.max(0, maxHP - (trainer.currentDamage || 0));
-                const hpPercent = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
-                return (
-                    <div style={{ marginTop: '10px', padding: '12px', background: 'var(--card-bg, #fff)', borderRadius: '10px', border: '1px solid var(--border-light, #e8e3f3)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#e53935' }}>Current HP</span>
-                            <span style={{ fontSize: '16px', fontWeight: 'bold', color: hpPercent > 50 ? '#4caf50' : hpPercent > 25 ? '#ff9800' : '#f44336' }}>
-                                {currentHP} / {maxHP}
-                            </span>
-                        </div>
-                        <div style={{ background: 'var(--collapsed-hp-track, #e0e0e0)', borderRadius: '4px', height: '10px', overflow: 'hidden', marginBottom: '8px' }}>
-                            <div style={{
-                                width: `${hpPercent}%`,
-                                height: '100%',
-                                background: hpPercent > 50 ? '#4caf50' : hpPercent > 25 ? '#ff9800' : '#f44336',
-                                transition: 'width 0.3s ease',
-                                borderRadius: '4px'
-                            }} />
-                        </div>
-                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            {[10, 5, 1].map(val => (
-                                <button
-                                    key={`tdmg-${val}`}
-                                    onClick={() => setTrainer(prev => ({
-                                        ...prev,
-                                        currentDamage: Math.min(maxHP, (prev.currentDamage || 0) + val)
-                                    }))}
-                                    style={{ padding: '3px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                                >
-                                    +{val}
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => setTrainer(prev => ({ ...prev, currentDamage: 0 }))}
-                                style={{ padding: '3px 8px', background: '#2196f3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                            >
-                                Full
-                            </button>
-                            {[1, 5, 10].map(val => (
-                                <button
-                                    key={`theal-${val}`}
-                                    onClick={() => setTrainer(prev => ({
-                                        ...prev,
-                                        currentDamage: Math.max(0, (prev.currentDamage || 0) - val)
-                                    }))}
-                                    style={{ padding: '3px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                                >
-                                    -{val}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                );
-            })()}
-
             {/* Money Input */}
             <div style={{ marginTop: '15px', padding: '12px', background: 'linear-gradient(135deg, #ffd700, #ffb300)', borderRadius: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -4,6 +4,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
+import { getCombinedTypeEffectiveness } from '../../data/typeChart.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
@@ -12,7 +13,7 @@ const BattleTab = () => {
     // Get state from contexts
     const { GAME_DATA, pokedex } = useGameData();
     const { showDetail, showConfirm } = useUI();
-    const { trainer, party } = useTrainerContext();
+    const { trainer, setTrainer, party, calculateMaxHP } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const { discordWebhook, setDiscordWebhook, sendToDiscord } = useData();
     const [mode, setMode] = useState('pokemon');
@@ -463,6 +464,64 @@ const BattleTab = () => {
                                                 Heal
                                             </button>
                                         </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Type Matchup */}
+                            {selectedPokemon && (selectedPokemon.types || []).length > 0 && (() => {
+                                const eff = getCombinedTypeEffectiveness(selectedPokemon.types);
+
+                                const TypeChip = ({ type, label }) => (
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '3px',
+                                        padding: '2px 7px',
+                                        borderRadius: '10px',
+                                        background: getTypeColor(type),
+                                        color: 'white',
+                                        fontSize: '10px',
+                                        fontWeight: 'bold',
+                                        whiteSpace: 'nowrap'
+                                    }}>
+                                        {type}{label && <span style={{ opacity: 0.85 }}>{label}</span>}
+                                    </span>
+                                );
+
+                                const Row = ({ heading, headingColor, items, label }) => items.length === 0 ? null : (
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginBottom: '5px' }}>
+                                        <span style={{
+                                            fontSize: '10px',
+                                            fontWeight: 'bold',
+                                            color: headingColor,
+                                            whiteSpace: 'nowrap',
+                                            minWidth: '60px',
+                                            paddingTop: '3px'
+                                        }}>{heading}</span>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                            {items.map(t => <TypeChip key={t} type={t} label={label} />)}
+                                        </div>
+                                    </div>
+                                );
+
+                                return (
+                                    <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'var(--bg-secondary, #f5f5f5)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                            <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
+                                                Type Matchup
+                                            </span>
+                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                {(selectedPokemon.types || []).map(t => (
+                                                    <TypeChip key={t} type={t} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <Row heading="Weak ×4"  headingColor="#c62828" items={eff.superWeak} label=" ×4" />
+                                        <Row heading="Weak ×2"  headingColor="#f44336" items={eff.weak} />
+                                        <Row heading="Resists"  headingColor="#388e3c" items={eff.resist} />
+                                        <Row heading="Resists ×¼" headingColor="#1b5e20" items={eff.superResist} label=" ×¼" />
+                                        <Row heading="Immune"   headingColor="#555"    items={eff.immune} label=" ×0" />
                                     </div>
                                 );
                             })()}
@@ -967,6 +1026,115 @@ const BattleTab = () => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Trainer HP Tracker */}
+                            {(() => {
+                                const maxHP = calculateMaxHP();
+                                const currentHP = Math.max(0, maxHP - (trainer.currentDamage || 0));
+                                const hpPercent = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
+                                return (
+                                    <div className="hp-tracker-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>Trainer HP</span>
+                                            <span style={{ fontSize: '14px', fontWeight: 'bold', color: hpPercent > 50 ? '#4caf50' : hpPercent > 25 ? '#ff9800' : '#f44336' }}>
+                                                {currentHP} / {maxHP}
+                                            </span>
+                                        </div>
+                                        <div style={{ background: 'var(--collapsed-hp-track)', borderRadius: '4px', height: '12px', overflow: 'hidden', marginBottom: '8px' }}>
+                                            <div style={{
+                                                width: `${hpPercent}%`,
+                                                height: '100%',
+                                                background: hpPercent > 50 ? '#4caf50' : hpPercent > 25 ? '#ff9800' : '#f44336',
+                                                transition: 'width 0.3s ease'
+                                            }} />
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                            <span className="text-muted" style={{ fontSize: '10px', width: '100%', textAlign: 'center', marginBottom: '4px' }}>
+                                                Damage ← → Heal
+                                            </span>
+                                            {[10, 5, 1].map(val => (
+                                                <button
+                                                    key={`tdmg-${val}`}
+                                                    onClick={() => setTrainer(prev => ({
+                                                        ...prev,
+                                                        currentDamage: Math.min(maxHP, (prev.currentDamage || 0) + val)
+                                                    }))}
+                                                    style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                                                >
+                                                    +{val}
+                                                </button>
+                                            ))}
+                                            <button
+                                                onClick={() => setTrainer(prev => ({ ...prev, currentDamage: 0 }))}
+                                                style={{ padding: '4px 8px', background: '#2196f3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                                            >
+                                                Full
+                                            </button>
+                                            {[1, 5, 10].map(val => (
+                                                <button
+                                                    key={`theal-${val}`}
+                                                    onClick={() => setTrainer(prev => ({
+                                                        ...prev,
+                                                        currentDamage: Math.max(0, (prev.currentDamage || 0) - val)
+                                                    }))}
+                                                    style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                                                >
+                                                    -{val}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {/* Custom HP adjust */}
+                                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px', justifyContent: 'center' }}>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                placeholder="Custom"
+                                                id="trainerCustomHpInput"
+                                                style={{
+                                                    width: '70px',
+                                                    padding: '4px 6px',
+                                                    borderRadius: '4px',
+                                                    border: '1px solid var(--border-medium)',
+                                                    fontSize: '11px',
+                                                    textAlign: 'center'
+                                                }}
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    const input = document.getElementById('trainerCustomHpInput');
+                                                    const val = parseInt(input?.value);
+                                                    if (val > 0) {
+                                                        setTrainer(prev => ({
+                                                            ...prev,
+                                                            currentDamage: Math.min(maxHP, (prev.currentDamage || 0) + val)
+                                                        }));
+                                                        input.value = '';
+                                                    }
+                                                }}
+                                                style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                            >
+                                                Damage
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const input = document.getElementById('trainerCustomHpInput');
+                                                    const val = parseInt(input?.value);
+                                                    if (val > 0) {
+                                                        setTrainer(prev => ({
+                                                            ...prev,
+                                                            currentDamage: Math.max(0, (prev.currentDamage || 0) - val)
+                                                        }));
+                                                        input.value = '';
+                                                    }
+                                                }}
+                                                style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                            >
+                                                Heal
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
                                 Select Skill
