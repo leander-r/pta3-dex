@@ -10,7 +10,14 @@ import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
 import { useTrainerContext } from './TrainerContext.jsx';
 import { useGameData } from './GameDataContext.jsx';
-import { MAX_TRAINER_IMPORT_BYTES } from '../data/constants.js';
+import {
+    MAX_TRAINER_IMPORT_BYTES,
+    TRAINER_HP_MULTIPLIER,
+    MS_PER_DAY,
+    BACKUP_REMINDER_DAYS,
+    AUTOSAVE_DEBOUNCE_MS,
+    AUTOSAVE_INTERVAL_MS
+} from '../data/constants.js';
 
 const DataContext = createContext(null);
 
@@ -218,8 +225,8 @@ export const DataProvider = ({ children }) => {
             // Backup reminder — nudge after 7 days without export
             try {
                 const lastBackup = parseInt(localStorage.getItem('pta-last-backup') || '0');
-                const daysSince = lastBackup ? Math.floor((Date.now() - lastBackup) / 86400000) : -1;
-                if (daysSince > 7) {
+                const daysSince = lastBackup ? Math.floor((Date.now() - lastBackup) / MS_PER_DAY) : -1;
+                if (daysSince > BACKUP_REMINDER_DAYS) {
                     setTimeout(() => toast.info(`It's been ${daysSince} days since your last backup. Consider exporting your data!`), 3000);
                 }
             } catch {}
@@ -451,7 +458,7 @@ export const DataProvider = ({ children }) => {
 
     // Export text functions
     const exportTrainerText = useCallback((trainer) => {
-        const maxHP = (trainer.stats.hp * 4) + (trainer.level * 4);
+        const maxHP = (trainer.stats.hp * TRAINER_HP_MULTIPLIER) + (trainer.level * TRAINER_HP_MULTIPLIER);
         const genderSymbol = trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : '';
         const classesDisplay = (trainer.classes && trainer.classes.length > 0) ? trainer.classes.join(' / ') : 'Trainer';
 
@@ -694,7 +701,7 @@ export const DataProvider = ({ children }) => {
 
         const saveTimeout = setTimeout(() => {
             saveDataRef.current?.();
-        }, 1000);
+        }, AUTOSAVE_DEBOUNCE_MS);
 
         return () => clearTimeout(saveTimeout);
     }, [trainers, inventory, activeTrainerId, customSpecies]);
@@ -702,12 +709,10 @@ export const DataProvider = ({ children }) => {
     // Interval-based auto-save (every 2 minutes, only if changed)
     // No data dependencies — interval should not restart on every data change
     useEffect(() => {
-        const AUTO_SAVE_INTERVAL = 2 * 60 * 1000;
-
         const autoSaveInterval = setInterval(() => {
             if (!dataLoadedRef.current) return;
             saveDataRef.current?.(true);
-        }, AUTO_SAVE_INTERVAL);
+        }, AUTOSAVE_INTERVAL_MS);
 
         return () => clearInterval(autoSaveInterval);
     }, []);

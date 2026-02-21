@@ -160,3 +160,83 @@ export const MAX_TRAINER_IMPORT_BYTES = 5 * 1024 * 1024;
  * Maximum single-Pokemon import file size (100 KB)
  */
 export const MAX_POKEMON_IMPORT_BYTES = 100 * 1024;
+
+/**
+ * Maximum number of natural (level-up) moves a Pokemon can have at once
+ */
+export const MAX_NATURAL_MOVES = 4;
+
+/**
+ * Maximum number of taught (TM/tutor/egg/custom) moves a Pokemon can have at once
+ */
+export const MAX_TAUGHT_MOVES = 4;
+
+/**
+ * Maximum total moves a Pokemon can have (natural + taught combined)
+ */
+export const MAX_TOTAL_MOVES = MAX_NATURAL_MOVES + MAX_TAUGHT_MOVES;
+
+/**
+ * Maximum number of roll entries kept in battle roll history
+ */
+export const MAX_ROLL_HISTORY = 50;
+
+/**
+ * Combat stage multiplier applied per positive stage (e.g. +1 stage → stat × 1.25)
+ */
+export const COMBAT_STAGE_POSITIVE_MULTIPLIER = 0.25;
+
+/**
+ * Combat stage multiplier applied per negative stage (e.g. -1 stage → stat × 0.90)
+ */
+export const COMBAT_STAGE_NEGATIVE_MULTIPLIER = 0.10;
+
+/**
+ * Trainer stat value at which the modifier is exactly 0
+ */
+export const TRAINER_STAT_NEUTRAL = 10;
+
+/**
+ * Multiplier used in the trainer HP formula: maxHP = (hp_stat × n) + (level × n)
+ */
+export const TRAINER_HP_MULTIPLIER = 4;
+
+/**
+ * Multiplier used in the Pokemon HP formula: maxHP = level + (hp_stat × n)
+ */
+export const POKEMON_HP_MULTIPLIER = 3;
+
+/**
+ * Milliseconds in one day — used for backup-reminder age calculations
+ */
+export const MS_PER_DAY = 86_400_000;
+
+/**
+ * Number of days between exports before the backup reminder is shown
+ */
+export const BACKUP_REMINDER_DAYS = 7;
+
+/**
+ * Minimum trainer level required to pick a 2nd class
+ */
+export const CLASS_2_MIN_LEVEL = 5;
+
+/**
+ * Minimum trainer level required to pick a 3rd class
+ */
+export const CLASS_3_MIN_LEVEL = 12;
+
+/**
+ * Minimum trainer level required to pick a 4th class
+ */
+export const CLASS_4_MIN_LEVEL = 24;
+
+/**
+ * Auto-save debounce delay (ms) — how long to wait after a data change before saving
+ */
+export const AUTOSAVE_DEBOUNCE_MS = 1000;
+
+/**
+ * Auto-save interval (ms) — periodic save regardless of debounce
+ */
+export const AUTOSAVE_INTERVAL_MS = 2 * 60 * 1000;

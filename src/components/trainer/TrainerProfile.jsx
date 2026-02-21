@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { useTrainerContext, useUI } from '../../contexts/index.js';
+import { CREATION_STAT_POINTS } from '../../data/constants.js';
 
 /**
  * TrainerProfile - Trainer profile management
@@ -218,7 +219,7 @@ const TrainerProfile = () => {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', color: creationPointsRemaining === 0 ? '#2e7d32' : '#c62828' }}>
                         <span>{creationPointsRemaining === 0 ? '✓' : '○'}</span>
-                        <span>Spend all 30 Creation points ({30 - creationPointsRemaining}/30)</span>
+                        <span>Spend all {CREATION_STAT_POINTS} Creation points ({CREATION_STAT_POINTS - creationPointsRemaining}/{CREATION_STAT_POINTS})</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: hasClass ? '#2e7d32' : '#c62828' }}>
                         <span>{hasClass ? '✓' : '○'}</span>

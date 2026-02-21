@@ -5,6 +5,7 @@
 
 import React, { createContext, useContext, useCallback, useEffect } from 'react';
 import { GAME_DATA } from '../data/configs.js';
+import { MAX_PARTY_SIZE, MAX_NATURAL_MOVES, POKEMON_HP_MULTIPLIER } from '../data/constants.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
@@ -112,7 +113,7 @@ export const PokemonProvider = ({ children }) => {
             statPointsAvailable: 0
         };
 
-        if (pokemonView === 'party' && party.length < 6) {
+        if (pokemonView === 'party' && party.length < MAX_PARTY_SIZE) {
             setParty(prev => [...prev, newPokemon]);
         } else {
             setReserve(prev => [...prev, newPokemon]);
@@ -333,7 +334,7 @@ export const PokemonProvider = ({ children }) => {
                         );
 
                         if (!alreadyKnows) {
-                            if (currentNaturalCount < 4) {
+                            if (currentNaturalCount < MAX_NATURAL_MOVES) {
                                 movesToLearnDirectly.push(newMove);
                                 currentNaturalCount++;
                             } else {
@@ -418,7 +419,7 @@ export const PokemonProvider = ({ children }) => {
             id: Date.now()
         };
 
-        if (toParty && party.length < 6) {
+        if (toParty && party.length < MAX_PARTY_SIZE) {
             setParty(prev => [...prev, importedPokemon]);
         } else {
             setReserve(prev => [...prev, importedPokemon]);
@@ -592,7 +593,7 @@ export const PokemonProvider = ({ children }) => {
 
                 if (alreadyKnows) {
                     setPendingMoveLearn(prev => prev.slice(1));
-                } else if (naturalMoves.length < 4) {
+                } else if (naturalMoves.length < MAX_NATURAL_MOVES) {
                     learnMove(nextMove.pokemonId, nextMove.newMove, null, nextMove.inParty);
                     setPendingMoveLearn(prev => prev.slice(1));
                 } else {
@@ -613,7 +614,7 @@ export const PokemonProvider = ({ children }) => {
     // Calculate Pokemon max HP
     const calculatePokemonMaxHP = useCallback((poke) => {
         const actualStats = getActualStats(poke);
-        return poke.level + (actualStats.hp * 3);
+        return poke.level + (actualStats.hp * POKEMON_HP_MULTIPLIER);
     }, []);
 
     // Calculate STAB bonus
@@ -671,7 +672,7 @@ export const PokemonProvider = ({ children }) => {
                     seenMoves.add(moveLower);
                     return true;
                 })
-                .slice(0, 4)
+                .slice(0, MAX_NATURAL_MOVES)
                 .map(m => {
                     const moveData = GAME_DATA.moves[m.move] || {};
                     return {

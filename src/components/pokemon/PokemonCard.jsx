@@ -8,6 +8,7 @@ import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/d
 import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, usePokemonContext } from '../../contexts/index.js';
+import { MAX_NATURAL_MOVES, MAX_TAUGHT_MOVES, MAX_TOTAL_MOVES } from '../../data/constants.js';
 
 const PokemonCard = ({
     // Pokemon-specific props (must be passed per-card)
@@ -185,7 +186,7 @@ const PokemonCard = ({
         const taughtCount = pokemon.moves?.filter(m => m.source === 'taught').length || 0;
 
         // If trying to add a natural move when at limit, show replacement modal
-        if (source === 'natural' && (naturalCount >= 4 || (pokemon.moves?.length || 0) >= 8)) {
+        if (source === 'natural' && (naturalCount >= MAX_NATURAL_MOVES || (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES)) {
             if (naturalCount === 0) {
                 toast.warning('Cannot add natural move - no natural moves to replace.');
                 return;
@@ -213,7 +214,7 @@ const PokemonCard = ({
         }
 
         // If trying to add a taught move when at limit, show replacement modal
-        if (source === 'taught' && (taughtCount >= 4 || (pokemon.moves?.length || 0) >= 8)) {
+        if (source === 'taught' && (taughtCount >= MAX_TAUGHT_MOVES || (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES)) {
             if (taughtCount === 0) {
                 toast.warning('Cannot add taught move - no taught moves to replace.');
                 return;
@@ -329,7 +330,7 @@ const PokemonCard = ({
         // Auto-add starting moves (level 0 and 1) as natural moves
         const startingMoves = levelUpMoves
             .filter(m => m.level <= 1)
-            .slice(0, 4) // Max 4 natural moves
+            .slice(0, MAX_NATURAL_MOVES)
             .map(m => {
                 const moveData = GAME_DATA?.moves?.[m.move];
                 return {
@@ -1791,7 +1792,7 @@ const PokemonCard = ({
                 {editTab === 'moves' && (
                     <div>
                         <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px' }}>
-                            Moves: {(pokemon.moves || []).length}/8 (4 natural + 4 taught)
+                            Moves: {(pokemon.moves || []).length}/{MAX_TOTAL_MOVES} ({MAX_NATURAL_MOVES} natural + {MAX_TAUGHT_MOVES} taught)
                         </div>
 
                         {(pokemon.moves || []).map((move, idx) => (
@@ -1850,14 +1851,14 @@ const PokemonCard = ({
                             </div>
                         ))}
 
-                        {((pokemon.moves || []).length < 8 || naturalMoveCount > 0 || taughtMoveCount > 0) && (
+                        {((pokemon.moves || []).length < MAX_TOTAL_MOVES || naturalMoveCount > 0 || taughtMoveCount > 0) && (
                             <div className="add-move-panel" style={{ marginTop: '10px', padding: '12px', borderRadius: '8px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                                     <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>Add Move</span>
                                     <span style={{ fontSize: '10px', color: '#666' }}>
-                                        Natural: <span style={{ color: naturalMoveCount >= 4 ? '#f44336' : '#4caf50', fontWeight: 'bold' }}>{naturalMoveCount}/4</span>
+                                        Natural: <span style={{ color: naturalMoveCount >= MAX_NATURAL_MOVES ? '#f44336' : '#4caf50', fontWeight: 'bold' }}>{naturalMoveCount}/{MAX_NATURAL_MOVES}</span>
                                         {' | '}
-                                        Taught: <span style={{ color: taughtMoveCount >= 4 ? '#f44336' : '#2196f3', fontWeight: 'bold' }}>{taughtMoveCount}/4</span>
+                                        Taught: <span style={{ color: taughtMoveCount >= MAX_TAUGHT_MOVES ? '#f44336' : '#2196f3', fontWeight: 'bold' }}>{taughtMoveCount}/{MAX_TAUGHT_MOVES}</span>
                                     </span>
                                 </div>
                                 <div style={{ fontSize: '11px', color: '#888', marginBottom: '10px', fontStyle: 'italic' }}>
@@ -2004,37 +2005,37 @@ const PokemonCard = ({
                                                         }}>{data.category?.charAt(0) || '?'}</span>
                                                         <button
                                                             onClick={() => addMoveWithSource(name, data, 'natural')}
-                                                            disabled={naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8}
+                                                            disabled={naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES}
                                                             style={{
                                                                 padding: '2px 6px',
-                                                                background: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? '#999' : ((naturalMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? '#ff9800' : '#4caf50'),
+                                                                background: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? '#999' : ((naturalMoveCount >= MAX_NATURAL_MOVES || (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? '#ff9800' : '#4caf50'),
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: '4px',
                                                                 fontSize: '10px',
                                                                 fontWeight: 'bold',
-                                                                cursor: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 'not-allowed' : 'pointer',
-                                                                opacity: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 0.6 : 1
+                                                                cursor: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? 'not-allowed' : 'pointer',
+                                                                opacity: (naturalMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? 0.6 : 1
                                                             }}
-                                                            title={(naturalMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? "Replace a Natural move" : "Add as Natural move"}
+                                                            title={(naturalMoveCount >= MAX_NATURAL_MOVES || (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? "Replace a Natural move" : "Add as Natural move"}
                                                         >
                                                             N
                                                         </button>
                                                         <button
                                                             onClick={() => addMoveWithSource(name, data, 'taught')}
-                                                            disabled={taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8}
+                                                            disabled={taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES}
                                                             style={{
                                                                 padding: '2px 6px',
-                                                                background: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? '#999' : ((taughtMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? '#ff9800' : '#2196f3'),
+                                                                background: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? '#999' : ((taughtMoveCount >= MAX_TAUGHT_MOVES || (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? '#ff9800' : '#2196f3'),
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: '4px',
                                                                 fontSize: '10px',
                                                                 fontWeight: 'bold',
-                                                                cursor: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 'not-allowed' : 'pointer',
-                                                                opacity: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= 8) ? 0.6 : 1
+                                                                cursor: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? 'not-allowed' : 'pointer',
+                                                                opacity: (taughtMoveCount === 0 && (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? 0.6 : 1
                                                             }}
-                                                            title={(taughtMoveCount >= 4 || (pokemon.moves?.length || 0) >= 8) ? "Replace a Taught move" : "Add as Taught move"}
+                                                            title={(taughtMoveCount >= MAX_TAUGHT_MOVES || (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES) ? "Replace a Taught move" : "Add as Taught move"}
                                                         >
                                                             T
                                                         </button>

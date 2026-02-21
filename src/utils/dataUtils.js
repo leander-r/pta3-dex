@@ -3,6 +3,7 @@
 // ============================================================
 
 import { GAME_DATA } from '../data/configs.js';
+import { POKEMON_HP_MULTIPLIER } from '../data/constants.js';
 
 /**
  * Calculate stat modifier (D&D style)
@@ -159,7 +160,7 @@ export const getActualStats = (pokemon) => {
 export const calculatePokemonHP = (pokemon) => {
     if (!pokemon) return 0;
     const actualStats = getActualStats(pokemon);
-    return pokemon.level + (actualStats.hp * 3);
+    return pokemon.level + (actualStats.hp * POKEMON_HP_MULTIPLIER);
 };
 
 /**

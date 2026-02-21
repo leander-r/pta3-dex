@@ -8,6 +8,11 @@ import { getCombinedTypeEffectiveness } from '../../data/typeChart.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
+import {
+    MAX_ROLL_HISTORY,
+    COMBAT_STAGE_POSITIVE_MULTIPLIER,
+    COMBAT_STAGE_NEGATIVE_MULTIPLIER
+} from '../../data/constants.js';
 
 const BattleTab = () => {
     // Get state from contexts
@@ -135,7 +140,7 @@ const BattleTab = () => {
 
     // Add to history
     const addToHistory = (roll) => {
-        setRollHistory(prev => [roll, ...prev].slice(0, 50));
+        setRollHistory(prev => [roll, ...prev].slice(0, MAX_ROLL_HISTORY));
         if (sendToDiscord) sendToDiscord(roll, trainer.name);
     };
 
@@ -152,9 +157,9 @@ const BattleTab = () => {
         const stages = combatStages[statKey] || 0;
         let statMod = baseStat;
         if (stages > 0) {
-            statMod = Math.floor(baseStat * (1 + stages * 0.25));
+            statMod = Math.floor(baseStat * (1 + stages * COMBAT_STAGE_POSITIVE_MULTIPLIER));
         } else if (stages < 0) {
-            statMod = Math.ceil(baseStat * (1 - Math.abs(stages) * 0.10));
+            statMod = Math.ceil(baseStat * (1 - Math.abs(stages) * COMBAT_STAGE_NEGATIVE_MULTIPLIER));
         }
 
         // Get accuracy check value (AC) from frequency field (e.g., "EOT - 2" means AC 2)
@@ -764,8 +769,8 @@ const BattleTab = () => {
                                     {showCombatStages && (() => {
                                         const actualStats = getStatsWithMega(selectedPokemon);
                                         const getModifiedStat = (baseStat, stages) => {
-                                            if (stages > 0) return Math.floor(baseStat * (1 + stages * 0.25));
-                                            if (stages < 0) return Math.ceil(baseStat * (1 - Math.abs(stages) * 0.10));
+                                            if (stages > 0) return Math.floor(baseStat * (1 + stages * COMBAT_STAGE_POSITIVE_MULTIPLIER));
+                                            if (stages < 0) return Math.ceil(baseStat * (1 - Math.abs(stages) * COMBAT_STAGE_NEGATIVE_MULTIPLIER));
                                             return baseStat;
                                         };
                                         return (

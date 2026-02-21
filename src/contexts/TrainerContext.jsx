@@ -5,7 +5,19 @@
 
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { GAME_DATA } from '../data/configs.js';
-import { DEFAULT_TRAINER } from '../data/constants.js';
+import {
+    DEFAULT_TRAINER,
+    BASE_STAT_VALUE,
+    CREATION_STAT_CAP,
+    CREATION_STAT_POINTS,
+    MAX_PARTY_SIZE,
+    MAX_TRAINER_LEVEL,
+    TRAINER_STAT_NEUTRAL,
+    TRAINER_HP_MULTIPLIER,
+    CLASS_2_MIN_LEVEL,
+    CLASS_3_MIN_LEVEL,
+    CLASS_4_MIN_LEVEL
+} from '../data/constants.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
 
@@ -162,15 +174,15 @@ export const TrainerProvider = ({ children }) => {
 
     // Calculate trainer modifiers
     const calculateModifier = useCallback((stat) => {
-        const value = trainer.stats[stat] || 6;
-        if (value === 10) return 0;
-        if (value < 10) return -(10 - value);
-        return Math.floor((value - 10) / 2);
+        const value = trainer.stats[stat] || BASE_STAT_VALUE;
+        if (value === TRAINER_STAT_NEUTRAL) return 0;
+        if (value < TRAINER_STAT_NEUTRAL) return -(TRAINER_STAT_NEUTRAL - value);
+        return Math.floor((value - TRAINER_STAT_NEUTRAL) / 2);
     }, [trainer.stats]);
 
     // Calculate trainer max HP
     const calculateMaxHP = useCallback(() => {
-        let baseHP = (trainer.stats.hp * 4) + (trainer.level * 4);
+        let baseHP = (trainer.stats.hp * TRAINER_HP_MULTIPLIER) + (trainer.level * TRAINER_HP_MULTIPLIER);
         const features = trainer.features || [];
 
         const hasImprovedMartialEndurance = features.some(f =>
@@ -206,18 +218,18 @@ export const TrainerProvider = ({ children }) => {
 
     // Update trainer stat
     const updateTrainerStat = useCallback((stat, value) => {
-        const newValue = parseInt(value) || 6;
+        const newValue = parseInt(value) || BASE_STAT_VALUE;
         const oldValue = trainer.stats[stat];
         const difference = newValue - oldValue;
 
         const totalAvailable = trainer.statPoints + (trainer.levelStatPoints || 0);
 
-        if (newValue < 6) return;
+        if (newValue < BASE_STAT_VALUE) return;
         if (totalAvailable - difference < 0) return;
 
         if (difference > 0) {
-            if (newValue > 14 && trainer.statPoints > 0) {
-                const pointsToReach14 = Math.max(0, 14 - oldValue);
+            if (newValue > CREATION_STAT_CAP && trainer.statPoints > 0) {
+                const pointsToReach14 = Math.max(0, CREATION_STAT_CAP - oldValue);
                 const creationPointsToUse = Math.min(trainer.statPoints, pointsToReach14);
                 const levelPointsToUse = difference - creationPointsToUse;
 
@@ -229,13 +241,13 @@ export const TrainerProvider = ({ children }) => {
                     statPoints: prev.statPoints - creationPointsToUse,
                     levelStatPoints: (prev.levelStatPoints || 0) - levelPointsToUse
                 }));
-            } else if (newValue <= 14 && trainer.statPoints >= difference) {
+            } else if (newValue <= CREATION_STAT_CAP && trainer.statPoints >= difference) {
                 setTrainer(prev => ({
                     ...prev,
                     stats: { ...prev.stats, [stat]: newValue },
                     statPoints: prev.statPoints - difference
                 }));
-            } else if (newValue <= 14 && trainer.statPoints < difference) {
+            } else if (newValue <= CREATION_STAT_CAP && trainer.statPoints < difference) {
                 const creationPointsToUse = trainer.statPoints;
                 const levelPointsToUse = difference - creationPointsToUse;
 
@@ -278,8 +290,8 @@ export const TrainerProvider = ({ children }) => {
     // Level up the trainer
     const levelUpTrainer = useCallback(() => {
         const newLevel = trainer.level + 1;
-        if (newLevel > 50) {
-            toast.warning('Maximum trainer level is 50!');
+        if (newLevel > MAX_TRAINER_LEVEL) {
+            toast.warning(`Maximum trainer level is ${MAX_TRAINER_LEVEL}!`);
             return;
         }
 
@@ -289,7 +301,7 @@ export const TrainerProvider = ({ children }) => {
 
             const issues = [];
             if (creationPointsRemaining > 0) {
-                issues.push(`• Spend all 30 Creation stat points (${creationPointsRemaining} remaining)`);
+                issues.push(`• Spend all ${CREATION_STAT_POINTS} Creation stat points (${creationPointsRemaining} remaining)`);
             }
             if (!hasClass) {
                 issues.push('• Pick your first Trainer Class');
@@ -341,8 +353,8 @@ export const TrainerProvider = ({ children }) => {
             totalLevelStatsAtNewLevel += (GAME_DATA.trainerLevelProgression[i]?.stats || 0);
         }
 
-        const totalStatsSpent = Object.values(trainer.stats).reduce((sum, val) => sum + val, 0) - 36;
-        const creationPointsSpent = 30 - trainer.statPoints;
+        const totalStatsSpent = Object.values(trainer.stats).reduce((sum, val) => sum + val, 0) - 6 * BASE_STAT_VALUE;
+        const creationPointsSpent = CREATION_STAT_POINTS - trainer.statPoints;
         const levelPointsSpent = Math.max(0, totalStatsSpent - creationPointsSpent);
 
         if (levelPointsSpent > totalLevelStatsAtNewLevel) {
@@ -367,7 +379,7 @@ export const TrainerProvider = ({ children }) => {
         const classesWithCost = Math.max(0, (trainer.classes || []).length - 1);
         const totalFeatPointsSpent = featuresWithCost + classesWithCost;
 
-        const maxClassesAtNewLevel = newLevel >= 24 ? 4 : newLevel >= 12 ? 3 : newLevel >= 5 ? 2 : 1;
+        const maxClassesAtNewLevel = newLevel >= CLASS_4_MIN_LEVEL ? 4 : newLevel >= CLASS_3_MIN_LEVEL ? 3 : newLevel >= CLASS_2_MIN_LEVEL ? 2 : 1;
         const currentClassCount = (trainer.classes || []).length;
 
         if (currentClassCount > maxClassesAtNewLevel) {
@@ -434,8 +446,8 @@ export const TrainerProvider = ({ children }) => {
 
     // Move pokemon to party
     const moveToParty = useCallback((pokemonId) => {
-        if (party.length >= 6) {
-            toast.warning('Your party is full! (Maximum 6 Pokemon)\nMove a Pokemon to reserve first.');
+        if (party.length >= MAX_PARTY_SIZE) {
+            toast.warning(`Your party is full! (Maximum ${MAX_PARTY_SIZE} Pokemon)\nMove a Pokemon to reserve first.`);
             return;
         }
         const poke = reserve.find(p => p.id === pokemonId);
