@@ -20,7 +20,7 @@ const BattleTab = () => {
     const [selectedSkill, setSelectedSkill] = useState('');
     const [customDice, setCustomDice] = useState('');
     const [rollHistory, setRollHistory] = useState(() => {
-        try { return JSON.parse(sessionStorage.getItem('pta-roll-history') || '[]'); } catch { return []; }
+        try { return JSON.parse(sessionStorage.getItem('pta-roll-history') || '[]'); } catch (e) { console.warn('Roll history corrupted, resetting:', e); return []; }
     });
     const [combatStages, setCombatStages] = useState({
         atk: 0, satk: 0, def: 0, sdef: 0, spd: 0, acc: 0, eva: 0

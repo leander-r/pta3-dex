@@ -4,6 +4,7 @@
 // Discord webhook integration for dice roll sharing
 
 import { useState, useEffect, useCallback } from 'react';
+import toast from '../utils/toast.js';
 
 /**
  * Custom hook for Discord webhook integration
@@ -119,7 +120,7 @@ export const useDiscordWebhook = () => {
             }
 
             // Send to Discord
-            await fetch(webhook.url, {
+            const res = await fetch(webhook.url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -129,8 +130,17 @@ export const useDiscordWebhook = () => {
                 })
             });
 
+            if (!res.ok) {
+                const msg = res.status === 401 || res.status === 403
+                    ? 'Discord webhook rejected. Check your webhook URL.'
+                    : `Discord send failed (${res.status}). Check your webhook URL.`;
+                toast.error(msg);
+                console.error('Discord webhook error:', res.status, res.statusText);
+            }
+
         } catch (error) {
             console.error('Failed to send to Discord:', error);
+            toast.error('Could not reach Discord. Check your internet connection.');
         }
     }, [webhook.enabled, webhook.url]);
 

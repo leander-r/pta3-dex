@@ -36,6 +36,8 @@ export const getFromPokedexDB = async (key) => {
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve(request.result?.value || null);
             transaction.oncomplete = () => db.close();
+            transaction.onerror = () => db.close();
+            transaction.onabort = () => db.close();
         });
     } catch (error) {
         console.warn('IndexedDB get error:', error);
@@ -53,6 +55,8 @@ export const saveToPokedexDB = async (key, value) => {
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve(true);
             transaction.oncomplete = () => db.close();
+            transaction.onerror = () => db.close();
+            transaction.onabort = () => db.close();
         });
     } catch (error) {
         console.warn('IndexedDB save error:', error);
@@ -131,9 +135,13 @@ export const loadPokedexFromGitHub = async (setPokedex, setPokedexLoading, setPo
         }
         
         // If not already decompressed (gzip case), decode with detected encoding
-        if (!responseText) {
+        if (responseText === undefined) {
             const decoder = new TextDecoder(encoding);
             responseText = decoder.decode(uint8Array);
+        }
+
+        if (!responseText) {
+            throw new Error('Pokédex response was empty after decoding');
         }
         
         // Validate JSON structure

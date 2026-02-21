@@ -287,6 +287,11 @@ export const DataProvider = ({
 
     // Import data from JSON file
     const importData = useCallback((file) => {
+        const MAX_IMPORT_SIZE = 5 * 1024 * 1024; // 5MB
+        if (file.size > MAX_IMPORT_SIZE) {
+            toast.error('File too large. Maximum import size is 5MB.');
+            return;
+        }
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
