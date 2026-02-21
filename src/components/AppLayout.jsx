@@ -4,18 +4,44 @@
 // Inner application shell. Lives inside AppProviders so it can
 // consume all contexts directly — no prop drilling needed.
 
-import React from 'react';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
 
 // Data & Configs
 import { DATA_CONFIG, GAME_DATA } from '../data/configs.js';
 
-// Tab Components
-import { NotesTab } from './notes';
-import { ReferenceTab } from './reference';
-import { InventoryTab } from './inventory';
-import { BattleTab } from './battle';
-import { TrainerTab } from './trainer';
-import { PokemonTab } from './pokemon';
+// Tab Components — lazily loaded so each tab's JS is only parsed on first visit
+import { TrainerTab } from './trainer'; // default tab: keep eager so no flash on load
+const PokemonTab   = lazy(() => import('./pokemon/PokemonTab.jsx'));
+const InventoryTab = lazy(() => import('./inventory/InventoryTab.jsx'));
+const BattleTab    = lazy(() => import('./battle/BattleTab.jsx'));
+const ReferenceTab = lazy(() => import('./reference/ReferenceTab.jsx'));
+const NotesTab     = lazy(() => import('./notes/NotesTab.jsx'));
+
+// Minimal spinner shown while a lazy tab chunk is downloading (first visit only)
+const TabFallback = () => (
+    <div
+        role="status"
+        aria-label="Loading tab"
+        style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '60px 20px'
+        }}
+    >
+        <div
+            aria-hidden="true"
+            style={{
+                width: '32px',
+                height: '32px',
+                border: '3px solid var(--border-light)',
+                borderTopColor: '#667eea',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite'
+            }}
+        />
+    </div>
+);
 
 // Common Components
 import { Header, SaveIndicator, LevelUpNotification, MainNavigation, ModalsContainer } from './common';
@@ -79,6 +105,19 @@ const AppLayout = () => {
         levelUpNotification
     } = useUI();
     const { pokedex, pokedexLoading, gameDataLoaded } = useGameData();
+
+    // Track which tabs have been visited so we mount them on first visit and
+    // keep them mounted (CSS-hidden) thereafter — preserving local component state
+    // (combat stages, search filters, selected section, etc.) across tab switches.
+    const [visitedTabs, setVisitedTabs] = useState(() => new Set([activeTab]));
+    useEffect(() => {
+        setVisitedTabs(prev => {
+            if (prev.has(activeTab)) return prev;
+            const next = new Set(prev);
+            next.add(activeTab);
+            return next;
+        });
+    }, [activeTab]);
 
     return (
         <div className="container">
@@ -146,31 +185,42 @@ const AppLayout = () => {
                         </div>
                     )}
 
-                    {/* All tabs stay mounted (CSS-hidden) so local state like search filters,
-                        combat stages, and note drafts persist across tab switches */}
+                    {/* TrainerTab is the default landing tab — kept as an eager static
+                        import so it renders immediately with no loading flash.
+                        All other tabs use React.lazy: their JS chunk is fetched only
+                        on first visit, then the tab stays mounted (CSS-hidden) so
+                        local state (filters, combat stages, etc.) persists across switches. */}
                     <div style={{ display: activeTab === 'trainer' ? undefined : 'none' }}>
                         <ErrorBoundary inline><TrainerTab /></ErrorBoundary>
                     </div>
 
-                    <div style={{ display: activeTab === 'pokemon' ? undefined : 'none' }}>
-                        <ErrorBoundary inline><PokemonTab /></ErrorBoundary>
-                    </div>
-
-                    <div style={{ display: activeTab === 'inventory' ? undefined : 'none' }}>
-                        <ErrorBoundary inline><InventoryTab /></ErrorBoundary>
-                    </div>
-
-                    <div style={{ display: activeTab === 'battle' ? undefined : 'none' }}>
-                        <ErrorBoundary inline><BattleTab /></ErrorBoundary>
-                    </div>
-
-                    <div style={{ display: activeTab === 'reference' ? undefined : 'none' }}>
-                        <ErrorBoundary inline><ReferenceTab /></ErrorBoundary>
-                    </div>
-
-                    <div style={{ display: activeTab === 'notes' ? undefined : 'none' }}>
-                        <ErrorBoundary inline><NotesTab /></ErrorBoundary>
-                    </div>
+                    <Suspense fallback={<TabFallback />}>
+                        {visitedTabs.has('pokemon') && (
+                            <div style={{ display: activeTab === 'pokemon' ? undefined : 'none' }}>
+                                <ErrorBoundary inline><PokemonTab /></ErrorBoundary>
+                            </div>
+                        )}
+                        {visitedTabs.has('inventory') && (
+                            <div style={{ display: activeTab === 'inventory' ? undefined : 'none' }}>
+                                <ErrorBoundary inline><InventoryTab /></ErrorBoundary>
+                            </div>
+                        )}
+                        {visitedTabs.has('battle') && (
+                            <div style={{ display: activeTab === 'battle' ? undefined : 'none' }}>
+                                <ErrorBoundary inline><BattleTab /></ErrorBoundary>
+                            </div>
+                        )}
+                        {visitedTabs.has('reference') && (
+                            <div style={{ display: activeTab === 'reference' ? undefined : 'none' }}>
+                                <ErrorBoundary inline><ReferenceTab /></ErrorBoundary>
+                            </div>
+                        )}
+                        {visitedTabs.has('notes') && (
+                            <div style={{ display: activeTab === 'notes' ? undefined : 'none' }}>
+                                <ErrorBoundary inline><NotesTab /></ErrorBoundary>
+                            </div>
+                        )}
+                    </Suspense>
                 </div>
             </div>
 
