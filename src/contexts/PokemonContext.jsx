@@ -23,6 +23,46 @@ export const usePokemonContext = () => {
     return context;
 };
 
+// Pokédex skill key → display name mappings (shared by apply/evolve/devolve)
+const POKEMON_SKILL_MAPPINGS = [
+    ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
+    ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
+    ['power', 'Power'], ['intelligence', 'Intelligence']
+];
+
+const POKEMON_CAPABILITY_MAPPINGS = [
+    ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
+    ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
+    ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
+    ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
+    ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
+    ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
+    ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+    ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
+    ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
+    ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
+    ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
+    ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
+];
+
+// Build Pokemon skills array from a Pokédex species.skills object
+const buildPokemonSkills = (skills) => {
+    const result = [];
+    if (!skills) return result;
+    POKEMON_SKILL_MAPPINGS.forEach(([key, name]) => {
+        if (skills[key] !== undefined && skills[key] !== null) {
+            result.push({ name, value: skills[key] });
+        }
+    });
+    POKEMON_CAPABILITY_MAPPINGS.forEach(([key, name]) => {
+        if (skills[key]) result.push({ name });
+    });
+    if (Array.isArray(skills.naturewalk)) {
+        skills.naturewalk.forEach(terrain => result.push({ name: `Naturewalk (${terrain})` }));
+    }
+    return result;
+};
+
 // Calculate Pokemon level from experience
 const calculatePokemonLevel = (exp) => {
     let level = 1;
@@ -375,7 +415,7 @@ export const PokemonProvider = ({ children }) => {
     const importPokemon = useCallback((pokemonData, toParty = false) => {
         const importedPokemon = {
             ...pokemonData,
-            id: Date.now() + Math.random()
+            id: Date.now()
         };
 
         if (toParty && party.length < 6) {
@@ -618,48 +658,7 @@ export const PokemonProvider = ({ children }) => {
             updates.ability3 = '';
         }
 
-        // Build Pokemon skills array from Pokédex skills object
-        const pokemonSkills = [];
-        if (speciesData.skills) {
-            const skillMappings = [
-                ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
-                ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
-                ['power', 'Power'], ['intelligence', 'Intelligence']
-            ];
-
-            skillMappings.forEach(([key, name]) => {
-                if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
-                    pokemonSkills.push({ name, value: speciesData.skills[key] });
-                }
-            });
-
-            const capabilityMappings = [
-                ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
-                ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
-                ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
-                ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
-                ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
-                ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
-                ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
-                ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
-                ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
-                ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
-                ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
-                ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
-            ];
-            capabilityMappings.forEach(([key, name]) => {
-                if (speciesData.skills[key]) {
-                    pokemonSkills.push({ name });
-                }
-            });
-
-            if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
-                speciesData.skills.naturewalk.forEach(terrain => {
-                    pokemonSkills.push({ name: `Naturewalk (${terrain})` });
-                });
-            }
-        }
-        updates.pokemonSkills = pokemonSkills;
+        updates.pokemonSkills = buildPokemonSkills(speciesData.skills);
 
         // Add starting moves based on current level
         if (levelUpMoves && levelUpMoves.length > 0) {
@@ -747,47 +746,7 @@ export const PokemonProvider = ({ children }) => {
             }
         }
 
-        // Build Pokemon skills
-        const pokemonSkills = [];
-        if (speciesData.skills) {
-            const skillMappings = [
-                ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
-                ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
-                ['power', 'Power'], ['intelligence', 'Intelligence']
-            ];
-            skillMappings.forEach(([key, name]) => {
-                if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
-                    pokemonSkills.push({ name, value: speciesData.skills[key] });
-                }
-            });
-
-            const capabilityMappings = [
-                ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
-                ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
-                ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
-                ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
-                ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
-                ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
-                ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
-                ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
-                ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
-                ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
-                ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
-                ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
-            ];
-            capabilityMappings.forEach(([key, name]) => {
-                if (speciesData.skills[key]) {
-                    pokemonSkills.push({ name });
-                }
-            });
-
-            if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
-                speciesData.skills.naturewalk.forEach(terrain => {
-                    pokemonSkills.push({ name: `Naturewalk (${terrain})` });
-                });
-            }
-        }
-        updates.pokemonSkills = pokemonSkills;
+        updates.pokemonSkills = buildPokemonSkills(speciesData.skills);
 
         updatePokemon(pokemonId, updates);
 
@@ -864,47 +823,7 @@ export const PokemonProvider = ({ children }) => {
             }
         }
 
-        // Build Pokemon skills
-        const pokemonSkills = [];
-        if (speciesData.skills) {
-            const skillMappings = [
-                ['overland', 'Overland'], ['surface', 'Surface'], ['sky', 'Sky'],
-                ['burrow', 'Burrow'], ['underwater', 'Underwater'], ['jump', 'Jump'],
-                ['power', 'Power'], ['intelligence', 'Intelligence']
-            ];
-            skillMappings.forEach(([key, name]) => {
-                if (speciesData.skills[key] !== undefined && speciesData.skills[key] !== null) {
-                    pokemonSkills.push({ name, value: speciesData.skills[key] });
-                }
-            });
-
-            const capabilityMappings = [
-                ['phasing', 'Phasing'], ['invisibility', 'Invisibility'], ['zapper', 'Zapper'],
-                ['firestarter', 'Firestarter'], ['gilled', 'Gilled'], ['tracker', 'Tracker'],
-                ['threaded', 'Threaded'], ['mindLock', 'Mind Lock'], ['telepath', 'Telepath'],
-                ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
-                ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
-                ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
-                ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
-                ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
-                ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
-                ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
-                ['extinguisher', 'Extinguisher'], ['impenetrable', 'Impenetrable'],
-                ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
-            ];
-            capabilityMappings.forEach(([key, name]) => {
-                if (speciesData.skills[key]) {
-                    pokemonSkills.push({ name });
-                }
-            });
-
-            if (speciesData.skills.naturewalk && Array.isArray(speciesData.skills.naturewalk)) {
-                speciesData.skills.naturewalk.forEach(terrain => {
-                    pokemonSkills.push({ name: `Naturewalk (${terrain})` });
-                });
-            }
-        }
-        updates.pokemonSkills = pokemonSkills;
+        updates.pokemonSkills = buildPokemonSkills(speciesData.skills);
 
         updatePokemon(pokemonId, updates);
     }, [party, reserve, updatePokemon]);

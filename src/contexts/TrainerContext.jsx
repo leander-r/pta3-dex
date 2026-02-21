@@ -147,8 +147,8 @@ export const TrainerProvider = ({ children }) => {
                 ...JSON.parse(JSON.stringify(trainerToCopy)),
                 id: Date.now(),
                 name: `${trainerToCopy.name} (Copy)`,
-                party: (trainerToCopy.party || []).map(p => ({ ...p, id: Date.now() + Math.random() })),
-                reserve: (trainerToCopy.reserve || []).map(p => ({ ...p, id: Date.now() + Math.random() }))
+                party: (trainerToCopy.party || []).map((p, i) => ({ ...p, id: Date.now() + i + 1 })),
+                reserve: (trainerToCopy.reserve || []).map((p, i) => ({ ...p, id: Date.now() + 1000 + i }))
             };
             setTrainers(prev => [...prev, newTrainer]);
             setActiveTrainerId(newTrainer.id);

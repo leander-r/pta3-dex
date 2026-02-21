@@ -7,6 +7,43 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTrainerContext, useData, useUI } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
+const MenuItem = ({ id, icon, label, onClick, danger, disabled, hoveredItem, setHoveredItem }) => (
+    <button
+        onClick={onClick}
+        disabled={disabled}
+        onMouseEnter={() => setHoveredItem(id)}
+        onMouseLeave={() => setHoveredItem(null)}
+        onTouchStart={() => setHoveredItem(id)}
+        onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
+        className={`header-menu-item ${hoveredItem === id ? 'hovered' : ''} ${danger ? 'danger' : ''}`}
+        style={{
+            width: '100%',
+            padding: '14px 18px',
+            border: 'none',
+            textAlign: 'left',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            fontSize: '14px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            opacity: disabled ? 0.5 : 1,
+            transition: 'all 0.15s ease',
+            borderLeft: hoveredItem === id && !danger ? '3px solid #f5a623' : '3px solid transparent',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation'
+        }}
+    >
+        <span style={{
+            width: '20px',
+            display: 'flex',
+            justifyContent: 'center',
+            color: hoveredItem === id && !danger ? '#f5a623' : 'inherit'
+        }}>{icon}</span>
+        <span>{label}</span>
+    </button>
+);
+
 /**
  * Header - App header with trainer selector and character menu
  * Uses TrainerContext for trainer data, DataContext for import/export, UIContext for theme
@@ -99,42 +136,7 @@ const Header = () => {
         };
     }, [showCharacterMenu]);
 
-    const MenuItem = ({ id, icon, label, onClick, danger, disabled }) => (
-        <button
-            onClick={onClick}
-            disabled={disabled}
-            onMouseEnter={() => setHoveredItem(id)}
-            onMouseLeave={() => setHoveredItem(null)}
-            onTouchStart={() => setHoveredItem(id)}
-            onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
-            className={`header-menu-item ${hoveredItem === id ? 'hovered' : ''} ${danger ? 'danger' : ''}`}
-            style={{
-                width: '100%',
-                padding: '14px 18px',
-                border: 'none',
-                textAlign: 'left',
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                opacity: disabled ? 0.5 : 1,
-                transition: 'all 0.15s ease',
-                borderLeft: hoveredItem === id && !danger ? '3px solid #f5a623' : '3px solid transparent',
-                WebkitTapHighlightColor: 'transparent',
-                touchAction: 'manipulation'
-            }}
-        >
-            <span style={{
-                width: '20px',
-                display: 'flex',
-                justifyContent: 'center',
-                color: hoveredItem === id && !danger ? '#f5a623' : 'inherit'
-            }}>{icon}</span>
-            <span>{label}</span>
-        </button>
-    );
+    const menuItemProps = { hoveredItem, setHoveredItem };
 
     return (
         <header style={{
@@ -371,7 +373,7 @@ const Header = () => {
 
                             {/* Trainer Section */}
                             <div style={{ padding: '8px 0' }}>
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="new"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -385,7 +387,7 @@ const Header = () => {
                                         setShowCharacterMenu(false);
                                     }}
                                 />
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="clone"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -405,7 +407,7 @@ const Header = () => {
 
                             {/* Card Export Section */}
                             <div style={{ padding: '8px 0' }}>
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="export-card"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -426,7 +428,7 @@ const Header = () => {
 
                             {/* Data Section */}
                             <div style={{ padding: '8px 0' }}>
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="export-one"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -441,7 +443,7 @@ const Header = () => {
                                         setShowCharacterMenu(false);
                                     }}
                                 />
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="export-all"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -456,7 +458,7 @@ const Header = () => {
                                         setShowCharacterMenu(false);
                                     }}
                                 />
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="restore-backup"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -525,7 +527,7 @@ const Header = () => {
 
                             {/* Danger Zone */}
                             <div style={{ padding: '8px 0' }}>
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="archive"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -541,7 +543,7 @@ const Header = () => {
                                         setShowCharacterMenu(false);
                                     }}
                                 />
-                                <MenuItem
+                                <MenuItem {...menuItemProps}
                                     id="delete"
                                     icon={
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
