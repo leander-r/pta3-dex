@@ -3,7 +3,7 @@
 // ============================================================
 // Provides Pokedex, GAME_DATA, and custom species management
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { GAME_DATA } from '../data/configs.js';
 import { gameDataLoadPromise } from '../data/gameDataLoader.js';
 import { loadPokedexFromGitHub } from '../data/pokedexLoader.js';
@@ -55,7 +55,7 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
     }, [pokedex, speciesSearch]);
 
     // Get level-up moves for a Pokemon (supports regional forms)
-    const getLevelUpMovesForPokemon = (pokemon) => {
+    const getLevelUpMovesForPokemon = useCallback((pokemon) => {
         if (pokemon?.availableLevelUpMoves && pokemon.availableLevelUpMoves.length > 0) {
             return pokemon.availableLevelUpMoves;
         }
@@ -82,10 +82,10 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
         }
 
         return speciesData?.levelUpMoves || [];
-    };
+    }, [pokedex, customSpecies]);
 
     // Legacy function for backwards compatibility
-    const getLevelUpMovesForSpecies = (species) => {
+    const getLevelUpMovesForSpecies = useCallback((species) => {
         if (!species || !pokedex || pokedex.length === 0) return [];
         let speciesData = customSpecies?.find(p =>
             p.species?.toLowerCase() === species.toLowerCase()
@@ -96,10 +96,10 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
             );
         }
         return speciesData?.levelUpMoves || [];
-    };
+    }, [pokedex, customSpecies]);
 
     // Get moves for level range
-    const getMovesForLevelRange = (pokemon, fromLevel, toLevel) => {
+    const getMovesForLevelRange = useCallback((pokemon, fromLevel, toLevel) => {
         const levelUpMoves = typeof pokemon === 'object'
             ? getLevelUpMovesForPokemon(pokemon)
             : getLevelUpMovesForSpecies(pokemon);
@@ -109,7 +109,7 @@ export const GameDataProvider = ({ children, customSpecies = [], setCustomSpecie
         } else {
             return levelUpMoves.filter(m => m.level > toLevel && m.level <= fromLevel);
         }
-    };
+    }, [getLevelUpMovesForPokemon, getLevelUpMovesForSpecies]);
 
     const value = {
         // Pokedex

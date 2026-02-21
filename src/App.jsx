@@ -355,72 +355,6 @@ useEffect(() => {
 
 
 
-// Helper function to get level-up moves for a Pokemon (supports regional forms)
-// If pokemon object is passed and has availableLevelUpMoves, use those (for regional forms)
-// Otherwise fall back to looking up the species in the pokedex
-const getLevelUpMovesForPokemon = (pokemon) => {
-    // If Pokemon has stored available moves (from regional form selection), use those
-    if (pokemon?.availableLevelUpMoves && pokemon.availableLevelUpMoves.length > 0) {
-        return pokemon.availableLevelUpMoves;
-    }
-    
-    // Fall back to looking up species in pokedex or customSpecies
-    const species = pokemon?.species;
-    if (!species || !pokedex || pokedex.length === 0) return [];
-
-    // First check customSpecies, then pokedex
-    let speciesData = customSpecies?.find(p =>
-        p.species?.toLowerCase() === species.toLowerCase()
-    );
-    if (!speciesData) {
-        speciesData = pokedex.find(p =>
-            p.species?.toLowerCase() === species.toLowerCase()
-        );
-    }
-    
-    // If Pokemon has a regional form but no stored moves, try to get form-specific moves
-    if (pokemon?.regionalForm && speciesData?.regionalForms) {
-        const regionalFormData = speciesData.regionalForms.find(
-            rf => rf.name === pokemon.regionalForm
-        );
-        if (regionalFormData?.levelUpMoves) {
-            return regionalFormData.levelUpMoves;
-        }
-    }
-    
-    return speciesData?.levelUpMoves || [];
-};
-
-// Legacy function for backwards compatibility (when we only have species name)
-const getLevelUpMovesForSpecies = (species) => {
-    if (!species || !pokedex || pokedex.length === 0) return [];
-    // First check customSpecies, then pokedex
-    let speciesData = customSpecies?.find(p =>
-        p.species?.toLowerCase() === species.toLowerCase()
-    );
-    if (!speciesData) {
-        speciesData = pokedex.find(p =>
-            p.species?.toLowerCase() === species.toLowerCase()
-        );
-    }
-    return speciesData?.levelUpMoves || [];
-};
-
-// Helper function to check moves learned between two levels
-// Now accepts Pokemon object to support regional forms
-const getMovesForLevelRange = (pokemon, fromLevel, toLevel) => {
-    const levelUpMoves = typeof pokemon === 'object' 
-        ? getLevelUpMovesForPokemon(pokemon)
-        : getLevelUpMovesForSpecies(pokemon); // backwards compat if string passed
-        
-    if (fromLevel < toLevel) {
-        // Level UP: get moves learned between old level (exclusive) and new level (inclusive)
-        return levelUpMoves.filter(m => m.level > fromLevel && m.level <= toLevel);
-    } else {
-        // Level DOWN: get moves that were learned above the new level
-        return levelUpMoves.filter(m => m.level > toLevel && m.level <= fromLevel);
-    }
-};
 
 return (
     <AppProviders
@@ -450,7 +384,6 @@ return (
         setMoveLearnData={setMoveLearnData}
         inventory={inventory}
         setInventory={setInventory}
-        getMovesForLevelRange={getMovesForLevelRange}
         onSaveComplete={(isAuto) => {
             setIsAutoSave(isAuto);
             setLastSaveTime(new Date());

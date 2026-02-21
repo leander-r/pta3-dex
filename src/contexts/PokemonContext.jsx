@@ -51,13 +51,12 @@ export const PokemonProvider = ({
     setShowMoveLearnModal,
     setMoveLearnData,
     onLevelUp,
-    getMovesForLevelRange,
     inventory,
     setInventory,
     showNotification
 }) => {
-    // Get pokedex from GameDataContext
-    const { pokedex } = useGameData();
+    // Get pokedex and move helpers from GameDataContext
+    const { pokedex, getMovesForLevelRange } = useGameData();
     const { showConfirm } = useUI();
 
     const pokemon = [...(party || []), ...(reserve || [])];

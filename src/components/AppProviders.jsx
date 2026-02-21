@@ -51,8 +51,6 @@ const AppProviders = ({
     // Inventory
     inventory,
     setInventory,
-    // Move helpers
-    getMovesForLevelRange,
     // Save callback
     onSaveComplete,
     // Notification callback
@@ -104,7 +102,6 @@ const AppProviders = ({
                             setShowMoveLearnModal={setShowMoveLearnModal}
                             setMoveLearnData={setMoveLearnData}
                             onLevelUp={onLevelUp}
-                            getMovesForLevelRange={getMovesForLevelRange}
                             inventory={inventory}
                             setInventory={setInventory}
                             showNotification={showNotification}
