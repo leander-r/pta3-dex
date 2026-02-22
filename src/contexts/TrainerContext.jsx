@@ -472,6 +472,20 @@ export const TrainerProvider = ({ children }) => {
         });
     }, [setParty, setReserve]);
 
+    // Reorder pokemon via drag-and-drop
+    const reorderPokemon = useCallback((dragId, dropId, isParty) => {
+        const setList = isParty ? setParty : setReserve;
+        setList(prev => {
+            const from = prev.findIndex(p => p.id === dragId);
+            const to   = prev.findIndex(p => p.id === dropId);
+            if (from < 0 || to < 0 || from === to) return prev;
+            const next = [...prev];
+            const [item] = next.splice(from, 1);
+            next.splice(to, 0, item);
+            return next;
+        });
+    }, [setParty, setReserve]);
+
     // Sort pokemon list
     const sortPokemonList = useCallback((isParty, sortBy, sortDir = 'asc') => {
         const setList = isParty ? setParty : setReserve;
@@ -534,7 +548,8 @@ export const TrainerProvider = ({ children }) => {
         moveToReserve,
         movePokemonUp,
         movePokemonDown,
-        sortPokemonList
+        sortPokemonList,
+        reorderPokemon
     };
 
     return (

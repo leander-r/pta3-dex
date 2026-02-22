@@ -9,6 +9,15 @@ import ErrorBoundary from './components/ErrorBoundary.jsx';
 import App from './App.jsx';
 import './styles/global.css';
 
+// Register service worker for PWA support
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register(
+            import.meta.env.PROD ? '/pta-dex/sw.js' : '/sw.js'
+        ).catch(() => {});
+    });
+}
+
 // Render the application with Error Boundary
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

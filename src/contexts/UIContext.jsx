@@ -81,6 +81,20 @@ export const UIProvider = ({ children }) => {
     // Bulk EXP Modal State
     const [showBulkExpModal, setShowBulkExpModal] = useState(false);
 
+    // Comparison Modal State
+    const [showComparisonModal, setShowComparisonModal] = useState(false);
+    const [comparisonIds, setComparisonIds] = useState([]);
+
+    const openComparison = useCallback((id1, id2) => {
+        setComparisonIds([id1, id2]);
+        setShowComparisonModal(true);
+    }, []);
+
+    const closeComparison = useCallback(() => {
+        setShowComparisonModal(false);
+        setComparisonIds([]);
+    }, []);
+
     // Skill Picker Modal State
     const [skillPickerModal, setSkillPickerModal] = useState({
         show: false,
@@ -242,6 +256,14 @@ export const UIProvider = ({ children }) => {
         // Bulk EXP Modal
         showBulkExpModal,
         setShowBulkExpModal,
+
+        // Comparison Modal
+        showComparisonModal,
+        setShowComparisonModal,
+        comparisonIds,
+        setComparisonIds,
+        openComparison,
+        closeComparison,
 
         // Skill Picker
         skillPickerModal,

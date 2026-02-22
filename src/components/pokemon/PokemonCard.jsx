@@ -28,7 +28,18 @@ const PokemonCard = ({
     canMoveDown,
     // These props are kept for backward compatibility during migration
     evolvePokemon,
-    devolvePokemon
+    devolvePokemon,
+    // Drag-and-drop props
+    isDragging,
+    isDragOver,
+    onDragStart,
+    onDragOver,
+    onDrop,
+    onDragEnd,
+    // Compare mode props
+    compareMode,
+    isCompareSelected,
+    onToggleCompare
 }) => {
     // Get shared state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
@@ -44,6 +55,9 @@ const PokemonCard = ({
     const [moveTypeFilter, setMoveTypeFilter] = useState('all');
     const [moveCategoryFilter, setMoveCategoryFilter] = useState('all');
     const [showMoveDropdown, setShowMoveDropdown] = useState(false);
+    // Held item selection state
+    const [heldItemSearch, setHeldItemSearch] = useState('');
+    const [showHeldItemDropdown, setShowHeldItemDropdown] = useState(false);
     // Collapsed view expanded sections
     const [expandedSection, setExpandedSection] = useState(null); // 'abilities', 'moves', 'skills', or null
     // Regional form selection state
@@ -151,6 +165,24 @@ const PokemonCard = ({
 
         return results.slice(0, 50); // Increased limit
     }, [pokedex, customSpecies, speciesSearch, speciesTypeFilter, speciesSort]);
+
+    // Filter held items for selection
+    const filteredHeldItems = useMemo(() => {
+        if (!GAME_DATA?.items) return [];
+        let items = Object.entries(GAME_DATA.items);
+        // Prefer items tagged as held/hold; if none, show all
+        const heldItems = items.filter(([_, d]) =>
+            typeof d.type === 'string' && /held|hold/i.test(d.type)
+        );
+        const sourceItems = heldItems.length > 0 ? heldItems : items;
+        if (heldItemSearch) {
+            const q = heldItemSearch.toLowerCase();
+            return sourceItems.filter(([name, d]) =>
+                name.toLowerCase().includes(q) || (d.effect || '').toLowerCase().includes(q)
+            ).slice(0, 50);
+        }
+        return sourceItems.slice(0, 50);
+    }, [heldItemSearch, GAME_DATA]);
 
     // Filter and sort moves for selection
     const filteredMoves = useMemo(() => {
@@ -382,17 +414,47 @@ const PokemonCard = ({
         return (
             <div
                 className="pokemon-card pokemon-card-collapsed"
+                draggable={!compareMode}
+                onDragStart={!compareMode ? (e) => { e.dataTransfer.effectAllowed = 'move'; onDragStart?.(pokemon.id); } : undefined}
+                onDragOver={!compareMode ? (e) => { e.preventDefault(); onDragOver?.(pokemon.id); } : undefined}
+                onDrop={!compareMode ? (e) => { e.preventDefault(); onDrop?.(pokemon.id); } : undefined}
+                onDragEnd={!compareMode ? () => onDragEnd?.() : undefined}
                 style={{
                     borderLeft: secondaryType
                         ? `5px solid ${primaryColor}`
                         : `5px solid ${primaryColor}`,
                     borderRight: secondaryType
                         ? `3px solid ${secondaryColor}`
-                        : 'none'
+                        : 'none',
+                    opacity: isDragging ? 0.4 : 1,
+                    outline: isDragOver ? '2px dashed #667eea' : 'none',
+                    transition: 'opacity 0.2s, outline 0.1s'
                 }}
-                onClick={() => setEditing(true)}
+                onClick={() => { if (!compareMode) setEditing(true); }}
             >
                 <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    {/* Drag grip handle or Compare checkbox */}
+                    {compareMode ? (
+                        <div
+                            onClick={(e) => { e.stopPropagation(); onToggleCompare?.(pokemon.id); }}
+                            style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px' }}
+                        >
+                            <input
+                                type="checkbox"
+                                checked={!!isCompareSelected}
+                                onChange={() => onToggleCompare?.(pokemon.id)}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                            />
+                        </div>
+                    ) : (
+                        <div
+                            title="Drag to reorder"
+                            style={{ flexShrink: 0, cursor: 'grab', fontSize: '18px', color: 'var(--text-muted, #aaa)', userSelect: 'none', width: '20px', textAlign: 'center' }}
+                        >
+                            ⠿
+                        </div>
+                    )}
                     {/* Avatar */}
                     <div style={{
                         width: '60px',
@@ -423,7 +485,7 @@ const PokemonCard = ({
                             <span className="text-muted" style={{ fontSize: '13px' }}>Lv.{pokemon.level || 1}</span>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
                             {pokemon.types?.map(type => (
                                 <span
                                     key={type}
@@ -439,6 +501,30 @@ const PokemonCard = ({
                                     {type}
                                 </span>
                             ))}
+                            {pokemon.heldItem && (() => {
+                                const itemData = GAME_DATA?.items?.[pokemon.heldItem];
+                                return (
+                                    <span
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (showDetail && itemData) showDetail('item', pokemon.heldItem, itemData);
+                                        }}
+                                        title={itemData ? 'Click to view item details' : pokemon.heldItem}
+                                        style={{
+                                            padding: '2px 8px',
+                                            borderRadius: '10px',
+                                            background: 'rgba(102,126,234,0.15)',
+                                            color: 'var(--text-primary)',
+                                            fontSize: '10px',
+                                            fontWeight: 'bold',
+                                            border: '1px solid rgba(102,126,234,0.3)',
+                                            cursor: showDetail && itemData ? 'pointer' : 'default'
+                                        }}
+                                    >
+                                        🎒 {pokemon.heldItem}
+                                    </span>
+                                );
+                            })()}
                         </div>
 
                         {/* HP Bar - More Visible */}
@@ -1577,6 +1663,95 @@ const PokemonCard = ({
                                     />
                                 </div>
                             )}
+                        </div>
+
+                        {/* Held Item */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                Held Item
+                            </label>
+                            <div style={{ position: 'relative' }}>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Search or type item name..."
+                                        value={heldItemSearch || pokemon.heldItem || ''}
+                                        onChange={(e) => {
+                                            setHeldItemSearch(e.target.value);
+                                            setShowHeldItemDropdown(true);
+                                        }}
+                                        onFocus={() => setShowHeldItemDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowHeldItemDropdown(false), 150)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && heldItemSearch.trim()) {
+                                                updatePokemon({ heldItem: heldItemSearch.trim() });
+                                                setHeldItemSearch('');
+                                                setShowHeldItemDropdown(false);
+                                            }
+                                        }}
+                                        style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px' }}
+                                    />
+                                    {pokemon.heldItem && (
+                                        <button
+                                            onClick={() => { updatePokemon({ heldItem: '' }); setHeldItemSearch(''); }}
+                                            style={{ padding: '8px 12px', background: '#f44336', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}
+                                            title="Clear held item"
+                                        >
+                                            ×
+                                        </button>
+                                    )}
+                                </div>
+                                {pokemon.heldItem && !heldItemSearch && (
+                                    <div style={{ marginTop: '6px', padding: '6px 10px', borderRadius: '8px', background: 'var(--badge-bg, rgba(102,126,234,0.1))', fontSize: '12px', fontWeight: 'bold' }}>
+                                        🎒 {pokemon.heldItem}
+                                    </div>
+                                )}
+                                {showHeldItemDropdown && filteredHeldItems.length > 0 && (
+                                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'var(--card-bg, #fff)', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', maxHeight: '200px', overflowY: 'auto', marginTop: '4px' }}>
+                                        {filteredHeldItems.map(([name, data]) => (
+                                            <div
+                                                key={name}
+                                                onMouseDown={() => {
+                                                    updatePokemon({ heldItem: name });
+                                                    setHeldItemSearch('');
+                                                    setShowHeldItemDropdown(false);
+                                                }}
+                                                style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid var(--border-light, #eee)', fontSize: '13px' }}
+                                                className="pokemon-import-option"
+                                            >
+                                                <div style={{ fontWeight: 'bold' }}>{name}</div>
+                                                {data.effect && <div style={{ fontSize: '11px', color: 'var(--text-muted, #888)', marginTop: '2px' }}>{data.effect}</div>}
+                                            </div>
+                                        ))}
+                                        {heldItemSearch && !filteredHeldItems.some(([n]) => n.toLowerCase() === heldItemSearch.toLowerCase()) && (
+                                            <div
+                                                onMouseDown={() => {
+                                                    updatePokemon({ heldItem: heldItemSearch.trim() });
+                                                    setHeldItemSearch('');
+                                                    setShowHeldItemDropdown(false);
+                                                }}
+                                                style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '13px', color: '#667eea', fontWeight: 'bold' }}
+                                            >
+                                                + Use "{heldItemSearch.trim()}" as custom item
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                {showHeldItemDropdown && filteredHeldItems.length === 0 && heldItemSearch && (
+                                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'var(--card-bg, #fff)', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', marginTop: '4px' }}>
+                                        <div
+                                            onMouseDown={() => {
+                                                updatePokemon({ heldItem: heldItemSearch.trim() });
+                                                setHeldItemSearch('');
+                                                setShowHeldItemDropdown(false);
+                                            }}
+                                            style={{ padding: '10px 14px', cursor: 'pointer', fontSize: '13px', color: '#667eea', fontWeight: 'bold' }}
+                                        >
+                                            + Use "{heldItemSearch.trim()}" as custom item
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Pokemon Image */}

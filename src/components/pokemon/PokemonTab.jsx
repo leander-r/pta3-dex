@@ -3,7 +3,7 @@
 // ============================================================
 // Main Pokemon management tab
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import PokemonCard from './PokemonCard.jsx';
 import { MAX_PARTY_SIZE } from '../../data/constants.js';
 import { importSinglePokemon } from '../../utils/exportUtils.js';
@@ -21,8 +21,8 @@ import { safeLocalStorageGet, safeLocalStorageSet } from '../../utils/storageUti
 const PokemonTab = () => {
     // Get state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
-    const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId, setShowBulkExpModal } = useUI();
-    const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList } = useTrainerContext();
+    const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId, setShowBulkExpModal, openComparison } = useUI();
+    const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList, reorderPokemon } = useTrainerContext();
     const { addPokemon, updatePokemon, restorePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
     const [filter, setFilter] = useState(() => ({
         search: '',
@@ -33,6 +33,36 @@ const PokemonTab = () => {
     const [showImportOptions, setShowImportOptions] = useState(false);
     const fileInputRef = useRef(null);
     const importDropdownRef = useRef(null);
+
+    // Drag-and-drop state
+    const [dragId, setDragId] = useState(null);
+    const [dragOverId, setDragOverId] = useState(null);
+
+    // Compare mode state
+    const [compareMode, setCompareMode] = useState(false);
+    const [compareSelected, setCompareSelected] = useState([]);
+
+    const handleDragStart = useCallback((id) => setDragId(id), []);
+    const handleDragOver = useCallback((id) => { if (id !== dragId) setDragOverId(id); }, [dragId]);
+    const handleDrop = useCallback((id) => {
+        if (dragId && id !== dragId) reorderPokemon(dragId, id, pokemonView === 'party');
+        setDragId(null);
+        setDragOverId(null);
+    }, [dragId, reorderPokemon, pokemonView]);
+    const handleDragEnd = useCallback(() => { setDragId(null); setDragOverId(null); }, []);
+
+    const toggleCompareSelect = useCallback((id) => {
+        setCompareSelected(prev => {
+            if (prev.includes(id)) return prev.filter(x => x !== id);
+            if (prev.length >= 2) return prev;
+            return [...prev, id];
+        });
+    }, []);
+
+    const exitCompareMode = useCallback(() => {
+        setCompareMode(false);
+        setCompareSelected([]);
+    }, []);
 
     // Persist filter and sort preferences across sessions
     useEffect(() => { safeLocalStorageSet('pta-pokemon-filter-type', filter.type); }, [filter.type]);
@@ -277,6 +307,32 @@ const PokemonTab = () => {
                 </div>
 
                 <button
+                    onClick={() => {
+                        if (compareMode) {
+                            exitCompareMode();
+                        } else {
+                            setCompareMode(true);
+                            setCompareSelected([]);
+                        }
+                    }}
+                    className={`btn ${compareMode ? 'btn-purple' : 'btn-secondary'}`}
+                    style={{ padding: '10px 16px' }}
+                    title="Compare two Pokémon side by side"
+                >
+                    {compareMode ? 'Exit Compare' : 'Compare'}
+                </button>
+
+                {compareMode && compareSelected.length === 2 && (
+                    <button
+                        onClick={() => { openComparison(compareSelected[0], compareSelected[1]); exitCompareMode(); }}
+                        className="btn btn-purple"
+                        style={{ padding: '10px 16px' }}
+                    >
+                        View Comparison →
+                    </button>
+                )}
+
+                <button
                     onClick={() => setShowBulkExpModal(true)}
                     className="btn btn-secondary"
                     style={{ padding: '10px 16px' }}
@@ -432,6 +488,15 @@ const PokemonTab = () => {
                                 canMoveDown={actualIndex < currentList.length - 1}
                                 evolvePokemon={evolvePokemon}
                                 devolvePokemon={devolvePokemon}
+                                isDragging={dragId === pokemon.id}
+                                isDragOver={dragOverId === pokemon.id}
+                                onDragStart={handleDragStart}
+                                onDragOver={handleDragOver}
+                                onDrop={handleDrop}
+                                onDragEnd={handleDragEnd}
+                                compareMode={compareMode}
+                                isCompareSelected={compareSelected.includes(pokemon.id)}
+                                onToggleCompare={toggleCompareSelect}
                             />
                         );
                     })}
