@@ -7,7 +7,7 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
 import toast from '../../utils/toast.js';
-import { useGameData, useUI, usePokemonContext } from '../../contexts/index.js';
+import { useGameData, useModal, usePokemonContext } from '../../contexts/index.js';
 import { MAX_NATURAL_MOVES, MAX_TAUGHT_MOVES, MAX_TOTAL_MOVES } from '../../data/constants.js';
 
 const PokemonCard = ({
@@ -43,7 +43,7 @@ const PokemonCard = ({
 }) => {
     // Get shared state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
-    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm } = useUI();
+    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm } = useModal();
     const { getEvolutionOptions } = usePokemonContext();
     const [editTab, setEditTab] = useState('info');
     const [speciesSearch, setSpeciesSearch] = useState('');

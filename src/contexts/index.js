@@ -14,6 +14,14 @@ export { GameDataContext, GameDataProvider, useGameData };
 import UIContext, { UIProvider, useUI } from './UIContext.jsx';
 export { UIContext, UIProvider, useUI };
 
+// ModalContext
+import ModalContext, { ModalProvider, useModal } from './ModalContext.jsx';
+export { ModalContext, ModalProvider, useModal };
+
+// FilterContext
+import FilterContext, { FilterProvider, useFilter } from './FilterContext.jsx';
+export { FilterContext, FilterProvider, useFilter };
+
 // TrainerContext
 import TrainerContext, { TrainerProvider, useTrainerContext } from './TrainerContext.jsx';
 export { TrainerContext, TrainerProvider, useTrainerContext };

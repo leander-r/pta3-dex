@@ -3,7 +3,7 @@
 // ============================================================
 
 import React from 'react';
-import { useUI, useTrainerContext, useGameData } from '../../contexts/index.js';
+import { useModal, useTrainerContext, useGameData } from '../../contexts/index.js';
 import { getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 
@@ -13,7 +13,7 @@ const STAT_LABELS = {
 const STAT_KEYS = ['hp', 'atk', 'def', 'satk', 'sdef', 'spd'];
 
 const ComparisonModal = () => {
-    const { showComparisonModal, comparisonIds, closeComparison, showDetail } = useUI();
+    const { showComparisonModal, comparisonIds, closeComparison, showDetail } = useModal();
     const { pokemon: allPokemon } = useTrainerContext();
     const { GAME_DATA: gameData } = useGameData();
 

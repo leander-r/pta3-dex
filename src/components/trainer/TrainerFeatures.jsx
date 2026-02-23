@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
-import { useUI, useTrainerContext, useGameData } from '../../contexts/index.js';
+import { useModal, useTrainerContext, useGameData } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 // Features that modify trainer stats when acquired
@@ -41,7 +41,7 @@ const STAT_LABELS = {
  * Uses contexts for state management
  */
 const TrainerFeatures = () => {
-    const { showDetail } = useUI();
+    const { showDetail } = useModal();
     const { trainer, setTrainer } = useTrainerContext();
     const { GAME_DATA } = useGameData();
     const [featureFilter, setFeatureFilter] = useState('all');

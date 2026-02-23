@@ -11,6 +11,7 @@ import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '.
 import toast from '../utils/toast.js';
 import { useGameData } from './GameDataContext.jsx';
 import { useUI } from './UIContext.jsx';
+import { useModal } from './ModalContext.jsx';
 import { useTrainerContext } from './TrainerContext.jsx';
 import { useData } from './DataContext.jsx';
 
@@ -127,11 +128,12 @@ function statPointsForRelevel(p, newLevel, pendingAddedStats) {
 
 export const PokemonProvider = ({ children }) => {
     const { pokedex, getMovesForLevelRange, customSpecies } = useGameData();
-    const { showConfirm, showLevelUpNotification,
+    const { showLevelUpNotification,
             pokemonView, setPokemonView,
-            editingPokemon, setEditingPokemon,
+            editingPokemon, setEditingPokemon } = useUI();
+    const { showConfirm,
             pendingMoveLearn, setPendingMoveLearn,
-            showMoveLearnModal, setShowMoveLearnModal, setMoveLearnData } = useUI();
+            showMoveLearnModal, setShowMoveLearnModal, setMoveLearnData } = useModal();
     const { party, reserve, setParty, setReserve } = useTrainerContext();
     const { inventory, setInventory } = useData();
 

@@ -4,7 +4,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
-import { useData, useUI } from '../../contexts/index.js';
+import { useData, useModal } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 /**
@@ -13,7 +13,7 @@ import toast from '../../utils/toast.js';
  */
 const InventoryTab = () => {
     const { inventory, setInventory } = useData();
-    const { showConfirm } = useUI();
+    const { showConfirm } = useModal();
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddItem, setShowAddItem] = useState(false);

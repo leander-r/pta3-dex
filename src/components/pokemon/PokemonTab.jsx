@@ -10,7 +10,7 @@ import { importSinglePokemon } from '../../utils/exportUtils.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import toast from '../../utils/toast.js';
-import { useGameData, useUI, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
+import { useGameData, useUI, useModal, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
 import { MAX_POKEMON_IMPORT_BYTES } from '../../data/constants.js';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../../utils/storageUtils.js';
 
@@ -21,7 +21,8 @@ import { safeLocalStorageGet, safeLocalStorageSet } from '../../utils/storageUti
 const PokemonTab = () => {
     // Get state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
-    const { pokemonView, setPokemonView, showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId, setShowBulkExpModal, openComparison } = useUI();
+    const { pokemonView, setPokemonView, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId } = useUI();
+    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowBulkExpModal, openComparison } = useModal();
     const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList, reorderPokemon } = useTrainerContext();
     const { addPokemon, updatePokemon, restorePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
     const [filter, setFilter] = useState(() => ({

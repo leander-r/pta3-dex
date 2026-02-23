@@ -5,13 +5,13 @@
 
 import React, { useState, useMemo } from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI, usePokemonContext } from '../../contexts/index.js';
+import { useModal, usePokemonContext } from '../../contexts/index.js';
 import { useTrainerContext } from '../../contexts/TrainerContext.jsx';
 import { calculatePokemonLevel } from '../../utils/dataUtils.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 
 const BulkExpModal = () => {
-    const { showBulkExpModal, setShowBulkExpModal } = useUI();
+    const { showBulkExpModal, setShowBulkExpModal } = useModal();
     const { party } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
 

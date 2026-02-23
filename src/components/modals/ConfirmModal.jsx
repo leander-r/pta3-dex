@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI } from '../../contexts/index.js';
+import { useModal } from '../../contexts/index.js';
 
 const DEFAULT_STATE = {
     show: false,
@@ -20,7 +20,7 @@ const DEFAULT_STATE = {
 };
 
 const ConfirmModal = () => {
-    const { confirmModal, setConfirmModal } = useUI();
+    const { confirmModal, setConfirmModal } = useModal();
     const [inputValue, setInputValue] = useState('');
 
     // Reset input when modal opens

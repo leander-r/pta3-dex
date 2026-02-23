@@ -2,26 +2,19 @@
 // Moves Section Component
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
-import { useUI } from '../../contexts/index.js';
+import { useModal, useFilter } from '../../contexts/index.js';
 
 /**
  * MovesSection - Display and search moves database
- * Uses UIContext for showDetail
+ * Uses ModalContext for showDetail, FilterContext for filter state
  */
 const MovesSection = () => {
-    const { showDetail } = useUI();
-    const [filter, setFilter] = useState({
-        search: '',
-        type: '',
-        category: '',
-        frequency: '',
-        sortBy: 'name',
-        sortDir: 'asc'
-    });
+    const { showDetail } = useModal();
+    const { movesFilter: filter, setMovesFilter: setFilter } = useFilter();
 
     const filteredMoves = useMemo(() => {
         return Object.entries(GAME_DATA.moves || {})

@@ -7,7 +7,7 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { getCombinedTypeEffectiveness } from '../../data/typeChart.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
-import { useGameData, useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
+import { useGameData, useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { MAX_ROLL_HISTORY } from '../../data/constants.js';
 
 // Parse the AC number from a move frequency string, e.g. "EOT – 2" → 2
@@ -49,7 +49,7 @@ const buildPokemonRollEntry = ({
 const BattleTab = () => {
     // Get state from contexts
     const { GAME_DATA, pokedex } = useGameData();
-    const { showDetail, showConfirm } = useUI();
+    const { showDetail, showConfirm } = useModal();
     const { trainer, setTrainer, party, calculateMaxHP } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const { discordWebhook, setDiscordWebhook, sendToDiscord } = useData();

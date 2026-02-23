@@ -20,6 +20,7 @@ import {
 } from '../data/constants.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
+import { useModal } from './ModalContext.jsx';
 
 // ── Pure helper ─────────────────────────────────────────────
 // Returns { creationDelta, levelDelta } (negative = spend, positive = refund).
@@ -65,7 +66,8 @@ export const useTrainerContext = () => {
 };
 
 export const TrainerProvider = ({ children }) => {
-    const { showConfirm, showLevelUpNotification } = useUI();
+    const { showLevelUpNotification } = useUI();
+    const { showConfirm } = useModal();
 
     // Multi-Trainer Management (owned here; DataProvider populates after loading saved data)
     const [trainers, setTrainers] = useState([{ ...DEFAULT_TRAINER, id: Date.now() }]);

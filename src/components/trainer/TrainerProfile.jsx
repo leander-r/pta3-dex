@@ -3,7 +3,7 @@
 // ============================================================
 
 import React from 'react';
-import { useTrainerContext, useUI } from '../../contexts/index.js';
+import { useTrainerContext, useModal } from '../../contexts/index.js';
 import { CREATION_STAT_POINTS } from '../../data/constants.js';
 
 /**
@@ -19,7 +19,7 @@ const TrainerProfile = () => {
         respecTrainer,
         calculateMaxHP
     } = useTrainerContext();
-    const { showConfirm } = useUI();
+    const { showConfirm } = useModal();
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {

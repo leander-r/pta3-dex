@@ -4,7 +4,7 @@
 // App header with trainer selector and menu
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useTrainerContext, useData, useUI } from '../../contexts/index.js';
+import { useTrainerContext, useData, useUI, useModal } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 const MenuItem = ({ id, icon, label, onClick, danger, disabled, hoveredItem, setHoveredItem }) => (
@@ -62,7 +62,8 @@ const Header = () => {
         unarchiveTrainer
     } = useTrainerContext();
     const { exportSingleTrainer, exportAllData, importData, restoreAutoBackup } = useData();
-    const { theme, setTheme, setShowCardModal, setEditingPokemon, showConfirm } = useUI();
+    const { theme, setTheme, setEditingPokemon } = useUI();
+    const { setShowCardModal, showConfirm } = useModal();
 
     // Active (non-archived) and archived trainer lists
     const activeTrainers = trainers.filter(t => !t.archived);

@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useTrainerContext, useGameData, useUI } from '../../contexts/index.js';
+import { useTrainerContext, useGameData, useModal } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 /**
@@ -13,7 +13,7 @@ import toast from '../../utils/toast.js';
 const TrainerClasses = () => {
     const { trainer, setTrainer } = useTrainerContext();
     const { GAME_DATA } = useGameData();
-    const { showConfirm } = useUI();
+    const { showConfirm } = useModal();
     const maxClasses = trainer.level < 5 ? 1 : trainer.level < 12 ? 2 : trainer.level < 24 ? 3 : 4;
     const currentClasses = trainer.classes || [];
 

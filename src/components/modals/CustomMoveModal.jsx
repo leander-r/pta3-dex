@@ -5,7 +5,7 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI, usePokemonContext } from '../../contexts/index.js';
+import { useModal, usePokemonContext } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 const TYPE_LIST = [
@@ -28,7 +28,7 @@ const FREQUENCY_OPTIONS = [
  */
 const CustomMoveModal = () => {
     // Get from contexts
-    const { showCustomMoveModal, setShowCustomMoveModal, customMove, setCustomMove, customMoveForPokemon } = useUI();
+    const { showCustomMoveModal, setShowCustomMoveModal, customMove, setCustomMove, customMoveForPokemon } = useModal();
     const { party, reserve, updatePokemon } = usePokemonContext();
 
     const handleClose = () => setShowCustomMoveModal(false);

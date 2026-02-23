@@ -6,7 +6,7 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI, useGameData, usePokemonContext } from '../../contexts/index.js';
+import { useModal, useGameData, usePokemonContext } from '../../contexts/index.js';
 
 /**
  * MoveLearnModal - Modal for learning new moves (level-up or manual)
@@ -24,7 +24,7 @@ import { useUI, useGameData, usePokemonContext } from '../../contexts/index.js';
  */
 const MoveLearnModal = () => {
     // Get from contexts
-    const { showDetail, showMoveLearnModal, setShowMoveLearnModal, moveLearnData, setMoveLearnData } = useUI();
+    const { showDetail, showMoveLearnModal, setShowMoveLearnModal, moveLearnData, setMoveLearnData } = useModal();
     const { GAME_DATA } = useGameData();
     const { learnMove } = usePokemonContext();
     const handleClose = () => {

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI, usePokemonContext } from '../../contexts/index.js';
+import { useModal, usePokemonContext } from '../../contexts/index.js';
 
 /**
  * RegionalFormModal - Modal for selecting regional form variants
@@ -13,7 +13,7 @@ import { useUI, usePokemonContext } from '../../contexts/index.js';
  */
 const RegionalFormModal = () => {
     // Get from contexts
-    const { showRegionalFormModal, setShowRegionalFormModal, regionalFormData, setRegionalFormData } = useUI();
+    const { showRegionalFormModal, setShowRegionalFormModal, regionalFormData, setRegionalFormData } = useModal();
     const { applySpeciesToPokemon } = usePokemonContext();
 
     const handleClose = () => {

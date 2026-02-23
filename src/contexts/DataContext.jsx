@@ -8,6 +8,7 @@ import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
+import { useModal } from './ModalContext.jsx';
 import { useTrainerContext } from './TrainerContext.jsx';
 import { useGameData } from './GameDataContext.jsx';
 import {
@@ -30,7 +31,8 @@ export const useData = () => {
 };
 
 export const DataProvider = ({ children }) => {
-    const { showConfirm, triggerSaveIndicator } = useUI();
+    const { triggerSaveIndicator } = useUI();
+    const { showConfirm } = useModal();
     const { trainers, setTrainers, activeTrainerId, setActiveTrainerId } = useTrainerContext();
     const { customSpecies, setCustomSpecies } = useGameData();
 

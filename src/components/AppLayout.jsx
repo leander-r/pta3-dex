@@ -50,11 +50,12 @@ import ErrorBoundary from './ErrorBoundary.jsx';
 
 // Contexts
 import { useUI } from '../contexts/UIContext.jsx';
+import { useModal } from '../contexts/ModalContext.jsx';
 import { useGameData } from '../contexts/GameDataContext.jsx';
 
 // ── Clear Cache Button ───────────────────────────────────────
 const ClearCacheButton = () => {
-    const { showConfirm } = useUI();
+    const { showConfirm } = useModal();
     return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <button

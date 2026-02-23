@@ -6,7 +6,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
-import { useUI } from '../contexts/UIContext.jsx';
+import { useModal } from '../contexts/ModalContext.jsx';
 
 /**
  * Default trainer template
@@ -38,7 +38,7 @@ const defaultTrainer = {
  * This hook encapsulates the trainer management logic from App.jsx
  */
 export const useTrainerState = (onLevelUp) => {
-    const { showConfirm } = useUI();
+    const { showConfirm } = useModal();
 
     // Multi-Trainer Management
     const [trainers, setTrainers] = useState([{ ...defaultTrainer }]);

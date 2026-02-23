@@ -5,7 +5,7 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI, useTrainerContext, useGameData } from '../../contexts/index.js';
+import { useModal, useTrainerContext, useGameData } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 /**
@@ -14,7 +14,7 @@ import toast from '../../utils/toast.js';
  */
 const SkillPickerModal = () => {
     // Get from contexts
-    const { skillPickerModal, setSkillPickerModal } = useUI();
+    const { skillPickerModal, setSkillPickerModal } = useModal();
     const { setTrainer } = useTrainerContext();
     const { GAME_DATA } = useGameData();
     const handleClose = () => setSkillPickerModal({ ...skillPickerModal, show: false });

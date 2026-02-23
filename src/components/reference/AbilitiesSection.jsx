@@ -2,20 +2,17 @@
 // Abilities Section Component
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
-import { useUI } from '../../contexts/index.js';
+import { useModal, useFilter } from '../../contexts/index.js';
 
 /**
  * AbilitiesSection - Display and search abilities database
- * Uses UIContext for showDetail
+ * Uses ModalContext for showDetail, FilterContext for filter state
  */
 const AbilitiesSection = () => {
-    const { showDetail } = useUI();
-    const [filter, setFilter] = useState({
-        search: '',
-        sortDir: 'asc'
-    });
+    const { showDetail } = useModal();
+    const { abilitiesFilter: filter, setAbilitiesFilter: setFilter } = useFilter();
 
     const filteredAbilities = useMemo(() => {
         return Object.entries(GAME_DATA.abilities || {})

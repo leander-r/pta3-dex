@@ -9,7 +9,7 @@ import { copyToClipboard, downloadCardAsImage } from '../../utils/exportUtils.js
 import toast from '../../utils/toast.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
+import { useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { GAME_DATA } from '../../data/configs.js';
 
 // ============================================================
@@ -190,7 +190,7 @@ const getFrequencyAbbr = (frequency) => {
  */
 const CardExportModal = () => {
     // Get from contexts
-    const { showCardModal, setShowCardModal, cardType, setCardType, selectedCardPokemon, setSelectedCardPokemon, showConfirm } = useUI();
+    const { showCardModal, setShowCardModal, cardType, setCardType, selectedCardPokemon, setSelectedCardPokemon, showConfirm } = useModal();
     const { trainer } = useTrainerContext();
     const { party, reserve } = usePokemonContext();
     const { exportTrainerText, exportTeamText, exportPokemonText } = useData();

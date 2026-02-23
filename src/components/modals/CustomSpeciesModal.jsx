@@ -8,7 +8,7 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { GAME_DATA } from '../../data/configs.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useUI, useGameData } from '../../contexts/index.js';
+import { useModal, useGameData } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 const TYPE_LIST = [
@@ -69,7 +69,7 @@ const EVOLUTION_STONES = [
 
 const CustomSpeciesModal = () => {
     // Get state from contexts
-    const { showCustomSpeciesModal, setShowCustomSpeciesModal, editingCustomSpeciesId, setEditingCustomSpeciesId, showConfirm } = useUI();
+    const { showCustomSpeciesModal, setShowCustomSpeciesModal, editingCustomSpeciesId, setEditingCustomSpeciesId, showConfirm } = useModal();
     const { customSpecies, setCustomSpecies } = useGameData();
 
     const [species, setSpecies] = useState({ ...DEFAULT_SPECIES });
