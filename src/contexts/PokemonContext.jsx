@@ -181,6 +181,8 @@ export const PokemonProvider = ({ children }) => {
             if (p.id !== pokemonId) return p;
 
             const moveName = newMove.move || newMove.name;
+            if (!moveName) return p;
+
             const alreadyKnows = p.moves.some((m, idx) =>
                 m.name?.toLowerCase() === moveName?.toLowerCase() &&
                 (replaceIndex === null || idx !== replaceIndex)
@@ -652,7 +654,8 @@ export const PokemonProvider = ({ children }) => {
     const applySpeciesToPokemon = useCallback((pokemonId, speciesData, regionalForm) => {
         // Get the current Pokemon to check its level
         const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
-        const currentLevel = currentPoke?.level || 1;
+        if (!currentPoke) return;
+        const currentLevel = currentPoke.level || 1;
 
         // Determine which data to use (base or regional form)
         const isRegional = regionalForm && !regionalForm.isBase;
