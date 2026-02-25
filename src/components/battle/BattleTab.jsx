@@ -414,6 +414,44 @@ const BattleTab = () => {
                                 </select>
                             </div>
 
+                            {/* Held Item */}
+                            {selectedPokemon && selectedPokemon.heldItem && (() => {
+                                const itemData = GAME_DATA?.items?.[selectedPokemon.heldItem];
+                                return (
+                                    <div
+                                        onClick={() => { if (showDetail && itemData) showDetail('item', selectedPokemon.heldItem, itemData); }}
+                                        style={{
+                                            marginBottom: '12px',
+                                            padding: '8px 10px',
+                                            borderRadius: '8px',
+                                            background: 'var(--bg-secondary)',
+                                            border: '1px solid var(--border-light)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            cursor: showDetail && itemData ? 'pointer' : 'default'
+                                        }}
+                                        title={itemData ? 'Click to view item details' : selectedPokemon.heldItem}
+                                    >
+                                        <span style={{ fontSize: '16px' }}>🎒</span>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Held Item</div>
+                                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                                                {selectedPokemon.heldItem}
+                                            </div>
+                                            {itemData?.effect && (
+                                                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                                    {itemData.effect}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {showDetail && itemData && (
+                                            <span style={{ fontSize: '11px', color: '#667eea', flexShrink: 0 }}>Details →</span>
+                                        )}
+                                    </div>
+                                );
+                            })()}
+
                             {/* Pokemon HP Display & Tracking */}
                             {selectedPokemon && (() => {
                                 const hp = getPokemonHP(selectedPokemon);
@@ -785,44 +823,6 @@ const BattleTab = () => {
                                     </div>
                                 </div>
                             )}
-
-                            {/* Held Item */}
-                            {selectedPokemon && selectedPokemon.heldItem && (() => {
-                                const itemData = GAME_DATA?.items?.[selectedPokemon.heldItem];
-                                return (
-                                    <div
-                                        onClick={() => { if (showDetail && itemData) showDetail('item', selectedPokemon.heldItem, itemData); }}
-                                        style={{
-                                            marginBottom: '12px',
-                                            padding: '8px 10px',
-                                            borderRadius: '8px',
-                                            background: 'var(--bg-secondary)',
-                                            border: '1px solid var(--border-light)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            cursor: showDetail && itemData ? 'pointer' : 'default'
-                                        }}
-                                        title={itemData ? 'Click to view item details' : selectedPokemon.heldItem}
-                                    >
-                                        <span style={{ fontSize: '16px' }}>🎒</span>
-                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Held Item</div>
-                                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                                                {selectedPokemon.heldItem}
-                                            </div>
-                                            {itemData?.effect && (
-                                                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                                                    {itemData.effect}
-                                                </div>
-                                            )}
-                                        </div>
-                                        {showDetail && itemData && (
-                                            <span style={{ fontSize: '11px', color: '#667eea', flexShrink: 0 }}>Details →</span>
-                                        )}
-                                    </div>
-                                );
-                            })()}
 
                             {/* Combat Stages */}
                             {selectedPokemon && (
