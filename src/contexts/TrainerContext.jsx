@@ -73,6 +73,9 @@ export const TrainerProvider = ({ children }) => {
     const [trainers, setTrainers] = useState([{ ...DEFAULT_TRAINER, id: Date.now() }]);
     const [activeTrainerId, setActiveTrainerId] = useState(null);
 
+    // Stat allocation undo — one-level snapshot
+    const [lastStatSnapshot, setLastStatSnapshot] = useState(null);
+
     // Current active trainer (computed)
     const trainer = useMemo(() => {
         return trainers.find(t => t.id === activeTrainerId) || trainers[0] || DEFAULT_TRAINER;
@@ -263,13 +266,31 @@ export const TrainerProvider = ({ children }) => {
         const allocation = allocateStatPoints(difference, newValue, trainer.statPoints, levelPoints, trainer.level);
         if (!allocation) return;
 
+        // Capture snapshot before applying change (enables one-level undo)
+        setLastStatSnapshot({
+            stats: { ...trainer.stats },
+            statPoints: trainer.statPoints,
+            levelStatPoints: trainer.levelStatPoints || 0
+        });
+
         setTrainer(prev => ({
             ...prev,
             stats: { ...prev.stats, [stat]: newValue },
             statPoints: (prev.statPoints || 0) + allocation.creationDelta,
             levelStatPoints: (prev.levelStatPoints || 0) + allocation.levelDelta
         }));
-    }, [trainer, setTrainer]);
+    }, [trainer, setTrainer, setLastStatSnapshot]);
+
+    const undoStatAllocation = useCallback(() => {
+        if (!lastStatSnapshot) return;
+        setTrainer(prev => ({
+            ...prev,
+            stats: lastStatSnapshot.stats,
+            statPoints: lastStatSnapshot.statPoints,
+            levelStatPoints: lastStatSnapshot.levelStatPoints
+        }));
+        setLastStatSnapshot(null);
+    }, [lastStatSnapshot, setTrainer]);
 
     // Level up the trainer
     const levelUpTrainer = useCallback(() => {
@@ -541,6 +562,8 @@ export const TrainerProvider = ({ children }) => {
         calculateModifier,
         calculateMaxHP,
         updateTrainerStat,
+        undoStatAllocation,
+        canUndoStat: !!lastStatSnapshot,
         levelUpTrainer,
         levelDownTrainer,
         respecTrainer,

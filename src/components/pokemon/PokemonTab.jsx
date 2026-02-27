@@ -7,7 +7,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import PokemonCard from './PokemonCard.jsx';
 import { MAX_PARTY_SIZE } from '../../data/constants.js';
 import { importSinglePokemon } from '../../utils/exportUtils.js';
-import { POKEMON_TYPES } from '../../data/typeChart.js';
+import { POKEMON_TYPES, getCombinedTypeEffectiveness } from '../../data/typeChart.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useUI, useModal, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
@@ -42,6 +42,69 @@ const PokemonTab = () => {
     // Compare mode state
     const [compareMode, setCompareMode] = useState(false);
     const [compareSelected, setCompareSelected] = useState([]);
+
+    // Coverage panel
+    const [showCoverage, setShowCoverage] = useState(false);
+
+    // Team type coverage — computed from party types + move types
+    const teamCoverage = useMemo(() => {
+        if (!party.length) return null;
+        const weakCount = {};
+        const resistCount = {};
+        const immuneCount = {};
+        party.forEach(p => {
+            const eff = getCombinedTypeEffectiveness(p.types || []);
+            [...eff.weak, ...eff.superWeak].forEach(t => { weakCount[t] = (weakCount[t] || 0) + 1; });
+            [...eff.resist, ...eff.superResist].forEach(t => { resistCount[t] = (resistCount[t] || 0) + 1; });
+            eff.immune.forEach(t => { immuneCount[t] = (immuneCount[t] || 0) + 1; });
+        });
+        const offenseTypes = new Set();
+        party.forEach(p => {
+            (p.types || []).forEach(t => offenseTypes.add(t));
+            (p.moves || []).forEach(m => { if (m.type) offenseTypes.add(m.type); });
+        });
+        return { weakCount, resistCount, immuneCount, offenseTypes };
+    }, [party]);
+
+    // Custom species export/import handlers
+    const customSpeciesFileRef = useRef(null);
+
+    const handleExportCustomSpecies = () => {
+        if (!customSpecies.length) { toast.warning('No custom species to export.'); return; }
+        const data = JSON.stringify({ type: 'pta-custom-species', version: '1.0', customSpecies }, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pta-custom-species-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success(`Exported ${customSpecies.length} custom species.`);
+    };
+
+    const handleImportCustomSpecies = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        e.target.value = '';
+        if (file.size > 500_000) { toast.error('File too large (max 500 KB).'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const parsed = JSON.parse(ev.target.result);
+                if (parsed.type !== 'pta-custom-species' || !Array.isArray(parsed.customSpecies)) {
+                    toast.error('Invalid custom species file.'); return;
+                }
+                const incoming = parsed.customSpecies.filter(s => s && typeof s.species === 'string');
+                setCustomSpecies(prev => {
+                    const existing = new Set(prev.map(s => s.species?.toLowerCase()));
+                    const fresh = incoming.filter(s => !existing.has(s.species?.toLowerCase()));
+                    toast.success(`Imported ${fresh.length} new species (${incoming.length - fresh.length} duplicates skipped).`);
+                    return [...prev, ...fresh];
+                });
+            } catch { toast.error('Could not parse file — is it valid JSON?'); }
+        };
+        reader.readAsText(file);
+    };
 
     const handleDragStart = useCallback((id) => setDragId(id), []);
     const handleDragOver = useCallback((id) => { if (id !== dragId) setDragOverId(id); }, [dragId]);
@@ -423,6 +486,148 @@ const PokemonTab = () => {
                     )}
                 </div>
             </div>
+
+            {/* Team Coverage Panel — party view only */}
+            {pokemonView === 'party' && party.length > 0 && (
+                <div className="section-card" style={{ marginBottom: '15px' }}>
+                    <div
+                        onClick={() => setShowCoverage(v => !v)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}
+                    >
+                        <span style={{ fontSize: '16px' }}>📊</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Team Coverage</span>
+                        <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)' }}>
+                            {showCoverage ? '▲ Hide' : '▼ Show'}
+                        </span>
+                    </div>
+
+                    {showCoverage && teamCoverage && (
+                        <div style={{ marginTop: '14px' }}>
+                            {/* Defensive weaknesses */}
+                            <div style={{ marginBottom: '14px' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    🛡 Defensive Weaknesses
+                                </div>
+                                {(() => {
+                                    const sorted = POKEMON_TYPES
+                                        .filter(t => teamCoverage.weakCount[t])
+                                        .sort((a, b) => (teamCoverage.weakCount[b] || 0) - (teamCoverage.weakCount[a] || 0));
+                                    if (!sorted.length) return (
+                                        <span style={{ fontSize: '12px', color: '#4caf50' }}>✅ No shared weaknesses!</span>
+                                    );
+                                    return (
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                            {sorted.map(t => (
+                                                <span key={t} style={{
+                                                    padding: '3px 8px',
+                                                    borderRadius: '10px',
+                                                    background: getTypeColor(t),
+                                                    color: 'white',
+                                                    fontSize: '11px',
+                                                    fontWeight: 'bold',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px'
+                                                }}>
+                                                    {t}
+                                                    <span style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '0 4px', fontSize: '10px' }}>
+                                                        ×{teamCoverage.weakCount[t]}
+                                                    </span>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
+                            {/* Immunities */}
+                            {Object.keys(teamCoverage.immuneCount).length > 0 && (
+                                <div style={{ marginBottom: '14px' }}>
+                                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                        ⬛ Immunities
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                        {POKEMON_TYPES.filter(t => teamCoverage.immuneCount[t]).map(t => (
+                                            <span key={t} style={{
+                                                padding: '3px 8px', borderRadius: '10px',
+                                                background: '#333', color: 'white',
+                                                fontSize: '11px', fontWeight: 'bold',
+                                                display: 'flex', alignItems: 'center', gap: '4px'
+                                            }}>
+                                                {t}
+                                                <span style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '8px', padding: '0 4px', fontSize: '10px' }}>
+                                                    ×{teamCoverage.immuneCount[t]}
+                                                </span>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Offensive coverage */}
+                            <div>
+                                <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    ⚔️ Offensive Coverage (STAB + Move Types)
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                    {POKEMON_TYPES.map(t => {
+                                        const covered = teamCoverage.offenseTypes.has(t);
+                                        return (
+                                            <span key={t} style={{
+                                                padding: '3px 8px', borderRadius: '10px',
+                                                background: covered ? getTypeColor(t) : 'var(--border-medium)',
+                                                color: covered ? 'white' : 'var(--text-muted)',
+                                                fontSize: '11px', fontWeight: covered ? 'bold' : 'normal',
+                                                opacity: covered ? 1 : 0.5
+                                            }}>
+                                                {t}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                                {teamCoverage.offenseTypes.size < POKEMON_TYPES.length && (
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                                        Missing: {POKEMON_TYPES.filter(t => !teamCoverage.offenseTypes.has(t)).join(', ')}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Custom Species — Export / Import */}
+            {customSpecies.length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                        {customSpecies.length} custom species
+                    </span>
+                    <button
+                        onClick={handleExportCustomSpecies}
+                        style={{ padding: '6px 12px', background: '#667eea', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                    >
+                        ↑ Export Custom Species
+                    </button>
+                    <button
+                        onClick={() => customSpeciesFileRef.current?.click()}
+                        style={{ padding: '6px 12px', background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                    >
+                        ↓ Import Custom Species
+                    </button>
+                    <input ref={customSpeciesFileRef} type="file" accept=".json" onChange={handleImportCustomSpecies} style={{ display: 'none' }} />
+                </div>
+            )}
+            {customSpecies.length === 0 && (
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', alignItems: 'center' }}>
+                    <button
+                        onClick={() => customSpeciesFileRef.current?.click()}
+                        style={{ padding: '6px 12px', background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                    >
+                        ↓ Import Custom Species
+                    </button>
+                    <input ref={customSpeciesFileRef} type="file" accept=".json" onChange={handleImportCustomSpecies} style={{ display: 'none' }} />
+                </div>
+            )}
 
             {/* Pokemon List */}
             {filteredList.length === 0 ? (

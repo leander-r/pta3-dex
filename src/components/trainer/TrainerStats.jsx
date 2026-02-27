@@ -19,13 +19,32 @@ const STAT_CONFIG = [
  * Uses TrainerContext for state management
  */
 const TrainerStats = () => {
-    const { trainer, updateTrainerStat, calculateModifier } = useTrainerContext();
+    const { trainer, updateTrainerStat, calculateModifier, undoStatAllocation, canUndoStat } = useTrainerContext();
     return (
         <div className="section-card-purple">
             <h3 className="section-title-purple">
                 <span>📊</span> Stats
-                <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }} title="Creation points are used during character creation (min 6, max 14). Level points are gained when leveling up.">
-                    Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }} title="Creation points are used during character creation (min 6, max 14). Level points are gained when leveling up.">
+                        Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}
+                    </span>
+                    <button
+                        onClick={undoStatAllocation}
+                        disabled={!canUndoStat}
+                        title="Undo last stat change"
+                        style={{
+                            padding: '2px 8px',
+                            fontSize: '11px',
+                            background: canUndoStat ? '#ff9800' : '#ccc',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: canUndoStat ? 'pointer' : 'not-allowed',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        ↩ Undo
+                    </button>
                 </span>
             </h3>
             <p className="section-description" style={{ fontSize: '11px' }}>
