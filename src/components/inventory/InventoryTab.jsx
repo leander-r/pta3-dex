@@ -5,17 +5,8 @@
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 import { useData, useModal, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
-import { calculatePokemonHP, parseDice } from '../../utils/dataUtils.js';
+import { calculatePokemonHP, parseDice, parseHealFormula } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
-
-// Parse an item's effect string for an HP heal formula
-const parseHealFormula = (effectStr = '') => {
-    const diceMatch = effectStr.match(/(\d+d\d+(?:[+]\d+)?)\s*HP/i);
-    if (diceMatch) return { type: 'dice', formula: diceMatch[1] };
-    const fracMatch = effectStr.match(/(\d+)\/(\d+)\s*Max\s*HP/i);
-    if (fracMatch) return { type: 'fraction', num: parseInt(fracMatch[1]), denom: parseInt(fracMatch[2]) };
-    return { type: 'none' };
-};
 
 // Roll a heal formula and return { amount, desc }
 const rollHealFormula = (formula, maxHP) => {

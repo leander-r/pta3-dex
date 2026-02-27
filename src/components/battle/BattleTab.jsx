@@ -5,7 +5,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { getCombinedTypeEffectiveness } from '../../data/typeChart.js';
-import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage } from '../../utils/dataUtils.js';
+import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { MAX_ROLL_HISTORY } from '../../data/constants.js';
@@ -46,14 +46,6 @@ const buildPokemonRollEntry = ({
     timestamp: Date.now()
 });
 
-// Parse an item's effect string for a heal formula
-const parseHealFormula = (effectStr = '') => {
-    const diceMatch = effectStr.match(/(\d+d\d+(?:[+]\d+)?)\s*HP/i);
-    if (diceMatch) return { type: 'dice', formula: diceMatch[1] };
-    const fracMatch = effectStr.match(/(\d+)\/(\d+)\s*Max\s*HP/i);
-    if (fracMatch) return { type: 'fraction', num: parseInt(fracMatch[1]), denom: parseInt(fracMatch[2]) };
-    return { type: 'none' };
-};
 
 const BattleTab = () => {
     // Get state from contexts

@@ -180,3 +180,16 @@ export const parseDice = (diceStr) => {
         bonus: parseInt(match[3]) || 0
     };
 };
+
+/**
+ * Parse an item's effect string for an HP heal formula.
+ * Handles dice notation ("2d6+3 HP", "2d6 + 3 HP") and fractions ("1/2 Max HP").
+ * Returns { type: 'dice', formula } | { type: 'fraction', num, denom } | { type: 'none' }
+ */
+export const parseHealFormula = (effectStr = '') => {
+    const diceMatch = effectStr.match(/(\d+d\d+(?:\s*[+]\s*\d+)?)\s*HP/i);
+    if (diceMatch) return { type: 'dice', formula: diceMatch[1].replace(/\s+/g, '') };
+    const fracMatch = effectStr.match(/(\d+)\/(\d+)\s*Max\s*HP/i);
+    if (fracMatch) return { type: 'fraction', num: parseInt(fracMatch[1]), denom: parseInt(fracMatch[2]) };
+    return { type: 'none' };
+};
