@@ -29,19 +29,31 @@ const parseACFromFrequency = (freq) => {
 // Convert a CSS hex color string to a Discord integer color
 const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''), 16);
 
-// Resolve the PokéAPI sprite URL for a party Pokémon.
-// Uses the stored pokedexId first; falls back to a species lookup in the
-// full pokedex array so that Pokémon added before the field was stored still work.
-const spriteUrl = (pokemon, pokedex) => {
-    const id = pokemon.pokedexId ?? pokedex?.find(p => p.species === pokemon.species)?.id;
-    return id ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png` : null;
+// Normalize a species name to the lowercase-hyphen slug used by Pokémon Showdown.
+// Using the name (not a numeric ID) means the correct sprite is found regardless
+// of whether PTA's internal Pokédex IDs match the national Pokédex numbers.
+const speciesSlug = (species) =>
+    (species || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // strip diacritics (e.g. Flabébé → Flabebe)
+        .toLowerCase()
+        .replace(/♀/g, '-f')
+        .replace(/♂/g, '-m')
+        .replace(/[.'\u2019]/g, '')      // remove periods and apostrophes
+        .replace(/[:\s]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+const spriteUrl = (pokemon) => {
+    const slug = speciesSlug(pokemon.species);
+    return slug ? `https://play.pokemonshowdown.com/sprites/gen5/${slug}.png` : null;
 };
 
 // Collect live battle context to attach to roll entries
-const battleContext = (pokemon, hp, megaEvolved, currentMegaForm, pokedex) => ({
+const battleContext = (pokemon, hp, megaEvolved, currentMegaForm) => ({
     attackerCurrentHP: hp.current,
     attackerMaxHP: hp.max,
-    pokemonSpriteUrl: spriteUrl(pokemon, pokedex),
+    pokemonSpriteUrl: spriteUrl(pokemon),
     activeStatuses: Object.entries(pokemon.statusConditions || {}).filter(([, v]) => v).map(([k]) => k),
     megaEvolved,
     megaFormName: megaEvolved && currentMegaForm ? currentMegaForm.name : null,
@@ -173,7 +185,7 @@ const BattleTab = () => {
         const acWasOverridden = acOverride !== '';
 
         const hp = getPokemonHP(selectedPokemon);
-        const ctx = battleContext(selectedPokemon, hp, megaEvolved, currentMegaForm, pokedex);
+        const ctx = battleContext(selectedPokemon, hp, megaEvolved, currentMegaForm);
         const typeColor = hexToDiscordColor(getTypeColor(selectedMove.type));
 
         const commonFields = {
@@ -277,7 +289,7 @@ const BattleTab = () => {
             next[idx] = { ...next[idx], quantity: qty - 1 };
             return next;
         });
-        addToHistory({ type: 'heal', pokemon: target.name || target.species, item: itemName, formula: desc, rolls, bonus, amount, hpBefore, hpAfter, hpMax: maxHP, pokemonSpriteUrl: spriteUrl(target, pokedex), timestamp: Date.now() });
+        addToHistory({ type: 'heal', pokemon: target.name || target.species, item: itemName, formula: desc, rolls, bonus, amount, hpBefore, hpAfter, hpMax: maxHP, pokemonSpriteUrl: spriteUrl(target), timestamp: Date.now() });
     };
 
     return (
