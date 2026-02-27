@@ -80,8 +80,6 @@ describe('buildEmbed', () => {
 
 describe('buildPokemonEmbed — hit', () => {
     const embed = buildPokemonEmbed(BASE_POKEMON_HIT, 'Ash');
-    const fieldNames = embed.fields.map(f => f.name);
-    const fieldValues = embed.fields.map(f => f.value);
 
     it('title contains pokemon and move', () => {
         expect(embed.title).toContain('Rowdy');
@@ -96,26 +94,21 @@ describe('buildPokemonEmbed — hit', () => {
         expect(embed.color).toBe(0xE2BF65);
     });
 
-    it('shows hit accuracy field', () => {
-        expect(fieldNames).toContain('✅ Hit');
+    it('description shows hit accuracy and type', () => {
+        expect(embed.description).toContain('✅ Hit');
+        expect(embed.description).toContain('6');
+        expect(embed.description).toContain('AC 2');
+        expect(embed.description).toContain('Ground');
+        expect(embed.description).toContain('Physical');
     });
 
-    it('accuracy field shows roll vs AC', () => {
-        const val = embed.fields.find(f => f.name === '✅ Hit').value;
-        expect(val).toContain('6');
-        expect(val).toContain('AC 2');
+    it('description shows damage total', () => {
+        expect(embed.description).toContain('71 damage');
     });
 
-    it('shows move type field', () => {
-        const val = embed.fields.find(f => f.name === 'Move').value;
-        expect(val).toContain('Ground');
-        expect(val).toContain('Physical');
-    });
-
-    it('shows damage field with total', () => {
+    it('shows damage breakdown field', () => {
         const dmgField = embed.fields.find(f => f.name.includes('Damage'));
         expect(dmgField).toBeTruthy();
-        expect(dmgField.value).toContain('71 damage total');
         expect(dmgField.value).toContain('+14 stat');
         expect(dmgField.value).toContain('+4 STAB');
     });
@@ -133,32 +126,47 @@ describe('buildPokemonEmbed — hit', () => {
     });
 
     it('no status field when no active statuses', () => {
+        const fieldNames = embed.fields.map(f => f.name);
         expect(fieldNames).not.toContain('Status');
     });
 
     it('no mega field when not mega evolved', () => {
+        const fieldNames = embed.fields.map(f => f.name);
         expect(fieldNames).not.toContain('Mega');
     });
 
-    it('footer contains trainer name', () => {
-        expect(embed.footer.text).toContain('Ash');
+    it('author name is trainer name', () => {
+        expect(embed.author.name).toBe('Ash');
+    });
+
+    it('no thumbnail when pokemonSpriteUrl is absent', () => {
+        expect(embed.thumbnail).toBeUndefined();
+    });
+});
+
+describe('buildPokemonEmbed — with sprite URL', () => {
+    const roll  = { ...BASE_POKEMON_HIT, pokemonSpriteUrl: 'https://example.com/1.png' };
+    const embed = buildPokemonEmbed(roll, 'Ash');
+
+    it('thumbnail uses pokemonSpriteUrl', () => {
+        expect(embed.thumbnail).toBeDefined();
+        expect(embed.thumbnail.url).toBe('https://example.com/1.png');
     });
 });
 
 describe('buildPokemonEmbed — miss', () => {
     const embed = buildPokemonEmbed(BASE_POKEMON_MISS, 'Ash');
 
-    it('title has miss icon and suffix', () => {
+    it('title has miss icon', () => {
         expect(embed.title).toMatch(/^❌/);
-        expect(embed.title).toContain('MISS');
+    });
+
+    it('description shows miss', () => {
+        expect(embed.description).toContain('✗ Miss');
     });
 
     it('uses gray color', () => {
         expect(embed.color).toBe(0x95A5A6);
-    });
-
-    it('shows miss accuracy field', () => {
-        expect(embed.fields.find(f => f.name === '✗ Miss')).toBeTruthy();
     });
 
     it('has no damage field', () => {
@@ -182,9 +190,8 @@ describe('buildPokemonEmbed — crit', () => {
         expect(embed.color).toBe(0xFF6F00);
     });
 
-    it('accuracy field shows Natural 20', () => {
-        expect(embed.fields.find(f => f.name === '🎯 Accuracy')).toBeTruthy();
-        expect(embed.fields.find(f => f.name === '🎯 Accuracy').value).toContain('Natural 20');
+    it('description shows Natural 20', () => {
+        expect(embed.description).toContain('Natural 20');
     });
 
     it('damage field label mentions Crit', () => {
@@ -194,15 +201,15 @@ describe('buildPokemonEmbed — crit', () => {
 });
 
 describe('buildPokemonEmbed — status move hit', () => {
-    const roll = { ...BASE_POKEMON_HIT, isStatus: true, dice: null, rolls: [], diceTotal: 0, statBonus: 0, stabBonus: 0, total: 0 };
+    const roll  = { ...BASE_POKEMON_HIT, isStatus: true, dice: null, rolls: [], diceTotal: 0, statBonus: 0, stabBonus: 0, total: 0 };
     const embed = buildPokemonEmbed(roll, 'Ash');
 
     it('title has status icon', () => {
         expect(embed.title).toMatch(/^✨/);
     });
 
-    it('shows effect field with applies', () => {
-        expect(embed.fields.find(f => f.name === 'Effect').value).toContain('applies');
+    it('description shows effect applies', () => {
+        expect(embed.description).toContain('applies');
     });
 
     it('no damage field', () => {
@@ -211,7 +218,7 @@ describe('buildPokemonEmbed — status move hit', () => {
 });
 
 describe('buildPokemonEmbed — with active statuses', () => {
-    const roll = { ...BASE_POKEMON_HIT, activeStatuses: ['burned', 'paralyzed'] };
+    const roll  = { ...BASE_POKEMON_HIT, activeStatuses: ['burned', 'paralyzed'] };
     const embed = buildPokemonEmbed(roll, 'Ash');
 
     it('shows status field', () => {
@@ -223,7 +230,7 @@ describe('buildPokemonEmbed — with active statuses', () => {
 });
 
 describe('buildPokemonEmbed — mega evolved', () => {
-    const roll = { ...BASE_POKEMON_HIT, megaEvolved: true, megaFormName: 'Mega Rayquaza' };
+    const roll  = { ...BASE_POKEMON_HIT, megaEvolved: true, megaFormName: 'Mega Rayquaza' };
     const embed = buildPokemonEmbed(roll, 'Ash');
 
     it('shows mega field', () => {
@@ -234,23 +241,21 @@ describe('buildPokemonEmbed — mega evolved', () => {
 });
 
 describe('buildPokemonEmbed — DM AC override', () => {
-    const roll = { ...BASE_POKEMON_HIT, acWasOverridden: true };
+    const roll  = { ...BASE_POKEMON_HIT, acWasOverridden: true };
     const embed = buildPokemonEmbed(roll, 'Ash');
 
-    it('accuracy field mentions DM', () => {
-        const acc = embed.fields.find(f => f.name === '✅ Hit');
-        expect(acc.value).toContain('DM');
+    it('description mentions DM', () => {
+        expect(embed.description).toContain('DM');
     });
 });
 
 describe('buildPokemonEmbed — accuracy modifier', () => {
-    const roll = { ...BASE_POKEMON_HIT, accModifier: 2, modifiedAccRoll: 8 };
+    const roll  = { ...BASE_POKEMON_HIT, accModifier: 2, modifiedAccRoll: 8 };
     const embed = buildPokemonEmbed(roll, 'Ash');
 
-    it('accuracy field shows modifier and modified roll', () => {
-        const acc = embed.fields.find(f => f.name === '✅ Hit');
-        expect(acc.value).toContain('+2');
-        expect(acc.value).toContain('8');
+    it('description shows modifier and modified roll', () => {
+        expect(embed.description).toContain('+2');
+        expect(embed.description).toContain('8');
     });
 });
 
@@ -263,17 +268,21 @@ describe('buildTrainerSkillEmbed', () => {
         expect(embed.title).toContain('Perception');
     });
 
-    it('shows result', () => {
-        expect(embed.fields.find(f => f.name === 'Result').value).toContain('18');
+    it('description shows total', () => {
+        expect(embed.description).toContain('18');
     });
 
-    it('shows rolls', () => {
-        expect(embed.fields.find(f => f.name === 'Rolls').value).toContain('4');
-        expect(embed.fields.find(f => f.name === 'Rolls').value).toContain('6');
+    it('description shows rolls', () => {
+        expect(embed.description).toContain('4');
+        expect(embed.description).toContain('6');
     });
 
-    it('shows trained bonus when trained', () => {
-        expect(embed.fields.find(f => f.name === 'Trained bonus')).toBeTruthy();
+    it('description shows trained bonus when trained', () => {
+        expect(embed.description).toContain('+5 trained');
+    });
+
+    it('author name is trainer name', () => {
+        expect(embed.author.name).toBe('Ash');
     });
 
     it('shows trainer HP bar', () => {
@@ -298,14 +307,17 @@ describe('buildHealEmbed', () => {
         expect(embed.color).toBe(0x4CAF50);
     });
 
-    it('shows dice roll breakdown', () => {
-        const rollField = embed.fields.find(f => f.name === '🎲 Roll');
-        expect(rollField).toBeTruthy();
-        expect(rollField.value).toContain('20');
+    it('description shows healed amount', () => {
+        expect(embed.description).toContain('+20 HP');
     });
 
-    it('shows healed amount', () => {
-        expect(embed.fields.find(f => f.name === 'Healed').value).toContain('+20 HP');
+    it('description shows dice roll breakdown', () => {
+        expect(embed.description).toContain('20');
+        expect(embed.description).toContain('[4, 6]');
+    });
+
+    it('author name is trainer name', () => {
+        expect(embed.author.name).toBe('Ash');
     });
 
     it('shows before and after HP bars', () => {
@@ -336,20 +348,20 @@ describe('buildCustomEmbed', () => {
         expect(embed.title).toContain('2d6');
     });
 
-    it('shows total', () => {
-        expect(embed.fields.find(f => f.name === 'Result').value).toContain('10');
+    it('description shows total', () => {
+        expect(embed.description).toContain('10');
     });
 
-    it('shows rolls', () => {
-        expect(embed.fields.find(f => f.name === 'Rolls').value).toContain('3');
+    it('description shows rolls', () => {
+        expect(embed.description).toContain('3');
     });
 
-    it('shows bonus when present', () => {
-        expect(embed.fields.find(f => f.name === 'Bonus')).toBeTruthy();
+    it('description shows bonus when present', () => {
+        expect(embed.description).toContain('+ 2');
     });
 
-    it('no bonus field when bonus is 0', () => {
+    it('no bonus in description when bonus is 0', () => {
         const e = buildCustomEmbed({ ...BASE_CUSTOM, bonus: 0 }, 'Ash');
-        expect(e.fields.find(f => f.name === 'Bonus')).toBeUndefined();
+        expect(e.description).not.toContain('+');
     });
 });

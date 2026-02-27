@@ -20,41 +20,42 @@ export const buildPokemonEmbed = (roll, trainerName) => {
     const miss = !hit;
 
     const icon   = miss ? '❌' : crit ? '💥' : roll.isStatus ? '✨' : '⚔️';
-    const suffix = miss ? '— MISS' : crit ? '— CRITICAL HIT!' : '';
-    const title  = `${icon} ${roll.pokemon} used ${roll.move}! ${suffix}`.trim();
+    const suffix = crit ? ' — CRITICAL HIT!' : '';
+    const title  = `${icon} ${roll.pokemon} used ${roll.move}!${suffix}`;
     const color  = miss ? 0x95A5A6 : crit ? 0xFF6F00 : (roll.typeColor || 0xF5A623);
+
+    // One-line battle summary as description
+    const acOverride = roll.acWasOverridden ? ' *(DM)*' : '';
+    const modStr = roll.accModifier !== 0
+        ? ` ${roll.accModifier > 0 ? '+' : ''}${roll.accModifier} = ${roll.modifiedAccRoll}`
+        : '';
+    const typeStr = `${roll.moveType} · ${roll.category}`;
+
+    let description;
+    if (crit) {
+        const dmgStr = roll.total ? ` · **${roll.total} damage**` : '';
+        description = `🎯 Natural 20! vs AC ${roll.moveAC}${acOverride} · ${typeStr}${dmgStr}`;
+    } else if (roll.isStatus) {
+        description = `${hit ? '✅ Hit' : '✗ Miss'} · Roll ${roll.accRoll}${modStr} vs AC ${roll.moveAC}${acOverride} · ${typeStr} · ${hit ? 'Effect applies!' : 'No effect'}`;
+    } else if (miss) {
+        description = `✗ Miss · Roll ${roll.accRoll}${modStr} vs AC ${roll.moveAC}${acOverride} · ${typeStr}`;
+    } else {
+        const dmgStr = roll.total ? ` · **${roll.total} damage**` : '';
+        description = `✅ Hit · Roll ${roll.accRoll}${modStr} vs AC ${roll.moveAC}${acOverride} · ${typeStr}${dmgStr}`;
+    }
 
     const fields = [];
 
-    // Accuracy
-    if (crit) {
-        fields.push({ name: '🎯 Accuracy', value: `Natural 20! (vs AC ${roll.moveAC}${roll.acWasOverridden ? ' — DM' : ''})`, inline: true });
-    } else {
-        const mod = roll.accModifier !== 0
-            ? ` ${roll.accModifier > 0 ? '+' : ''}${roll.accModifier} = **${roll.modifiedAccRoll}**`
-            : '';
-        const acText = `**${roll.accRoll}**${mod} vs AC ${roll.moveAC}${roll.acWasOverridden ? ' *(DM)*' : ''}`;
-        fields.push({ name: hit ? '✅ Hit' : '✗ Miss', value: acText, inline: true });
-    }
-
-    // Move type
-    fields.push({ name: 'Move', value: `${roll.moveType} · ${roll.category}`, inline: true });
-
-    // Status move result
-    if (roll.isStatus) {
-        fields.push({ name: 'Effect', value: hit ? 'Effect applies!' : 'No effect', inline: true });
-    }
-
-    // Damage (hit, non-status only)
+    // Damage breakdown (hit, non-status only)
     if (hit && !roll.isStatus && roll.dice) {
         const bonuses = [];
         if (roll.statBonus) bonuses.push(`+${roll.statBonus} stat`);
         if (roll.stabBonus) bonuses.push(`+${roll.stabBonus} STAB`);
         const diceStr  = `${roll.dice}: [${roll.rolls.join(', ')}] = ${roll.diceTotal}`;
-        const bonusStr = bonuses.length ? ` ${bonuses.join(' ')}` : '';
+        const bonusStr = bonuses.length ? `  ${bonuses.join('  ')}` : '';
         fields.push({
             name: crit ? '🎲 Damage (Crit — double dice)' : '🎲 Damage',
-            value: `${diceStr}${bonusStr}\n**${roll.total} damage total**`,
+            value: `${diceStr}${bonusStr}`,
             inline: false,
         });
     }
@@ -83,18 +84,28 @@ export const buildPokemonEmbed = (roll, trainerName) => {
         fields.push({ name: 'Mega', value: roll.megaFormName, inline: true });
     }
 
-    return { title, color, fields, timestamp: new Date().toISOString(), footer: { text: `${trainerName} · PTA Manager` } };
+    const embed = {
+        author: { name: trainerName },
+        title,
+        description,
+        color,
+        fields,
+        timestamp: new Date().toISOString(),
+    };
+
+    if (roll.pokemonSpriteUrl) {
+        embed.thumbnail = { url: roll.pokemonSpriteUrl };
+    }
+
+    return embed;
 };
 
 export const buildTrainerSkillEmbed = (roll, trainerName) => {
-    const fields = [
-        { name: 'Result', value: `**${roll.total}**`, inline: true },
-        { name: 'Rolls',  value: `[${roll.rolls.join(', ')}]`, inline: true },
-        { name: 'Stat mod', value: `${roll.modifier >= 0 ? '+' : ''}${roll.modifier} (${roll.skillStat})`, inline: true },
-    ];
-    if (roll.hasSkill) {
-        fields.push({ name: 'Trained bonus', value: `+${roll.bonus}`, inline: true });
-    }
+    const modStr     = `${roll.modifier >= 0 ? '+' : ''}${roll.modifier} ${roll.skillStat}`;
+    const trainedStr = roll.hasSkill ? ` · +${roll.bonus} trained` : '';
+    const description = `**Total: ${roll.total}** · [${roll.rolls.join(', ')}] ${modStr}${trainedStr}`;
+
+    const fields = [];
     if (roll.trainerMaxHP > 0) {
         const bar = hpBar(roll.trainerCurrentHP, roll.trainerMaxHP);
         fields.push({
@@ -103,53 +114,64 @@ export const buildTrainerSkillEmbed = (roll, trainerName) => {
             inline: false,
         });
     }
+
     return {
-        title: `📚 ${roll.skill}`,
+        author: { name: trainerName },
+        title: `📚 ${roll.skill} Check`,
+        description,
         color: 0x667EEA,
         fields,
         timestamp: new Date().toISOString(),
-        footer: { text: `${trainerName} · PTA Manager` },
     };
 };
 
 export const buildHealEmbed = (roll, trainerName) => {
-    const fields = [];
+    let description = `**+${roll.amount} HP** healed`;
     if (roll.rolls?.length > 0) {
         const bonusPart = roll.bonus > 0 ? ` + ${roll.bonus}` : '';
-        fields.push({ name: '🎲 Roll', value: `${roll.formula}: [${roll.rolls.join(', ')}]${bonusPart} = **${roll.amount}**`, inline: false });
+        description += ` · ${roll.formula}: [${roll.rolls.join(', ')}]${bonusPart} = ${roll.amount}`;
     } else if (roll.formula) {
-        fields.push({ name: 'Formula', value: roll.formula, inline: true });
+        description += ` · ${roll.formula}`;
     }
-    fields.push({ name: 'Healed', value: `**+${roll.amount} HP**`, inline: true });
+
+    const fields = [];
     if (roll.hpMax > 0) {
         const barBefore = hpBar(roll.hpBefore ?? roll.hpAfter, roll.hpMax);
         const barAfter  = hpBar(roll.hpAfter  ?? roll.hpBefore, roll.hpMax);
+        const fullMark  = roll.hpAfter >= roll.hpMax ? ' ✨ Full!' : '';
         fields.push({
             name: `${roll.pokemon} HP`,
-            value: `Before: \`${barBefore}\` ${roll.hpBefore}/${roll.hpMax}\nAfter:  \`${barAfter}\` ${roll.hpAfter}/${roll.hpMax}${roll.hpAfter >= roll.hpMax ? ' ✨ Full!' : ''}`,
+            value: `Before: \`${barBefore}\` ${roll.hpBefore}/${roll.hpMax}\nAfter:  \`${barAfter}\` ${roll.hpAfter}/${roll.hpMax}${fullMark}`,
             inline: false,
         });
     }
-    return {
+
+    const embed = {
+        author: { name: trainerName },
         title: `🩹 ${roll.pokemon} used ${roll.item}`,
+        description,
         color: 0x4CAF50,
         fields,
         timestamp: new Date().toISOString(),
-        footer: { text: `${trainerName} · PTA Manager` },
     };
+
+    if (roll.pokemonSpriteUrl) {
+        embed.thumbnail = { url: roll.pokemonSpriteUrl };
+    }
+
+    return embed;
 };
 
-export const buildCustomEmbed = (roll, trainerName) => ({
-    title: `🎲 Custom Roll: ${roll.dice}`,
-    color: 0x95A5A6,
-    fields: [
-        { name: 'Result', value: `**${roll.total}**`, inline: true },
-        { name: 'Rolls',  value: `[${roll.rolls.join(', ')}]`, inline: true },
-        ...(roll.bonus ? [{ name: 'Bonus', value: `+${roll.bonus}`, inline: true }] : []),
-    ],
-    timestamp: new Date().toISOString(),
-    footer: { text: `${trainerName} · PTA Manager` },
-});
+export const buildCustomEmbed = (roll, trainerName) => {
+    const bonusStr = roll.bonus ? ` + ${roll.bonus}` : '';
+    return {
+        author: { name: trainerName },
+        title: `🎲 Custom Roll: ${roll.dice}`,
+        description: `[${roll.rolls.join(', ')}]${bonusStr} = **${roll.total}**`,
+        color: 0x95A5A6,
+        timestamp: new Date().toISOString(),
+    };
+};
 
 export const buildEmbed = (roll, trainerName) => {
     if (roll.type === 'pokemon')       return buildPokemonEmbed(roll, trainerName);
