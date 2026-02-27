@@ -689,6 +689,7 @@ export const DataProvider = ({ children }) => {
             });
         } catch (error) {
             console.error('Failed to send to Discord:', error);
+            toast.error('Failed to send to Discord. Check your webhook URL.');
         }
     }, [discordWebhook.enabled, discordWebhook.url]);
 

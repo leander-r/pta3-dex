@@ -29,7 +29,7 @@ export const exportTrainerText = (trainer) => {
     text += `SATK: ${actualStats.satk} | SDEF: ${actualStats.sdef} | SPD: ${actualStats.spd}\n\n`;
     
     if (trainer.features.length > 0) {
-        const featureNames = trainer.features.map(f => typeof f === 'object' ? f.name : f);
+        const featureNames = trainer.features.map(f => typeof f === 'object' ? (f.name || 'Unknown') : f).filter(Boolean);
         text += `**Features:** ${featureNames.join(', ')}\n`;
     }
     // Handle both legacy array format and new object format for skills
@@ -64,7 +64,7 @@ export const exportPokemonText = (poke) => {
         text += ` (${poke.species})`;
     }
     text += `\n`;
-    text += `Level ${poke.level} | ${poke.types.join('/')} | ${poke.nature} Nature\n`;
+    text += `Level ${poke.level} | ${(poke.types || []).join('/') || 'Normal'} | ${poke.nature || 'Hardy'} Nature\n`;
     
     // Build abilities list
     const abilities = [poke.ability, poke.ability2, poke.ability3].filter(a => a);
