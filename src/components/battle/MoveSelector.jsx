@@ -38,7 +38,7 @@ const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail,
                         >
                             <div style={{ fontWeight: 'bold' }}>{move.name}</div>
                             <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                                {move.type} | {move.category} | {move.damage || gameData?.moves?.[move.name]?.damage || 'Status'} |{' '}
+                                {move.type} | {move.category || gameData?.moves?.[move.name]?.category || '—'} | {move.damage || gameData?.moves?.[move.name]?.damage || 'Status'} |{' '}
                                 <span title="Accuracy Class - Roll 1d20, need to meet or beat this number to hit. Natural 20 always hits and crits.">
                                     AC {parseACFromFrequency(move.frequency || move.freq)}
                                 </span>
