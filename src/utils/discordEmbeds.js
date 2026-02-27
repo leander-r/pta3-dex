@@ -85,15 +85,21 @@ export const buildPokemonEmbed = (roll, trainerName) => {
 
     // Active combat stages relevant to this roll (non-zero only)
     if (roll.relevantStages?.length > 0) {
-        const ordinal = n => { const s = n===1?'st':n===2?'nd':n===3?'rd':'th'; return `${n}${s}`; };
+        const ordinal = n => {
+            const i = Number(n); // guard against string values from old history entries
+            const s = i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th';
+            return `${i}${s}`;
+        };
         const stageStr = roll.relevantStages.map(({ label, stage, bonus, base, boosted, isFlat }) => {
-            const abs       = Math.abs(stage);
+            const stageNum  = Number(stage);
+            const abs       = Math.abs(stageNum);
+            const sign      = stageNum >= 0 ? '+' : '−';
             const bonusSign = bonus >= 0 ? '+' : '−';
             const bonusAbs  = Math.abs(bonus);
             if (isFlat) {
-                return `**${label}** ${ordinal(abs)} Combat Stage = ${bonusSign}${bonusAbs} to roll`;
+                return `**${label}** ${sign}${ordinal(abs)} Combat Stage = ${bonusSign}${bonusAbs} to roll`;
             }
-            return `**${label}** ${ordinal(abs)} Combat Stage = ${base} ${bonusSign} ${bonusAbs} = **${boosted}**`;
+            return `**${label}** ${sign}${ordinal(abs)} Combat Stage = ${base} ${bonusSign} ${bonusAbs} = **${boosted}**`;
         }).join('\n');
         fields.push({ name: '📊 Combat Stages', value: stageStr, inline: false });
     }
