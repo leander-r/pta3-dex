@@ -25,6 +25,20 @@ export const getPokemonSprite = (pokemon) => {
     return slug ? `https://play.pokemonshowdown.com/sprites/gen5/${slug}.png` : null;
 };
 
+// Returns the sprite URL for a mega/alternate form.
+// megaForm is the form object from the Pokédex entry (e.g. { name: "Mega X" }).
+// Showdown slugs the form as: {species}-{formname-lowercased-nospaces}
+//   "Mega"    → charizard-mega
+//   "Mega X"  → charizard-megax
+//   "Primal"  → groudon-primal
+//   "Attack"  → deoxys-attack
+export const getMegaSprite = (pokemon, megaForm) => {
+    const base = speciesSlug(pokemon?.species);
+    if (!base || !megaForm?.name) return getPokemonSprite(pokemon);
+    const formSlug = megaForm.name.toLowerCase().replace(/\s+/g, '');
+    return `https://play.pokemonshowdown.com/sprites/gen5/${base}-${formSlug}.png`;
+};
+
 // Returns the effective display image: custom upload first, then auto sprite.
 export const getPokemonDisplayImage = (pokemon) =>
     pokemon?.avatar || getPokemonSprite(pokemon) || null;
