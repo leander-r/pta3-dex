@@ -33,6 +33,9 @@ const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''),
 const battleContext = (pokemon, hp, megaEvolved, currentMegaForm) => ({
     attackerCurrentHP: hp.current,
     attackerMaxHP: hp.max,
+    pokemonSpriteUrl: pokemon.pokedexId
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokedexId}.png`
+        : null,
     activeStatuses: Object.entries(pokemon.statusConditions || {}).filter(([, v]) => v).map(([k]) => k),
     megaEvolved,
     megaFormName: megaEvolved && currentMegaForm ? currentMegaForm.name : null,
