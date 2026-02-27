@@ -3,11 +3,23 @@
 // ============================================================
 // Shared logic for building rich Discord embeds from roll data.
 
+// Pokémon-game-style coloured HP bar using Discord's ANSI code block support.
+// Green ≥ 66 %  |  Orange ≥ 33 %  |  Red > 0 %  |  Empty at 0 %
+const ANSI_RESET  = '\u001b[0m';
 const hpBar = (current, max, blocks = 10) => {
-    const pct = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
+    const pct    = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
     const filled = Math.round(pct * blocks);
-    return '█'.repeat(filled) + '░'.repeat(blocks - filled);
+    const color  = pct > 0.66 ? '\u001b[1;32m'   // bright green
+                 : pct > 0.33 ? '\u001b[0;33m'   // yellow-orange
+                 : pct > 0    ? '\u001b[1;31m'   // bright red
+                 :              '';               // no color at 0 HP
+    const reset  = color ? ANSI_RESET : '';
+    return `${color}${'█'.repeat(filled)}${reset}${'░'.repeat(blocks - filled)}`;
 };
+
+// Wraps an hpBar + "current/max" label in a Discord ANSI code block.
+const hpFieldValue = (current, max) =>
+    `\`\`\`ansi\n${hpBar(current, max)} ${current}/${max}\n\`\`\``;
 
 const STATUS_EMOJI = {
     burned: '🔥', frozen: '🧊', paralyzed: '⚡', poisoned: '☠️',
@@ -62,11 +74,10 @@ export const buildPokemonEmbed = (roll, trainerName) => {
 
     // Attacker HP bar
     if (roll.attackerMaxHP > 0) {
-        const bar = hpBar(roll.attackerCurrentHP, roll.attackerMaxHP);
         fields.push({
             name: `${roll.pokemon} HP`,
-            value: `\`${bar}\` ${roll.attackerCurrentHP}/${roll.attackerMaxHP}`,
-            inline: true,
+            value: hpFieldValue(roll.attackerCurrentHP, roll.attackerMaxHP),
+            inline: false,
         });
     }
 
@@ -107,10 +118,9 @@ export const buildTrainerSkillEmbed = (roll, trainerName) => {
 
     const fields = [];
     if (roll.trainerMaxHP > 0) {
-        const bar = hpBar(roll.trainerCurrentHP, roll.trainerMaxHP);
         fields.push({
             name: 'Trainer HP',
-            value: `\`${bar}\` ${roll.trainerCurrentHP}/${roll.trainerMaxHP}`,
+            value: hpFieldValue(roll.trainerCurrentHP, roll.trainerMaxHP),
             inline: false,
         });
     }
@@ -141,7 +151,7 @@ export const buildHealEmbed = (roll, trainerName) => {
         const fullMark  = roll.hpAfter >= roll.hpMax ? ' ✨ Full!' : '';
         fields.push({
             name: `${roll.pokemon} HP`,
-            value: `Before: \`${barBefore}\` ${roll.hpBefore}/${roll.hpMax}\nAfter:  \`${barAfter}\` ${roll.hpAfter}/${roll.hpMax}${fullMark}`,
+            value: `\`\`\`ansi\nBefore ${barBefore} ${roll.hpBefore}/${roll.hpMax}\nAfter  ${barAfter} ${roll.hpAfter}/${roll.hpMax}${fullMark}\n\`\`\``,
             inline: false,
         });
     }
