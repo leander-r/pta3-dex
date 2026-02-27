@@ -181,8 +181,16 @@ const BattleTab = () => {
         };
 
         const diceData = parseDice(selectedMove.damage);
+
+        // Collect non-zero combat stages relevant to this roll
+        const statLabel = isPhysical ? 'ATK' : 'SATK';
+        const relevantStages = [
+            combatStages.acc               ? { label: 'ACC',      stage: combatStages.acc }      : null,
+            diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey] } : null,
+        ].filter(Boolean);
+
         if (diceData.count === 0) {
-            addToHistory(buildPokemonRollEntry({ ...commonFields, isStatus: true }));
+            addToHistory(buildPokemonRollEntry({ ...commonFields, isStatus: true, relevantStages }));
             return;
         }
 
@@ -200,7 +208,7 @@ const BattleTab = () => {
         addToHistory(buildPokemonRollEntry({
             ...commonFields,
             dice: isHit ? `${diceCount}d${diceData.sides}+${diceData.bonus}` : null,
-            rolls, diceTotal, statBonus: statMod, stabBonus, total
+            rolls, diceTotal, statBonus: statMod, stabBonus, total, relevantStages
         }));
     };
 

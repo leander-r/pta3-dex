@@ -81,6 +81,14 @@ export const buildPokemonEmbed = (roll, trainerName) => {
         fields.push({ name: '✨ Effect', value: 'Applies!', inline: true });
     }
 
+    // Active combat stages relevant to this roll (non-zero only)
+    if (roll.relevantStages?.length > 0) {
+        const stageStr = roll.relevantStages
+            .map(({ label, stage }) => `${label} ${stage > 0 ? '+' : ''}${stage}`)
+            .join('  ·  ');
+        fields.push({ name: '📊 Stages', value: stageStr, inline: true });
+    }
+
     // Attacker HP bar
     if (roll.attackerMaxHP > 0) {
         fields.push({
