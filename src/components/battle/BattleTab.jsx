@@ -3,6 +3,7 @@
 // ============================================================
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { getTypeColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
@@ -24,6 +25,18 @@ const parseACFromFrequency = (freq) => {
     const match = freq.match(/[-–]\s*(\d+)/);
     return match ? parseInt(match[1]) : 2;
 };
+
+// Convert a CSS hex color string to a Discord integer color
+const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''), 16);
+
+// Collect live battle context to attach to roll entries
+const battleContext = (pokemon, hp, megaEvolved, currentMegaForm) => ({
+    attackerCurrentHP: hp.current,
+    attackerMaxHP: hp.max,
+    activeStatuses: Object.entries(pokemon.statusConditions || {}).filter(([, v]) => v).map(([k]) => k),
+    megaEvolved,
+    megaFormName: megaEvolved && currentMegaForm ? currentMegaForm.name : null,
+});
 
 // Build a normalized roll-history entry for a Pokemon attack
 const buildPokemonRollEntry = ({
@@ -147,10 +160,15 @@ const BattleTab = () => {
         const isHit = accRoll === 20 || modifiedAccRoll >= moveAC;
         const acWasOverridden = acOverride !== '';
 
+        const hp = getPokemonHP(selectedPokemon);
+        const ctx = battleContext(selectedPokemon, hp, megaEvolved, currentMegaForm);
+        const typeColor = hexToDiscordColor(getTypeColor(selectedMove.type));
+
         const commonFields = {
             pokemon: selectedPokemon.name || selectedPokemon.species,
             move: selectedMove.name, moveType: selectedMove.type, category: selectedMove.category,
-            accRoll, accModifier, modifiedAccRoll, moveAC, acWasOverridden, isHit, isCrit
+            accRoll, accModifier, modifiedAccRoll, moveAC, acWasOverridden, isHit, isCrit,
+            typeColor, ...ctx,
         };
 
         const diceData = parseDice(selectedMove.damage);
@@ -197,7 +215,9 @@ const BattleTab = () => {
         const rollTotal = rolls.reduce((sum, r) => sum + r, 0);
         const total = rollTotal + modifier + skillBonus;
 
-        addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '2d6', rolls, baseStat, modifier, hasSkill, bonus: skillBonus, total, timestamp: Date.now() });
+        const trainerMaxHP = calculateMaxHP();
+        const trainerCurrentHP = Math.max(0, trainerMaxHP - (trainer.currentDamage || 0));
+        addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '2d6', rolls, baseStat, modifier, hasSkill, bonus: skillBonus, total, trainerCurrentHP, trainerMaxHP, timestamp: Date.now() });
     };
 
     const rollCustomDice = () => {
@@ -231,6 +251,8 @@ const BattleTab = () => {
         } else {
             toast.info(`Used ${itemName} (status effect only).`);
         }
+        const hpBefore = maxHP - (target.currentDamage || 0);
+        const hpAfter = Math.min(maxHP, hpBefore + amount);
         if (amount > 0) {
             updatePokemon(target.id, { currentDamage: Math.max(0, (target.currentDamage || 0) - amount) });
         }
@@ -243,7 +265,7 @@ const BattleTab = () => {
             next[idx] = { ...next[idx], quantity: qty - 1 };
             return next;
         });
-        addToHistory({ type: 'heal', pokemon: target.name || target.species, item: itemName, formula: desc, rolls, bonus, amount, timestamp: Date.now() });
+        addToHistory({ type: 'heal', pokemon: target.name || target.species, item: itemName, formula: desc, rolls, bonus, amount, hpBefore, hpAfter, hpMax: maxHP, timestamp: Date.now() });
     };
 
     return (
