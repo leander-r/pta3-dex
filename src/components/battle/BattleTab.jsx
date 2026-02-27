@@ -4,7 +4,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
-import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula } from '../../utils/dataUtils.js';
+import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { MAX_ROLL_HISTORY } from '../../data/constants.js';
@@ -162,10 +162,11 @@ const BattleTab = () => {
         const defaultAC = parseACFromFrequency(selectedMove.frequency || selectedMove.freq);
         const moveAC = acOverride !== '' ? parseInt(acOverride) || defaultAC : defaultAC;
         const accModifier = combatStages.acc || 0;
+        const critThreshold = parseCritThreshold(selectedMove.description);
         const accRoll = Math.floor(Math.random() * 20) + 1;
         const modifiedAccRoll = accRoll + accModifier;
-        const isCrit = accRoll === 20;
-        const isHit = accRoll === 20 || modifiedAccRoll >= moveAC;
+        const isCrit = accRoll >= critThreshold;
+        const isHit = isCrit || modifiedAccRoll >= moveAC;
         const acWasOverridden = acOverride !== '';
 
         const hp = getPokemonHP(selectedPokemon);
@@ -175,7 +176,7 @@ const BattleTab = () => {
         const commonFields = {
             pokemon: selectedPokemon.name || selectedPokemon.species,
             move: selectedMove.name, moveType: selectedMove.type, category: selectedMove.category,
-            accRoll, accModifier, modifiedAccRoll, moveAC, acWasOverridden, isHit, isCrit,
+            accRoll, accModifier, modifiedAccRoll, moveAC, acWasOverridden, isHit, isCrit, critThreshold,
             typeColor, ...ctx,
         };
 

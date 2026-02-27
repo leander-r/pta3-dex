@@ -182,6 +182,15 @@ export const parseDice = (diceStr) => {
 };
 
 /**
+ * Parse a move description for an extended crit range (e.g. "Critical Hit on 18-20").
+ * Returns the lowest roll that counts as a crit (default 20).
+ */
+export const parseCritThreshold = (description = '') => {
+    const match = (description || '').match(/Critical Hit on (\d+)[-–]20/i);
+    return match ? parseInt(match[1]) : 20;
+};
+
+/**
  * Parse an item's effect string for an HP heal formula.
  * Handles dice notation ("2d6+3 HP", "2d6 + 3 HP") and fractions ("1/2 Max HP").
  * Returns { type: 'dice', formula } | { type: 'fraction', num, denom } | { type: 'none' }

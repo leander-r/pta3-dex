@@ -43,10 +43,14 @@ export const buildPokemonEmbed = (roll, trainerName) => {
         : '';
     const typeStr = `${roll.moveType} · ${roll.category}`;
 
+    const critLabel = roll.critThreshold && roll.critThreshold < 20
+        ? `Natural ${roll.accRoll}! (Crit on ${roll.critThreshold}–20)`
+        : `Natural ${roll.accRoll}!`;
+
     let description;
     if (crit) {
         const dmgStr = roll.total ? ` · **${roll.total} damage**` : '';
-        description = `🎯 Natural 20! vs AC ${roll.moveAC}${acOverride} · ${typeStr}${dmgStr}`;
+        description = `🎯 ${critLabel} vs AC ${roll.moveAC}${acOverride} · ${typeStr}${dmgStr}`;
     } else if (roll.isStatus) {
         description = `${hit ? '✅ Hit' : '✗ Miss'} · Roll ${roll.accRoll}${modStr} vs AC ${roll.moveAC}${acOverride} · ${typeStr} · ${hit ? 'Effect applies!' : 'No effect'}`;
     } else if (miss) {
@@ -58,8 +62,8 @@ export const buildPokemonEmbed = (roll, trainerName) => {
 
     const fields = [];
 
-    // Damage breakdown (hit, non-status only)
-    if (hit && !roll.isStatus && roll.dice) {
+    // Damage breakdown (any hit that rolled dice, including status-category moves with damage)
+    if (hit && roll.dice) {
         const bonuses = [];
         if (roll.statBonus) bonuses.push(`+${roll.statBonus} stat`);
         if (roll.stabBonus) bonuses.push(`+${roll.stabBonus} STAB`);
@@ -70,6 +74,11 @@ export const buildPokemonEmbed = (roll, trainerName) => {
             value: `${diceStr}${bonusStr}`,
             inline: false,
         });
+    }
+
+    // Effect field for status-category moves that also deal damage
+    if (hit && roll.category === 'Status' && roll.dice) {
+        fields.push({ name: '✨ Effect', value: 'Applies!', inline: true });
     }
 
     // Attacker HP bar
