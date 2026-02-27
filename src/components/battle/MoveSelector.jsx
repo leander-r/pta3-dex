@@ -22,7 +22,12 @@ const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail,
                         style={{ display: 'flex', alignItems: 'stretch', border: `2px solid ${getTypeColor(move.type)}`, borderRadius: '6px', overflow: 'hidden' }}
                     >
                         <button
-                            onClick={() => onSelectMove(move)}
+                            onClick={() => {
+                                const gd = gameData?.moves?.[move.name] || {};
+                                const full = { ...gd };
+                                Object.entries(move).forEach(([k, v]) => { if (v !== '' && v != null) full[k] = v; });
+                                onSelectMove(full);
+                            }}
                             className={selectedMove?.name !== move.name ? 'move-select-btn' : ''}
                             style={{
                                 flex: 1, padding: '10px',
@@ -33,7 +38,7 @@ const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail,
                         >
                             <div style={{ fontWeight: 'bold' }}>{move.name}</div>
                             <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                                {move.type} | {move.category} | {move.damage || 'Status'} |{' '}
+                                {move.type} | {move.category} | {move.damage || gameData?.moves?.[move.name]?.damage || 'Status'} |{' '}
                                 <span title="Accuracy Class - Roll 1d20, need to meet or beat this number to hit. Natural 20 always hits and crits.">
                                     AC {parseACFromFrequency(move.frequency || move.freq)}
                                 </span>
