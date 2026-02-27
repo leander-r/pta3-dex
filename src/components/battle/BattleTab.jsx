@@ -29,13 +29,19 @@ const parseACFromFrequency = (freq) => {
 // Convert a CSS hex color string to a Discord integer color
 const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''), 16);
 
+// Resolve the PokéAPI sprite URL for a party Pokémon.
+// Uses the stored pokedexId first; falls back to a species lookup in the
+// full pokedex array so that Pokémon added before the field was stored still work.
+const spriteUrl = (pokemon, pokedex) => {
+    const id = pokemon.pokedexId ?? pokedex?.find(p => p.species === pokemon.species)?.id;
+    return id ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png` : null;
+};
+
 // Collect live battle context to attach to roll entries
-const battleContext = (pokemon, hp, megaEvolved, currentMegaForm) => ({
+const battleContext = (pokemon, hp, megaEvolved, currentMegaForm, pokedex) => ({
     attackerCurrentHP: hp.current,
     attackerMaxHP: hp.max,
-    pokemonSpriteUrl: pokemon.pokedexId
-        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokedexId}.png`
-        : null,
+    pokemonSpriteUrl: spriteUrl(pokemon, pokedex),
     activeStatuses: Object.entries(pokemon.statusConditions || {}).filter(([, v]) => v).map(([k]) => k),
     megaEvolved,
     megaFormName: megaEvolved && currentMegaForm ? currentMegaForm.name : null,
@@ -167,7 +173,7 @@ const BattleTab = () => {
         const acWasOverridden = acOverride !== '';
 
         const hp = getPokemonHP(selectedPokemon);
-        const ctx = battleContext(selectedPokemon, hp, megaEvolved, currentMegaForm);
+        const ctx = battleContext(selectedPokemon, hp, megaEvolved, currentMegaForm, pokedex);
         const typeColor = hexToDiscordColor(getTypeColor(selectedMove.type));
 
         const commonFields = {
@@ -271,7 +277,7 @@ const BattleTab = () => {
             next[idx] = { ...next[idx], quantity: qty - 1 };
             return next;
         });
-        addToHistory({ type: 'heal', pokemon: target.name || target.species, item: itemName, formula: desc, rolls, bonus, amount, hpBefore, hpAfter, hpMax: maxHP, timestamp: Date.now() });
+        addToHistory({ type: 'heal', pokemon: target.name || target.species, item: itemName, formula: desc, rolls, bonus, amount, hpBefore, hpAfter, hpMax: maxHP, pokemonSpriteUrl: spriteUrl(target, pokedex), timestamp: Date.now() });
     };
 
     return (
