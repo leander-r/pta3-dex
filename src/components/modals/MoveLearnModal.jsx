@@ -24,7 +24,7 @@ import { useModal, useGameData, usePokemonContext } from '../../contexts/index.j
  */
 const MoveLearnModal = () => {
     // Get from contexts
-    const { showDetail, showMoveLearnModal, setShowMoveLearnModal, moveLearnData, setMoveLearnData } = useModal();
+    const { showDetail, showConfirm, showMoveLearnModal, setShowMoveLearnModal, moveLearnData, setMoveLearnData } = useModal();
     const { GAME_DATA } = useGameData();
     const { learnMove } = usePokemonContext();
     const handleClose = () => {
@@ -164,7 +164,13 @@ const MoveLearnModal = () => {
                     <div className="move-learn-actions">
                         <button
                             className="btn btn-secondary"
-                            onClick={handleClose}
+                            onClick={() => showConfirm({
+                                title: 'Skip Move?',
+                                message: `${moveLearnData.pokemonName} will not learn ${moveLearnData.newMove.move}. This cannot be undone.`,
+                                confirmText: 'Skip',
+                                isDanger: true,
+                                onConfirm: handleClose
+                            })}
                         >
                             Don't Learn Move
                         </button>

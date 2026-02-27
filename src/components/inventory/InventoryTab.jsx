@@ -4,8 +4,34 @@
 
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
-import { useData, useModal } from '../../contexts/index.js';
+import { useData, useModal, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
+import { calculatePokemonHP, parseDice } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
+
+// Parse an item's effect string for an HP heal formula
+const parseHealFormula = (effectStr = '') => {
+    const diceMatch = effectStr.match(/(\d+d\d+(?:[+]\d+)?)\s*HP/i);
+    if (diceMatch) return { type: 'dice', formula: diceMatch[1] };
+    const fracMatch = effectStr.match(/(\d+)\/(\d+)\s*Max\s*HP/i);
+    if (fracMatch) return { type: 'fraction', num: parseInt(fracMatch[1]), denom: parseInt(fracMatch[2]) };
+    return { type: 'none' };
+};
+
+// Roll a heal formula and return { amount, desc }
+const rollHealFormula = (formula, maxHP) => {
+    if (formula.type === 'dice') {
+        const { count, sides, bonus } = parseDice(formula.formula);
+        const rolls = [];
+        for (let i = 0; i < count; i++) rolls.push(Math.floor(Math.random() * sides) + 1);
+        const total = rolls.reduce((a, b) => a + b, 0) + bonus;
+        return { amount: total, desc: `${formula.formula}: [${rolls.join(', ')}]${bonus > 0 ? `+${bonus}` : ''} = ${total}` };
+    }
+    if (formula.type === 'fraction') {
+        const amount = Math.floor(maxHP * formula.num / formula.denom);
+        return { amount, desc: `${formula.num}/${formula.denom} of ${maxHP} = ${amount} HP` };
+    }
+    return { amount: 0, desc: '' };
+};
 
 /**
  * InventoryTab - Inventory management interface
@@ -14,6 +40,8 @@ import toast from '../../utils/toast.js';
 const InventoryTab = () => {
     const { inventory, setInventory } = useData();
     const { showConfirm } = useModal();
+    const { party } = useTrainerContext();
+    const { updatePokemon } = usePokemonContext();
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddItem, setShowAddItem] = useState(false);
@@ -24,6 +52,9 @@ const InventoryTab = () => {
     // New states for add item panel
     const [addItemFilter, setAddItemFilter] = useState('all');
     const [addItemSort, setAddItemSort] = useState('name'); // 'name', 'price-low', 'price-high', 'type'
+    // Heal panel state
+    const [healPanel, setHealPanel] = useState(null); // { itemName } or null
+    const [healTargetId, setHealTargetId] = useState('');
 
     // Get unique item types from GAME_DATA dynamically
     const availableTypes = useMemo(() => {
@@ -213,6 +244,17 @@ const InventoryTab = () => {
     };
 
     const handleUseItem = (itemName) => {
+        const invItem = inventory.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+        const itemType = (invItem?.type || '').toLowerCase();
+        if (itemType === 'healing' || itemType === 'berry') {
+            const formula = parseHealFormula(invItem?.effect || '');
+            if (formula.type !== 'none') {
+                setHealPanel({ itemName });
+                setHealTargetId('');
+                return;
+            }
+            // Status-only item (no HP formula) — consume directly
+        }
         setInventory(prev => {
             const idx = prev.findIndex(item =>
                 item.name.toLowerCase() === itemName.toLowerCase()
@@ -228,6 +270,37 @@ const InventoryTab = () => {
             toast.info(`Used ${itemName} (${currentQty - 1} remaining)`);
             return newInventory;
         });
+    };
+
+    const handleApplyHeal = () => {
+        if (!healTargetId) {
+            toast.warning('Select a Pokémon first.');
+            return;
+        }
+        const target = party.find(p => String(p.id) === healTargetId);
+        if (!target) return;
+        const invItem = inventory.find(i => i.name.toLowerCase() === healPanel.itemName.toLowerCase());
+        const formula = parseHealFormula(invItem?.effect || '');
+        const maxHP = calculatePokemonHP(target);
+        const { amount, desc } = rollHealFormula(formula, maxHP);
+        const newDamage = Math.max(0, (target.currentDamage || 0) - amount);
+        updatePokemon(target.id, { currentDamage: newDamage });
+        const itemName = healPanel.itemName;
+        setInventory(prev => {
+            const idx = prev.findIndex(item => item.name.toLowerCase() === itemName.toLowerCase());
+            if (idx === -1) return prev;
+            const currentQty = prev[idx].quantity || 1;
+            if (currentQty <= 1) {
+                toast.success(`${target.name || target.species} healed ${amount} HP! (${desc}) — ${itemName} used up`);
+                return prev.filter((_, i) => i !== idx);
+            }
+            const newInventory = [...prev];
+            newInventory[idx] = { ...newInventory[idx], quantity: currentQty - 1 };
+            toast.success(`${target.name || target.species} healed ${amount} HP! (${desc}) — ${currentQty - 1} left`);
+            return newInventory;
+        });
+        setHealPanel(null);
+        setHealTargetId('');
     };
 
     const handleSetQuantity = (itemName, quantity) => {
@@ -628,19 +701,22 @@ const InventoryTab = () => {
                     <div style={{ display: 'grid', gap: '8px' }}>
                         {filteredInventory.map((item, index) => {
                             const itemType = (item.type || 'misc').toLowerCase();
+                            const showHealPanel = healPanel?.itemName === item.name;
                             return (
                                 <div
                                     key={`${item.name}-${index}`}
                                     className="inventory-item-card"
                                     style={{
                                         display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '12px',
+                                        flexDirection: 'column',
+                                        gap: '8px',
                                         padding: '12px',
                                         borderRadius: '8px',
                                         borderLeft: `4px solid ${getTypeColor(itemType)}`
                                     }}
                                 >
+                                    {/* Main row: item info + quantity controls */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     {/* Item Info */}
                                     <div style={{ flex: 1 }}>
                                         <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -752,6 +828,97 @@ const InventoryTab = () => {
                                             ✕
                                         </button>
                                     </div>
+                                    </div>{/* end main row */}
+
+                                    {/* Heal panel — shown for healing/berry items */}
+                                    {showHealPanel && (
+                                        <div style={{
+                                            padding: '10px 12px',
+                                            background: 'var(--input-bg)',
+                                            borderRadius: '6px',
+                                            border: '1px solid #4caf50',
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            gap: '8px',
+                                            alignItems: 'center'
+                                        }}>
+                                            <select
+                                                value={healTargetId}
+                                                onChange={(e) => setHealTargetId(e.target.value)}
+                                                style={{
+                                                    flex: 1,
+                                                    minWidth: '120px',
+                                                    padding: '6px 8px',
+                                                    borderRadius: '4px',
+                                                    border: '1px solid var(--border-medium)',
+                                                    background: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)',
+                                                    fontSize: '13px'
+                                                }}
+                                            >
+                                                <option value="">— Pick Pokémon —</option>
+                                                {party.map(p => {
+                                                    const maxHP = calculatePokemonHP(p);
+                                                    const currentHP = maxHP - (p.currentDamage || 0);
+                                                    return (
+                                                        <option key={p.id} value={String(p.id)}>
+                                                            {p.name || p.species} ({currentHP}/{maxHP} HP)
+                                                        </option>
+                                                    );
+                                                })}
+                                            </select>
+                                            {(() => {
+                                                const invItem = inventory.find(i => i.name.toLowerCase() === healPanel.itemName.toLowerCase());
+                                                const formula = parseHealFormula(invItem?.effect || '');
+                                                const label = formula.type === 'dice' ? `🎲 ${formula.formula}`
+                                                    : formula.type === 'fraction' ? `📊 ${formula.num}/${formula.denom} Max HP`
+                                                    : '✨ Status';
+                                                return (
+                                                    <span style={{
+                                                        padding: '6px 8px',
+                                                        borderRadius: '4px',
+                                                        border: '1px solid var(--border-medium)',
+                                                        background: 'var(--input-bg)',
+                                                        color: 'var(--text-primary)',
+                                                        fontSize: '13px',
+                                                        fontWeight: 'bold',
+                                                        whiteSpace: 'nowrap'
+                                                    }}>
+                                                        {label}
+                                                    </span>
+                                                );
+                                            })()}
+                                            <button
+                                                onClick={handleApplyHeal}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    background: '#4caf50',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                Roll & Apply
+                                            </button>
+                                            <button
+                                                onClick={() => setHealPanel(null)}
+                                                style={{
+                                                    padding: '6px 10px',
+                                                    background: '#9e9e9e',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '12px'
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}

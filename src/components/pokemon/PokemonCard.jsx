@@ -10,6 +10,17 @@ import toast from '../../utils/toast.js';
 import { useGameData, useModal, usePokemonContext } from '../../contexts/index.js';
 import { MAX_NATURAL_MOVES, MAX_TAUGHT_MOVES, MAX_TOTAL_MOVES } from '../../data/constants.js';
 
+const STATUS_CONDITIONS = [
+    { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336' },
+    { key: 'frozen',    label: 'Frozen',    icon: '🧊', color: '#42a5f5' },
+    { key: 'paralyzed', label: 'Paralyzed', icon: '⚡', color: '#ffc107' },
+    { key: 'poisoned',  label: 'Poisoned',  icon: '☠️', color: '#9c27b0' },
+    { key: 'asleep',    label: 'Asleep',    icon: '💤', color: '#607d8b' },
+    { key: 'confused',  label: 'Confused',  icon: '💫', color: '#ff9800' },
+    { key: 'flinched',  label: 'Flinched',  icon: '😵', color: '#795548' },
+    { key: 'fainted',   label: 'Fainted',   icon: '✖',  color: '#333'    },
+];
+
 const PokemonCard = ({
     // Pokemon-specific props (must be passed per-card)
     pokemon,
@@ -526,6 +537,25 @@ const PokemonCard = ({
                                 );
                             })()}
                         </div>
+
+                        {/* Status Conditions — read-only display */}
+                        {(() => {
+                            const active = STATUS_CONDITIONS.filter(c => pokemon.statusConditions?.[c.key]);
+                            if (!active.length) return null;
+                            return (
+                                <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                    {active.map(c => (
+                                        <span key={c.key} style={{
+                                            padding: '1px 6px', borderRadius: '10px',
+                                            background: c.color, color: 'white',
+                                            fontSize: '10px', fontWeight: 'bold'
+                                        }}>
+                                            {c.icon} {c.label}
+                                        </span>
+                                    ))}
+                                </div>
+                            );
+                        })()}
 
                         {/* HP Bar - More Visible */}
                         <div style={{ marginTop: '6px' }}>

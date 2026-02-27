@@ -46,19 +46,28 @@ const buildPokemonRollEntry = ({
     timestamp: Date.now()
 });
 
+// Parse an item's effect string for a heal formula
+const parseHealFormula = (effectStr = '') => {
+    const diceMatch = effectStr.match(/(\d+d\d+(?:[+]\d+)?)\s*HP/i);
+    if (diceMatch) return { type: 'dice', formula: diceMatch[1] };
+    const fracMatch = effectStr.match(/(\d+)\/(\d+)\s*Max\s*HP/i);
+    if (fracMatch) return { type: 'fraction', num: parseInt(fracMatch[1]), denom: parseInt(fracMatch[2]) };
+    return { type: 'none' };
+};
+
 const BattleTab = () => {
     // Get state from contexts
     const { GAME_DATA, pokedex } = useGameData();
     const { showDetail, showConfirm } = useModal();
     const { trainer, setTrainer, party, calculateMaxHP } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
-    const { discordWebhook, setDiscordWebhook, sendToDiscord } = useData();
+    const { discordWebhook, setDiscordWebhook, sendToDiscord, inventory, setInventory } = useData();
     const [mode, setMode] = useState('pokemon');
     const [selectedMove, setSelectedMove] = useState(null);
     const [selectedSkill, setSelectedSkill] = useState('');
     const [customDice, setCustomDice] = useState('');
     const [rollHistory, setRollHistory] = useState(() => {
-        try { return JSON.parse(sessionStorage.getItem('pta-roll-history') || '[]'); } catch (e) { console.warn('Roll history corrupted, resetting:', e); return []; }
+        try { return JSON.parse(localStorage.getItem('pta-roll-history') || '[]'); } catch (e) { console.warn('Roll history corrupted, resetting:', e); return []; }
     });
     const [combatStages, setCombatStages] = useState({
         atk: 0, satk: 0, def: 0, sdef: 0, spd: 0, acc: 0, eva: 0
@@ -155,7 +164,7 @@ const BattleTab = () => {
 
     // Persist roll history to sessionStorage
     useEffect(() => {
-        try { sessionStorage.setItem('pta-roll-history', JSON.stringify(rollHistory)); } catch {}
+        try { localStorage.setItem('pta-roll-history', JSON.stringify(rollHistory)); } catch {}
     }, [rollHistory]);
 
     // Reset battle state when switching Pokemon
@@ -359,6 +368,59 @@ const BattleTab = () => {
         });
     };
 
+    // Use a healing/berry item from the heal tab
+    const rollHealItem = (itemName) => {
+        const target = party.find(p => p.id === selectedPokemonId);
+        if (!target) { toast.warning('Select a Pokémon first.'); return; }
+        const invItem = inventory.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+        if (!invItem) return;
+        const formula = parseHealFormula(invItem.effect || '');
+        const maxHP = calculatePokemonHP(target);
+        let amount = 0, rolls = [], bonus = 0, desc = '';
+        if (formula.type === 'dice') {
+            const d = parseDice(formula.formula);
+            rolls = rollDice(d.count, d.sides);
+            bonus = d.bonus;
+            amount = rolls.reduce((a, b) => a + b, 0) + bonus;
+            desc = formula.formula;
+        } else if (formula.type === 'fraction') {
+            amount = Math.floor(maxHP * formula.num / formula.denom);
+            desc = `${formula.num}/${formula.denom} Max HP`;
+        } else {
+            toast.info(`Used ${itemName} (status effect only).`);
+        }
+        if (amount > 0) {
+            const newDamage = Math.max(0, (target.currentDamage || 0) - amount);
+            updatePokemon(target.id, { currentDamage: newDamage });
+        }
+        setInventory(prev => {
+            const idx = prev.findIndex(i => i.name.toLowerCase() === itemName.toLowerCase());
+            if (idx === -1) return prev;
+            const qty = prev[idx].quantity || 1;
+            if (qty <= 1) return prev.filter((_, i) => i !== idx);
+            const next = [...prev];
+            next[idx] = { ...next[idx], quantity: qty - 1 };
+            return next;
+        });
+        addToHistory({
+            type: 'heal',
+            pokemon: target.name || target.species,
+            item: itemName,
+            formula: desc,
+            rolls,
+            bonus,
+            amount,
+            timestamp: Date.now()
+        });
+    };
+
+    // Compute healing items available in inventory — HP-restoring only
+    const healingInventory = inventory.filter(item => {
+        const t = (item.type || '').toLowerCase();
+        if (t !== 'healing' && t !== 'berry') return false;
+        return parseHealFormula(item.effect || '').type !== 'none';
+    });
+
     return (
         <div>
             <h2 className="section-title">Dice Roller</h2>
@@ -377,13 +439,16 @@ const BattleTab = () => {
                 <button className={`tab ${mode === 'custom' ? 'active' : ''}`} onClick={() => setMode('custom')}>
                     Custom Dice
                 </button>
+                <button className={`tab ${mode === 'heal' ? 'active' : ''}`} onClick={() => setMode('heal')}>
+                    🩹 Heal
+                </button>
             </div>
 
             <div className="grid-responsive-2">
                 {/* Left: Roll Controls */}
                 <div className="section-card-purple">
                     <h3 className="section-title-purple">
-                        <span>🎲</span> {mode === 'pokemon' ? 'Pokemon Attack' : mode === 'trainer' ? 'Trainer Skill' : 'Custom Roll'}
+                        <span>{mode === 'heal' ? '🩹' : '🎲'}</span> {mode === 'pokemon' ? 'Pokemon Attack' : mode === 'trainer' ? 'Trainer Skill' : mode === 'heal' ? 'Use Healing Item' : 'Custom Roll'}
                     </h3>
 
                     {mode === 'pokemon' && (
@@ -1348,6 +1413,84 @@ const BattleTab = () => {
                         </div>
                     )}
 
+                    {mode === 'heal' && (
+                        <div>
+                            {/* Pokemon selector (reuses the shared selectedPokemonId) */}
+                            <div style={{ marginBottom: '12px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
+                                    Target Pokémon
+                                </label>
+                                <select
+                                    value={selectedPokemonId || ''}
+                                    onChange={(e) => setSelectedPokemonId(parseInt(e.target.value) || null)}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
+                                >
+                                    <option value="">— Select Pokémon —</option>
+                                    {party.map(p => {
+                                        const maxHP = calculatePokemonHP(p);
+                                        const currentHP = maxHP - (p.currentDamage || 0);
+                                        return (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name || p.species} ({currentHP}/{maxHP} HP)
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+
+                            {/* Healing items list */}
+                            {healingInventory.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)', fontSize: '13px' }}>
+                                    No healing items in inventory.
+                                </div>
+                            ) : (
+                                <div style={{ display: 'grid', gap: '6px' }}>
+                                    {healingInventory.map(item => {
+                                        const formula = parseHealFormula(item.effect || '');
+                                        const formulaLabel = formula.type === 'dice' ? `🎲 ${formula.formula}`
+                                            : formula.type === 'fraction' ? `📊 ${formula.num}/${formula.denom} Max HP`
+                                            : '✨ Status';
+                                        return (
+                                            <div key={item.name} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '10px',
+                                                padding: '8px 10px',
+                                                borderRadius: '6px',
+                                                background: 'var(--input-bg)',
+                                                border: '1px solid var(--border-medium)'
+                                            }}>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{item.name}</div>
+                                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                                        {formulaLabel} · ×{item.quantity || 1}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => rollHealItem(item.name)}
+                                                    disabled={!selectedPokemonId}
+                                                    style={{
+                                                        padding: '6px 14px',
+                                                        background: selectedPokemonId ? '#4caf50' : '#ccc',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: selectedPokemonId ? 'pointer' : 'not-allowed',
+                                                        fontSize: '12px',
+                                                        fontWeight: 'bold',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
+                                                    Use
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {/* Discord Settings */}
                     <div style={{
                         marginTop: '20px',
@@ -1568,7 +1711,8 @@ const BattleTab = () => {
                                         borderRadius: '6px',
                                         borderLeft: `4px solid ${
                                             roll.type === 'pokemon' ? getTypeColor(roll.moveType || 'Normal') :
-                                            roll.type === 'trainer_skill' ? '#667eea' : '#95a5a6'
+                                            roll.type === 'trainer_skill' ? '#667eea' :
+                                            roll.type === 'heal' ? '#4caf50' : '#95a5a6'
                                         }`
                                     }}
                                 >
@@ -1642,6 +1786,24 @@ const BattleTab = () => {
                                                 <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{roll.total}</span>
                                                 <span> | [{roll.rolls?.join(', ')}]</span>
                                                 {roll.bonus > 0 && <span> +{roll.bonus}</span>}
+                                            </div>
+                                        </>
+                                    )}
+                                    {roll.type === 'heal' && (
+                                        <>
+                                            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                                🩹 {roll.pokemon} — {roll.item}
+                                            </div>
+                                            <div style={{ fontSize: '12px' }}>
+                                                <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#4caf50' }}>+{roll.amount} HP</span>
+                                                {roll.rolls?.length > 0 && (
+                                                    <span style={{ color: 'var(--text-muted)', marginLeft: '6px' }}>
+                                                        {roll.formula}: [{roll.rolls.join(', ')}]{roll.bonus > 0 ? `+${roll.bonus}` : ''} = {roll.amount}
+                                                    </span>
+                                                )}
+                                                {roll.rolls?.length === 0 && roll.formula && (
+                                                    <span style={{ color: 'var(--text-muted)', marginLeft: '6px' }}>({roll.formula})</span>
+                                                )}
                                             </div>
                                         </>
                                     )}
