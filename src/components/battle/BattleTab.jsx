@@ -8,7 +8,7 @@ import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyComb
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { MAX_ROLL_HISTORY } from '../../data/constants.js';
-import { getPokemonSprite } from '../../utils/pokemonSprite.js';
+import { getPokemonSprite, getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
 import TypeMatchupDisplay from './TypeMatchupDisplay.jsx';
 import StatusConditionUI from './StatusConditionUI.jsx';
 import MegaEvolutionPanel from './MegaEvolutionPanel.jsx';
@@ -322,6 +322,21 @@ const BattleTab = () => {
                                     })}
                                 </select>
                             </div>
+
+                            {/* Pokemon Sprite */}
+                            {selectedPokemon && (() => {
+                                const img = getPokemonDisplayImage(selectedPokemon);
+                                if (!img) return null;
+                                return (
+                                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+                                        <img
+                                            src={img}
+                                            alt={selectedPokemon.name || selectedPokemon.species}
+                                            style={{ width: '96px', height: '96px', objectFit: 'contain', imageRendering: !selectedPokemon.avatar ? 'pixelated' : 'auto' }}
+                                        />
+                                    </div>
+                                );
+                            })()}
 
                             {/* Held Item */}
                             {selectedPokemon?.heldItem && (() => {
