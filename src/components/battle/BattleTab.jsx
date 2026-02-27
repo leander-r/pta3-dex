@@ -209,7 +209,8 @@ const BattleTab = () => {
 
         addToHistory(buildPokemonRollEntry({
             ...commonFields,
-            dice: isHit ? `${diceCount}d${diceData.sides}+${diceData.bonus}` : null,
+            dice: isHit ? `${diceCount}d${diceData.sides}` : null,
+            diceBonus: diceData.bonus,
             rolls, diceTotal, statBonus: statMod, stabBonus, total, relevantStages
         }));
     };

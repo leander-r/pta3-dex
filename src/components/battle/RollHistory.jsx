@@ -21,7 +21,13 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                     const crit = roll.isCrit ? ' (CRIT!)' : '';
                     lines.push(`  Accuracy: ${roll.modifiedAccRoll ?? roll.accRoll ?? '?'} vs AC ${roll.moveAC ?? '?'} → ${hit}${crit}`);
                     if (roll.isHit && roll.dice) {
-                        lines.push(`  Damage: ${roll.dice} [${(roll.rolls || []).join(', ')}] = ${roll.diceTotal ?? 0} + stat ${roll.statBonus ?? 0} + STAB ${roll.stabBonus ?? 0} = ${roll.total ?? 0}`);
+                        const db = roll.diceBonus ?? 0;
+                        const notation = db ? `${roll.dice}+${db}` : roll.dice;
+                        const parts = [`[${(roll.rolls || []).join(', ')}] = ${roll.diceTotal ?? 0}`];
+                        if (db)               parts.push(`${db} (base)`);
+                        if (roll.statBonus)   parts.push(`${roll.statBonus} (stat)`);
+                        if (roll.stabBonus)   parts.push(`${roll.stabBonus} (STAB)`);
+                        lines.push(`  Damage: ${notation}: ${parts.join(' + ')} = ${roll.total ?? 0}`);
                     }
                 } else {
                     lines.push(`  Status move — ${roll.isHit ? 'HIT' : 'MISS'}`);
@@ -157,7 +163,7 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                         ) : roll.isHit ? (
                                             <>
                                                 <span style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--text-primary)' }}>{roll.total}</span>
-                                                <span> damage | [{roll.rolls?.join(', ')}] +{roll.statBonus} stat +{roll.stabBonus} STAB</span>
+                                                <span> damage | [{roll.rolls?.join(', ')}] = {roll.diceTotal}{(roll.diceBonus ?? 0) > 0 ? ` + ${roll.diceBonus} (base)` : ''}{roll.statBonus > 0 ? ` + ${roll.statBonus} (stat)` : ''}{roll.stabBonus > 0 ? ` + ${roll.stabBonus} (STAB)` : ''}</span>
                                             </>
                                         ) : (
                                             <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Attack missed - no damage</span>

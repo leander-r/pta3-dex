@@ -64,14 +64,16 @@ export const buildPokemonEmbed = (roll, trainerName) => {
 
     // Damage breakdown (any hit that rolled dice, including status-category moves with damage)
     if (hit && roll.dice) {
-        const bonuses = [];
-        if (roll.statBonus) bonuses.push(`+${roll.statBonus} stat`);
-        if (roll.stabBonus) bonuses.push(`+${roll.stabBonus} STAB`);
-        const diceStr  = `${roll.dice}: [${roll.rolls.join(', ')}] = ${roll.diceTotal}`;
-        const bonusStr = bonuses.length ? `  ${bonuses.join('  ')}` : '';
+        const diceBonus = roll.diceBonus ?? 0;
+        const parts = [`[${roll.rolls.join(', ')}] = ${roll.diceTotal}`];
+        if (diceBonus)      parts.push(`${diceBonus} (base)`);
+        if (roll.statBonus) parts.push(`${roll.statBonus} (stat)`);
+        if (roll.stabBonus) parts.push(`${roll.stabBonus} (STAB)`);
+        const formula = parts.join(' + ');
+        const notation = diceBonus ? `${roll.dice}+${diceBonus}` : roll.dice;
         fields.push({
             name: crit ? '🎲 Damage (Crit — double dice)' : '🎲 Damage',
-            value: `${diceStr}${bonusStr}`,
+            value: `${notation}: ${formula} = **${roll.total}**`,
             inline: false,
         });
     }

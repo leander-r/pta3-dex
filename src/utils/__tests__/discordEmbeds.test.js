@@ -109,8 +109,9 @@ describe('buildPokemonEmbed — hit', () => {
     it('shows damage breakdown field', () => {
         const dmgField = embed.fields.find(f => f.name.includes('Damage'));
         expect(dmgField).toBeTruthy();
-        expect(dmgField.value).toContain('+14 stat');
-        expect(dmgField.value).toContain('+4 STAB');
+        expect(dmgField.value).toContain('14 (stat)');
+        expect(dmgField.value).toContain('4 (STAB)');
+        expect(dmgField.value).toContain('= **71**');
     });
 
     it('shows HP bar field', () => {
