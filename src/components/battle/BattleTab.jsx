@@ -38,12 +38,14 @@ const battleContext = (pokemon, hp, megaEvolved, currentMegaForm) => ({
     megaFormName: megaEvolved && currentMegaForm ? currentMegaForm.name : null,
 });
 
-// Build a normalized roll-history entry for a Pokemon attack
+// Build a normalized roll-history entry for a Pokemon attack.
+// Extra fields (typeColor, attackerCurrentHP, etc.) are spread through unchanged.
 const buildPokemonRollEntry = ({
     pokemon, move, moveType, category,
     accRoll, accModifier, modifiedAccRoll, moveAC, acWasOverridden,
     isHit, isCrit, isStatus,
-    dice, rolls, diceTotal, statBonus, stabBonus, total
+    dice, rolls, diceTotal, statBonus, stabBonus, total,
+    ...extra
 }) => ({
     type: 'pokemon',
     pokemon, move, moveType, category,
@@ -56,7 +58,8 @@ const buildPokemonRollEntry = ({
     statBonus: statBonus || 0,
     stabBonus: stabBonus || 0,
     total: total || 0,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    ...extra
 });
 
 
