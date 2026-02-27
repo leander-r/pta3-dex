@@ -29,3 +29,7 @@ npm-debug.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Playwright
+test-results/
+playwright-report/
