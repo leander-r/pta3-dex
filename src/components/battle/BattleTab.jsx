@@ -188,7 +188,7 @@ const BattleTab = () => {
         const statBonus = statMod - baseStatVal; // actual stat change from combat stage
         const relevantStages = [
             combatStages.acc ? { label: 'ACC', stage: combatStages.acc, bonus: combatStages.acc, isFlat: true } : null,
-            diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey], bonus: statBonus } : null,
+            diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey], bonus: statBonus, base: baseStatVal, boosted: statMod } : null,
         ].filter(Boolean);
 
         if (diceData.count === 0) {
