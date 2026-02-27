@@ -184,9 +184,11 @@ const BattleTab = () => {
 
         // Collect non-zero combat stages relevant to this roll
         const statLabel = isPhysical ? 'ATK' : 'SATK';
+        const baseStatVal = actualStats[statKey] || 0;
+        const statBonus = statMod - baseStatVal; // actual stat change from combat stage
         const relevantStages = [
-            combatStages.acc               ? { label: 'ACC',      stage: combatStages.acc }      : null,
-            diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey] } : null,
+            combatStages.acc ? { label: 'ACC', stage: combatStages.acc, bonus: combatStages.acc, isFlat: true } : null,
+            diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey], bonus: statBonus } : null,
         ].filter(Boolean);
 
         if (diceData.count === 0) {

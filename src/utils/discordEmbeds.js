@@ -83,10 +83,15 @@ export const buildPokemonEmbed = (roll, trainerName) => {
 
     // Active combat stages relevant to this roll (non-zero only)
     if (roll.relevantStages?.length > 0) {
-        const stageStr = roll.relevantStages
-            .map(({ label, stage }) => `${label} ${stage > 0 ? '+' : ''}${stage}`)
-            .join('  ·  ');
-        fields.push({ name: '📊 Stages', value: stageStr, inline: true });
+        const ordinal = n => { const s = n===1?'st':n===2?'nd':n===3?'rd':'th'; return `${n}${s}`; };
+        const stageStr = roll.relevantStages.map(({ label, stage, bonus, isFlat }) => {
+            const abs    = Math.abs(stage);
+            const bonusSign = bonus >= 0 ? '+' : '−';
+            const bonusAbs  = Math.abs(bonus);
+            const suffix = isFlat ? 'to roll' : 'stat';
+            return `**${label}** ${ordinal(abs)} Combat Stage = ${bonusSign}${bonusAbs} ${suffix}`;
+        }).join('\n');
+        fields.push({ name: '📊 Combat Stages', value: stageStr, inline: false });
     }
 
     // Attacker HP bar
