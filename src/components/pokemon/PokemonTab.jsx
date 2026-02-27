@@ -23,7 +23,7 @@ const PokemonTab = () => {
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
     const { pokemonView, setPokemonView, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId } = useUI();
     const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowBulkExpModal, openComparison } = useModal();
-    const { party, reserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList, reorderPokemon } = useTrainerContext();
+    const { trainer, setTrainer, party, reserve, setParty, setReserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList, reorderPokemon } = useTrainerContext();
     const { addPokemon, updatePokemon, restorePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
     const [filter, setFilter] = useState(() => ({
         search: '',
@@ -45,6 +45,35 @@ const PokemonTab = () => {
 
     // Coverage panel
     const [showCoverage, setShowCoverage] = useState(false);
+
+    // Party presets
+    const [showPresets, setShowPresets] = useState(false);
+    const [presetName, setPresetName] = useState('');
+    const partyPresets = trainer.partyPresets || [];
+
+    const handleSavePreset = () => {
+        const name = presetName.trim();
+        if (!name) { toast.warning('Enter a preset name.'); return; }
+        if (!party.length) { toast.warning('Party is empty.'); return; }
+        const preset = { id: Date.now(), name, pokemonIds: party.map(p => p.id) };
+        setTrainer(prev => ({ ...prev, partyPresets: [...(prev.partyPresets || []), preset] }));
+        setPresetName('');
+        toast.success(`Saved preset "${name}"`);
+    };
+
+    const handleLoadPreset = (preset) => {
+        const all = [...party, ...reserve];
+        const ids = new Set(preset.pokemonIds);
+        const newParty = preset.pokemonIds.map(id => all.find(p => p.id === id)).filter(Boolean).slice(0, MAX_PARTY_SIZE);
+        const newReserve = all.filter(p => !newParty.find(np => np.id === p.id));
+        setParty(newParty);
+        setReserve(newReserve);
+        toast.success(`Loaded preset "${preset.name}"`);
+    };
+
+    const handleDeletePreset = (presetId) => {
+        setTrainer(prev => ({ ...prev, partyPresets: (prev.partyPresets || []).filter(p => p.id !== presetId) }));
+    };
 
     // Team type coverage — computed from party types + move types
     const teamCoverage = useMemo(() => {
@@ -591,6 +620,94 @@ const PokemonTab = () => {
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Party Presets */}
+            {pokemonView === 'party' && (
+                <div className="section-card" style={{ marginBottom: '15px' }}>
+                    <div
+                        onClick={() => setShowPresets(v => !v)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}
+                    >
+                        <span style={{ fontSize: '16px' }}>⭐</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Party Presets</span>
+                        {partyPresets.length > 0 && (
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--border-medium)', borderRadius: '10px', padding: '1px 7px' }}>
+                                {partyPresets.length}
+                            </span>
+                        )}
+                        <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)' }}>
+                            {showPresets ? '▲ Hide' : '▼ Show'}
+                        </span>
+                    </div>
+
+                    {showPresets && (
+                        <div style={{ marginTop: '12px' }}>
+                            {/* Save current party */}
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                                <input
+                                    type="text"
+                                    value={presetName}
+                                    onChange={(e) => setPresetName(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
+                                    placeholder="Preset name (e.g. Cave Team)"
+                                    style={{
+                                        flex: 1, padding: '8px 10px', borderRadius: '6px',
+                                        border: '1px solid var(--border-medium)',
+                                        background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '13px'
+                                    }}
+                                />
+                                <button
+                                    onClick={handleSavePreset}
+                                    style={{ padding: '8px 14px', background: '#667eea', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}
+                                >
+                                    Save Party
+                                </button>
+                            </div>
+
+                            {/* Preset list */}
+                            {partyPresets.length === 0 ? (
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', padding: '8px' }}>
+                                    No presets saved yet.
+                                </div>
+                            ) : (
+                                <div style={{ display: 'grid', gap: '6px' }}>
+                                    {partyPresets.map(preset => {
+                                        const allPokemon = [...party, ...reserve];
+                                        const members = preset.pokemonIds.map(id => allPokemon.find(p => p.id === id)).filter(Boolean);
+                                        return (
+                                            <div key={preset.id} style={{
+                                                display: 'flex', alignItems: 'center', gap: '8px',
+                                                padding: '8px 10px', borderRadius: '6px',
+                                                background: 'var(--input-bg)', border: '1px solid var(--border-medium)'
+                                            }}>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{preset.name}</div>
+                                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {members.length ? members.map(p => p.name || p.species).join(', ') : '(pokemon not found)'}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleLoadPreset(preset)}
+                                                    style={{ padding: '5px 10px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap' }}
+                                                >
+                                                    Load
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeletePreset(preset.id)}
+                                                    style={{ padding: '5px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                                                    title="Delete preset"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

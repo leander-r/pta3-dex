@@ -30,6 +30,13 @@ export const UIProvider = ({ children }) => {
         return initial;
     });
 
+    // Compact/dense UI mode
+    const [compactMode, setCompactMode] = useState(() => safeLocalStorageGet('pta-compact-mode', false));
+    useEffect(() => {
+        document.documentElement.setAttribute('data-compact', compactMode ? 'true' : 'false');
+        safeLocalStorageSet('pta-compact-mode', compactMode);
+    }, [compactMode]);
+
     // Save Indicator State
     const [showSaveIndicator, setShowSaveIndicator] = useState(false);
     const [isAutoSave, setIsAutoSave] = useState(false);
@@ -73,6 +80,10 @@ export const UIProvider = ({ children }) => {
         // Theme
         theme,
         setTheme,
+
+        // Compact Mode
+        compactMode,
+        setCompactMode,
 
         // Save Indicator
         showSaveIndicator,

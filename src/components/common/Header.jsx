@@ -62,7 +62,7 @@ const Header = () => {
         unarchiveTrainer
     } = useTrainerContext();
     const { exportSingleTrainer, exportAllData, importData, restoreAutoBackup } = useData();
-    const { theme, setTheme, setEditingPokemon } = useUI();
+    const { theme, setTheme, compactMode, setCompactMode, setEditingPokemon } = useUI();
     const { setShowCardModal, showConfirm } = useModal();
 
     // Active (non-archived) and archived trainer lists
@@ -268,6 +268,26 @@ const Header = () => {
                         ))}
                     </select>
                 </div>
+
+                {/* Compact Mode Toggle */}
+                <button
+                    onClick={() => setCompactMode(m => !m)}
+                    className="theme-toggle"
+                    style={{
+                        width: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
+                        height: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
+                        opacity: compactMode ? 1 : 0.7
+                    }}
+                    aria-label={compactMode ? 'Switch to comfortable view' : 'Switch to compact view'}
+                    title={compactMode ? 'Comfortable view' : 'Compact view'}
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={compactMode ? '#ffc966' : 'white'} strokeWidth="2" strokeLinecap="round">
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <line x1="3" y1="14" x2="21" y2="14"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
 
                 {/* Theme Toggle */}
                 <button

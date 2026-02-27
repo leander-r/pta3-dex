@@ -4879,6 +4879,38 @@
             background: #1a3d3d !important;
         }
 
+        /* ========== COMPACT / DENSE UI MODE ========== */
+        [data-compact="true"] .section-card,
+        [data-compact="true"] .card-section,
+        [data-compact="true"] .section-card-purple,
+        [data-compact="true"] .section-card-accent {
+            padding: 12px;
+        }
+
+        [data-compact="true"] .pokemon-card {
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        [data-compact="true"] .inventory-item-card {
+            padding: 8px 10px;
+        }
+
+        [data-compact="true"] .section-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        [data-compact="true"] .section-description {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        [data-compact="true"] .grid-responsive-2,
+        [data-compact="true"] .grid-responsive-3 {
+            gap: 10px;
+        }
+
         /* ============================================================
            REDUCED MOTION - Accessibility
            ============================================================ */

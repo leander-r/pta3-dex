@@ -338,6 +338,7 @@ const InventoryTab = () => {
     };
 
     const totalItems = inventory.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const totalValue = inventory.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
 
     return (
         <div>
@@ -351,6 +352,7 @@ const InventoryTab = () => {
                     <span>🎒</span> Items
                     <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
                         {totalItems} items ({inventory.length} unique)
+                        {totalValue > 0 && <span style={{ marginLeft: '8px' }}>· ₽{totalValue.toLocaleString()}</span>}
                     </span>
                 </h3>
 
