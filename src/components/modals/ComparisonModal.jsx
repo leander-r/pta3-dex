@@ -6,6 +6,7 @@ import React from 'react';
 import { useModal, useTrainerContext, useGameData } from '../../contexts/index.js';
 import { getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
+import { getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
 
 const STAT_LABELS = {
     hp: 'HP', atk: 'ATK', def: 'DEF', satk: 'SATK', sdef: 'SDEF', spd: 'SPD'
@@ -45,13 +46,12 @@ const ComparisonModal = () => {
             }}>
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                    {pok.avatar ? (
-                        <img src={pok.avatar} alt="" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${primaryColor}`, marginBottom: '8px' }} />
-                    ) : (
-                        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: `linear-gradient(135deg, ${primaryColor}, #764ba2)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px', fontSize: '28px' }}>
-                            🔴
-                        </div>
-                    )}
+                    {(() => {
+                        const img = getPokemonDisplayImage(pok);
+                        return img
+                            ? <img src={img} alt="" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${primaryColor}`, marginBottom: '8px' }} />
+                            : <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: `linear-gradient(135deg, ${primaryColor}, #764ba2)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px', fontSize: '28px' }}>🔴</div>;
+                    })()}
                     <div style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--text-primary)' }}>
                         {pok.name || pok.species || 'Unknown'}
                     </div>

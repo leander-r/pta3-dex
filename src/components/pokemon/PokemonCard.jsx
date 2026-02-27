@@ -9,6 +9,7 @@ import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportU
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, usePokemonContext } from '../../contexts/index.js';
 import { MAX_NATURAL_MOVES, MAX_TAUGHT_MOVES, MAX_TOTAL_MOVES } from '../../data/constants.js';
+import { getPokemonDisplayImage, getPokemonSprite } from '../../utils/pokemonSprite.js';
 
 const STATUS_CONDITIONS = [
     { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336' },
@@ -477,11 +478,12 @@ const PokemonCard = ({
                         justifyContent: 'center',
                         flexShrink: 0
                     }}>
-                        {pokemon.avatar ? (
-                            <img src={pokemon.avatar} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
-                        ) : (
-                            <span style={{ fontSize: '24px' }}>🔴</span>
-                        )}
+                        {(() => {
+                            const img = getPokemonDisplayImage(pokemon);
+                            return img
+                                ? <img src={img} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
+                                : <span style={{ fontSize: '24px' }}>🔴</span>;
+                        })()}
                     </div>
 
                     {/* Info */}
@@ -1790,60 +1792,70 @@ const PokemonCard = ({
                                 Pokemon Image
                             </label>
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                {pokemon.avatar ? (
-                                    <div style={{ position: 'relative' }}>
-                                        <img
-                                            src={pokemon.avatar}
-                                            alt={pokemon.name || pokemon.species}
-                                            style={{
-                                                width: '80px',
-                                                height: '80px',
-                                                borderRadius: '8px',
-                                                objectFit: 'cover',
-                                                border: '2px solid #ddd'
-                                            }}
-                                        />
-                                        <button
-                                            onClick={() => updatePokemon({ avatar: '' })}
-                                            style={{
-                                                position: 'absolute',
-                                                top: '-8px',
-                                                right: '-8px',
-                                                width: '22px',
-                                                height: '22px',
-                                                borderRadius: '50%',
-                                                background: '#f44336',
-                                                color: 'white',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                fontSize: '12px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div style={{
-                                        width: '80px',
-                                        height: '80px',
-                                        borderRadius: '8px',
-                                        background: '#f0f0f0',
-                                        border: '2px dashed #ccc',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: '#999'
-                                    }}>
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                            <polyline points="21 15 16 10 5 21"></polyline>
-                                        </svg>
-                                    </div>
-                                )}
+                                {(() => {
+                                    const autoSprite = getPokemonSprite(pokemon);
+                                    const displayImg = pokemon.avatar || autoSprite;
+                                    if (displayImg) {
+                                        return (
+                                            <div style={{ position: 'relative' }}>
+                                                <img
+                                                    src={displayImg}
+                                                    alt={pokemon.name || pokemon.species}
+                                                    style={{
+                                                        width: '80px',
+                                                        height: '80px',
+                                                        borderRadius: '8px',
+                                                        objectFit: 'cover',
+                                                        border: pokemon.avatar ? '2px solid #ddd' : '2px solid transparent',
+                                                        imageRendering: !pokemon.avatar ? 'pixelated' : 'auto',
+                                                    }}
+                                                />
+                                                {pokemon.avatar && (
+                                                    <button
+                                                        onClick={() => updatePokemon({ avatar: '' })}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '-8px',
+                                                            right: '-8px',
+                                                            width: '22px',
+                                                            height: '22px',
+                                                            borderRadius: '50%',
+                                                            background: '#f44336',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            fontSize: '12px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                )}
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <div style={{
+                                            width: '80px',
+                                            height: '80px',
+                                            borderRadius: '8px',
+                                            background: '#f0f0f0',
+                                            border: '2px dashed #ccc',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: '#999'
+                                        }}>
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                <polyline points="21 15 16 10 5 21"></polyline>
+                                            </svg>
+                                        </div>
+                                    );
+                                })()}
                                 <div style={{ flex: 1 }}>
                                     <label
                                         style={{

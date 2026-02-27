@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
+import { getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
 import { copyToClipboard, downloadCardAsImage } from '../../utils/exportUtils.js';
 import toast from '../../utils/toast.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
@@ -840,30 +841,12 @@ const TeamPokemonSlot = ({ poke, idx }) => {
 
             {/* Left: Avatar */}
             <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                {poke.avatar ? (
-                    <img src={poke.avatar} alt={poke.name} style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '10px',
-                        objectFit: 'cover',
-                        border: '2px solid rgba(255,255,255,0.4)',
-                        boxShadow: '0 3px 10px rgba(0,0,0,0.3)'
-                    }} />
-                ) : (
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '10px',
-                        background: 'rgba(255,255,255,0.2)',
-                        border: '2px solid rgba(255,255,255,0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '28px'
-                    }}>
-                        🎴
-                    </div>
-                )}
+                {(() => {
+                    const img = getPokemonDisplayImage(poke);
+                    return img
+                        ? <img src={img} alt={poke.name} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.4)', boxShadow: '0 3px 10px rgba(0,0,0,0.3)' }} />
+                        : <div style={{ width: '56px', height: '56px', borderRadius: '10px', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🎴</div>;
+                })()}
                 {/* Types under avatar */}
                 <div style={{ display: 'flex', gap: '3px' }}>
                     {poke.types?.map(type => (
@@ -1103,7 +1086,7 @@ const PokemonCard = ({ poke }) => {
                     width: '100px',
                     height: '100px',
                     borderRadius: '16px',
-                    background: poke.avatar ? `url(${poke.avatar}) center/cover` : 'rgba(255,255,255,0.2)',
+                    background: (() => { const img = getPokemonDisplayImage(poke); return img ? `url(${img}) center/cover` : 'rgba(255,255,255,0.2)'; })(),
                     border: '4px solid rgba(255,255,255,0.5)',
                     boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
                     display: 'flex',
@@ -1112,7 +1095,7 @@ const PokemonCard = ({ poke }) => {
                     fontSize: '44px',
                     flexShrink: 0
                 }}>
-                    {!poke.avatar && '?'}
+                    {!getPokemonDisplayImage(poke) && '?'}
                 </div>
                 <div style={{ flex: 1 }}>
                     <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800, textShadow: '0 3px 6px rgba(0,0,0,0.4)', color: 'white' }}>
