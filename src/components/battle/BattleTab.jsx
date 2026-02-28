@@ -436,7 +436,7 @@ const BattleTab = () => {
                                     >
                                         (+{calculateSTAB(selectedPokemon.level || 1)} for matching type)
                                     </span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override the move's default Accuracy Class. Higher AC = harder to hit.">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override move AC (higher = harder to hit)">
                                         <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>AC Override:</label>
                                         <input
                                             type="number"
