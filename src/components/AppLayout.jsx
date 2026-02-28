@@ -105,7 +105,7 @@ const AppLayout = () => {
         showSaveIndicator, isAutoSave, lastSaveTime,
         levelUpNotification
     } = useUI();
-    const { pokedex, pokedexLoading, gameDataLoaded } = useGameData();
+    const { pokedex, pokedexLoading, pokedexError, gameDataLoaded } = useGameData();
 
     // Track which tabs have been visited so we mount them on first visit and
     // keep them mounted (CSS-hidden) thereafter — preserving local component state
@@ -147,6 +147,28 @@ const AppLayout = () => {
                 {/* MAIN CONTENT AREA                             */}
                 {/* ============================================== */}
                 <div className="content-area">
+
+                    {/* Pokédex error banner (shown when data fails to load but app is not in loading state) */}
+                    {pokedexError && !pokedexLoading && (
+                        <div
+                            role="alert"
+                            style={{
+                                margin: '16px 0',
+                                padding: '12px 16px',
+                                background: 'rgba(231, 76, 60, 0.15)',
+                                border: '1px solid #e74c3c',
+                                borderRadius: '8px',
+                                color: '#e74c3c',
+                                fontSize: '14px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}
+                        >
+                            <span>⚠️</span>
+                            <span>Failed to load Pokédex: {pokedexError}. Some features may be unavailable.</span>
+                        </div>
+                    )}
 
                     {/* Loading overlay while fetching Pokédex / game data */}
                     {(pokedexLoading || !gameDataLoaded) && (

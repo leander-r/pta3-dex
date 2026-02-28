@@ -28,14 +28,11 @@ export const GameDataProvider = ({ children }) => {
     const [gameDataLoaded, setGameDataLoaded] = useState(GAME_DATA._loaded || false);
     const [speciesSearch, setSpeciesSearch] = useState('');
 
-    // Wait for game data to load
+    // Wait for game data to load; catch network failures so the UI never hangs
     useEffect(() => {
-        gameDataLoadPromise.then(loaded => {
-            setGameDataLoaded(loaded);
-            if (loaded && GAME_DATA._loaded) {
-                // Game data loaded successfully
-            }
-        });
+        gameDataLoadPromise
+            .then(loaded => setGameDataLoaded(loaded))
+            .catch(() => setGameDataLoaded(true)); // unblock spinner on error
     }, []);
 
     // Fetch Pokedex (uses shared loader with timeout and caching)

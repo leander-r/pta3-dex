@@ -420,7 +420,7 @@ const CustomSpeciesModal = () => {
                         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                             The name of this Pokémon species (e.g., Sprigatito, Fuecoco). This will appear in the species dropdown.
                         </div>
-                        <input type="text" value={species.species} onChange={(e) => setSpecies(prev => ({ ...prev, species: e.target.value }))} placeholder="e.g., Sprigatito" />
+                        <input type="text" value={species.species} onChange={(e) => setSpecies(prev => ({ ...prev, species: e.target.value }))} placeholder="e.g., Sprigatito" required aria-required="true" />
                     </div>
 
                     {/* Types */}

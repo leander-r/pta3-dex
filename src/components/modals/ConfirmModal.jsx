@@ -169,15 +169,17 @@ const ConfirmModal = () => {
                     </button>
                     <button
                         onClick={handleConfirm}
+                        disabled={inputConfig ? !inputValue.trim() : false}
                         style={{
                             padding: '10px 20px',
                             border: 'none',
                             borderRadius: '6px',
                             background: danger ? '#e74c3c' : 'linear-gradient(135deg, #667eea, #764ba2)',
                             color: 'white',
-                            cursor: 'pointer',
+                            cursor: (inputConfig && !inputValue.trim()) ? 'not-allowed' : 'pointer',
                             fontSize: '14px',
-                            fontWeight: '600'
+                            fontWeight: '600',
+                            opacity: (inputConfig && !inputValue.trim()) ? 0.5 : 1
                         }}
                     >
                         {confirmLabel}

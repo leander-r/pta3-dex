@@ -119,21 +119,26 @@ const Header = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Close menu when clicking/touching outside
+    // Close menu when clicking/touching outside, or pressing Escape
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
                 setShowCharacterMenu(false);
             }
         };
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') setShowCharacterMenu(false);
+        };
 
         if (showCharacterMenu) {
             document.addEventListener('mousedown', handleClickOutside);
             document.addEventListener('touchstart', handleClickOutside, { passive: true });
+            document.addEventListener('keydown', handleKeyDown);
         }
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('touchstart', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
         };
     }, [showCharacterMenu]);
 
