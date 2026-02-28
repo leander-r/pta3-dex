@@ -40,6 +40,15 @@ export const DataProvider = ({ children }) => {
     // Inventory owned here; shared with PokemonProvider via useData()
     const [inventory, setInventory] = useState([]);
 
+    // Save slots — 3 named snapshot slots persisted to localStorage
+    const [saveSlots, setSaveSlots] = useState(() => {
+        try {
+            const raw = localStorage.getItem('pta-save-slots');
+            if (raw) return JSON.parse(raw);
+        } catch {}
+        return [null, null, null];
+    });
+
     // Discord webhook state
     const [discordWebhook, setDiscordWebhook] = useState(() => {
         try {
@@ -274,6 +283,111 @@ export const DataProvider = ({ children }) => {
             }
         });
     }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+
+    // ── Save Slot helpers ──────────────────────────────────────
+
+    const persistSlots = useCallback((slots) => {
+        setSaveSlots(slots);
+        try {
+            localStorage.setItem('pta-save-slots', JSON.stringify(slots));
+        } catch {
+            toast.error('Could not save slot data. Check your browser storage.');
+        }
+    }, []);
+
+    const buildPreview = useCallback(() => {
+        const active = trainers.find(t => t.id === activeTrainerId) || trainers[0];
+        return {
+            trainerName: active?.name || 'Trainer',
+            trainerLevel: active?.level || 1,
+            money: active?.money || 0,
+            partyCount: active?.party?.length || 0,
+            partyNames: (active?.party || []).slice(0, 3).map(p => p.nickname || p.species || 'Unknown'),
+            trainerCount: trainers.length
+        };
+    }, [trainers, activeTrainerId]);
+
+    const saveToSlot = useCallback((index, slotName) => {
+        const doSave = (name) => {
+            const slots = saveSlots ? [...saveSlots] : [null, null, null];
+            slots[index] = {
+                savedAt: new Date().toISOString(),
+                slotName: name || `Save ${index + 1}`,
+                trainers,
+                activeTrainerId,
+                inventory,
+                customSpecies,
+                version: '2.1',
+                _preview: buildPreview()
+            };
+            persistSlots(slots);
+            toast.success(`Slot ${index + 1} saved!`);
+        };
+
+        if (saveSlots[index]) {
+            showConfirm({
+                title: `Overwrite Slot ${index + 1}?`,
+                message: `This will replace the existing save "${saveSlots[index].slotName}". Continue?`,
+                confirmLabel: 'Overwrite',
+                onConfirm: () => doSave(slotName || saveSlots[index].slotName)
+            });
+        } else {
+            doSave(slotName);
+        }
+    }, [saveSlots, trainers, activeTrainerId, inventory, customSpecies, buildPreview, persistSlots, showConfirm]);
+
+    const loadFromSlot = useCallback((index) => {
+        const slot = saveSlots[index];
+        if (!slot) return;
+        showConfirm({
+            title: `Load Slot ${index + 1}?`,
+            message: `"${slot.slotName}" — Current progress will be replaced. Continue?`,
+            confirmLabel: 'Load',
+            onConfirm: () => {
+                try {
+                    if (slot.trainers && Array.isArray(slot.trainers) && slot.trainers.length > 0) {
+                        const validActiveId = slot.trainers.some(t => t.id === slot.activeTrainerId)
+                            ? slot.activeTrainerId
+                            : slot.trainers[0].id;
+                        setTrainers(slot.trainers);
+                        setActiveTrainerId(validActiveId);
+                    }
+                    setInventory(Array.isArray(slot.inventory) ? slot.inventory : []);
+                    setCustomSpecies(Array.isArray(slot.customSpecies) ? slot.customSpecies : []);
+                    toast.success(`Slot ${index + 1} loaded!`);
+                } catch (err) {
+                    console.error('Load slot error:', err);
+                    toast.error('Could not load slot. The save may be corrupt.');
+                }
+            }
+        });
+    }, [saveSlots, showConfirm, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+
+    const deleteSlot = useCallback((index) => {
+        const slot = saveSlots[index];
+        if (!slot) return;
+        showConfirm({
+            title: `Delete Slot ${index + 1}?`,
+            message: `This will permanently delete "${slot.slotName}".`,
+            confirmLabel: 'Delete',
+            danger: true,
+            onConfirm: () => {
+                const slots = [...saveSlots];
+                slots[index] = null;
+                persistSlots(slots);
+                toast.success(`Slot ${index + 1} deleted.`);
+            }
+        });
+    }, [saveSlots, showConfirm, persistSlots]);
+
+    const renameSlot = useCallback((index, name) => {
+        if (!saveSlots[index] || !name.trim()) return;
+        const slots = [...saveSlots];
+        slots[index] = { ...slots[index], slotName: name.trim() };
+        persistSlots(slots);
+    }, [saveSlots, persistSlots]);
+
+    // ── End Save Slot helpers ──────────────────────────────────
 
     // Export all data as JSON file
     const exportAllData = useCallback(() => {
@@ -656,6 +770,13 @@ export const DataProvider = ({ children }) => {
         exportAllData,
         exportSingleTrainer,
         importData,
+
+        // Save Slots
+        saveSlots,
+        saveToSlot,
+        loadFromSlot,
+        deleteSlot,
+        renameSlot,
 
         // Export Text
         exportTrainerText,

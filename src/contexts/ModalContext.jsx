@@ -123,6 +123,11 @@ export const ModalProvider = ({ children }) => {
         pendingClassData: null
     });
 
+    // Save/Load Modal
+    const [showSaveLoadModal, setShowSaveLoadModal] = useState(false);
+    const openSaveLoadModal  = useCallback(() => setShowSaveLoadModal(true),  []);
+    const closeSaveLoadModal = useCallback(() => setShowSaveLoadModal(false), []);
+
     const value = {
         // Confirm Modal
         confirmModal,
@@ -202,7 +207,12 @@ export const ModalProvider = ({ children }) => {
 
         // Skill Picker Modal
         skillPickerModal,
-        setSkillPickerModal
+        setSkillPickerModal,
+
+        // Save/Load Modal
+        showSaveLoadModal,
+        openSaveLoadModal,
+        closeSaveLoadModal
     };
 
     return (
