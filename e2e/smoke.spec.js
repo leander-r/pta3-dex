@@ -28,7 +28,7 @@ test.beforeEach(async ({ page }) => {
 test('app shell renders header and navigation', async ({ page }) => {
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('[role="navigation"]')).toBeVisible();
-    await expect(page.locator('.nav-button')).toHaveCount(6);
+    await expect(page.locator('.nav-button')).toHaveCount(7);
 });
 
 test('trainer tab is active by default', async ({ page }) => {
