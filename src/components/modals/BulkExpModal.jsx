@@ -148,6 +148,7 @@ const BulkExpModal = () => {
                     <button
                         onClick={handleClose}
                         aria-label="Close modal"
+                        title="Close"
                         style={{
                             background: 'rgba(255,255,255,0.2)',
                             border: '2px solid rgba(255,255,255,0.3)',
@@ -349,12 +350,14 @@ const BulkExpModal = () => {
                             <button
                                 onClick={handleAwardExp}
                                 disabled={selectedIds.size === 0 || expAmount <= 0}
+                                title={selectedIds.size === 0 ? 'Select at least one Pokémon first' : expAmount <= 0 ? 'Enter an EXP amount greater than 0' : undefined}
                                 className="btn btn-purple"
                                 style={{
                                     width: '100%',
                                     padding: '12px',
                                     fontSize: '15px',
-                                    opacity: (selectedIds.size === 0 || expAmount <= 0) ? 0.5 : 1
+                                    opacity: (selectedIds.size === 0 || expAmount <= 0) ? 0.5 : 1,
+                                    cursor: (selectedIds.size === 0 || expAmount <= 0) ? 'not-allowed' : 'pointer'
                                 }}
                             >
                                 Award {expAmount} EXP to {selectedIds.size} Pokemon

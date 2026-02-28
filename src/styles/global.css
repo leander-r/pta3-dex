@@ -365,6 +365,22 @@
             background: var(--poke-orange-light);
             color: var(--text-primary);
         }
+
+        /* Global keyboard focus styles — visible ring on Tab, hidden on mouse click */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        a:focus-visible,
+        [tabindex]:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+
+        /* Prevent default outline everywhere (we supply our own above) */
+        :focus:not(:focus-visible) {
+            outline: none;
+        }
         
         .container {
             max-width: 1400px;

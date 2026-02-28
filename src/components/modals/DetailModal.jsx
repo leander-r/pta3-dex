@@ -79,7 +79,7 @@ const DetailModal = () => {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="detail-modal-title"
-                style={{ maxWidth: '550px', maxHeight: '80vh', overflow: 'auto' }}
+                style={{ maxWidth: 'min(95vw, 550px)', width: '100%', maxHeight: '80vh', overflow: 'auto' }}
                 onClick={e => e.stopPropagation()}
             >
                 <div
@@ -111,6 +111,7 @@ const DetailModal = () => {
                     <button
                         onClick={closeModal}
                         aria-label="Close modal"
+                        title="Close"
                         style={{
                             background: 'rgba(255,255,255,0.2)',
                             border: '2px solid rgba(255,255,255,0.3)',

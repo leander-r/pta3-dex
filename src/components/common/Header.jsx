@@ -7,10 +7,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTrainerContext, useData, useUI, useModal } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
-const MenuItem = ({ id, icon, label, onClick, danger, disabled, hoveredItem, setHoveredItem }) => (
+const MenuItem = ({ id, icon, label, onClick, danger, disabled, hoveredItem, setHoveredItem, title }) => (
     <button
         onClick={onClick}
         disabled={disabled}
+        title={title}
         onMouseEnter={() => setHoveredItem(id)}
         onMouseLeave={() => setHoveredItem(null)}
         onTouchStart={() => setHoveredItem(id)}
@@ -81,6 +82,7 @@ const Header = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
     const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 360);
     const menuRef = useRef(null);
+    const dropdownRef = useRef(null);
 
     const toggleTheme = () => {
         setTheme(theme === 'light' ? 'dark' : 'light');
@@ -118,6 +120,14 @@ const Header = () => {
 
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Move focus to the first menu item when the dropdown opens (H3)
+    useEffect(() => {
+        if (showCharacterMenu && dropdownRef.current) {
+            const firstBtn = dropdownRef.current.querySelector('button:not([disabled])');
+            if (firstBtn) setTimeout(() => firstBtn.focus(), 50);
+        }
+    }, [showCharacterMenu]);
 
     // Close menu when clicking/touching outside, or pressing Escape
     useEffect(() => {
@@ -242,6 +252,7 @@ const Header = () => {
                     <select
                         value={activeTrainerId || ''}
                         onChange={(e) => handleTrainerChange(parseInt(e.target.value))}
+                        title={trainer ? `${trainer.name || 'Unnamed'} (Lv.${trainer.level})` : undefined}
                         className="header-trainer-select"
                         style={{
                             paddingTop: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
@@ -370,7 +381,7 @@ const Header = () => {
 
                     {/* Dropdown Menu */}
                     {showCharacterMenu && (
-                        <div className="header-dropdown-menu" style={{
+                        <div ref={dropdownRef} className="header-dropdown-menu" style={{
                             position: 'absolute',
                             right: 0,
                             top: 'calc(100% + 8px)',
@@ -564,9 +575,17 @@ const Header = () => {
                                     }
                                     label="Archive Trainer"
                                     disabled={activeTrainers.length <= 1}
+                                    title={activeTrainers.length <= 1 ? 'Need at least 2 active trainers to archive one' : 'Move this trainer to the archived list'}
                                     onClick={() => {
-                                        archiveTrainer(activeTrainerId);
-                                        setShowCharacterMenu(false);
+                                        showConfirm({
+                                            title: 'Archive Trainer?',
+                                            message: `Archive "${trainer.name || 'Unnamed'}"? They'll move to the Archived section and can be restored later.`,
+                                            confirmLabel: 'Archive',
+                                            onConfirm: () => {
+                                                archiveTrainer(activeTrainerId);
+                                                setShowCharacterMenu(false);
+                                            }
+                                        });
                                     }}
                                 />
                                 <MenuItem {...menuItemProps}
@@ -580,6 +599,7 @@ const Header = () => {
                                     label="Delete Trainer"
                                     danger
                                     disabled={activeTrainers.length <= 1 && archivedTrainers.length === 0}
+                                    title={activeTrainers.length <= 1 && archivedTrainers.length === 0 ? 'Cannot delete the only trainer' : 'Permanently delete this trainer'}
                                     onClick={() => {
                                         deleteTrainer(activeTrainerId);
                                         setShowCharacterMenu(false);
