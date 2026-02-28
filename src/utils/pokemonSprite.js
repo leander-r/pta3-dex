@@ -19,12 +19,16 @@ export const speciesSlug = (species) =>
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
 
-// Maps PTA regional form names to Pokémon Showdown sprite suffixes.
+// Maps PTA regional/alternate form names to Pokémon Showdown sprite suffixes.
 const REGIONAL_FORM_SUFFIXES = {
+    // Regional variants
     'alolan':   'alola',
     'galarian': 'galar',
     'hisuian':  'hisui',
     'paldean':  'paldea',
+    // Lycanroc alternate forms (stored as regionalForm in evolutionChains)
+    'night':    'midnight',
+    'dusk':     'dusk',
 };
 
 // Returns the auto-generated sprite URL for a Pokémon, or null if no species is set.
