@@ -19,10 +19,22 @@ export const speciesSlug = (species) =>
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
 
+// Maps PTA regional form names to Pokémon Showdown sprite suffixes.
+const REGIONAL_FORM_SUFFIXES = {
+    'alolan':   'alola',
+    'galarian': 'galar',
+    'hisuian':  'hisui',
+    'paldean':  'paldea',
+};
+
 // Returns the auto-generated sprite URL for a Pokémon, or null if no species is set.
+// Handles regional forms by appending the appropriate Showdown suffix.
 export const getPokemonSprite = (pokemon) => {
     const slug = speciesSlug(pokemon?.species);
-    return slug ? `https://play.pokemonshowdown.com/sprites/gen5/${slug}.png` : null;
+    if (!slug) return null;
+    const formSuffix = REGIONAL_FORM_SUFFIXES[(pokemon?.regionalForm || '').toLowerCase()];
+    const fullSlug = formSuffix ? `${slug}-${formSuffix}` : slug;
+    return `https://play.pokemonshowdown.com/sprites/gen5/${fullSlug}.png`;
 };
 
 // Returns the sprite URL for a mega/alternate form.
