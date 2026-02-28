@@ -63,12 +63,16 @@ test('navigate to Campaign Notes tab', async ({ page }) => {
 test('theme toggle switches between light and dark', async ({ page }) => {
     const html         = page.locator('html');
     const initialTheme = await html.getAttribute('data-theme');
-    // Target the theme toggle specifically: its aria-label ends in "mode"
-    // (the compact-view button ends in "view" and comes first in the DOM)
-    await page.locator('button[aria-label$="mode"]').click();
+
+    // Theme toggle is now inside the hamburger menu
+    await page.locator('[aria-label="Open menu"]').click();
+    await page.locator('.header-menu-item', { hasText: /mode/i }).click();
+
     const newTheme = await html.getAttribute('data-theme');
     expect(newTheme).not.toBe(initialTheme);
+
     // Toggle back
-    await page.locator('button[aria-label$="mode"]').click();
+    await page.locator('[aria-label="Open menu"]').click();
+    await page.locator('.header-menu-item', { hasText: /mode/i }).click();
     await expect(html).toHaveAttribute('data-theme', initialTheme);
 });
