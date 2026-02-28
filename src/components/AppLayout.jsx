@@ -122,6 +122,28 @@ const AppLayout = () => {
 
     return (
         <div className="container">
+            {/* Skip to main content — keyboard / screen-reader navigation */}
+            <a
+                href="#main-content"
+                style={{
+                    position: 'absolute',
+                    top: '-999px',
+                    left: '-999px',
+                    zIndex: 9999,
+                    padding: '8px 16px',
+                    background: '#667eea',
+                    color: 'white',
+                    borderRadius: '0 0 6px 6px',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    textDecoration: 'none'
+                }}
+                onFocus={e => { e.currentTarget.style.top = '0'; e.currentTarget.style.left = '0'; }}
+                onBlur={e => { e.currentTarget.style.top = '-999px'; e.currentTarget.style.left = '-999px'; }}
+            >
+                Skip to main content
+            </a>
+
             {/* Toast Notifications */}
             <ToastContainer />
 
@@ -146,7 +168,7 @@ const AppLayout = () => {
                 {/* ============================================== */}
                 {/* MAIN CONTENT AREA                             */}
                 {/* ============================================== */}
-                <div className="content-area">
+                <main id="main-content" className="content-area">
 
                     {/* Pokédex error banner (shown when data fails to load but app is not in loading state) */}
                     {pokedexError && !pokedexLoading && (
@@ -244,7 +266,7 @@ const AppLayout = () => {
                             </div>
                         )}
                     </Suspense>
-                </div>
+                </main>
             </div>
 
             {/* ========== MODALS ========== */}

@@ -3,7 +3,7 @@
 // ============================================================
 // Campaign notes, session notes, and quest log
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useTrainerContext, useModal } from '../../contexts/index.js';
 
 const QUEST_STATUSES = [
@@ -21,6 +21,8 @@ const NotesTab = () => {
     const { showConfirm } = useModal();
     const [noteTab, setNoteTab] = useState('campaign');
     const [isFocused, setIsFocused] = useState(false);
+    const [lastSaved, setLastSaved] = useState(null);
+    const saveTimerRef = useRef(null);
 
     // Quest log state
     const [newQuestTitle, setNewQuestTitle] = useState('');
@@ -28,12 +30,19 @@ const NotesTab = () => {
     const quests = trainer.quests || [];
 
     // ── Notes handlers ────────────────────────────────────────
+    const markSaved = useCallback(() => {
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => setLastSaved(new Date()), 600);
+    }, []);
+
     const handleCampaignChange = (e) => {
         setTrainer(prev => ({ ...prev, notes: e.target.value }));
+        markSaved();
     };
 
     const handleSessionChange = (e) => {
         setTrainer(prev => ({ ...prev, sessionNotes: e.target.value }));
+        markSaved();
     };
 
     const handleClearSession = () => {
@@ -147,6 +156,7 @@ const NotesTab = () => {
                         onChange={isCampaign ? handleCampaignChange : handleSessionChange}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setIsFocused(false)}
+                        aria-label={isCampaign ? 'Campaign notes' : 'Session notes'}
                         placeholder={isCampaign
                             ? `Write your campaign notes, quest logs, NPC info, or anything else here...
 
@@ -182,9 +192,11 @@ Examples:
                             <span><strong>{activeText.length}</strong> characters</span>
                             <span><strong>{wordCount}</strong> words</span>
                         </div>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#4caf50' }}>
-                            <span style={{ width: '6px', height: '6px', background: '#4caf50', borderRadius: '50%', display: 'inline-block' }}></span>
-                            Auto-saved
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: lastSaved ? '#4caf50' : 'var(--text-muted)' }}>
+                            <span style={{ width: '6px', height: '6px', background: lastSaved ? '#4caf50' : 'var(--border-medium)', borderRadius: '50%', display: 'inline-block' }}></span>
+                            {lastSaved
+                                ? `Saved at ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                                : 'Changes auto-save'}
                         </span>
                     </div>
                 </div>
@@ -207,7 +219,8 @@ Examples:
                             value={newQuestTitle}
                             onChange={(e) => setNewQuestTitle(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddQuest()}
-                            placeholder="New quest title..."
+                            placeholder="Quest title..."
+                            aria-label="New quest title"
                             style={{
                                 flex: 1, padding: '8px 12px', borderRadius: '6px',
                                 border: '1px solid var(--border-medium)',
@@ -254,8 +267,13 @@ Examples:
                                                 {/* Quest header row */}
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px' }}>
                                                     <div
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        aria-expanded={expandedQuestId === quest.id}
+                                                        aria-label={`${quest.title} — click to ${expandedQuestId === quest.id ? 'collapse' : 'expand'} notes`}
                                                         style={{ flex: 1, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textDecoration: key === 'abandoned' ? 'line-through' : 'none', color: key === 'abandoned' ? 'var(--text-muted)' : 'var(--text-primary)' }}
                                                         onClick={() => setExpandedQuestId(expandedQuestId === quest.id ? null : quest.id)}
+                                                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpandedQuestId(expandedQuestId === quest.id ? null : quest.id)}
                                                     >
                                                         {quest.title}
                                                         {quest.notes && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '6px' }}>📝</span>}
@@ -265,6 +283,7 @@ Examples:
                                                         value={quest.status}
                                                         onChange={(e) => handleQuestStatus(quest.id, e.target.value)}
                                                         onClick={(e) => e.stopPropagation()}
+                                                        aria-label={`Status for quest: ${quest.title}`}
                                                         style={{
                                                             padding: '3px 6px', borderRadius: '4px',
                                                             border: `1px solid ${color}`, background: color,
@@ -279,6 +298,7 @@ Examples:
                                                         onClick={() => handleDeleteQuest(quest.id)}
                                                         style={{ padding: '3px 7px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
                                                         title="Delete quest"
+                                                        aria-label={`Delete quest: ${quest.title}`}
                                                     >
                                                         ✕
                                                     </button>
@@ -290,6 +310,7 @@ Examples:
                                                         <textarea
                                                             value={quest.notes || ''}
                                                             onChange={(e) => handleQuestNotes(quest.id, e.target.value)}
+                                                            aria-label={`Notes for quest: ${quest.title}`}
                                                             placeholder="Quest notes, clues, progress..."
                                                             rows={3}
                                                             style={{

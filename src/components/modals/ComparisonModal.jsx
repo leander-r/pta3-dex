@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { useModal, useTrainerContext, useGameData } from '../../contexts/index.js';
+import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
@@ -17,6 +18,8 @@ const ComparisonModal = () => {
     const { showComparisonModal, comparisonIds, closeComparison, showDetail } = useModal();
     const { pokemon: allPokemon } = useTrainerContext();
     const { GAME_DATA: gameData } = useGameData();
+
+    const { modalRef } = useModalKeyboard(showComparisonModal, closeComparison);
 
     if (!showComparisonModal) return null;
 
@@ -159,19 +162,25 @@ const ComparisonModal = () => {
     };
 
     return (
-        <div className="modal-overlay" onClick={closeComparison}>
+        <div className="modal-overlay" onClick={closeComparison} role="presentation">
             <div
+                ref={modalRef}
                 className="modal"
                 style={{ maxWidth: '860px', padding: '20px' }}
                 onClick={e => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="comparison-modal-title"
             >
                 {/* Modal Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                    <h2 id="comparison-modal-title" style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                         ⚔️ Pokémon Comparison
                     </h2>
                     <button
                         onClick={closeComparison}
+                        aria-label="Close modal"
+                        title="Close"
                         style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'var(--text-primary)', lineHeight: 1 }}
                     >
                         ×

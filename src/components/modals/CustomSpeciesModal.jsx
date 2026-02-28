@@ -140,7 +140,7 @@ const CustomSpeciesModal = () => {
         }
     }, [showCustomSpeciesModal, editingCustomSpeciesId, customSpecies]);
 
-    const handleClose = useCallback(() => {
+    const doClose = useCallback(() => {
         setShowCustomSpeciesModal(false);
         setSpecies({ ...DEFAULT_SPECIES });
         setEditingIndex(null);
@@ -152,6 +152,23 @@ const CustomSpeciesModal = () => {
             setEditingCustomSpeciesId(null);
         }
     }, [setShowCustomSpeciesModal, setEditingCustomSpeciesId]);
+
+    // Warn if the user tries to close a form that has partially filled data
+    const handleClose = useCallback(() => {
+        const hasUnsaved = species.species.trim() || species.types.join(',') !== 'Normal' ||
+            species.abilities.basic.length > 0 || species.levelUpMoves.length > 0;
+        if (hasUnsaved && editingIndex === null) {
+            showConfirm({
+                title: 'Discard new species?',
+                message: 'You have unsaved changes to this new species. Close without saving?',
+                confirmLabel: 'Discard',
+                danger: true,
+                onConfirm: doClose,
+            });
+        } else {
+            doClose();
+        }
+    }, [species, editingIndex, showConfirm, doClose]);
 
     const { modalRef } = useModalKeyboard(showCustomSpeciesModal, handleClose);
 

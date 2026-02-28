@@ -28,6 +28,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                     <button
                         key={`dmg-${val}`}
                         onClick={() => onDamage(val)}
+                        aria-label={`Deal ${val} damage to ${label}`}
                         style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
                     >
                         +{val}
@@ -35,6 +36,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                 ))}
                 <button
                     onClick={onFull}
+                    aria-label={`Restore ${label} to full HP`}
                     style={{ padding: '4px 8px', background: '#2196f3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
                 >
                     Full
@@ -43,6 +45,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                     <button
                         key={`heal-${val}`}
                         onClick={() => onHeal(val)}
+                        aria-label={`Heal ${val} HP for ${label}`}
                         style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
                     >
                         -{val}
@@ -54,7 +57,8 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                     ref={inputRef}
                     type="number"
                     min="1"
-                    placeholder="Custom"
+                    aria-label={`Custom HP amount for ${label}`}
+                    placeholder="Amt"
                     style={{ width: '70px', padding: '4px 6px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '11px', textAlign: 'center' }}
                 />
                 <button
@@ -62,15 +66,17 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                         const val = parseInt(inputRef.current?.value);
                         if (val > 0) { onDamage(val); inputRef.current.value = ''; }
                     }}
+                    aria-label={`Deal custom damage to ${label}`}
                     style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
                 >
-                    Damage
+                    Dmg
                 </button>
                 <button
                     onClick={() => {
                         const val = parseInt(inputRef.current?.value);
                         if (val > 0) { onHeal(val); inputRef.current.value = ''; }
                     }}
+                    aria-label={`Heal custom HP for ${label}`}
                     style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
                 >
                     Heal
