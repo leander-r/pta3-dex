@@ -252,7 +252,7 @@ export const PokemonProvider = ({ children }) => {
                 if (moveIndex === -1) return;
 
                 const historyIdx = newMoveHistory.findIndex(h =>
-                    h.replacedAtLevel >= moveToForget.learnedAtLevel
+                    h.replacedAtLevel === moveToForget.learnedAtLevel
                 );
 
                 if (historyIdx !== -1) {
@@ -368,19 +368,13 @@ export const PokemonProvider = ({ children }) => {
                 });
 
                 if (movesToLearnDirectly.length > 0) {
-                    setTimeout(() => {
-                        movesToLearnDirectly.forEach(move => learnMove(pokemonId, move, null, pokemonInParty));
-                    }, 10);
+                    movesToLearnDirectly.forEach(move => learnMove(pokemonId, move, null, pokemonInParty));
                 }
                 if (movesToQueue.length > 0) {
-                    setTimeout(() => {
-                        setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
-                    }, 20);
+                    setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
                 }
             } else {
-                setTimeout(() => {
-                    forgetMovesAboveLevel(pokemonId, newLvl, pokemonInParty);
-                }, 10);
+                forgetMovesAboveLevel(pokemonId, newLvl, pokemonInParty);
             }
         };
 
