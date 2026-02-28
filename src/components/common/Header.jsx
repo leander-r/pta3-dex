@@ -285,56 +285,6 @@ const Header = () => {
                     </select>
                 </div>
 
-                {/* Compact Mode Toggle */}
-                <button
-                    onClick={() => setCompactMode(m => !m)}
-                    className="theme-toggle"
-                    style={{
-                        width: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
-                        height: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
-                        opacity: compactMode ? 1 : 0.7
-                    }}
-                    aria-label={compactMode ? 'Switch to comfortable view' : 'Switch to compact view'}
-                    title={compactMode ? 'Comfortable view' : 'Compact view'}
-                >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={compactMode ? '#ffc966' : 'white'} strokeWidth="2" strokeLinecap="round">
-                        <line x1="3" y1="6" x2="21" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                        <line x1="3" y1="14" x2="21" y2="14"/>
-                        <line x1="3" y1="18" x2="21" y2="18"/>
-                    </svg>
-                </button>
-
-                {/* Theme Toggle */}
-                <button
-                    onClick={toggleTheme}
-                    className="theme-toggle"
-                    style={{
-                        width: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
-                        height: isMobile ? '44px' : (isScrolled ? '36px' : '40px'),
-                    }}
-                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                    title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                >
-                    {theme === 'light' ? (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5a623" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                        </svg>
-                    ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffc966" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                    )}
-                </button>
-
                 {/* Menu Button */}
                 <div style={{ position: 'relative', flexShrink: 0, zIndex: 101 }} ref={menuRef}>
                     <div
@@ -558,6 +508,53 @@ const Header = () => {
                                         style={{ display: 'none' }}
                                     />
                                 </label>
+                            </div>
+
+                            <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
+
+                            {/* Preferences */}
+                            <div style={{ padding: '8px 0' }}>
+                                <MenuItem {...menuItemProps}
+                                    id="theme"
+                                    icon={theme === 'light' ? (
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                        </svg>
+                                    ) : (
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="5"></circle>
+                                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                        </svg>
+                                    )}
+                                    label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+                                    onClick={() => {
+                                        toggleTheme();
+                                        setShowCharacterMenu(false);
+                                    }}
+                                />
+                                <MenuItem {...menuItemProps}
+                                    id="compact"
+                                    icon={
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                            <line x1="3" y1="6" x2="21" y2="6"/>
+                                            <line x1="3" y1="10" x2="21" y2="10"/>
+                                            <line x1="3" y1="14" x2="21" y2="14"/>
+                                            <line x1="3" y1="18" x2="21" y2="18"/>
+                                        </svg>
+                                    }
+                                    label={compactMode ? 'Comfortable View' : 'Compact View'}
+                                    onClick={() => {
+                                        setCompactMode(m => !m);
+                                        setShowCharacterMenu(false);
+                                    }}
+                                />
                             </div>
 
                             <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
