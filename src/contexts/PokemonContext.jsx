@@ -915,7 +915,7 @@ export const PokemonProvider = ({ children }) => {
 
         const currentRegionalForm = poke.regionalForm;
         let targetRegionalForm = null;
-        if (currentRegionalForm && targetPokedexEntry.regionalForms) {
+        if (currentRegionalForm && Array.isArray(targetPokedexEntry.regionalForms)) {
             const matchingForm = targetPokedexEntry.regionalForms.find(rf => rf.name === currentRegionalForm);
             if (matchingForm) {
                 targetRegionalForm = { name: currentRegionalForm, isBase: false, ...matchingForm };

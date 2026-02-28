@@ -56,14 +56,15 @@ const CustomMoveModal = () => {
         }
 
         // Check move limits
+        const source = customMove.source === 'taught' ? 'taught' : 'natural';
         const naturalMoves = targetPoke.moves.filter(m => m.source === 'natural').length;
         const taughtMoves = targetPoke.moves.filter(m => m.source === 'taught').length;
 
-        if (customMove.source === 'natural' && naturalMoves >= 4) {
+        if (source === 'natural' && naturalMoves >= 4) {
             toast.warning('This Pokemon already has 4 Natural moves.');
             return;
         }
-        if (customMove.source === 'taught' && taughtMoves >= 4) {
+        if (source === 'taught' && taughtMoves >= 4) {
             toast.warning('This Pokemon already has 4 Taught moves.');
             return;
         }
@@ -73,7 +74,7 @@ const CustomMoveModal = () => {
         }
 
         updatePokemon(customMoveForPokemon, {
-            moves: [...targetPoke.moves, { ...customMove }]
+            moves: [...targetPoke.moves, { ...customMove, source }]
         });
 
         setShowCustomMoveModal(false);

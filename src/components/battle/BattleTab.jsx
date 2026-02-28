@@ -103,7 +103,13 @@ const BattleTab = () => {
     }), [inventory]);
 
     useEffect(() => {
-        try { localStorage.setItem('pta-roll-history', JSON.stringify(rollHistory)); } catch {}
+        try {
+            localStorage.setItem('pta-roll-history', JSON.stringify(rollHistory));
+        } catch (e) {
+            if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+                toast.warning('Storage full — roll history could not be saved.');
+            }
+        }
     }, [rollHistory]);
 
     useEffect(() => {
