@@ -2,7 +2,7 @@
 // Battle Tab Component (Dice Roller)
 // ============================================================
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
@@ -119,7 +119,7 @@ const BattleTab = () => {
     }, [selectedPokemonId]);
 
     // Apply mega stat boosts to actual stats
-    const getStatsWithMega = (pokemon) => {
+    const getStatsWithMega = useCallback((pokemon) => {
         const baseStats = getActualStats(pokemon);
         if (!megaEvolved || !currentMegaForm?.statBoosts) return baseStats;
         return {
@@ -130,7 +130,7 @@ const BattleTab = () => {
             sdef: baseStats.sdef + (currentMegaForm.statBoosts.sdef || 0),
             spd:  baseStats.spd  + (currentMegaForm.statBoosts.spd  || 0),
         };
-    };
+    }, [megaEvolved, currentMegaForm]);
 
     const handleMegaEvolve = (megaForm) => { setCurrentMegaForm(megaForm); setMegaEvolved(true); };
     const handleMegaRevert = () => { setMegaEvolved(false); setCurrentMegaForm(null); };

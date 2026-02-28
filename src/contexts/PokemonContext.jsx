@@ -3,7 +3,7 @@
 // ============================================================
 // Manages Pokemon state and actions including move learning
 
-import React, { createContext, useContext, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
 import { MAX_PARTY_SIZE, MAX_NATURAL_MOVES, POKEMON_HP_MULTIPLIER } from '../data/constants.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
@@ -180,6 +180,10 @@ export const PokemonProvider = ({ children }) => {
 
     const pokemon = [...(party || []), ...(reserve || [])];
 
+    // Keep a ref to party so addPokemon can read its length without depending on it
+    const partyRef = useRef(party);
+    partyRef.current = party;
+
     // Add new Pokemon
     const addPokemon = useCallback(() => {
         const newPokemon = {
@@ -204,7 +208,7 @@ export const PokemonProvider = ({ children }) => {
             statPointsAvailable: 0
         };
 
-        if (pokemonView === 'party' && party.length < MAX_PARTY_SIZE) {
+        if (pokemonView === 'party' && partyRef.current.length < MAX_PARTY_SIZE) {
             setParty(prev => [...prev, newPokemon]);
         } else {
             setReserve(prev => [...prev, newPokemon]);
@@ -214,7 +218,7 @@ export const PokemonProvider = ({ children }) => {
         }
         setEditingPokemon(newPokemon.id);
         return newPokemon;
-    }, [pokemonView, party?.length, setParty, setReserve, setPokemonView, setEditingPokemon]);
+    }, [pokemonView, setParty, setReserve, setPokemonView, setEditingPokemon]);
 
     // Learn move function
     const learnMove = useCallback((pokemonId, newMove, replaceIndex = null, inParty = true) => {
