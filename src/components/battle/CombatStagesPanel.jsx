@@ -27,7 +27,12 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
     return (
         <div style={{ marginBottom: '12px' }}>
             <div
+                role="button"
+                tabIndex={0}
+                aria-expanded={show}
+                aria-label={`${show ? 'Hide' : 'Show'} combat stages`}
                 onClick={() => setShow(v => !v)}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setShow(v => !v)}
                 className="combat-stages-header"
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', borderRadius: '6px', cursor: 'pointer', marginBottom: show ? '8px' : 0 }}
             >
@@ -40,7 +45,14 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                     </span>
                     <span className="text-muted" style={{ fontSize: '10px', marginLeft: '8px' }}>Buffs & debuffs from moves</span>
                 </div>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{show ? '▲ Hide' : '▼ Show'}</span>
+                <svg
+                    width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                    style={{ color: 'var(--text-secondary)', transition: 'transform 0.2s ease', transform: show ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}
+                    aria-hidden="true"
+                >
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
             </div>
             {show && (
                 <div className="combat-stages-content" style={{ padding: '10px', borderRadius: '6px' }}>

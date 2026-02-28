@@ -762,16 +762,18 @@ const InventoryTab = () => {
                                             onBlur={() => handleQuantityBlur(item.name)}
                                             min="1"
                                             max="9999"
+                                            aria-label={`Quantity of ${item.name}`}
+                                            title={(item.quantity || 1) <= 1 ? 'Last one!' : (item.quantity || 1) <= 2 ? 'Running low' : undefined}
                                             style={{
                                                 width: '50px',
                                                 textAlign: 'center',
                                                 padding: '4px',
-                                                border: '1px solid var(--border-medium)',
+                                                border: `1px solid ${(item.quantity || 1) <= 1 ? '#f44336' : (item.quantity || 1) <= 2 ? '#ff9800' : 'var(--border-medium)'}`,
                                                 borderRadius: '4px',
                                                 fontSize: '14px',
                                                 fontWeight: 'bold',
                                                 background: 'var(--input-bg)',
-                                                color: 'var(--text-primary)'
+                                                color: (item.quantity || 1) <= 1 ? '#f44336' : (item.quantity || 1) <= 2 ? '#ff9800' : 'var(--text-primary)'
                                             }}
                                         />
                                         <button

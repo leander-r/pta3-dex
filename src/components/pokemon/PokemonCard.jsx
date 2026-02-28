@@ -2000,7 +2000,7 @@ const PokemonCard = ({
                                                 }
                                             }}
                                             disabled={(pokemon.addedStats?.[stat] || 0) <= 0}
-                                            style={{ ...statBtnStyle, opacity: (pokemon.addedStats?.[stat] || 0) <= 0 ? 0.5 : 1 }}
+                                            style={{ ...statBtnStyle, opacity: (pokemon.addedStats?.[stat] || 0) <= 0 ? 0.5 : 1, cursor: (pokemon.addedStats?.[stat] || 0) <= 0 ? 'not-allowed' : 'pointer' }}
                                         >
                                             −
                                         </button>
@@ -2015,7 +2015,7 @@ const PokemonCard = ({
                                                 }
                                             }}
                                             disabled={(pokemon.statPointsAvailable || 0) <= 0}
-                                            style={{ ...statBtnStyle, opacity: (pokemon.statPointsAvailable || 0) <= 0 ? 0.5 : 1 }}
+                                            style={{ ...statBtnStyle, opacity: (pokemon.statPointsAvailable || 0) <= 0 ? 0.5 : 1, cursor: (pokemon.statPointsAvailable || 0) <= 0 ? 'not-allowed' : 'pointer' }}
                                         >
                                             +
                                         </button>

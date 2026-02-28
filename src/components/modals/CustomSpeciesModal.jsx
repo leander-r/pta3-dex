@@ -844,7 +844,7 @@ const CustomSpeciesModal = () => {
                         )}
                         <button className="btn btn-secondary" onClick={handleClose}>Close</button>
                         <button className="btn btn-primary" disabled={!species.species.trim()} onClick={handleSaveSpecies}>
-                            {editingIndex !== null ? 'Update Species' : 'Save Species'}
+                            {editingIndex !== null ? 'Update Species' : 'Create Species'}
                         </button>
                     </div>
                 </div>

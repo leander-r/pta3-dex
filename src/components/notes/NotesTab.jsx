@@ -26,7 +26,15 @@ const NotesTab = () => {
 
     // Quest log state
     const [newQuestTitle, setNewQuestTitle] = useState('');
-    const [expandedQuestId, setExpandedQuestId] = useState(null);
+    const [expandedQuestId, setExpandedQuestId] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('pta-expanded-quest-id')); } catch { return null; }
+    });
+
+    const handleExpandQuest = (id) => {
+        const next = expandedQuestId === id ? null : id;
+        setExpandedQuestId(next);
+        try { localStorage.setItem('pta-expanded-quest-id', JSON.stringify(next)); } catch { /* quota */ }
+    };
     const quests = trainer.quests || [];
 
     // ── Notes handlers ────────────────────────────────────────
@@ -271,12 +279,20 @@ Examples:
                                                         tabIndex={0}
                                                         aria-expanded={expandedQuestId === quest.id}
                                                         aria-label={`${quest.title} — click to ${expandedQuestId === quest.id ? 'collapse' : 'expand'} notes`}
-                                                        style={{ flex: 1, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textDecoration: key === 'abandoned' ? 'line-through' : 'none', color: key === 'abandoned' ? 'var(--text-muted)' : 'var(--text-primary)' }}
-                                                        onClick={() => setExpandedQuestId(expandedQuestId === quest.id ? null : quest.id)}
-                                                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpandedQuestId(expandedQuestId === quest.id ? null : quest.id)}
+                                                        style={{ flex: 1, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textDecoration: key === 'abandoned' ? 'line-through' : 'none', color: key === 'abandoned' ? 'var(--text-muted)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                                        onClick={() => handleExpandQuest(quest.id)}
+                                                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleExpandQuest(quest.id)}
                                                     >
+                                                        <svg
+                                                            width="11" height="11" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                                                            style={{ flexShrink: 0, transition: 'transform 0.15s ease', transform: expandedQuestId === quest.id ? 'rotate(90deg)' : 'rotate(0deg)', color: 'var(--text-muted)' }}
+                                                            aria-hidden="true"
+                                                        >
+                                                            <polyline points="9 18 15 12 9 6"/>
+                                                        </svg>
                                                         {quest.title}
-                                                        {quest.notes && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '6px' }}>📝</span>}
+                                                        {quest.notes && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '2px' }}>📝</span>}
                                                     </div>
                                                     {/* Status cycle */}
                                                     <select
