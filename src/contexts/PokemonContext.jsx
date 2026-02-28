@@ -65,6 +65,47 @@ const buildPokemonSkills = (skills) => {
     return result;
 };
 
+// Helper: resolve formData and build the common species update fields shared by
+// applySpeciesToPokemon, applyEvolutionToPokemon, and applyDevolutionToPokemon.
+const buildSpeciesUpdateFields = (speciesData, regionalForm) => {
+    const isRegional = regionalForm && !regionalForm.isBase;
+    const formData = isRegional ? regionalForm : null;
+    return {
+        isRegional,
+        formData,
+        updates: {
+            species: speciesData.species,
+            types: formData ? [...formData.types] : [...speciesData.types],
+            baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
+            availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
+            pokedexId: speciesData.id,
+            regionalForm: isRegional ? regionalForm.name : null,
+            availableLevelUpMoves: formData?.levelUpMoves || speciesData.levelUpMoves || [],
+            availableEggMoves: formData?.eggMoves || speciesData.eggMoves || [],
+            availableTutorMoves: formData?.tutorMoves || speciesData.tutorMoves || [],
+            pokemonSkills: buildPokemonSkills(speciesData.skills),
+        }
+    };
+};
+
+// Helper: build ability updates that preserve currently-held abilities if still valid
+// for the new species. Used during evolution and devolution.
+const resolveAbilityUpdates = (currentPoke, newAbilities) => {
+    if (!newAbilities) return {};
+    const allValid = [
+        ...(newAbilities.basic || []),
+        ...(newAbilities.adv || []),
+        ...(newAbilities.high || [])
+    ];
+    const updates = {};
+    if (!currentPoke.ability || !allValid.includes(currentPoke.ability)) {
+        if (newAbilities.basic?.length > 0) updates.ability = newAbilities.basic[0];
+    }
+    if (currentPoke.ability2 && !allValid.includes(currentPoke.ability2)) updates.ability2 = '';
+    if (currentPoke.ability3 && !allValid.includes(currentPoke.ability3)) updates.ability3 = '';
+    return updates;
+};
+
 // Calculate Pokemon level from experience
 const calculatePokemonLevel = (exp) => {
     let level = 1;
@@ -348,7 +389,7 @@ export const PokemonProvider = ({ children }) => {
 
                 movesToLearn.forEach(newMove => {
                     const alreadyKnows = startingMoves.some(m =>
-                        m.name.toLowerCase() === newMove.move.toLowerCase()
+                        m.name?.toLowerCase() === newMove.move.toLowerCase()
                     );
                     if (alreadyKnows) return;
 
@@ -646,46 +687,23 @@ export const PokemonProvider = ({ children }) => {
 
     // Apply species data to a Pokemon (called directly or after regional form selection)
     const applySpeciesToPokemon = useCallback((pokemonId, speciesData, regionalForm) => {
-        // Get the current Pokemon to check its level
         const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
         if (!currentPoke) return;
         const currentLevel = currentPoke.level || 1;
 
-        // Determine which data to use (base or regional form)
-        const isRegional = regionalForm && !regionalForm.isBase;
-        const formData = isRegional ? regionalForm : null;
+        const { formData, updates } = buildSpeciesUpdateFields(speciesData, regionalForm);
 
-        // Determine which move lists to use based on form
-        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
-        const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
-        const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
-
-        const updates = {
-            species: speciesData.species,
-            types: formData ? [...formData.types] : [...speciesData.types],
-            baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
-            availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
-            pokedexId: speciesData.id,
-            regionalForm: isRegional ? regionalForm.name : null,
-            availableLevelUpMoves: levelUpMoves,
-            availableEggMoves: eggMoves,
-            availableTutorMoves: tutorMoves
-        };
-
-        // Set abilities using the correct field names (ability, ability2, ability3)
+        // Fresh species assignment — reset abilities unconditionally
         const abilities = formData?.abilities || speciesData.abilities;
         if (abilities) {
-            if (abilities.basic && abilities.basic.length > 0) {
-                updates.ability = abilities.basic[0];
-            }
+            if (abilities.basic?.length > 0) updates.ability = abilities.basic[0];
             updates.ability2 = '';
             updates.ability3 = '';
         }
 
-        updates.pokemonSkills = buildPokemonSkills(speciesData.skills);
-
         // Add starting moves based on current level
-        if (levelUpMoves && levelUpMoves.length > 0) {
+        const levelUpMoves = updates.availableLevelUpMoves;
+        if (levelUpMoves.length > 0) {
             const seenMoves = new Set();
             const startingMoves = levelUpMoves
                 .filter(m => m.level <= currentLevel)
@@ -711,9 +729,9 @@ export const PokemonProvider = ({ children }) => {
                     };
                 });
 
-            const hasNoMoves = !currentPoke?.moves || currentPoke.moves.length === 0;
-            const hasNoSpecies = !currentPoke?.species;
-            const speciesIsChanging = currentPoke?.species && currentPoke.species !== speciesData.species;
+            const hasNoMoves = !currentPoke.moves || currentPoke.moves.length === 0;
+            const hasNoSpecies = !currentPoke.species;
+            const speciesIsChanging = currentPoke.species && currentPoke.species !== speciesData.species;
 
             if (hasNoMoves || hasNoSpecies || speciesIsChanging) {
                 updates.moves = startingMoves;
@@ -728,54 +746,17 @@ export const PokemonProvider = ({ children }) => {
         const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
         if (!currentPoke) return;
 
-        const isRegional = regionalForm && !regionalForm.isBase;
-        const formData = isRegional ? regionalForm : null;
-
-        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
-        const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
-        const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
-
-        const updates = {
-            species: speciesData.species,
-            types: formData ? [...formData.types] : [...speciesData.types],
-            baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
-            availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
-            pokedexId: speciesData.id,
-            regionalForm: isRegional ? regionalForm.name : null,
-            availableLevelUpMoves: levelUpMoves,
-            availableEggMoves: eggMoves,
-            availableTutorMoves: tutorMoves,
+        const { formData, updates } = buildSpeciesUpdateFields(speciesData, regionalForm);
+        Object.assign(updates, {
             evolvedFrom: previousSpecies || currentPoke.species,
-            evolutionStoneUsed: consumedItem || null
-        };
-
-        // Update abilities
-        const newAbilities = formData?.abilities || speciesData.abilities;
-        if (newAbilities) {
-            const allValidAbilities = [
-                ...(newAbilities.basic || []),
-                ...(newAbilities.adv || []),
-                ...(newAbilities.high || [])
-            ];
-            if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
-                if (newAbilities.basic && newAbilities.basic.length > 0) {
-                    updates.ability = newAbilities.basic[0];
-                }
-            }
-            if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
-                updates.ability2 = '';
-            }
-            if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
-                updates.ability3 = '';
-            }
-        }
-
-        updates.pokemonSkills = buildPokemonSkills(speciesData.skills);
+            evolutionStoneUsed: consumedItem || null,
+            ...resolveAbilityUpdates(currentPoke, formData?.abilities || speciesData.abilities),
+        });
 
         updatePokemon(pokemonId, updates);
 
         // Queue evolution moves (level 0)
-        const evolutionMoves = levelUpMoves.filter(m => m.level === 0);
+        const evolutionMoves = updates.availableLevelUpMoves.filter(m => m.level === 0);
         const currentMoves = currentPoke.moves || [];
 
         if (evolutionMoves.length > 0) {
@@ -786,10 +767,10 @@ export const PokemonProvider = ({ children }) => {
                 );
                 if (!alreadyKnows) {
                     movesToQueue.push({
-                        pokemonId: pokemonId,
+                        pokemonId,
                         pokemonName: currentPoke.name || speciesData.species,
                         newMove: { move: evoMove.move, type: evoMove.type || 'Normal', level: 0 },
-                        inParty: inParty,
+                        inParty,
                         isEvolutionMove: true
                     });
                 }
@@ -805,49 +786,12 @@ export const PokemonProvider = ({ children }) => {
         const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
         if (!currentPoke) return;
 
-        const isRegional = regionalForm && !regionalForm.isBase;
-        const formData = isRegional ? regionalForm : null;
-
-        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
-        const eggMoves = formData?.eggMoves || speciesData.eggMoves || [];
-        const tutorMoves = formData?.tutorMoves || speciesData.tutorMoves || [];
-
-        const updates = {
-            species: speciesData.species,
-            types: formData ? [...formData.types] : [...speciesData.types],
-            baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
-            availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
-            pokedexId: speciesData.id,
-            regionalForm: isRegional ? regionalForm.name : null,
-            availableLevelUpMoves: levelUpMoves,
-            availableEggMoves: eggMoves,
-            availableTutorMoves: tutorMoves,
+        const { formData, updates } = buildSpeciesUpdateFields(speciesData, regionalForm);
+        Object.assign(updates, {
             evolvedFrom: null,
-            evolutionStoneUsed: null
-        };
-
-        // Update abilities
-        const newAbilities = formData?.abilities || speciesData.abilities;
-        if (newAbilities) {
-            const allValidAbilities = [
-                ...(newAbilities.basic || []),
-                ...(newAbilities.adv || []),
-                ...(newAbilities.high || [])
-            ];
-            if (!currentPoke.ability || !allValidAbilities.includes(currentPoke.ability)) {
-                if (newAbilities.basic && newAbilities.basic.length > 0) {
-                    updates.ability = newAbilities.basic[0];
-                }
-            }
-            if (currentPoke.ability2 && !allValidAbilities.includes(currentPoke.ability2)) {
-                updates.ability2 = '';
-            }
-            if (currentPoke.ability3 && !allValidAbilities.includes(currentPoke.ability3)) {
-                updates.ability3 = '';
-            }
-        }
-
-        updates.pokemonSkills = buildPokemonSkills(speciesData.skills);
+            evolutionStoneUsed: null,
+            ...resolveAbilityUpdates(currentPoke, formData?.abilities || speciesData.abilities),
+        });
 
         updatePokemon(pokemonId, updates);
     }, [party, reserve, updatePokemon]);

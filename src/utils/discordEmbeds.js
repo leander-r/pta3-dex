@@ -90,7 +90,7 @@ export const buildPokemonEmbed = (roll, trainerName) => {
             const s = i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th';
             return `${i}${s}`;
         };
-        const stageStr = roll.relevantStages.map(({ label, stage, bonus, base, boosted, isFlat }) => {
+        const stageStr = roll.relevantStages.filter(s => s.stage != null && s.stage !== 0).map(({ label, stage, bonus, base, boosted, isFlat }) => {
             const stageNum  = Number(stage);
             const abs       = Math.abs(stageNum);
             const sign      = stageNum >= 0 ? '+' : '−';
