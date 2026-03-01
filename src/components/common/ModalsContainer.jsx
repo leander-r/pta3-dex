@@ -26,7 +26,6 @@ const SaveLoadModal      = lazy(() => import('../modals/SaveLoadModal.jsx'));
 // that the delay is imperceptible after the first open.
 const ModalsContainer = () => (
     <Suspense fallback={null}>
-        <HelpModal />
         <CustomFeatureModal />
         <CustomMoveModal />
         <CustomSpeciesModal />
@@ -39,6 +38,7 @@ const ModalsContainer = () => (
         <ComparisonModal />
         <SaveLoadModal />
         <ConfirmModal />
+        <HelpModal />
     </Suspense>
 );
 

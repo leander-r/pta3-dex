@@ -369,39 +369,40 @@ const SaveLoadModal = () => {
                         <span style={{ fontSize: '20px' }}>💾</span>
                         Save / Load
                     </h3>
-                    <button
-                        onClick={() => showHelp('save-slots')}
-                        aria-label="Help: Save and Load"
-                        title="About save slots and export"
-                        style={{
-                            background: 'rgba(0,0,0,0.1)',
-                            border: '2px solid rgba(0,0,0,0.15)',
-                            borderRadius: '50%',
-                            width: '28px', height: '28px',
-                            fontSize: '13px', fontWeight: 'bold',
-                            cursor: 'pointer',
-                            color: '#1a1a1a',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            flexShrink: 0,
-                            marginLeft: 'auto'
-                        }}
-                    >?</button>
-                    <button
-                        onClick={closeSaveLoadModal}
-                        aria-label="Close modal"
-                        title="Close"
-                        style={{ ...CLOSE_BTN_STYLE, color: '#1a1a1a', background: 'rgba(0,0,0,0.1)', border: '2px solid rgba(0,0,0,0.15)' }}
-                        onMouseEnter={e => {
-                            e.currentTarget.style.background = 'rgba(0,0,0,0.2)';
-                            e.currentTarget.style.transform = 'rotate(90deg)';
-                        }}
-                        onMouseLeave={e => {
-                            e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
-                            e.currentTarget.style.transform = 'rotate(0deg)';
-                        }}
-                    >
-                        ×
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+                        <button
+                            onClick={() => showHelp('save-slots')}
+                            aria-label="Help: Save and Load"
+                            title="About save slots and export"
+                            style={{
+                                background: 'rgba(0,0,0,0.1)',
+                                border: '2px solid rgba(0,0,0,0.15)',
+                                borderRadius: '50%',
+                                width: '28px', height: '28px',
+                                fontSize: '13px', fontWeight: 'bold',
+                                cursor: 'pointer',
+                                color: '#1a1a1a',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                flexShrink: 0
+                            }}
+                        >?</button>
+                        <button
+                            onClick={closeSaveLoadModal}
+                            aria-label="Close modal"
+                            title="Close"
+                            style={{ ...CLOSE_BTN_STYLE, color: '#1a1a1a', background: 'rgba(0,0,0,0.1)', border: '2px solid rgba(0,0,0,0.15)' }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.background = 'rgba(0,0,0,0.2)';
+                                e.currentTarget.style.transform = 'rotate(90deg)';
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+                                e.currentTarget.style.transform = 'rotate(0deg)';
+                            }}
+                        >
+                            ×
+                        </button>
+                    </div>
                 </div>
 
                 {/* Body */}
