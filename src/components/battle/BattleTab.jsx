@@ -21,23 +21,26 @@ import RollHistory from './RollHistory.jsx';
 import DiscordWebhookConfig from './DiscordWebhookConfig.jsx';
 
 // Hardcoded battle form changes for Pokémon not covered by the external Pokédex's megaForms field.
-// Zygarde's Complete Forme activates via Power Construct (battle-only transformation).
-// Stat boosts are additive to the Pokémon's current PTA stats.
+// Zygarde only has one pokedex entry (50% Forme, id L48: HP11 ATK10 DEF12 SATK8 SDEF10 SPD10).
+// Zygarde-10% is not a separate pokedex entry — both alternate forms are battle-only transformations.
+// Stat boosts are additive deltas calculated from the 50% Forme's PTA base stats.
+//   10% Forme  (main game: HP54 ATK100 DEF71 SpA61 SpD85 Spe115 → PTA scale): faster but frailer
+//   Complete   (main game: HP216 ATK100 DEF121 SpA91 SpD95 Spe85 → PTA scale): bulkier, slower
 const BATTLE_FORM_CHANGES = {
-    'Zygarde': [{
-        name: 'Complete',
-        baseSpeciesOverride: 'Zygarde', // sprite: zygarde-complete.png
-        types: ['Dragon', 'Ground'],
-        ability: 'Power Construct',
-        statBoosts: { hp: 8, def: 4, sdef: 4, spd: -2 },
-    }],
-    'Zygarde-10%': [{
-        name: 'Complete',
-        baseSpeciesOverride: 'Zygarde', // Complete uses Zygarde's sprite, not Zygarde-10%'s
-        types: ['Dragon', 'Ground'],
-        ability: 'Power Construct',
-        statBoosts: { hp: 8, def: 4, sdef: 4, spd: -2 },
-    }],
+    'Zygarde': [
+        {
+            name: '10%',
+            types: ['Dragon', 'Ground'],
+            ability: 'Power Construct',
+            statBoosts: { hp: -6, def: -5, satk: -2, sdef: -1, spd: 2 },
+        },
+        {
+            name: 'Complete',
+            types: ['Dragon', 'Ground'],
+            ability: 'Power Construct',
+            statBoosts: { hp: 11, satk: 1, spd: -1 },
+        },
+    ],
 };
 
 // Parse the AC number from a move frequency string, e.g. "EOT – 2" → 2
@@ -432,7 +435,7 @@ const BattleTab = () => {
                                 currentMegaForm={currentMegaForm}
                                 onMegaEvolve={handleMegaEvolve}
                                 onMegaRevert={handleMegaRevert}
-                                label={BATTLE_FORM_CHANGES[selectedPokemon?.species] ? 'Complete Forme' : 'Mega Evolution'}
+                                label={BATTLE_FORM_CHANGES[selectedPokemon?.species] ? 'Form Change' : 'Mega Evolution'}
                             />
 
                             <CombatStagesPanel

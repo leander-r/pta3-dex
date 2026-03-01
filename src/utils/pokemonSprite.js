@@ -52,7 +52,7 @@ export const getMegaSprite = (pokemon, megaForm) => {
     // Allow form data to override the base species slug (e.g. Zygarde-10% → Complete uses Zygarde's sprite)
     const base = speciesSlug(megaForm?.baseSpeciesOverride || pokemon?.species);
     if (!base || !megaForm?.name) return getPokemonSprite(pokemon);
-    const formSlug = megaForm.name.toLowerCase().replace(/\s+/g, '');
+    const formSlug = megaForm.name.toLowerCase().replace(/[\s%]/g, ''); // strip spaces and % (e.g. "10%" → "10")
     return `https://play.pokemonshowdown.com/sprites/gen5/${base}-${formSlug}.png`;
 };
 

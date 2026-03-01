@@ -71,7 +71,9 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                         aria-modal="true"
                         aria-labelledby="mega-form-modal-title"
                     >
-                        <h3 id="mega-form-modal-title" style={{ margin: '0 0 16px 0', fontSize: '16px' }}>Choose Mega Form</h3>
+                        <h3 id="mega-form-modal-title" style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
+                            {label === 'Mega Evolution' ? 'Choose Mega Form' : 'Choose Form'}
+                        </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             {megaForms.map((form, idx) => (
                                 <button
