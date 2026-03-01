@@ -475,16 +475,18 @@ const PokemonCard = ({
                         width: '60px',
                         height: '60px',
                         borderRadius: '50%',
-                        background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+                        background: `radial-gradient(circle at 38% 32%, rgba(255,255,255,0.3) 0%, ${primaryColor}88 50%, ${secondaryColor}ee 100%)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        overflow: 'hidden',
+                        boxShadow: `0 2px 10px ${primaryColor}55`
                     }}>
                         {(() => {
                             const img = getPokemonDisplayImage(pokemon);
                             return img
-                                ? <img src={img} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
+                                ? <img src={img} alt="" style={{ width: '56px', height: '56px', objectFit: 'cover' }} />
                                 : <span style={{ fontSize: '24px' }}>🔴</span>;
                         })()}
                     </div>
