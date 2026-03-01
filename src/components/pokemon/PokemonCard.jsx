@@ -1036,7 +1036,7 @@ const PokemonCard = ({
                                         }}>
                                             {/* Type Filter Chips */}
                                             <div style={{ marginBottom: '8px' }}>
-                                                <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--species-label-text)', marginBottom: '4px' }}>Filter by Type:</div>
+                                                <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--species-label-text)', marginBottom: '4px' }}>Filter by Type:</div>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                                                     <button
                                                         onClick={() => setSpeciesTypeFilter('all')}
@@ -1073,7 +1073,7 @@ const PokemonCard = ({
                                             {/* Sort Controls */}
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--species-label-text)' }}>Sort:</span>
+                                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--species-label-text)' }}>Sort:</span>
                                                     <select
                                                         value={speciesSort}
                                                         onChange={(e) => setSpeciesSort(e.target.value)}
@@ -1081,7 +1081,7 @@ const PokemonCard = ({
                                                             padding: '4px 8px',
                                                             borderRadius: '4px',
                                                             border: '1px solid var(--species-input-border)',
-                                                            fontSize: '11px',
+                                                            fontSize: '12px',
                                                             cursor: 'pointer',
                                                             background: 'var(--species-dropdown-bg)',
                                                             color: 'var(--text-primary)'
@@ -1093,7 +1093,7 @@ const PokemonCard = ({
                                                         <option value="bst-low">BST (Low → High)</option>
                                                     </select>
                                                 </div>
-                                                <span style={{ fontSize: '10px', color: 'var(--species-muted-text)' }}>
+                                                <span style={{ fontSize: '11px', color: 'var(--species-muted-text)' }}>
                                                     {filteredSpecies.length} results
                                                 </span>
                                             </div>
@@ -1332,7 +1332,7 @@ const PokemonCard = ({
                                             <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
                                                 🌍 Choose Form for {pendingSpeciesData.species}
                                             </div>
-                                            <div style={{ fontSize: '11px', opacity: 0.9 }}>
+                                            <div style={{ fontSize: '12px', opacity: 0.9 }}>
                                                 This Pokémon has regional variants
                                             </div>
                                         </div>
@@ -1456,7 +1456,7 @@ const PokemonCard = ({
                             <div>
                                 <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
                                     Experience
-                                    <span style={{ fontWeight: 'normal', fontSize: '10px', color: '#666', marginLeft: '4px' }}>
+                                    <span style={{ fontWeight: 'normal', fontSize: '11px', color: '#666', marginLeft: '4px' }}>
                                         (auto-levels)
                                     </span>
                                 </label>
@@ -1478,7 +1478,7 @@ const PokemonCard = ({
                                                 background: '#4caf50',
                                                 color: 'white',
                                                 cursor: 'pointer',
-                                                fontSize: '10px',
+                                                fontSize: '12px',
                                                 fontWeight: 'bold'
                                             }}
                                             title="Add 100 EXP"
@@ -1494,7 +1494,7 @@ const PokemonCard = ({
                                                 background: '#f44336',
                                                 color: 'white',
                                                 cursor: 'pointer',
-                                                fontSize: '10px',
+                                                fontSize: '12px',
                                                 fontWeight: 'bold'
                                             }}
                                             title="Remove 100 EXP"
@@ -1608,7 +1608,7 @@ const PokemonCard = ({
                             {/* Available Abilities to Add */}
                             {derivedAbilities.length > 0 ? (
                                 <div className="abilities-available-box" style={{ padding: '10px', borderRadius: '8px' }}>
-                                    <div className="text-muted" style={{ fontSize: '11px', marginBottom: '8px' }}>
+                                    <div className="text-muted" style={{ fontSize: '12px', marginBottom: '8px' }}>
                                         Tap to add (tap name for details):
                                     </div>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -1625,7 +1625,7 @@ const PokemonCard = ({
                                                         alignItems: 'center',
                                                         padding: '4px 10px',
                                                         borderRadius: '12px',
-                                                        fontSize: '11px',
+                                                        fontSize: '12px',
                                                         opacity: isSelected || canAdd ? 1 : 0.5
                                                     }}
                                                 >
@@ -1672,7 +1672,7 @@ const PokemonCard = ({
                                             );
                                         })}
                                     </div>
-                                    <div className="text-light" style={{ fontSize: '10px', marginTop: '8px' }}>
+                                    <div className="text-light" style={{ fontSize: '11px', marginTop: '8px' }}>
                                         ● Basic  ★ Advanced  ◆ High
                                     </div>
                                 </div>
@@ -1886,7 +1886,7 @@ const PokemonCard = ({
                                             style={{ display: 'none' }}
                                         />
                                     </label>
-                                    <div style={{ fontSize: '11px', color: '#999', marginTop: '6px' }}>
+                                    <div style={{ fontSize: '12px', color: '#999', marginTop: '6px' }}>
                                         Upload an image file (PNG, JPG, etc.)
                                     </div>
                                 </div>
@@ -1970,13 +1970,13 @@ const PokemonCard = ({
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                             {['hp', 'atk', 'def', 'satk', 'sdef', 'spd'].map(stat => (
                                 <div key={stat} className="bg-light" style={{ padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#667eea', marginBottom: '4px' }}>
+                                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea', marginBottom: '4px' }}>
                                         {stat.toUpperCase()}
                                     </div>
-                                    <div className="text-light" style={{ fontSize: '10px' }} title="Base stat from the species. Determined by the Pokédex entry.">
+                                    <div className="text-light" style={{ fontSize: '11px' }} title="Base stat from the species. Determined by the Pokédex entry.">
                                         Base: {pokemon.baseStats?.[stat] || 10}
                                     </div>
-                                    <div style={{ fontSize: '10px', color: '#4caf50' }} title="Points you've added from level-up bonuses.">
+                                    <div style={{ fontSize: '11px', color: '#4caf50' }} title="Points you've added from level-up bonuses.">
                                         +{pokemon.addedStats?.[stat] || 0}
                                     </div>
                                     <div style={{ fontSize: '18px', fontWeight: 'bold' }} title="Total stat = Base + Added. Used for damage calculations and skill checks.">
@@ -2072,7 +2072,7 @@ const PokemonCard = ({
                             >
                                 <div>
                                     <div style={{ fontWeight: 'bold' }}>{move.name}</div>
-                                    <div className="text-muted" style={{ fontSize: '11px' }}>
+                                    <div className="text-muted" style={{ fontSize: '12px' }}>
                                         {move.type} | {move.category} | {move.damage || 'Status'}
                                     </div>
                                 </div>
@@ -2097,7 +2097,7 @@ const PokemonCard = ({
                                         borderRadius: '4px',
                                         padding: '4px 8px',
                                         cursor: 'pointer',
-                                        fontSize: '11px'
+                                        fontSize: '12px'
                                     }}
                                 >
                                     Remove
@@ -2109,7 +2109,7 @@ const PokemonCard = ({
                             <div className="add-move-panel" style={{ marginTop: '10px', padding: '12px', borderRadius: '8px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                                     <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>Add Move</span>
-                                    <span style={{ fontSize: '10px', color: '#666' }}>
+                                    <span style={{ fontSize: '11px', color: '#666' }}>
                                         Natural: <span style={{ color: naturalMoveCount >= MAX_NATURAL_MOVES ? '#f44336' : '#4caf50', fontWeight: 'bold' }}>{naturalMoveCount}/{MAX_NATURAL_MOVES}</span>
                                         {' | '}
                                         Taught: <span style={{ color: taughtMoveCount >= MAX_TAUGHT_MOVES ? '#f44336' : '#2196f3', fontWeight: 'bold' }}>{taughtMoveCount}/{MAX_TAUGHT_MOVES}</span>
@@ -2168,7 +2168,7 @@ const PokemonCard = ({
                                 <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
                                     {/* Type Filter */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <span className="text-muted" style={{ fontSize: '11px', fontWeight: 'bold' }}>Type:</span>
+                                        <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'bold' }}>Type:</span>
                                         <select
                                             value={moveTypeFilter}
                                             onChange={(e) => setMoveTypeFilter(e.target.value)}
@@ -2191,7 +2191,7 @@ const PokemonCard = ({
 
                                     {/* Category Filter */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <span className="text-muted" style={{ fontSize: '11px', fontWeight: 'bold' }}>Cat:</span>
+                                        <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'bold' }}>Cat:</span>
                                         <select
                                             value={moveCategoryFilter}
                                             onChange={(e) => setMoveCategoryFilter(e.target.value)}
@@ -2210,7 +2210,7 @@ const PokemonCard = ({
                                         </select>
                                     </div>
 
-                                    <span className="text-light" style={{ fontSize: '10px', marginLeft: 'auto' }}>
+                                    <span className="text-light" style={{ fontSize: '11px', marginLeft: 'auto' }}>
                                         {filteredMoves.length} moves
                                     </span>
                                 </div>
@@ -2236,7 +2236,7 @@ const PokemonCard = ({
                                                 >
                                                     <div style={{ flex: 1 }}>
                                                         <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</span>
-                                                        <div className="text-muted" style={{ fontSize: '10px' }}>
+                                                        <div className="text-muted" style={{ fontSize: '11px' }}>
                                                             {data.damage || 'Status'} | {data.frequency || 'At-Will'}
                                                         </div>
                                                     </div>
@@ -2338,7 +2338,7 @@ const PokemonCard = ({
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '4px',
-                                        fontSize: '11px',
+                                        fontSize: '12px',
                                         fontWeight: 'bold',
                                         cursor: 'pointer'
                                     }}
@@ -2550,13 +2550,13 @@ const quickBtnLabelStyle = {
 };
 
 const statBtnStyle = {
-    width: '24px',
-    height: '24px',
+    width: '30px',
+    height: '30px',
     border: '1px solid #ddd',
     borderRadius: '4px',
     background: 'white',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '16px'
 };
 
 export default PokemonCard;
