@@ -214,9 +214,9 @@ export const usePokemon = (setTrainer, trainer) => {
         // Check evolution options
         if (evolutionData.evolvesTo) {
             evolutionData.evolvesTo.forEach(evo => {
-                if (evo.regionalForm && evo.regionalForm !== regionalForm) {
-                    if (regionalForm !== evo.regionalForm) return;
-                }
+                // Regional Pokémon may only evolve into the matching regional form.
+                // Non-regional Pokémon may evolve into any form (including regional variants).
+                if (regionalForm && evo.regionalForm !== regionalForm) return;
 
                 let canEvolveNow = false;
                 let reason = '';
