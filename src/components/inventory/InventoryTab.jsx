@@ -713,9 +713,9 @@ const InventoryTab = () => {
                                     }}
                                 >
                                     {/* Main row: item info + quantity controls */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div className="inventory-main-row" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     {/* Item Info */}
-                                    <div style={{ flex: 1 }}>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             {item.name}
                                             <span style={{
@@ -742,7 +742,7 @@ const InventoryTab = () => {
                                     </div>
 
                                     {/* Quantity Controls */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                                         <button
                                             onClick={() => handleRemoveItem(item.name)}
                                             className="quantity-btn"

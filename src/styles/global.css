@@ -3534,6 +3534,11 @@
             .pokemon-info-grid > div:nth-child(2) {
                 grid-column: 1 / -1;
             }
+
+            /* Inventory: wrap controls below item name so they don't overflow */
+            .inventory-main-row {
+                flex-wrap: wrap;
+            }
         }
 
         /* Very small phones (≤360px — Galaxy A series, older iPhones) */
