@@ -75,7 +75,7 @@ test.describe('Trainer tab — fresh state', () => {
     });
 
     test('add a badge via the confirm dialog', async ({ page }) => {
-        await page.getByRole('button', { name: '+ Add Badge' }).click();
+        await page.getByRole('button', { name: '+ Add', exact: true }).click();
 
         // Confirm modal should appear with "Add Badge" heading
         await expect(page.locator('#confirm-modal-title')).toContainText('Add Badge');
