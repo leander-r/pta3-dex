@@ -992,6 +992,7 @@
             gap: 16px;
             align-items: start;
         }
+        .trainer-layout__profile,
         .trainer-layout__data {
             min-width: 0;
         }
