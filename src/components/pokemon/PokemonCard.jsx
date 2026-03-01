@@ -580,58 +580,9 @@ const PokemonCard = ({
                                     {currentHP}/{maxHP}
                                 </span>
                             </div>
-                            <div className="pokemon-nature-exp-row">
-                                <span className="text-muted" style={{ fontSize: '12px' }}>
-                                    {pokemon.nature || 'Hardy'} Nature
-                                </span>
-                                {/* Quick EXP Adjustment */}
-                                <div
-                                    onClick={(e) => e.stopPropagation()}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                                >
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            updatePokemon({ exp: Math.max(0, (pokemon.exp || 0) - 100) });
-                                        }}
-                                        style={{
-                                            padding: '4px 10px',
-                                            borderRadius: '4px',
-                                            border: 'none',
-                                            background: '#f44336',
-                                            color: 'white',
-                                            cursor: 'pointer',
-                                            fontSize: '12px',
-                                            fontWeight: 'bold'
-                                        }}
-                                        title="Remove 100 EXP"
-                                    >
-                                        -100
-                                    </button>
-                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea', minWidth: '50px', textAlign: 'center' }}>
-                                        {pokemon.exp || 0} XP
-                                    </span>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            updatePokemon({ exp: (pokemon.exp || 0) + 100 });
-                                        }}
-                                        style={{
-                                            padding: '4px 10px',
-                                            borderRadius: '4px',
-                                            border: 'none',
-                                            background: '#4caf50',
-                                            color: 'white',
-                                            cursor: 'pointer',
-                                            fontSize: '12px',
-                                            fontWeight: 'bold'
-                                        }}
-                                        title="Add 100 EXP"
-                                    >
-                                        +100
-                                    </button>
-                                </div>
-                            </div>
+                            <span className="text-muted" style={{ fontSize: '12px' }}>
+                                {pokemon.nature || 'Hardy'} Nature
+                            </span>
                         </div>
 
                         {/* Expandable Section Buttons */}

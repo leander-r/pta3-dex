@@ -4107,15 +4107,6 @@
             max-width: 180px;
         }
 
-        /* Collapsed card: nature text + EXP row */
-        .pokemon-nature-exp-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 2px;
-            flex-wrap: wrap;
-            gap: 4px;
-        }
 
         /* Level/EXP/Nature info grid */
         .pokemon-info-grid {
