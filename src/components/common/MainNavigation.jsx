@@ -57,24 +57,26 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
 
             <div className="nav-divider" style={{ height: '1px', background: 'var(--border-light)', margin: '8px 0' }} />
 
-            <button
-                className="nav-button nav-saveload"
-                onClick={openSaveLoadModal}
-                title="Save or load a game state snapshot"
-                aria-label="Open save and load menu"
-                style={{ display: 'flex', alignItems: 'center' }}
-            >
-                <span className="nav-icon">💾</span>
-                <span className="nav-label" style={{ flex: 1 }}>Save / Load</span>
-                <span className="nav-mobile-label">Save</span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
                 <button
-                    onClick={(e) => { e.stopPropagation(); showHelp('save-slots'); }}
+                    className="nav-button nav-saveload"
+                    onClick={openSaveLoadModal}
+                    title="Save or load a game state snapshot"
+                    aria-label="Open save and load menu"
+                    style={{ flex: 1, display: 'flex', alignItems: 'center' }}
+                >
+                    <span className="nav-icon">💾</span>
+                    <span className="nav-label" style={{ flex: 1 }}>Save / Load</span>
+                    <span className="nav-mobile-label">Save</span>
+                </button>
+                <button
+                    onClick={() => showHelp('save-slots')}
                     style={helpBtnStyle}
                     className="nav-help-btn"
                     aria-label="Help: Save and Load"
                     title="About save slots and export"
                 >?</button>
-            </button>
+            </div>
 
             {/* Onboarding checklist — hidden on mobile (bottom bar has no room) */}
             {showChecklist && (
