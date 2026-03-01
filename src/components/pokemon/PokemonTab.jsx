@@ -759,8 +759,10 @@ const PokemonTab = () => {
                             </p>
                             <p className="empty-state-description">
                                 {pokemonView === 'party'
-                                    ? 'Add Pokémon to your party to take them on your adventure!'
-                                    : 'Move Pokémon here from your party or add new ones.'}
+                                    ? trainer.level === 0
+                                        ? 'Build your team here. Party holds up to 6 Pokémon; extras go to Reserve.'
+                                        : 'Add Pokémon to your party to take them on your adventure!'
+                                    : 'Move Pokémon here from your party, or add new ones to store them.'}
                             </p>
                             <button
                                 onClick={handleAddPokemon}

@@ -20,6 +20,7 @@ import {
     AUTOSAVE_DEBOUNCE_MS,
     AUTOSAVE_INTERVAL_MS
 } from '../data/constants.js';
+import { createDemoTrainer } from '../data/demoTrainer.js';
 
 const DataContext = createContext(null);
 
@@ -284,6 +285,20 @@ export const DataProvider = ({ children }) => {
             }
         });
     }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+
+    const loadDemoTrainer = useCallback(() => {
+        showConfirm({
+            title: 'Load Example Trainer?',
+            message: 'This will add "Red" as a new trainer with two Pokémon so you can explore the app. Your existing trainers will not be replaced.',
+            confirmLabel: 'Load Example',
+            onConfirm: () => {
+                const demo = createDemoTrainer();
+                setTrainers(prev => [...prev, demo]);
+                setActiveTrainerId(demo.id);
+                toast.success('Example trainer "Red" loaded! Explore the Trainer and Pokémon tabs.');
+            }
+        });
+    }, [showConfirm, setTrainers, setActiveTrainerId]);
 
     // ── Save Slot helpers ──────────────────────────────────────
 
@@ -773,6 +788,7 @@ export const DataProvider = ({ children }) => {
         saveData,
         loadData,
         restoreAutoBackup,
+        loadDemoTrainer,
         exportAllData,
         exportSingleTrainer,
         importData,

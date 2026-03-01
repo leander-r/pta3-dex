@@ -7,7 +7,8 @@
 
 import React, { lazy, Suspense } from 'react';
 
-const CustomFeatureModal = lazy(() => import('../modals/CustomFeatureModal.jsx'));
+const HelpModal           = lazy(() => import('../modals/HelpModal.jsx'));
+const CustomFeatureModal  = lazy(() => import('../modals/CustomFeatureModal.jsx'));
 const CustomMoveModal    = lazy(() => import('../modals/CustomMoveModal.jsx'));
 const CustomSpeciesModal = lazy(() => import('../modals/CustomSpeciesModal.jsx'));
 const MoveLearnModal     = lazy(() => import('../modals/MoveLearnModal.jsx'));
@@ -25,6 +26,7 @@ const SaveLoadModal      = lazy(() => import('../modals/SaveLoadModal.jsx'));
 // that the delay is imperceptible after the first open.
 const ModalsContainer = () => (
     <Suspense fallback={null}>
+        <HelpModal />
         <CustomFeatureModal />
         <CustomMoveModal />
         <CustomSpeciesModal />

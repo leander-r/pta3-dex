@@ -3,7 +3,20 @@
 // ============================================================
 
 import React from 'react';
-import { useTrainerContext } from '../../contexts/index.js';
+import { useTrainerContext, useUI } from '../../contexts/index.js';
+
+const HELP_BTN_STYLE = {
+    background: 'none',
+    border: '1px solid var(--border-medium)',
+    borderRadius: '50%',
+    width: '18px', height: '18px',
+    fontSize: '11px', fontWeight: 'bold',
+    cursor: 'pointer',
+    color: 'var(--text-muted)',
+    lineHeight: '16px',
+    padding: 0, flexShrink: 0,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
+};
 
 const STAT_CONFIG = [
     { key: 'hp', label: 'HP', color: '#e53935' },
@@ -20,10 +33,17 @@ const STAT_CONFIG = [
  */
 const TrainerStats = () => {
     const { trainer, updateTrainerStat, calculateModifier, undoStatAllocation, canUndoStat } = useTrainerContext();
+    const { showHelp } = useUI();
     return (
         <div className="section-card-purple">
             <h3 className="section-title-purple">
                 <span>📊</span> Stats
+                <button
+                    onClick={() => showHelp('stat-allocation')}
+                    style={HELP_BTN_STYLE}
+                    aria-label="Help: Trainer Stats"
+                    title="About stat allocation"
+                >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }} title="Creation points are used during character creation (min 6, max 14). Level points are gained when leveling up.">
                         Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}

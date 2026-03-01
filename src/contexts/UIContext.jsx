@@ -50,6 +50,11 @@ export const UIProvider = ({ children }) => {
     const [editingPokemon, setEditingPokemon] = useState(null);
     const [pokemonView, setPokemonView] = useState('party');
 
+    // Help Modal State
+    const [helpTopic, setHelpTopic] = useState(null);
+    const showHelp  = useCallback((topic) => setHelpTopic(topic), []);
+    const closeHelp = useCallback(() => setHelpTopic(null), []);
+
     // Save theme to localStorage and apply to document
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -102,7 +107,12 @@ export const UIProvider = ({ children }) => {
         editingPokemon,
         setEditingPokemon,
         pokemonView,
-        setPokemonView
+        setPokemonView,
+
+        // Help Modal
+        helpTopic,
+        showHelp,
+        closeHelp
     };
 
     return (

@@ -17,7 +17,20 @@ const getModifiedStat = (baseStat, stages) => {
     return baseStat;
 };
 
-const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, updateCombatStage, resetCombatStages }) => {
+const HELP_BTN_STYLE = {
+    background: 'none',
+    border: '1px solid var(--border-medium)',
+    borderRadius: '50%',
+    width: '18px', height: '18px',
+    fontSize: '11px', fontWeight: 'bold',
+    cursor: 'pointer',
+    color: 'var(--text-muted)',
+    lineHeight: '16px',
+    padding: 0, flexShrink: 0,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
+};
+
+const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, updateCombatStage, resetCombatStages, onHelp }) => {
     const [show, setShow] = useState(false);
 
     if (!selectedPokemon) return null;
@@ -36,14 +49,22 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                 className="combat-stages-header"
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', borderRadius: '6px', cursor: 'pointer', marginBottom: show ? '8px' : 0 }}
             >
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span
                         style={{ fontSize: '12px', fontWeight: 'bold' }}
                         title="Combat Stages track stat buffs and debuffs from moves. Each positive stage increases the stat by 25%, each negative stage decreases it by 10%. Range: -6 to +6."
                     >
                         Combat Stages
                     </span>
-                    <span className="text-muted" style={{ fontSize: '10px', marginLeft: '8px' }}>Buffs & debuffs from moves</span>
+                    {onHelp && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onHelp(); }}
+                            style={HELP_BTN_STYLE}
+                            aria-label="Help: Combat Stages"
+                            title="About combat stages"
+                        >?</button>
+                    )}
+                    <span className="text-muted" style={{ fontSize: '10px', marginLeft: '2px' }}>Buffs & debuffs from moves</span>
                 </div>
                 <svg
                     width="14" height="14" viewBox="0 0 24 24" fill="none"

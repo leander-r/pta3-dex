@@ -6,7 +6,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
-import { useGameData, useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
+import { useGameData, useModal, useTrainerContext, usePokemonContext, useData, useUI } from '../../contexts/index.js';
 import { MAX_ROLL_HISTORY } from '../../data/constants.js';
 import { getPokemonSprite, getPokemonDisplayImage, getMegaSprite } from '../../utils/pokemonSprite.js';
 import TypeMatchupDisplay from './TypeMatchupDisplay.jsx';
@@ -97,6 +97,7 @@ const BattleTab = () => {
     const { trainer, setTrainer, party, calculateMaxHP } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const { sendToDiscord, inventory, setInventory } = useData();
+    const { showHelp } = useUI();
 
     const [mode, setMode] = useState('pokemon');
     const [selectedMove, setSelectedMove] = useState(null);
@@ -452,6 +453,7 @@ const BattleTab = () => {
                                 getStatsWithMega={getStatsWithMega}
                                 updateCombatStage={updateCombatStage}
                                 resetCombatStages={resetCombatStages}
+                                onHelp={() => showHelp('combat-stages')}
                             />
 
                             {/* STAB Toggle & AC Override */}

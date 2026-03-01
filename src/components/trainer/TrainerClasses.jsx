@@ -3,7 +3,20 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useTrainerContext, useGameData, useModal } from '../../contexts/index.js';
+import { useTrainerContext, useGameData, useModal, useUI } from '../../contexts/index.js';
+
+const HELP_BTN_STYLE = {
+    background: 'none',
+    border: '1px solid var(--border-medium)',
+    borderRadius: '50%',
+    width: '18px', height: '18px',
+    fontSize: '11px', fontWeight: 'bold',
+    cursor: 'pointer',
+    color: 'var(--text-muted)',
+    lineHeight: '16px',
+    padding: 0, flexShrink: 0,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
+};
 import toast from '../../utils/toast.js';
 
 /**
@@ -14,6 +27,7 @@ const TrainerClasses = () => {
     const { trainer, setTrainer } = useTrainerContext();
     const { GAME_DATA } = useGameData();
     const { showConfirm } = useModal();
+    const { showHelp } = useUI();
     const maxClasses = trainer.level < 5 ? 1 : trainer.level < 12 ? 2 : trainer.level < 24 ? 3 : 4;
     const currentClasses = trainer.classes || [];
 
@@ -241,6 +255,12 @@ const TrainerClasses = () => {
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
             <h3 className="section-title-purple">
                 <span>🎓</span> Classes
+                <button
+                    onClick={() => showHelp('classes')}
+                    style={HELP_BTN_STYLE}
+                    aria-label="Help: Trainer Classes"
+                    title="About trainer classes"
+                >?</button>
                 <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
                     {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
                 </span>

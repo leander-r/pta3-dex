@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { TABS } from '../../data/constants.js';
-import { useModal } from '../../contexts/index.js';
+import { useModal, useUI } from '../../contexts/index.js';
+import { useOnboarding } from '../../hooks/useOnboarding.js';
 
 const NAV_ITEMS = [
     { tab: TABS.TRAINER,   icon: '👤', label: 'Trainer' },
@@ -16,8 +17,27 @@ const NAV_ITEMS = [
     { tab: TABS.NOTES,     icon: '📝', label: 'Campaign Notes' },
 ];
 
+const helpBtnStyle = {
+    background: 'none',
+    border: '1px solid var(--border-medium)',
+    borderRadius: '50%',
+    width: '18px', height: '18px',
+    fontSize: '11px', fontWeight: 'bold',
+    cursor: 'pointer',
+    color: 'var(--text-muted)',
+    lineHeight: '16px',
+    padding: 0, flexShrink: 0,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    marginLeft: '4px'
+};
+
 const MainNavigation = ({ activeTab, setActiveTab }) => {
     const { openSaveLoadModal } = useModal();
+    const { showHelp } = useUI();
+    const { steps, allDone, dismissed, dismiss } = useOnboarding();
+
+    const showChecklist = !dismissed && !allDone;
+    const showAllDone   = !dismissed && allDone;
 
     return (
         <div className="sidebar" role="navigation" aria-label="Main navigation">
@@ -40,10 +60,137 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                 onClick={openSaveLoadModal}
                 title="Save or load a game state snapshot"
                 aria-label="Open save and load menu"
+                style={{ display: 'flex', alignItems: 'center' }}
             >
                 <span className="nav-icon">💾</span>
-                <span>Save / Load</span>
+                <span style={{ flex: 1 }}>Save / Load</span>
+                <button
+                    onClick={(e) => { e.stopPropagation(); showHelp('save-slots'); }}
+                    style={helpBtnStyle}
+                    aria-label="Help: Save and Load"
+                    title="About save slots and export"
+                >?</button>
             </button>
+
+            {/* Onboarding checklist */}
+            {showChecklist && (
+                <div style={{
+                    margin: '10px 8px 0',
+                    borderRadius: '8px',
+                    border: '1px solid #f5a62366',
+                    overflow: 'hidden',
+                    fontSize: '12px'
+                }}>
+                    {/* Header */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, #f5a623, #e8941c)',
+                        color: 'white',
+                        padding: '7px 10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontWeight: 700,
+                        fontSize: '11px',
+                        letterSpacing: '0.3px'
+                    }}>
+                        <span>✦ Getting Started</span>
+                        <button
+                            onClick={dismiss}
+                            aria-label="Dismiss getting started checklist"
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'rgba(255,255,255,0.85)',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                lineHeight: 1,
+                                padding: '0 2px'
+                            }}
+                        >✕</button>
+                    </div>
+
+                    {/* Steps */}
+                    <div style={{ padding: '6px 0', background: 'var(--surface-bg)' }}>
+                        {steps.map(step => (
+                            step.done ? (
+                                <div key={step.id} style={{
+                                    padding: '5px 10px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '7px',
+                                    color: '#2e7d32',
+                                    fontWeight: 600
+                                }}>
+                                    <span>✓</span>
+                                    <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>{step.label}</span>
+                                </div>
+                            ) : (
+                                <button
+                                    key={step.id}
+                                    onClick={() => setActiveTab(step.tab)}
+                                    style={{
+                                        width: '100%',
+                                        background: 'none',
+                                        border: 'none',
+                                        textAlign: 'left',
+                                        padding: '5px 10px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '7px',
+                                        color: 'var(--text-muted)',
+                                        fontSize: '12px'
+                                    }}
+                                    title={`Go to ${step.tab} tab`}
+                                >
+                                    <span>○</span>
+                                    <span>{step.label}</span>
+                                </button>
+                            )
+                        ))}
+                    </div>
+
+                    {/* Footer hint */}
+                    <div style={{
+                        padding: '6px 10px 8px',
+                        background: 'var(--surface-bg)',
+                        borderTop: '1px solid var(--border-light)',
+                        color: 'var(--text-muted)',
+                        fontSize: '11px',
+                        lineHeight: '1.5'
+                    }}>
+                        ⓘ Auto-saves every minute. Use Save/Load for snapshots.
+                    </div>
+                </div>
+            )}
+
+            {/* All done message */}
+            {showAllDone && (
+                <div style={{
+                    margin: '10px 8px 0',
+                    padding: '8px 10px',
+                    borderRadius: '8px',
+                    background: '#e8f5e9',
+                    border: '1px solid #a5d6a7',
+                    fontSize: '12px',
+                    color: '#2e7d32',
+                    lineHeight: '1.5'
+                }}>
+                    <div style={{ fontWeight: 700, marginBottom: '4px' }}>✓ All set! You're ready to play.</div>
+                    <button
+                        onClick={dismiss}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#2e7d32',
+                            cursor: 'pointer',
+                            fontSize: '11px',
+                            padding: 0,
+                            textDecoration: 'underline'
+                        }}
+                    >Dismiss</button>
+                </div>
+            )}
         </div>
     );
 };
