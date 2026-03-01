@@ -21,8 +21,8 @@ const helpBtnStyle = {
     background: 'none',
     border: '1px solid var(--border-medium)',
     borderRadius: '50%',
-    width: '18px', height: '18px',
-    fontSize: '11px', fontWeight: 'bold',
+    width: '22px', height: '22px',
+    fontSize: '12px', fontWeight: 'bold',
     cursor: 'pointer',
     color: 'var(--text-muted)',
     lineHeight: '16px',
@@ -94,7 +94,7 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         fontWeight: 700,
-                        fontSize: '11px',
+                        fontSize: '13px',
                         letterSpacing: '0.3px'
                     }}>
                         <span>✦ Getting Started</span>
@@ -106,9 +106,14 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                                 border: 'none',
                                 color: 'rgba(255,255,255,0.85)',
                                 cursor: 'pointer',
-                                fontSize: '14px',
+                                fontSize: '16px',
                                 lineHeight: 1,
-                                padding: '0 2px'
+                                padding: '4px 6px',
+                                minWidth: '28px',
+                                minHeight: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                             }}
                         >✕</button>
                     </div>
@@ -137,13 +142,13 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                                         background: 'none',
                                         border: 'none',
                                         textAlign: 'left',
-                                        padding: '5px 10px',
+                                        padding: '7px 10px',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '7px',
                                         color: 'var(--text-muted)',
-                                        fontSize: '12px'
+                                        fontSize: '13px'
                                     }}
                                     title={`Go to ${step.tab} tab`}
                                 >
@@ -160,7 +165,7 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                         background: 'var(--surface-bg)',
                         borderTop: '1px solid var(--border-light)',
                         color: 'var(--text-muted)',
-                        fontSize: '11px',
+                        fontSize: '12px',
                         lineHeight: '1.5'
                     }}>
                         ⓘ Auto-saves every minute. Use Save/Load for snapshots.
@@ -188,8 +193,8 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                             border: 'none',
                             color: '#2e7d32',
                             cursor: 'pointer',
-                            fontSize: '11px',
-                            padding: 0,
+                            fontSize: '13px',
+                            padding: '4px 0',
                             textDecoration: 'underline'
                         }}
                     >Dismiss</button>

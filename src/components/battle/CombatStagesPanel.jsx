@@ -21,8 +21,8 @@ const HELP_BTN_STYLE = {
     background: 'none',
     border: '1px solid var(--border-medium)',
     borderRadius: '50%',
-    width: '18px', height: '18px',
-    fontSize: '11px', fontWeight: 'bold',
+    width: '22px', height: '22px',
+    fontSize: '12px', fontWeight: 'bold',
     cursor: 'pointer',
     color: 'var(--text-muted)',
     lineHeight: '16px',
@@ -97,6 +97,7 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
                                         <button
                                             onClick={() => updateCombatStage(stat.key, -1)}
+                                            className="combat-stage-btn"
                                             style={{ width: '24px', height: '24px', border: 'none', borderRadius: '4px', background: '#ffcdd2', cursor: 'pointer', fontSize: '14px' }}
                                             aria-label={`Decrease ${stat.label}`}
                                         >−</button>
@@ -105,6 +106,7 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                                         </span>
                                         <button
                                             onClick={() => updateCombatStage(stat.key, 1)}
+                                            className="combat-stage-btn"
                                             style={{ width: '24px', height: '24px', border: 'none', borderRadius: '4px', background: '#c8e6c9', cursor: 'pointer', fontSize: '14px' }}
                                             aria-label={`Increase ${stat.label}`}
                                         >+</button>
