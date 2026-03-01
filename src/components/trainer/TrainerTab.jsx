@@ -19,14 +19,8 @@ const TrainerTab = () => {
         <div>
             <h2 className="section-title">Trainer</h2>
 
-            {/* Top Section: Profile + Stats side by side */}
-            <div className="grid-responsive-2 mb-lg">
-                {/* Profile Section */}
-                <TrainerProfile />
-
-                {/* Stats Section */}
-                <TrainerStats />
-            </div>
+            <TrainerProfile />
+            <TrainerStats />
 
             {/* Classes Section */}
             <TrainerClasses />

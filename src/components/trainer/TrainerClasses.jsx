@@ -22,7 +22,7 @@ const TrainerClasses = () => {
     // State for skill selection when adding a class
     const [pendingClass, setPendingClass] = useState(null);
     const [selectedClassSkills, setSelectedClassSkills] = useState([]);
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
 
     // Get skill pool for a class
     const getClassSkillPool = (className) => {

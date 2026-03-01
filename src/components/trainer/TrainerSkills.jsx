@@ -103,7 +103,7 @@ const TrainerSkills = () => {
 
     const trainedCount = countTrainedSkills(currentSkills);
     const trainedList = getTrainedSkillsList(currentSkills);
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
 
     return (
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>

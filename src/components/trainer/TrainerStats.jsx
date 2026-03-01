@@ -22,7 +22,7 @@ const STAT_CONFIG = [
 const TrainerStats = () => {
     const { trainer, updateTrainerStat, calculateModifier, undoStatAllocation, canUndoStat } = useTrainerContext();
     const { showHelp } = useUI();
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
     return (
         <div className="section-card-purple">
             <h3 className="section-title-purple">

@@ -49,7 +49,7 @@ const TrainerFeatures = () => {
     const [featureFilter, setFeatureFilter] = useState('all');
     const [featureSearch, setFeatureSearch] = useState('');
     const [pendingStatFeature, setPendingStatFeature] = useState(null); // { name, data, featureData }
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
 
     const currentFeatures = trainer.features || [];
 
