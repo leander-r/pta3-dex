@@ -116,10 +116,10 @@ const TrainerProfile = () => {
                         <img
                             src={trainer.avatar}
                             alt="Avatar"
-                            style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #667eea' }}
+                            style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #667eea', boxShadow: '0 2px 14px rgba(102,126,234,0.45)' }}
                         />
                     ) : (
-                        <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea, #764ba2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', color: 'white' }}>
+                        <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea, #764ba2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', color: 'white', boxShadow: '0 2px 14px rgba(102,126,234,0.4)' }}>
                             👤
                         </div>
                     )}
@@ -149,7 +149,7 @@ const TrainerProfile = () => {
                             value={trainer.name}
                             onChange={(e) => setTrainer(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="Trainer Name..."
-                            style={{ fontSize: '18px', fontWeight: 'bold', width: '100%', color: '#667eea' }}
+                            style={{ fontSize: '18px', fontWeight: 'bold', width: '100%', color: '#667eea', borderBottom: '2px solid #667eea40', background: 'transparent', border: 'none', borderBottom: '2px solid #667eea50', outline: 'none', padding: '2px 0' }}
                         />
                     </div>
                     <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -250,13 +250,13 @@ const TrainerProfile = () => {
 
             {/* Quick Stats */}
             <div className="trainer-quick-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '15px' }}>
-                <div style={{ textAlign: 'center', padding: '10px', background: 'var(--card-bg, #fff)', borderRadius: '8px' }} title="Max HP = (HP stat × 4) + (Level × 4)">
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted, #666)' }}>MAX HP</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e53935' }}>{calculateMaxHP()}</div>
+                <div style={{ textAlign: 'center', padding: '10px', background: 'linear-gradient(180deg, var(--quick-stat-hp-tint, #ffebee) 0%, var(--card-bg, #fff) 70%)', borderRadius: '8px', borderTop: '3px solid #e53935' }} title="Max HP = (HP stat × 4) + (Level × 4)">
+                    <div style={{ fontSize: '11px', color: '#e53935', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Max HP</div>
+                    <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#e53935', lineHeight: 1.2 }}>{calculateMaxHP()}</div>
                 </div>
-                <div style={{ textAlign: 'center', padding: '10px', background: 'var(--card-bg, #fff)', borderRadius: '8px' }} title="Feat points are used to buy features. Gain points from leveling up.">
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted, #666)' }}>FEAT PTS</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: trainer.featPoints > 0 ? '#4caf50' : '#999' }}>{trainer.featPoints || 0}</div>
+                <div style={{ textAlign: 'center', padding: '10px', background: `linear-gradient(180deg, ${(trainer.featPoints || 0) > 0 ? 'var(--quick-stat-feat-tint, #e8f5e9)' : 'var(--bg-light, #f5f5f5)'} 0%, var(--card-bg, #fff) 70%)`, borderRadius: '8px', borderTop: `3px solid ${(trainer.featPoints || 0) > 0 ? '#4caf50' : '#bdbdbd'}` }} title="Feat points are used to buy features. Gain points from leveling up.">
+                    <div style={{ fontSize: '11px', color: (trainer.featPoints || 0) > 0 ? '#2e7d32' : 'var(--text-muted, #666)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feat Pts</div>
+                    <div style={{ fontSize: '22px', fontWeight: 'bold', color: (trainer.featPoints || 0) > 0 ? '#4caf50' : '#999', lineHeight: 1.2 }}>{trainer.featPoints || 0}</div>
                 </div>
             </div>
 

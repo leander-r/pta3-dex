@@ -424,6 +424,30 @@ const TrainerClasses = () => {
                 </div>
             )}
             </>}
+            {collapsed && (
+                currentClasses.length > 0 ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {currentClasses.map((cls, i) => (
+                            <span key={i} style={{
+                                padding: '3px 10px', borderRadius: '10px',
+                                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                color: 'white', fontSize: '11px', fontWeight: 'bold'
+                            }}>
+                                {cls}
+                                {GAME_DATA.trainerClasses[cls] && (
+                                    <span style={{ opacity: 0.75, marginLeft: '4px', fontSize: '10px' }}>
+                                        ({GAME_DATA.trainerClasses[cls].type === 'base' ? 'Base' : 'Adv'})
+                                    </span>
+                                )}
+                            </span>
+                        ))}
+                    </div>
+                ) : (
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        No classes yet — first class grants +2 feat points!
+                    </p>
+                )
+            )}
         </div>
     );
 };

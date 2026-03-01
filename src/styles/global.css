@@ -120,6 +120,8 @@
             --collapsed-btn-bg: #f5f5f5;
             --collapsed-btn-text: #666;
             --collapsed-hp-track: #e0e0e0;
+            --quick-stat-hp-tint: #ffebee;
+            --quick-stat-feat-tint: #e8f5e9;
             --collapsed-abilities-bg: #fce4ec;
             --collapsed-moves-bg: #ede7f6;
             --collapsed-skills-bg: #e8f5e9;
@@ -218,6 +220,10 @@
             --input-border-focus: var(--poke-orange);
             --input-bg: #2a2a3a;
             --input-bg-hover: #323242;
+
+            /* Trainer quick stat tint colors */
+            --quick-stat-hp-tint: rgba(229, 57, 53, 0.18);
+            --quick-stat-feat-tint: rgba(76, 175, 80, 0.18);
 
             /* Status colors - dark mode */
             --warning-bg: #3d3520;

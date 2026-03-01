@@ -272,6 +272,27 @@ const TrainerSkills = () => {
                 </div>
             )}
             </>}
+            {collapsed && (
+                trainedCount > 0 ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {trainedList.map(({ name, rank }) => (
+                            <span key={name} style={{
+                                padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
+                                background: rank === 2
+                                    ? 'linear-gradient(135deg, #ff6b6b, #ee5a24)'
+                                    : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                color: 'white'
+                            }}>
+                                {name}{rank === 2 && <span style={{ marginLeft: '3px', opacity: 0.85 }}>★★</span>}
+                            </span>
+                        ))}
+                    </div>
+                ) : (
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        No trained skills yet
+                    </p>
+                )
+            )}
         </div>
     );
 };

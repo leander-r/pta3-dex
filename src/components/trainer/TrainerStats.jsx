@@ -78,15 +78,16 @@ const TrainerStats = () => {
                     return (
                         <div
                             key={stat.key}
-                            className="bg-card"
                             style={{
                                 borderRadius: '8px',
                                 padding: '10px',
                                 textAlign: 'center',
-                                border: `2px solid ${stat.color}20`
+                                border: `1px solid ${stat.color}30`,
+                                borderTop: `3px solid ${stat.color}`,
+                                background: `linear-gradient(180deg, ${stat.color}12 0%, var(--card-bg, #fff) 60%)`
                             }}
                         >
-                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color, marginBottom: '5px' }}>
+                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: stat.color, marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 {stat.label}
                             </div>
                             <input
@@ -97,18 +98,20 @@ const TrainerStats = () => {
                                 style={{
                                     width: '60px',
                                     textAlign: 'center',
-                                    fontSize: '18px',
+                                    fontSize: '20px',
                                     fontWeight: 'bold',
-                                    border: '1px solid #ddd',
+                                    border: `1px solid var(--border-medium, #ddd)`,
                                     borderRadius: '6px',
-                                    padding: '5px'
+                                    padding: '5px',
+                                    background: 'var(--input-bg)',
+                                    color: 'var(--text-primary)'
                                 }}
                             />
                             <div style={{
-                                fontSize: '12px',
+                                fontSize: '13px',
                                 color: mod >= 0 ? '#4caf50' : '#f44336',
                                 fontWeight: 'bold',
-                                marginTop: '3px'
+                                marginTop: '4px'
                             }}>
                                 {mod >= 0 ? '+' : ''}{mod}
                             </div>
@@ -138,6 +141,22 @@ const TrainerStats = () => {
                 </div>
             </div>
             </>}
+            {collapsed && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {STAT_CONFIG.map(stat => {
+                        const mod = calculateModifier(stat.key);
+                        return (
+                            <span key={stat.key} style={{
+                                padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
+                                background: `${stat.color}15`, color: stat.color, border: `1px solid ${stat.color}40`
+                            }}>
+                                {stat.label} {trainer.stats[stat.key]}
+                                <span style={{ opacity: 0.65, marginLeft: '2px' }}>({mod >= 0 ? '+' : ''}{mod})</span>
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 };

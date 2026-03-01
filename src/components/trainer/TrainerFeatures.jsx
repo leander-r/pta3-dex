@@ -526,6 +526,35 @@ const TrainerFeatures = () => {
                 </div>
             )}
             </>}
+            {collapsed && (
+                currentFeatures.length > 0 ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {currentFeatures.slice(0, 8).map((f, i) => {
+                            const name = typeof f === 'object' ? f.name : f;
+                            const isBase = GAME_DATA.features[name]?.isBase;
+                            return (
+                                <span key={i} style={{
+                                    padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
+                                    background: isBase ? '#e8f5e9' : '#ede7f6',
+                                    color: isBase ? '#2e7d32' : '#5e35b1',
+                                    border: `1px solid ${isBase ? '#a5d6a7' : '#b39ddb'}`
+                                }}>
+                                    {name}
+                                </span>
+                            );
+                        })}
+                        {currentFeatures.length > 8 && (
+                            <span style={{ padding: '3px 8px', fontSize: '11px', color: 'var(--text-muted)', alignSelf: 'center' }}>
+                                +{currentFeatures.length - 8} more
+                            </span>
+                        )}
+                    </div>
+                ) : (
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        No features yet — earn feat points to unlock abilities!
+                    </p>
+                )
+            )}
         </div>
     );
 };
