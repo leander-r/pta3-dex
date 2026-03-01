@@ -580,7 +580,7 @@ const PokemonCard = ({
                                     {currentHP}/{maxHP}
                                 </span>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
+                            <div className="pokemon-nature-exp-row">
                                 <span className="text-muted" style={{ fontSize: '12px' }}>
                                     {pokemon.nature || 'Hardy'} Nature
                                 </span>
@@ -820,7 +820,7 @@ const PokemonCard = ({
                     {/* Quick Actions */}
                     <div style={{ display: 'flex', gap: '4px', flexDirection: 'column', alignItems: 'flex-end' }}>
                         {canMoveUp && (
-                            <button onClick={(e) => { e.stopPropagation(); onMoveUp(); }} style={quickBtnLabelStyle}>
+                            <button onClick={(e) => { e.stopPropagation(); onMoveUp(); }} style={quickBtnLabelStyle} className="quick-action-btn">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <polyline points="18 15 12 9 6 15"></polyline>
                                 </svg>
@@ -828,7 +828,7 @@ const PokemonCard = ({
                             </button>
                         )}
                         {canMoveDown && (
-                            <button onClick={(e) => { e.stopPropagation(); onMoveDown(); }} style={quickBtnLabelStyle}>
+                            <button onClick={(e) => { e.stopPropagation(); onMoveDown(); }} style={quickBtnLabelStyle} className="quick-action-btn">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
@@ -840,6 +840,7 @@ const PokemonCard = ({
                             <button
                                 onClick={(e) => { e.stopPropagation(); onMoveToReserve && onMoveToReserve(); }}
                                 style={{ ...quickBtnLabelStyle, background: 'var(--collapsed-reserve-btn-bg)', borderColor: '#ff9800', color: '#e65100' }}
+                                className="quick-action-btn"
                             >
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e65100" strokeWidth="2">
                                     <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -859,6 +860,7 @@ const PokemonCard = ({
                                     opacity: canMoveToParty ? 1 : 0.7
                                 }}
                                 title={canMoveToParty ? 'Move to Party' : 'Party is full (6/6)'}
+                                className="quick-action-btn"
                             >
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={canMoveToParty ? '#2e7d32' : 'var(--collapsed-btn-text)'} strokeWidth="2">
                                     <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -887,13 +889,14 @@ const PokemonCard = ({
                 padding: '15px',
                 color: 'white'
             }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="pokemon-expanded-header">
+                    <div className="pokemon-expanded-header-left">
                         <input
                             type="text"
                             value={pokemon.name || ''}
                             onChange={(e) => updatePokemon({ name: e.target.value })}
                             placeholder="Nickname"
+                            className="pokemon-expanded-nickname"
                             style={{
                                 background: 'rgba(255,255,255,0.2)',
                                 border: 'none',
@@ -902,12 +905,11 @@ const PokemonCard = ({
                                 color: 'white',
                                 fontSize: '16px',
                                 fontWeight: 'bold',
-                                width: '150px'
                             }}
                         />
-                        <span style={{ opacity: 0.8 }}>Lv.{pokemon.level}</span>
+                        <span style={{ opacity: 0.8, whiteSpace: 'nowrap' }}>Lv.{pokemon.level}</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                         <button
                             onClick={() => {
                                 if (snapshot && restorePokemon) {
@@ -1441,7 +1443,7 @@ const PokemonCard = ({
                         </div>
 
                         {/* Level, EXP & Nature */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                        <div className="pokemon-info-grid">
                             <div>
                                 <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Level</label>
                                 <input

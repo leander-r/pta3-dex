@@ -3493,6 +3493,47 @@
                 height: 32px !important;
                 font-size: 16px !important;
             }
+
+            /* Pokémon card expanded header: stack input above Cancel/Done */
+            .pokemon-expanded-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .pokemon-expanded-nickname {
+                max-width: none;
+            }
+
+            /* Align Cancel/Done to the right when stacked */
+            .pokemon-expanded-header > div:last-child {
+                justify-content: flex-end;
+            }
+
+            /* Pokemon card tabs: tighter padding so 5 tabs stay on one row */
+            .pokemon-card-tabs .tab {
+                padding: 8px 8px;
+                font-size: 11px;
+            }
+
+            /* Collapsed quick-action buttons: icon only, no text label */
+            .quick-action-btn span {
+                display: none;
+            }
+
+            .quick-action-btn {
+                min-width: 30px;
+                justify-content: center;
+            }
+
+            /* Level/EXP/Nature: 2-col grid, EXP spans full width */
+            .pokemon-info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .pokemon-info-grid > div:nth-child(2) {
+                grid-column: 1 / -1;
+            }
         }
 
         /* Very small phones (≤360px — Galaxy A series, older iPhones) */
@@ -4042,6 +4083,51 @@
         .pokemon-card-expanded {
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             overflow: hidden;
+        }
+
+        /* Expanded card header: flex row that stacks on narrow screens */
+        .pokemon-expanded-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pokemon-expanded-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pokemon-expanded-nickname {
+            flex: 1;
+            min-width: 0;
+            max-width: 180px;
+        }
+
+        /* Collapsed card: nature text + EXP row */
+        .pokemon-nature-exp-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 2px;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        /* Level/EXP/Nature info grid */
+        .pokemon-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* Pokemon card tabs: 5 tabs must not wrap */
+        .pokemon-card-tabs .tab {
+            min-width: 0;
         }
 
         [data-theme="dark"] .pokemon-card {
