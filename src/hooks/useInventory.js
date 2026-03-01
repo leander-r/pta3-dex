@@ -33,9 +33,9 @@ export const useInventory = (initialInventory = []) => {
     // Add item to inventory
     const addItem = useCallback((item, quantity = 1) => {
         setInventory(prev => {
+            const itemName = typeof item === 'string' ? item : item.name;
             const existingIndex = prev.findIndex(i =>
-                i.name.toLowerCase() === item.name?.toLowerCase() ||
-                i.name.toLowerCase() === item?.toLowerCase()
+                i.name.toLowerCase() === itemName?.toLowerCase()
             );
 
             if (existingIndex >= 0) {
