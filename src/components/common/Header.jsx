@@ -257,7 +257,7 @@ const Header = () => {
                         transition: 'all 0.25s ease',
                         flexShrink: 1,
                         minWidth: 0,
-                        maxWidth: isMobile ? '110px' : 'none'
+                        maxWidth: isMobile ? '150px' : 'none'
                     }}
                 >
                     <select
@@ -348,8 +348,8 @@ const Header = () => {
                             top: 'calc(100% + 8px)',
                             borderRadius: '16px',
                             boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
-                            minWidth: isMobile ? '200px' : '230px',
-                            maxWidth: '280px',
+                            minWidth: isMobile ? 'min(85vw, 230px)' : '230px',
+                            maxWidth: isMobile ? 'min(95vw, 280px)' : '280px',
                             zIndex: 1000,
                             overflow: 'hidden',
                             animation: 'fadeIn 0.15s ease-out',
