@@ -35,6 +35,7 @@ const InventoryTab = () => {
     const { updatePokemon } = usePokemonContext();
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [showSearch, setShowSearch] = useState(false);
     const [showAddItem, setShowAddItem] = useState(false);
     const [itemSearch, setItemSearch] = useState('');
     const [addQuantity, setAddQuantity] = useState(1);
@@ -340,14 +341,48 @@ const InventoryTab = () => {
             <div className="section-card-purple">
                 <h3 className="section-title-purple">
                     <span>🎒</span> Items
-                    <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
-                        {totalItems} items ({inventory.length} unique)
-                        {totalValue > 0 && <span style={{ marginLeft: '8px' }}>· ₽{totalValue.toLocaleString()}</span>}
+                    <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
+                            {totalItems} items ({inventory.length} unique)
+                            {totalValue > 0 && <span style={{ marginLeft: '8px' }}>· ₽{totalValue.toLocaleString()}</span>}
+                        </span>
+                        <button
+                            onClick={() => setShowSearch(s => !s)}
+                            aria-pressed={showSearch}
+                            title={showSearch ? 'Hide search & filters' : 'Show search & filters'}
+                            style={{
+                                background: showSearch ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'none',
+                                border: showSearch ? 'none' : '1px solid var(--border-medium)',
+                                borderRadius: '6px',
+                                color: showSearch ? 'white' : 'inherit',
+                                cursor: 'pointer',
+                                padding: '2px 8px',
+                                fontSize: '12px'
+                            }}
+                        >
+                            🔍{(searchQuery || filter !== 'all') && <span style={{ marginLeft: '3px', background: '#f44336', color: 'white', borderRadius: '8px', padding: '0 4px', fontSize: '10px' }}>•</span>}
+                        </button>
+                        <button
+                            onClick={() => setShowAddItem(s => !s)}
+                            title={showAddItem ? 'Close Add Item' : 'Add Item'}
+                            style={{
+                                padding: '2px 8px',
+                                fontSize: '12px',
+                                background: showAddItem ? '#f44336' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            {showAddItem ? '✕' : '+'}
+                        </button>
                     </span>
                 </h3>
 
                 {/* Search and Filter */}
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
+                {showSearch && <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <input
                         type="text"
                         placeholder="Search inventory..."
@@ -396,21 +431,7 @@ const InventoryTab = () => {
                         <option value="type">Type {inventorySort === 'type' ? '✓' : ''}</option>
                         <option value="quantity">Quantity {inventorySort === 'quantity' ? '✓' : ''}</option>
                     </select>
-                    <button
-                        onClick={() => setShowAddItem(!showAddItem)}
-                        style={{
-                            padding: '8px 16px',
-                            background: showAddItem ? '#f44336' : 'linear-gradient(135deg, #667eea, #764ba2)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        {showAddItem ? '✕ Close' : '+ Add Item'}
-                    </button>
-                </div>
+                </div>}
 
                 {/* Add Item Panel */}
                 {showAddItem && (

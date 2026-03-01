@@ -49,6 +49,7 @@ const TrainerFeatures = () => {
     const [featureFilter, setFeatureFilter] = useState('all');
     const [featureSearch, setFeatureSearch] = useState('');
     const [pendingStatFeature, setPendingStatFeature] = useState(null); // { name, data, featureData }
+    const [collapsed, setCollapsed] = useState(false);
 
     const currentFeatures = trainer.features || [];
 
@@ -221,10 +222,20 @@ const TrainerFeatures = () => {
                     aria-label="Help: Trainer Features"
                     title="About trainer features"
                 >?</button>
-                <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
-                    {currentFeatures.length} features | {trainer.featPoints || 0} points available
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
+                        {currentFeatures.length} features | {trainer.featPoints || 0} points available
+                    </span>
+                    <button
+                        onClick={() => setCollapsed(c => !c)}
+                        aria-label={collapsed ? 'Expand Features' : 'Collapse Features'}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
+                    >
+                        <span style={{ display: 'inline-block', transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '12px' }}>▼</span>
+                    </button>
                 </span>
             </h3>
+            {!collapsed && <>
             <p className="section-description" style={{ fontSize: '12px' }}>
                 Features give special abilities. Most cost 1 feat point. "General (Free)" features are free. Green badges are class base features.
             </p>
@@ -514,6 +525,7 @@ const TrainerFeatures = () => {
                     </div>
                 </div>
             )}
+            </>}
         </div>
     );
 };

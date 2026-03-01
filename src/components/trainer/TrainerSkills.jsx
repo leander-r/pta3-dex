@@ -2,7 +2,7 @@
 // Trainer Skills Component
 // ============================================================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTrainerContext, useGameData, useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
@@ -102,6 +102,7 @@ const TrainerSkills = () => {
 
     const trainedCount = countTrainedSkills(currentSkills);
     const trainedList = getTrainedSkillsList(currentSkills);
+    const [collapsed, setCollapsed] = useState(false);
 
     return (
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
@@ -113,11 +114,20 @@ const TrainerSkills = () => {
                     aria-label="Help: Trainer Skills"
                     title="About trainer skills"
                 >?</button>
-                <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
-                    {trainedCount} trained skills
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
+                        {trainedCount} trained skills
+                    </span>
+                    <button
+                        onClick={() => setCollapsed(c => !c)}
+                        aria-label={collapsed ? 'Expand Skills' : 'Collapse Skills'}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
+                    >
+                        <span style={{ display: 'inline-block', transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '12px' }}>▼</span>
+                    </button>
                 </span>
             </h3>
-
+            {!collapsed && <>
             <p className="section-description">
                 Click skills to cycle ranks (0→1→2). HP skills max at rank 1.
                 <br />
@@ -261,6 +271,7 @@ const TrainerSkills = () => {
                     </div>
                 </div>
             )}
+            </>}
         </div>
     );
 };

@@ -2,7 +2,7 @@
 // Trainer Stats Component
 // ============================================================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTrainerContext, useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
@@ -22,6 +22,7 @@ const STAT_CONFIG = [
 const TrainerStats = () => {
     const { trainer, updateTrainerStat, calculateModifier, undoStatAllocation, canUndoStat } = useTrainerContext();
     const { showHelp } = useUI();
+    const [collapsed, setCollapsed] = useState(false);
     return (
         <div className="section-card-purple">
             <h3 className="section-title-purple">
@@ -33,28 +34,40 @@ const TrainerStats = () => {
                     title="About stat allocation"
                 >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }} title="Creation points are used during character creation (min 6, max 14). Level points are gained when leveling up.">
-                        Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}
-                    </span>
+                    {!collapsed && (
+                        <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }} title="Creation points are used during character creation (min 6, max 14). Level points are gained when leveling up.">
+                            Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}
+                        </span>
+                    )}
+                    {!collapsed && (
+                        <button
+                            onClick={undoStatAllocation}
+                            disabled={!canUndoStat}
+                            title="Undo last stat change"
+                            style={{
+                                padding: '2px 8px',
+                                fontSize: '13px',
+                                background: canUndoStat ? '#ff9800' : '#ccc',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: canUndoStat ? 'pointer' : 'not-allowed',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            ↩ Undo
+                        </button>
+                    )}
                     <button
-                        onClick={undoStatAllocation}
-                        disabled={!canUndoStat}
-                        title="Undo last stat change"
-                        style={{
-                            padding: '2px 8px',
-                            fontSize: '13px',
-                            background: canUndoStat ? '#ff9800' : '#ccc',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: canUndoStat ? 'pointer' : 'not-allowed',
-                            fontWeight: 'bold'
-                        }}
+                        onClick={() => setCollapsed(c => !c)}
+                        aria-label={collapsed ? 'Expand Stats' : 'Collapse Stats'}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >
-                        ↩ Undo
+                        <span style={{ display: 'inline-block', transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '12px' }}>▼</span>
                     </button>
                 </span>
             </h3>
+            {!collapsed && <>
             <p className="section-description" style={{ fontSize: '12px' }}>
                 Stats determine your trainer's capabilities. The modifier (shown below each stat) affects skill rolls.
             </p>
@@ -124,6 +137,7 @@ const TrainerStats = () => {
                     </div>
                 </div>
             </div>
+            </>}
         </div>
     );
 };
