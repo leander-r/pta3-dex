@@ -47,9 +47,11 @@ function allocateStatPoints(difference, newValue, creationPoints, levelPoints, t
             return { creationDelta: 0, levelDelta: -difference };
         }
     } else {
-        // Decreasing a stat — always a refund, never fails
+        // Decreasing a stat — refund to the pool the point was most likely spent from.
+        // Points at/below CREATION_STAT_CAP were spent from creation; above from level points.
         const refund = Math.abs(difference);
-        return trainerLevel === 0
+        const oldValue = newValue - difference; // newValue + refund (difference is negative)
+        return oldValue <= CREATION_STAT_CAP
             ? { creationDelta: refund, levelDelta: 0 }
             : { creationDelta: 0, levelDelta: refund };
     }

@@ -38,7 +38,7 @@ const ConfirmModal = () => {
 
     const handleConfirm = () => {
         const { onConfirm, inputConfig } = confirmModal;
-        const value = inputConfig ? inputValue : undefined;
+        const value = inputConfig ? inputValue.trim() : undefined;
         setConfirmModal({ ...DEFAULT_STATE });
         if (onConfirm) onConfirm(value);
     };

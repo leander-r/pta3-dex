@@ -39,7 +39,7 @@ const POKEMON_CAPABILITY_MAPPINGS = [
     ['telekinetic', 'Telekinetic'], ['aura', 'Aura'], ['amorphous', 'Amorphous'],
     ['chilled', 'Chilled'], ['climber', 'Climber'], ['stealth', 'Stealth'],
     ['fountain', 'Fountain'], ['freezer', 'Freezer'], ['glow', 'Glow'],
-    ['groundshaker', 'Groundshaper'], ['guster', 'Guster'], ['heater', 'Heater'],
+    ['groundshaker', 'Groundshaker'], ['guster', 'Guster'], ['heater', 'Heater'],
     ['magnetic', 'Magnetic'], ['sprouter', 'Sprouter'], ['sinker', 'Sinker'],
     ['packMon', 'Pack Mon'], ['empath', 'Telepath'], ['illusionist', 'Invisibility'],
     ['dreamEater', 'Dream Smoke'], ['warp', 'Phasing'],
@@ -297,7 +297,8 @@ export const PokemonProvider = ({ children }) => {
                 if (moveIndex === -1) return;
 
                 const historyIdx = newMoveHistory.findIndex(h =>
-                    h.replacedAtLevel === moveToForget.learnedAtLevel
+                    h.replacedAtLevel === moveToForget.learnedAtLevel &&
+                    h.name === moveToForget.name
                 );
 
                 if (historyIdx !== -1) {
