@@ -529,12 +529,9 @@ export const PokemonProvider = ({ children }) => {
 
         if (evolutionData.evolvesTo) {
             evolutionData.evolvesTo.forEach(evo => {
-                const isPikachuToAlolanRaichu = species === 'Pikachu' && evo.species === 'Raichu' && evo.regionalForm === 'Alolan';
-                const isRockruffToLycanroc = species === 'Rockruff' && evo.species === 'Lycanroc';
-
-                if (evo.regionalForm && evo.regionalForm !== regionalForm && !isPikachuToAlolanRaichu && !isRockruffToLycanroc) {
-                    if (regionalForm !== evo.regionalForm) return;
-                }
+                // Regional Pokémon only see evolutions matching their form.
+                // Non-regional Pokémon see all evolutions (including regional variants like Alolan Raichu).
+                if (regionalForm && evo.regionalForm !== regionalForm) return;
 
                 let canEvolveNow = false;
                 let reason = '';
