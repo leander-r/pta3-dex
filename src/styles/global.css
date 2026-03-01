@@ -996,10 +996,17 @@
         .trainer-layout__data {
             min-width: 0;
         }
+        .trainer-layout__profile {
+            position: sticky;
+            top: 16px;
+        }
         /* Stack vertically below 960px (tablet/mobile) */
         @media (max-width: 960px) {
             .trainer-layout {
                 grid-template-columns: 1fr;
+            }
+            .trainer-layout__profile {
+                position: static;
             }
         }
         [data-compact="true"] .trainer-layout { gap: 10px; }
