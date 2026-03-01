@@ -30,7 +30,7 @@ const rollHealFormula = (formula, maxHP) => {
  */
 const InventoryTab = () => {
     const { inventory, setInventory } = useData();
-    const { showConfirm } = useModal();
+    const { showConfirm, setDetailModal } = useModal();
     const { party } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const [filter, setFilter] = useState('all');
@@ -38,7 +38,6 @@ const InventoryTab = () => {
     const [showAddItem, setShowAddItem] = useState(false);
     const [itemSearch, setItemSearch] = useState('');
     const [addQuantity, setAddQuantity] = useState(1);
-    const [expandedItem, setExpandedItem] = useState(null);
     const [inventorySort, setInventorySort] = useState('');
     // New states for add item panel
     const [addItemFilter, setAddItemFilter] = useState('all');
@@ -531,7 +530,6 @@ const InventoryTab = () => {
 
                         <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                             {availableItems.map(([name, data]) => {
-                                const isExpanded = expandedItem === name;
                                 return (
                                     <div
                                         key={name}
@@ -544,21 +542,16 @@ const InventoryTab = () => {
                                         }}
                                     >
                                         <div
-                                            role="button"
-                                            tabIndex={0}
-                                            aria-expanded={isExpanded}
                                             style={{
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
                                                 alignItems: 'center',
                                                 padding: '10px 12px',
-                                                cursor: 'pointer'
+                                                gap: '8px'
                                             }}
-                                            onClick={() => setExpandedItem(isExpanded ? null : name)}
-                                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpandedItem(isExpanded ? null : name)}
                                         >
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                                     {name}
                                                     <span style={{
                                                         padding: '2px 6px',
@@ -571,48 +564,34 @@ const InventoryTab = () => {
                                                         {data.type || 'misc'}
                                                     </span>
                                                 </div>
-                                                <div className="text-muted" style={{ fontSize: '12px', marginTop: '2px' }}>
-                                                    {data.price ? `₽${data.price}` : 'No price'}
-                                                    {data.effect && (
-                                                        <span className="text-light" style={{ marginLeft: '8px' }}>
-                                                            {isExpanded ? '▼' : '▶'} Details
-                                                        </span>
-                                                    )}
-                                                </div>
                                             </div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleAddItem(name, data, addQuantity);
-                                                }}
-                                                style={{
-                                                    padding: '6px 14px',
-                                                    background: '#4caf50',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '13px',
-                                                    fontWeight: 'bold',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '4px'
-                                                }}
-                                            >
-                                                <span>+{addQuantity}</span>
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                                                <button
+                                                    onClick={() => setDetailModal({ show: true, type: 'item', name, data })}
+                                                    title={`View ${name} details`}
+                                                    aria-label={`View details for ${name}`}
+                                                    style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '50%', width: '30px', height: '30px', fontSize: '13px', cursor: 'pointer', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                                                >ℹ</button>
+                                                <button
+                                                    onClick={() => handleAddItem(name, data, addQuantity)}
+                                                    style={{
+                                                        padding: '6px 14px',
+                                                        background: '#4caf50',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '13px',
+                                                        fontWeight: 'bold',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px'
+                                                    }}
+                                                >
+                                                    <span>+{addQuantity}</span>
+                                                </button>
+                                            </div>
                                         </div>
-
-                                        {/* Expanded details */}
-                                        {isExpanded && data.effect && (
-                                            <div className="item-details-expanded" style={{
-                                                padding: '10px 12px',
-                                                borderTop: '1px solid #e0e0e0',
-                                                fontSize: '12px'
-                                            }}>
-                                                <strong>Effect:</strong> {data.effect}
-                                            </div>
-                                        )}
                                     </div>
                                 );
                             })}
@@ -716,7 +695,7 @@ const InventoryTab = () => {
                                     <div className="inventory-main-row" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     {/* Item Info */}
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                             {item.name}
                                             <span style={{
                                                 padding: '2px 6px',
@@ -728,17 +707,13 @@ const InventoryTab = () => {
                                             }}>
                                                 {itemType}
                                             </span>
+                                            <button
+                                                onClick={() => setDetailModal({ show: true, type: 'item', name: item.name, data: { type: item.type, price: item.price, effect: item.effect } })}
+                                                title={`View ${item.name} details`}
+                                                aria-label={`View details for ${item.name}`}
+                                                style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '50%', width: '20px', height: '20px', fontSize: '11px', cursor: 'pointer', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}
+                                            >ℹ</button>
                                         </div>
-                                        {item.effect && (
-                                            <div className="text-muted" style={{ fontSize: '12px', marginTop: '2px' }}>
-                                                {item.effect}
-                                            </div>
-                                        )}
-                                        {item.price > 0 && (
-                                            <div className="text-light" style={{ fontSize: '12px', marginTop: '2px' }}>
-                                                ₽{item.price} each
-                                            </div>
-                                        )}
                                     </div>
 
                                     {/* Quantity Controls */}
