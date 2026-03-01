@@ -265,7 +265,7 @@ const TrainerClasses = () => {
                     {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
                 </span>
             </h3>
-            <p className="section-description" style={{ fontSize: '11px' }}>
+            <p className="section-description" style={{ fontSize: '12px' }}>
                 Classes unlock features and skills. Lv1-4: 1 class | Lv5-11: 2 | Lv12-23: 3 | Lv24+: 4.
                 {currentClasses.length >= 1 && ' Additional classes cost 1 feat point.'}
             </p>
@@ -333,7 +333,7 @@ const TrainerClasses = () => {
                     </div>
                     <div style={{ fontSize: '12px', marginBottom: '10px', color: 'var(--text-primary)' }}>
                         Select {getSkillCount(pendingClass)} skill{getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:
-                        <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginTop: '4px' }}>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '12px', display: 'block', marginTop: '4px' }}>
                             Trained skills add +2 to rolls. Getting the same skill twice adds another +2. HP skills can only be taken once.
                         </span>
                     </div>

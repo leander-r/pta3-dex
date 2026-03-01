@@ -133,7 +133,7 @@ const TrainerProfile = () => {
                         />
                         <button
                             className="btn btn-secondary"
-                            style={{ padding: '3px 8px', fontSize: '10px' }}
+                            style={{ padding: '3px 8px', fontSize: '12px' }}
                             onClick={() => document.getElementById('trainerAvatarInput').click()}
                         >
                             Change
@@ -212,7 +212,7 @@ const TrainerProfile = () => {
                     background: 'linear-gradient(135deg, #fff3e0, #ffe0b2)',
                     borderRadius: '8px',
                     border: '1px solid #ffcc80',
-                    fontSize: '11px'
+                    fontSize: '12px'
                 }}>
                     <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#e65100' }}>
                         Character Creation Checklist
@@ -235,7 +235,7 @@ const TrainerProfile = () => {
                     width: '100%',
                     marginTop: '10px',
                     padding: '8px',
-                    fontSize: '11px',
+                    fontSize: '13px',
                     background: 'linear-gradient(135deg, #ff9800, #f57c00)',
                     border: 'none',
                     borderRadius: '6px',
@@ -251,11 +251,11 @@ const TrainerProfile = () => {
             {/* Quick Stats */}
             <div className="trainer-quick-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '15px' }}>
                 <div style={{ textAlign: 'center', padding: '10px', background: 'var(--card-bg, #fff)', borderRadius: '8px' }} title="Max HP = (HP stat × 4) + (Level × 4)">
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted, #666)' }}>MAX HP</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted, #666)' }}>MAX HP</div>
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e53935' }}>{calculateMaxHP()}</div>
                 </div>
                 <div style={{ textAlign: 'center', padding: '10px', background: 'var(--card-bg, #fff)', borderRadius: '8px' }} title="Feat points are used to buy features. Gain points from leveling up.">
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted, #666)' }}>FEAT PTS</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted, #666)' }}>FEAT PTS</div>
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: trainer.featPoints > 0 ? '#4caf50' : '#999' }}>{trainer.featPoints || 0}</div>
                 </div>
             </div>
@@ -293,7 +293,7 @@ const TrainerProfile = () => {
                         onClick={handleAddBadge}
                         style={{
                             padding: '4px 10px',
-                            fontSize: '11px',
+                            fontSize: '13px',
                             background: 'linear-gradient(135deg, #5c6bc0, #3f51b5)',
                             color: 'white',
                             border: 'none',
@@ -321,7 +321,7 @@ const TrainerProfile = () => {
                                         padding: '4px 8px',
                                         background: 'linear-gradient(135deg, #ffd54f, #ffb300)',
                                         borderRadius: '12px',
-                                        fontSize: '11px',
+                                        fontSize: '12px',
                                         fontWeight: 'bold',
                                         color: '#5d4e00',
                                         boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
@@ -337,7 +337,7 @@ const TrainerProfile = () => {
                                             border: 'none',
                                             cursor: 'pointer',
                                             padding: '0 2px',
-                                            fontSize: '10px',
+                                            fontSize: '12px',
                                             color: '#8d6e00',
                                             opacity: 0.7
                                         }}
@@ -354,7 +354,7 @@ const TrainerProfile = () => {
                         textAlign: 'center',
                         padding: '10px',
                         color: '#5c6bc0',
-                        fontSize: '11px',
+                        fontSize: '12px',
                         fontStyle: 'italic',
                         background: 'rgba(255,255,255,0.5)',
                         borderRadius: '6px'

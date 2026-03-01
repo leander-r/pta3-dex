@@ -82,7 +82,7 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                         <div ref={exportDropdownRef} style={{ position: 'relative' }}>
                             <button
                                 onClick={() => setShowExportOptions(v => !v)}
-                                style={{ padding: '4px 8px', background: '#667eea', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                style={{ padding: '4px 8px', background: '#667eea', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                             >
                                 Export Log
                             </button>
@@ -105,7 +105,7 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                     setRollHistory([]);
                                 }
                             }}
-                            style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                            style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                         >
                             Clear
                         </button>

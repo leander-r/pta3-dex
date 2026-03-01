@@ -17,7 +17,7 @@ const StatusConditionUI = ({ selectedPokemon, updatePokemon }) => {
 
     return (
         <div style={{ marginBottom: '12px', padding: '8px 10px', borderRadius: '8px', background: 'var(--bg-secondary, #f5f5f5)' }}>
-            <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-secondary)' }}>
                 Status Conditions
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -34,7 +34,7 @@ const StatusConditionUI = ({ selectedPokemon, updatePokemon }) => {
                                 border: isActive ? `2px solid ${cond.color}` : '1px solid var(--border-medium, #ccc)',
                                 background: isActive ? cond.color : 'transparent',
                                 color: isActive ? 'white' : 'var(--text-secondary)',
-                                cursor: 'pointer', fontSize: '10px',
+                                cursor: 'pointer', fontSize: '12px',
                                 fontWeight: isActive ? 'bold' : 'normal',
                                 transition: 'all 0.15s ease'
                             }}

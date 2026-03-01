@@ -4,7 +4,7 @@ import { calculatePokemonHP, parseHealFormula } from '../../utils/dataUtils.js';
 const HealModePanel = ({ selectedPokemonId, setSelectedPokemonId, party, healingInventory, onUseItem }) => (
     <div>
         <div style={{ marginBottom: '12px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
+            <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
                 Target Pokémon
             </label>
             <select
@@ -43,7 +43,7 @@ const HealModePanel = ({ selectedPokemonId, setSelectedPokemonId, party, healing
                         >
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{item.name}</div>
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                                     {formulaLabel} · ×{item.quantity || 1}
                                 </div>
                             </div>
@@ -55,7 +55,7 @@ const HealModePanel = ({ selectedPokemonId, setSelectedPokemonId, party, healing
                                     background: selectedPokemonId ? '#4caf50' : '#ccc',
                                     color: 'white', border: 'none', borderRadius: '4px',
                                     cursor: selectedPokemonId ? 'pointer' : 'not-allowed',
-                                    fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap'
+                                    fontSize: '13px', fontWeight: 'bold', whiteSpace: 'nowrap'
                                 }}
                             >
                                 Use

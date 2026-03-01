@@ -64,7 +64,7 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                             title="About combat stages"
                         >?</button>
                     )}
-                    <span className="text-muted" style={{ fontSize: '10px', marginLeft: '2px' }}>Buffs & debuffs from moves</span>
+                    <span className="text-muted" style={{ fontSize: '12px', marginLeft: '2px' }}>Buffs & debuffs from moves</span>
                 </div>
                 <svg
                     width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -77,7 +77,7 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
             </div>
             {show && (
                 <div className="combat-stages-content" style={{ padding: '10px', borderRadius: '6px' }}>
-                    <div className="text-muted" style={{ fontSize: '10px', marginBottom: '8px', textAlign: 'center' }}>
+                    <div className="text-muted" style={{ fontSize: '12px', marginBottom: '8px', textAlign: 'center' }}>
                         +1 stage = +25% stat | −1 stage = −10% stat | Range: −6 to +6
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
@@ -88,8 +88,8 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                             const modifiedStat = isModOnly ? stages : getModifiedStat(baseStat, stages);
                             return (
                                 <div key={stat.key} className="combat-stat-box" style={{ textAlign: 'center', padding: '6px', borderRadius: '4px' }} title={stat.desc}>
-                                    <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                                         {isModOnly ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>
                                             {isModOnly ? (stages >= 0 ? '+' : '') + stages : modifiedStat}
                                         </strong>
@@ -117,7 +117,7 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                     </div>
                     <button
                         onClick={resetCombatStages}
-                        style={{ marginTop: '8px', width: '100%', padding: '6px', background: '#9e9e9e', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                        style={{ marginTop: '8px', width: '100%', padding: '6px', background: '#9e9e9e', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                     >
                         Reset All Stages
                     </button>

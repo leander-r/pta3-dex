@@ -113,7 +113,7 @@ const TrainerSkills = () => {
             <p className="section-description">
                 Click skills to cycle ranks (0→1→2). HP skills max at rank 1.
                 <br />
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                     Rank 1: +2 + Stat Mod | Rank 2: +4 + (2×Stat Mod)
                 </span>
             </p>
@@ -142,7 +142,7 @@ const TrainerSkills = () => {
                                 alignItems: 'center'
                             }}>
                                 <span>{stat} Skills</span>
-                                {isHPStat && <span style={{ fontSize: '10px', opacity: 0.7 }}>Max Rank 1</span>}
+                                {isHPStat && <span style={{ fontSize: '11px', opacity: 0.7 }}>Max Rank 1</span>}
                             </div>
 
                             {skillsByStat[stat].map(skill => {
@@ -206,7 +206,7 @@ const TrainerSkills = () => {
                                         {/* Bonus display */}
                                         {isTrained && (
                                             <span style={{
-                                                fontSize: '10px',
+                                                fontSize: '12px',
                                                 opacity: 0.9,
                                                 background: 'rgba(255,255,255,0.2)',
                                                 padding: '2px 6px',
@@ -226,7 +226,7 @@ const TrainerSkills = () => {
             {/* Current Skills Summary */}
             {trainedCount > 0 && (
                 <div className="skill-search-section" style={{ marginTop: '15px', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '11px', marginBottom: '6px', color: '#303f9f' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '13px', marginBottom: '6px', color: '#303f9f' }}>
                         Trained Skills:
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -240,7 +240,7 @@ const TrainerSkills = () => {
                                         : 'linear-gradient(135deg, #667eea, #764ba2)',
                                     color: 'white',
                                     borderRadius: '10px',
-                                    fontSize: '11px',
+                                    fontSize: '12px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '4px'

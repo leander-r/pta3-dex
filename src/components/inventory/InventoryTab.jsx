@@ -524,7 +524,7 @@ const InventoryTab = () => {
                             </div>
 
                             {/* Results count */}
-                            <span className="text-light" style={{ fontSize: '11px', marginLeft: 'auto' }}>
+                            <span className="text-light" style={{ fontSize: '12px', marginLeft: 'auto' }}>
                                 {availableItems.length} items
                             </span>
                         </div>
@@ -567,7 +567,7 @@ const InventoryTab = () => {
                                                         {data.type || 'misc'}
                                                     </span>
                                                 </div>
-                                                <div className="text-muted" style={{ fontSize: '11px', marginTop: '2px' }}>
+                                                <div className="text-muted" style={{ fontSize: '12px', marginTop: '2px' }}>
                                                     {data.price ? `₽${data.price}` : 'No price'}
                                                     {data.effect && (
                                                         <span className="text-light" style={{ marginLeft: '8px' }}>
@@ -588,7 +588,7 @@ const InventoryTab = () => {
                                                     border: 'none',
                                                     borderRadius: '6px',
                                                     cursor: 'pointer',
-                                                    fontSize: '12px',
+                                                    fontSize: '13px',
                                                     fontWeight: 'bold',
                                                     display: 'flex',
                                                     alignItems: 'center',
@@ -629,7 +629,7 @@ const InventoryTab = () => {
                                 >
                                     <div>
                                         <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Add Custom: "{itemSearch}"</div>
-                                        <div className="text-muted" style={{ fontSize: '11px' }}>Not in database - will be added as misc item</div>
+                                        <div className="text-muted" style={{ fontSize: '12px' }}>Not in database - will be added as misc item</div>
                                     </div>
                                     <button
                                         onClick={() => handleAddItem(itemSearch, { type: 'misc' }, addQuantity)}
@@ -640,7 +640,7 @@ const InventoryTab = () => {
                                             border: 'none',
                                             borderRadius: '6px',
                                             cursor: 'pointer',
-                                            fontSize: '12px',
+                                            fontSize: '13px',
                                             fontWeight: 'bold'
                                         }}
                                     >
@@ -731,7 +731,7 @@ const InventoryTab = () => {
                                             </div>
                                         )}
                                         {item.price > 0 && (
-                                            <div className="text-light" style={{ fontSize: '11px', marginTop: '2px' }}>
+                                            <div className="text-light" style={{ fontSize: '12px', marginTop: '2px' }}>
                                                 ₽{item.price} each
                                             </div>
                                         )}
@@ -801,7 +801,7 @@ const InventoryTab = () => {
                                                 border: 'none',
                                                 borderRadius: '4px',
                                                 cursor: 'pointer',
-                                                fontSize: '10px',
+                                                fontSize: '13px',
                                                 fontWeight: 'bold'
                                             }}
                                             title={`Use one ${item.name}`}
@@ -817,7 +817,7 @@ const InventoryTab = () => {
                                                 border: 'none',
                                                 borderRadius: '4px',
                                                 cursor: 'pointer',
-                                                fontSize: '11px'
+                                                fontSize: '13px'
                                             }}
                                         >
                                             ✕

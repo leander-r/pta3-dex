@@ -354,7 +354,7 @@ const BattleTab = () => {
                         <div>
                             {/* Pokemon Selector */}
                             <div style={{ marginBottom: '12px' }}>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Pokemon</label>
+                                <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Pokemon</label>
                                 <select
                                     value={selectedPokemonId || ''}
                                     onChange={(e) => {
@@ -404,14 +404,14 @@ const BattleTab = () => {
                                     >
                                         <span style={{ fontSize: '16px' }}>🎒</span>
                                         <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Held Item</div>
+                                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Held Item</div>
                                             <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{selectedPokemon.heldItem}</div>
                                             {itemData?.effect && (
-                                                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{itemData.effect}</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{itemData.effect}</div>
                                             )}
                                         </div>
                                         {showDetail && itemData && (
-                                            <span style={{ fontSize: '11px', color: '#667eea', flexShrink: 0 }}>Details →</span>
+                                            <span style={{ fontSize: '13px', color: '#667eea', flexShrink: 0 }}>Details →</span>
                                         )}
                                     </div>
                                 );
@@ -464,16 +464,16 @@ const BattleTab = () => {
                                         title="Same Type Attack Bonus - extra damage when using moves that match the Pokémon's type. Scales with level."
                                     >
                                         <input type="checkbox" checked={applyStab} onChange={(e) => setApplyStab(e.target.checked)} />
-                                        <span style={{ fontSize: '12px' }}>Apply STAB</span>
+                                        <span style={{ fontSize: '13px' }}>Apply STAB</span>
                                     </label>
                                     <span
-                                        style={{ fontSize: '11px', color: 'var(--text-secondary)' }}
+                                        style={{ fontSize: '12px', color: 'var(--text-secondary)' }}
                                         title="Same Type Attack Bonus (STAB): +2 at Lv.1-10, +4 at Lv.11-20, +6 at Lv.21-40, +8 at Lv.41-60, +10 at Lv.61+"
                                     >
                                         (+{calculateSTAB(selectedPokemon.level || 1)} for matching type)
                                     </span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override move AC (higher = harder to hit)">
-                                        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea' }}>AC Override:</label>
+                                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea' }}>AC Override:</label>
                                         <input
                                             type="number"
                                             min="1"
@@ -481,10 +481,10 @@ const BattleTab = () => {
                                             value={acOverride}
                                             onChange={(e) => setAcOverride(e.target.value)}
                                             placeholder={selectedMove ? String(parseACFromFrequency(selectedMove.frequency || selectedMove.freq)) : '-'}
-                                            style={{ width: '50px', padding: '4px 8px', borderRadius: '4px', border: acOverride !== '' ? '2px solid #667eea' : '1px solid var(--border-medium)', fontSize: '12px', textAlign: 'center', background: acOverride !== '' ? 'var(--input-bg-hover)' : 'var(--input-bg)' }}
+                                            style={{ width: '50px', padding: '4px 8px', borderRadius: '4px', border: acOverride !== '' ? '2px solid #667eea' : '1px solid var(--border-medium)', fontSize: '13px', textAlign: 'center', background: acOverride !== '' ? 'var(--input-bg-hover)' : 'var(--input-bg)' }}
                                         />
                                         {acOverride !== '' && (
-                                            <button onClick={() => setAcOverride('')} style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }} title="Clear AC override" aria-label="Clear AC override">✕</button>
+                                            <button onClick={() => setAcOverride('')} style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }} title="Clear AC override" aria-label="Clear AC override">✕</button>
                                         )}
                                     </div>
                                 </div>
@@ -513,7 +513,7 @@ const BattleTab = () => {
                         <div>
                             {/* Trainer Stats Display */}
                             <div className="trainer-stats-display" style={{ marginBottom: '12px' }}>
-                                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
+                                <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>
                                     {trainer.name || 'Trainer'} - Level {trainer.level || 1}
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
@@ -529,15 +529,15 @@ const BattleTab = () => {
                                         const mod = value >= 10 ? Math.floor((value - 10) / 2) : -(10 - value);
                                         return (
                                             <div key={stat.key} className="trainer-stat-mini-box" style={{ textAlign: 'center', padding: '4px', borderRadius: '4px' }}>
-                                                <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
+                                                <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
                                                 <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{value}</div>
-                                                <div style={{ fontSize: '10px', color: mod >= 0 ? '#4caf50' : '#f44336' }}>{mod >= 0 ? '+' : ''}{mod}</div>
+                                                <div style={{ fontSize: '12px', color: mod >= 0 ? '#4caf50' : '#f44336' }}>{mod >= 0 ? '+' : ''}{mod}</div>
                                             </div>
                                         );
                                     })}
                                 </div>
                                 {trainer.skills && (Array.isArray(trainer.skills) ? trainer.skills.length > 0 : Object.keys(trainer.skills).length > 0) && (
-                                    <div style={{ marginTop: '8px', fontSize: '11px' }}>
+                                    <div style={{ marginTop: '8px', fontSize: '12px' }}>
                                         <strong>Trained Skills:</strong>{' '}
                                         {Array.isArray(trainer.skills)
                                             ? trainer.skills.join(', ')
@@ -563,7 +563,7 @@ const BattleTab = () => {
                             })()}
 
                             {/* Skill Selector */}
-                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Skill</label>
+                            <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Skill</label>
                             <select
                                 value={selectedSkill}
                                 onChange={(e) => setSelectedSkill(e.target.value)}
@@ -592,7 +592,7 @@ const BattleTab = () => {
                                 const hasTrained = skillRank > 0;
                                 const trainedBonus = skillRank > 0 ? (skillRank * 2) + (skillRank * modifier) : 0;
                                 return (
-                                    <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '12px' }}>
+                                    <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
                                         <div><strong>{selectedSkill}</strong> ({skillData.stat})</div>
                                         <div style={{ marginTop: '4px' }} title="Roll 2d6 + stat modifier. Trained skills add a bonus: Rank 1 = +2 + modifier, Rank 2 = +4 + (2× modifier)">
                                             Roll: 2d6 {modifier >= 0 ? '+' : ''}{modifier} (stat)

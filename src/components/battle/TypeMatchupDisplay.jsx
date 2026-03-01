@@ -15,7 +15,7 @@ const TypeChip = ({ type, label }) => (
 
 const Row = ({ heading, headingColor, items, label }) => items.length === 0 ? null : (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginBottom: '5px' }}>
-        <span style={{ fontSize: '10px', fontWeight: 'bold', color: headingColor, whiteSpace: 'nowrap', minWidth: '60px', paddingTop: '3px' }}>
+        <span style={{ fontSize: '12px', fontWeight: 'bold', color: headingColor, whiteSpace: 'nowrap', minWidth: '60px', paddingTop: '3px' }}>
             {heading}
         </span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -35,7 +35,7 @@ const TypeMatchupDisplay = ({ selectedPokemon, megaEvolved, currentMegaForm }) =
     return (
         <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'var(--bg-secondary, #f5f5f5)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
                     Type Matchup{megaEvolved && currentMegaForm?.types?.length > 0 && (
                         <span style={{ fontWeight: 'normal', marginLeft: '4px', color: 'var(--text-muted)' }}>(Mega)</span>
                     )}

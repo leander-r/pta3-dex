@@ -18,7 +18,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
             <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>{label}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'white' }}>{label}</span>
                         {megaEvolved && currentMegaForm && (
                             <span style={{ marginLeft: '8px', fontSize: '11px', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '10px', color: 'white' }}>
                                 {currentMegaForm.name} Active
@@ -28,21 +28,21 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                     {!megaEvolved ? (
                         <button
                             onClick={() => megaForms.length === 1 ? onMegaEvolve(megaForms[0]) : setShowModal(true)}
-                            style={{ padding: '6px 12px', background: 'white', color: '#667eea', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}
+                            style={{ padding: '6px 12px', background: 'white', color: '#667eea', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
                         >
                             {isFormChange ? 'Transform' : 'Mega Evolve'}
                         </button>
                     ) : (
                         <button
                             onClick={onMegaRevert}
-                            style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}
+                            style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
                         >
                             Revert
                         </button>
                     )}
                 </div>
                 {megaEvolved && currentMegaForm && (
-                    <div style={{ marginTop: '8px', fontSize: '10px', color: 'rgba(255,255,255,0.9)' }}>
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.9)' }}>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                             {currentMegaForm.types && <span>Type: {currentMegaForm.types.join('/')}</span>}
                             {currentMegaForm.ability && <span>• Ability: {currentMegaForm.ability}</span>}
@@ -82,10 +82,10 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                                     style={{ padding: '12px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', textAlign: 'left' }}
                                 >
                                     <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{form.name}</div>
-                                    <div style={{ fontSize: '11px', opacity: 0.9 }}>
+                                    <div style={{ fontSize: '12px', opacity: 0.9 }}>
                                         {form.types?.join('/') || 'Unknown Type'}{form.ability && ` • ${form.ability}`}
                                     </div>
-                                    <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
+                                    <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>
                                         {Object.entries(form.statBoosts || {}).filter(([, v]) => v !== 0).map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${k.toUpperCase()}`).join(', ')}
                                     </div>
                                 </button>

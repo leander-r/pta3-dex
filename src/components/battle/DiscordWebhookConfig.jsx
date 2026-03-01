@@ -27,7 +27,7 @@ const DiscordWebhookConfig = () => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {!expanded && (
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>Tap to configure</span>
+                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>Tap to configure</span>
                     )}
                     <div
                         onClick={(e) => { e.stopPropagation(); setDiscordWebhook(prev => ({ ...prev, enabled: !prev?.enabled })); }}
@@ -38,7 +38,7 @@ const DiscordWebhookConfig = () => {
                             borderRadius: '12px', cursor: 'pointer', transition: 'background 0.2s ease'
                         }}
                     >
-                        <span style={{ fontSize: '11px', color: discordWebhook?.enabled ? '#000' : '#fff', fontWeight: 'bold' }}>
+                        <span style={{ fontSize: '12px', color: discordWebhook?.enabled ? '#000' : '#fff', fontWeight: 'bold' }}>
                             {discordWebhook?.enabled ? 'ON' : 'OFF'}
                         </span>
                     </div>
@@ -51,10 +51,10 @@ const DiscordWebhookConfig = () => {
                     <div style={{ fontSize: '12px', color: '#b9bbbe', marginBottom: '10px', lineHeight: '1.4' }}>
                         Send dice rolls to a Discord channel via webhook.
                         <br />
-                        <span style={{ fontSize: '11px', color: '#72767d' }}>
+                        <span style={{ fontSize: '12px', color: '#72767d' }}>
                             Server Settings → Integrations → Webhooks → New Webhook
                         </span>
-                        <div style={{ marginTop: '8px', padding: '8px 10px', background: 'rgba(250,166,26,0.15)', border: '1px solid rgba(250,166,26,0.4)', borderRadius: '4px', fontSize: '11px', color: '#FAA61A', lineHeight: '1.4' }}>
+                        <div style={{ marginTop: '8px', padding: '8px 10px', background: 'rgba(250,166,26,0.15)', border: '1px solid rgba(250,166,26,0.4)', borderRadius: '4px', fontSize: '12px', color: '#FAA61A', lineHeight: '1.4' }}>
                             ⚠️ Your webhook URL is stored in plain text in your browser's localStorage and is visible to anyone with access to your browser's Developer Tools. Do not use this on a shared or public computer.
                         </div>
                     </div>
@@ -69,7 +69,7 @@ const DiscordWebhookConfig = () => {
                                 toast.warning('That doesn\'t look like a valid Discord webhook URL.');
                             }
                         }}
-                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: 'none', fontSize: '12px', background: '#40444b', color: '#dcddde', marginBottom: '10px' }}
+                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: 'none', fontSize: '13px', background: '#40444b', color: '#dcddde', marginBottom: '10px' }}
                     />
                     <button
                         onClick={() => {
@@ -84,12 +84,12 @@ const DiscordWebhookConfig = () => {
                                 : toast.error('Failed to send. Check if the webhook URL is correct.'))
                             .catch(() => toast.error('Failed to send. Check the webhook URL.'));
                         }}
-                        style={{ width: '100%', padding: '10px', background: '#5865F2', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+                        style={{ width: '100%', padding: '10px', background: '#5865F2', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
                     >
                         Send Test Message
                     </button>
                     {discordWebhook?.enabled && discordWebhook?.url && (
-                        <div style={{ fontSize: '11px', color: '#57F287', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ fontSize: '12px', color: '#57F287', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <span>●</span> Connected - rolls will be sent to Discord
                         </div>
                     )}

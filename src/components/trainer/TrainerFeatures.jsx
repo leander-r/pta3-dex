@@ -217,7 +217,7 @@ const TrainerFeatures = () => {
                     {currentFeatures.length} features | {trainer.featPoints || 0} points available
                 </span>
             </h3>
-            <p className="section-description" style={{ fontSize: '11px' }}>
+            <p className="section-description" style={{ fontSize: '12px' }}>
                 Features give special abilities. Most cost 1 feat point. "General (Free)" features are free. Green badges are class base features.
             </p>
 
@@ -283,7 +283,7 @@ const TrainerFeatures = () => {
                                             height: '16px',
                                             color: 'white',
                                             cursor: 'pointer',
-                                            fontSize: '10px',
+                                            fontSize: '12px',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center'
@@ -366,7 +366,7 @@ const TrainerFeatures = () => {
                                                             hpBonusValue = defMod * 3;
                                                         }
                                                         return (
-                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: hpBonusValue > 0 ? '#e53935' : '#999', fontWeight: 'normal' }}>
+                                                            <span style={{ marginLeft: '6px', fontSize: '12px', color: hpBonusValue > 0 ? '#e53935' : '#999', fontWeight: 'normal' }}>
                                                                 (+{hpBonusValue} Max HP)
                                                             </span>
                                                         );
@@ -378,28 +378,28 @@ const TrainerFeatures = () => {
                                                         }
                                                         displayStat = STAT_LABELS[statMod.stat];
                                                         return (
-                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: displayValue > 0 ? '#4caf50' : '#999', fontWeight: 'normal' }}>
+                                                            <span style={{ marginLeft: '6px', fontSize: '12px', color: displayValue > 0 ? '#4caf50' : '#999', fontWeight: 'normal' }}>
                                                                 (+{displayValue} {displayStat} from {STAT_LABELS[statMod.calculated.baseStat]})
                                                             </span>
                                                         );
                                                     } else if (statMod.choices) {
                                                         return (
-                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: '#4caf50', fontWeight: 'normal' }}>
+                                                            <span style={{ marginLeft: '6px', fontSize: '12px', color: '#4caf50', fontWeight: 'normal' }}>
                                                                 (+{displayValue} to choice)
                                                             </span>
                                                         );
                                                     } else {
                                                         return (
-                                                            <span style={{ marginLeft: '6px', fontSize: '10px', color: '#4caf50', fontWeight: 'normal' }}>
+                                                            <span style={{ marginLeft: '6px', fontSize: '12px', color: '#4caf50', fontWeight: 'normal' }}>
                                                                 (+{displayValue} {displayStat})
                                                             </span>
                                                         );
                                                     }
                                                 })()}
                                             </div>
-                                    <div style={{ fontSize: '11px', color: '#666' }}>{data.category}</div>
+                                    <div style={{ fontSize: '12px', color: '#666' }}>{data.category}</div>
                                     {data.description && (
-                                        <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>
+                                        <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
                                             {data.description.length > 100 ? data.description.substring(0, 100) + '...' : data.description}
                                         </div>
                                     )}
@@ -414,7 +414,7 @@ const TrainerFeatures = () => {
                                         border: 'none',
                                         borderRadius: '4px',
                                         cursor: 'pointer',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                         opacity: (data.category !== 'General (Free)' && (trainer.featPoints || 0) <= 0) ? 0.5 : 1
                                     }}
                                 >
