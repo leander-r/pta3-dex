@@ -92,59 +92,34 @@ const TrainerProfile = () => {
     const badges = trainer.badges || [];
 
     return (
-        <div className="section-card-orange">
+        <div className="section-card-purple">
 
-            {/* ── Gradient Header Banner (Pokémon-card style) ── */}
-            <div style={{
-                margin: '-20px -20px 16px -20px',
-                padding: '16px 20px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '10px 10px 0 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '14px',
-                color: 'white',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
-                {/* Decorative pokéball watermark circles */}
-                <div style={{ position: 'absolute', right: '-28px', top: '-28px', width: '110px', height: '110px', borderRadius: '50%', border: '16px solid rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', right: '18px', bottom: '-18px', width: '70px', height: '70px', borderRadius: '50%', border: '10px solid rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', left: '-15px', bottom: '-15px', width: '60px', height: '60px', borderRadius: '50%', border: '8px solid rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-
-                {/* Avatar orb — click to change */}
+            {/* Header: avatar + name */}
+            <h3 className="section-title-purple">
                 <div
-                    style={{ position: 'relative', flexShrink: 0, cursor: 'pointer', zIndex: 1 }}
+                    style={{ position: 'relative', flexShrink: 0, cursor: 'pointer' }}
                     onClick={() => document.getElementById('trainerAvatarInput').click()}
                     title="Click to change avatar"
                 >
                     <div style={{
-                        width: '76px',
-                        height: '76px',
+                        width: '40px',
+                        height: '40px',
                         borderRadius: '50%',
-                        background: trainer.avatar
-                            ? 'transparent'
-                            : 'radial-gradient(circle at 38% 32%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.12) 45%, rgba(0,0,0,0.18) 100%)',
-                        boxShadow: '0 3px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+                        background: trainer.avatar ? 'transparent' : 'linear-gradient(135deg, #667eea, #764ba2)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         overflow: 'hidden',
-                        border: '3px solid rgba(255,255,255,0.4)'
+                        border: '2px solid rgba(102,126,234,0.35)'
                     }}>
                         {trainer.avatar
                             ? <img src={trainer.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <span style={{ fontSize: '34px' }}>👤</span>
+                            : <span style={{ fontSize: '20px' }}>👤</span>
                         }
                     </div>
-                    {/* Camera badge */}
                     <span style={{
-                        position: 'absolute', bottom: '2px', right: '0px',
-                        background: 'rgba(0,0,0,0.55)', borderRadius: '50%',
-                        width: '22px', height: '22px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '11px', border: '1px solid rgba(255,255,255,0.3)',
-                        pointerEvents: 'none'
+                        position: 'absolute', bottom: '0px', right: '-2px',
+                        fontSize: '10px', lineHeight: 1
                     }}>📷</span>
                     <input
                         type="file"
@@ -154,90 +129,84 @@ const TrainerProfile = () => {
                         onChange={handleAvatarChange}
                     />
                 </div>
+                <input
+                    type="text"
+                    value={trainer.name}
+                    onChange={(e) => setTrainer(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Trainer Name..."
+                    style={{
+                        flex: 1,
+                        minWidth: 0,
+                        background: 'transparent',
+                        border: 'none',
+                        borderBottom: '2px solid rgba(102,126,234,0.35)',
+                        outline: 'none',
+                        fontSize: '16px',
+                        fontWeight: '800',
+                        color: 'var(--color-purple)',
+                        padding: '2px 0',
+                        fontFamily: 'inherit'
+                    }}
+                />
+            </h3>
 
-                {/* Name + identity */}
-                <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
+            {/* Gender + Age */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    {[['male', '♂', '#1976d2'], ['female', '♀', '#c2185b']].map(([val, sym, col]) => (
+                        <label key={val} style={{ display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer', fontSize: '15px', color: col }}>
+                            <input
+                                type="radio"
+                                name="trainerGender"
+                                checked={trainer.gender === val}
+                                onChange={() => setTrainer(prev => ({ ...prev, gender: val }))}
+                                style={{ accentColor: col }}
+                            />
+                            {sym}
+                        </label>
+                    ))}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>Age</span>
                     <input
-                        type="text"
-                        value={trainer.name}
-                        onChange={(e) => setTrainer(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Trainer Name..."
-                        className="trainer-header-input"
+                        type="number"
+                        value={trainer.age || ''}
+                        onChange={(e) => setTrainer(prev => ({ ...prev, age: e.target.value }))}
+                        placeholder="—"
+                        min="1"
+                        max="999"
                         style={{
-                            fontSize: '20px',
-                            fontWeight: '800',
-                            width: '100%',
-                            background: 'transparent',
-                            border: 'none',
-                            borderBottom: '2px solid rgba(255,255,255,0.35)',
-                            outline: 'none',
-                            padding: '2px 0',
-                            color: 'white',
-                            fontFamily: 'inherit'
+                            width: '46px',
+                            padding: '2px 4px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            textAlign: 'center',
+                            border: '1px solid var(--border-medium, #ddd)',
+                            background: 'var(--input-bg)',
+                            color: 'var(--text-primary)',
+                            outline: 'none'
                         }}
                     />
-                    {/* Row: gender + age */}
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '8px' }}>
-                        {/* Gender */}
-                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                            {[['male', '♂', '#90caf9'], ['female', '♀', '#f48fb1']].map(([val, sym, col]) => (
-                                <label key={val} style={{ display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer', fontSize: '15px', color: col }}>
-                                    <input
-                                        type="radio"
-                                        name="trainerGender"
-                                        checked={trainer.gender === val}
-                                        onChange={() => setTrainer(prev => ({ ...prev, gender: val }))}
-                                        style={{ accentColor: col }}
-                                    />
-                                    {sym}
-                                </label>
-                            ))}
-                        </div>
-                        {/* Age */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', fontWeight: '500' }}>Age</span>
-                            <input
-                                type="number"
-                                value={trainer.age || ''}
-                                onChange={(e) => setTrainer(prev => ({ ...prev, age: e.target.value }))}
-                                placeholder="—"
-                                min="1"
-                                max="999"
-                                className="trainer-header-input"
-                                style={{
-                                    width: '46px',
-                                    padding: '2px 4px',
-                                    borderRadius: '4px',
-                                    fontSize: '12px',
-                                    textAlign: 'center',
-                                    background: 'rgba(255,255,255,0.15)',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    color: 'white',
-                                    outline: 'none'
-                                }}
-                            />
-                        </div>
-                    </div>
-                    {/* Row: class pills */}
-                    {(trainer.classes || []).length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '6px' }}>
-                            {(trainer.classes || []).map((cls, i) => (
-                                <span key={i} style={{
-                                    padding: '2px 8px',
-                                    borderRadius: '8px',
-                                    fontSize: '11px',
-                                    fontWeight: '700',
-                                    background: 'rgba(255,255,255,0.18)',
-                                    color: 'white',
-                                    border: '1px solid rgba(255,255,255,0.3)'
-                                }}>
-                                    {cls}
-                                </span>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
+
+            {/* Class pills */}
+            {(trainer.classes || []).length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '12px' }}>
+                    {(trainer.classes || []).map((cls, i) => (
+                        <span key={i} style={{
+                            padding: '2px 8px',
+                            borderRadius: '8px',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                            color: 'white'
+                        }}>
+                            {cls}
+                        </span>
+                    ))}
+                </div>
+            )}
 
             {/* Character creation tip */}
             {isLevel0 && (
