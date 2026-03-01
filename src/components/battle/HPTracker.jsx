@@ -40,7 +40,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                         key={`dmg-${val}`}
                         onClick={() => onDamage(val)}
                         aria-label={`Deal ${val} damage to ${label}`}
-                        style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                        style={{ padding: '4px 8px', minHeight: '34px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                     >
                         −{val}
                     </button>
@@ -48,7 +48,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                 <button
                     onClick={onFull}
                     aria-label={`Restore ${label} to full HP`}
-                    style={{ padding: '4px 8px', background: '#2196f3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                    style={{ padding: '4px 8px', minHeight: '34px', background: '#2196f3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                 >
                     Full
                 </button>
@@ -57,7 +57,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                         key={`heal-${val}`}
                         onClick={() => onHeal(val)}
                         aria-label={`Heal ${val} HP for ${label}`}
-                        style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                        style={{ padding: '4px 8px', minHeight: '34px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                     >
                         +{val}
                     </button>

@@ -544,6 +544,9 @@ const InventoryTab = () => {
                                         }}
                                     >
                                         <div
+                                            role="button"
+                                            tabIndex={0}
+                                            aria-expanded={isExpanded}
                                             style={{
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
@@ -552,6 +555,7 @@ const InventoryTab = () => {
                                                 cursor: 'pointer'
                                             }}
                                             onClick={() => setExpandedItem(isExpanded ? null : name)}
+                                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpandedItem(isExpanded ? null : name)}
                                         >
                                             <div style={{ flex: 1 }}>
                                                 <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>

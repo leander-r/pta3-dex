@@ -16,6 +16,11 @@ const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail,
                 Select Move
             </label>
             <div style={{ display: 'grid', gap: '6px' }}>
+                {(selectedPokemon.moves || []).length === 0 && (
+                    <div className="text-muted" style={{ textAlign: 'center', padding: '12px', fontSize: '13px' }}>
+                        No moves learned yet
+                    </div>
+                )}
                 {(selectedPokemon.moves || []).map((move, idx) => (
                     <div
                         key={idx}

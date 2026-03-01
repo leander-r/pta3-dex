@@ -5,6 +5,9 @@
 import { getActualStats, calculatePokemonHP } from './dataUtils.js';
 import toast from './toast.js';
 
+const getGenderSymbol = (gender) =>
+    gender === 'male' ? '♂' : gender === 'female' ? '♀' : gender === 'genderless' ? '⚪' : '';
+
 /**
  * Export trainer data as formatted text for Discord/sharing
  */
@@ -18,9 +21,9 @@ export const exportTrainerText = (trainer) => {
         spd: trainer.stats.spd
     };
     const maxHP = (trainer.stats.hp * 4) + (trainer.level * 4);
-    const genderSymbol = trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : '';
+    const genderSymbol = getGenderSymbol(trainer.gender);
     const classesDisplay = (trainer.classes && trainer.classes.length > 0) ? trainer.classes.join(' / ') : 'Trainer';
-    
+
     let text = `**━━━━━━ TRAINER CARD ━━━━━━**\n`;
     text += `**${trainer.name || 'Unnamed'}** ${genderSymbol}\n`;
     text += `Level ${trainer.level} ${classesDisplay}\n\n`;
@@ -56,7 +59,7 @@ export const exportTrainerText = (trainer) => {
 export const exportPokemonText = (poke) => {
     const actualStats = getActualStats(poke);
     const maxHP = calculatePokemonHP(poke);
-    const genderSymbol = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : poke.gender === 'genderless' ? '⚪' : '';
+    const genderSymbol = getGenderSymbol(poke.gender);
     
     let text = `**━━━━━━ POKÉMON ━━━━━━**\n`;
     text += `**${poke.name}** ${genderSymbol}`;
@@ -98,9 +101,9 @@ export const exportPokemonText = (poke) => {
  * Export Team data as formatted text for Discord/sharing
  */
 export const exportTeamText = (trainer, party) => {
-    const genderSymbol = trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : '';
+    const genderSymbol = getGenderSymbol(trainer.gender);
     const classesDisplay = (trainer.classes && trainer.classes.length > 0) ? trainer.classes.join(' / ') : 'Trainer';
-    
+
     let text = `**╔══════════════════════════════════════╗**\n`;
     text += `**║     ${trainer.name || 'Unnamed'} ${genderSymbol} - TEAM CARD     ║**\n`;
     text += `**╚══════════════════════════════════════╝**\n\n`;
@@ -119,7 +122,7 @@ export const exportTeamText = (trainer, party) => {
             const actualStats = getActualStats(poke);
             const maxHP = calculatePokemonHP(poke);
             const currentHP = maxHP - (poke.currentDamage || 0);
-            const genderIcon = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : '';
+            const genderIcon = getGenderSymbol(poke.gender);
             const typeStr = poke.types?.join('/') || 'Normal';
             
             text += `\n**${idx + 1}. ${poke.name || poke.species || 'Unknown'}** ${genderIcon}\n`;
