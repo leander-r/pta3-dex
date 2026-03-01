@@ -31,7 +31,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                         aria-label={`Deal ${val} damage to ${label}`}
                         style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
                     >
-                        +{val}
+                        −{val}
                     </button>
                 ))}
                 <button
@@ -48,7 +48,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                         aria-label={`Heal ${val} HP for ${label}`}
                         style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
                     >
-                        -{val}
+                        +{val}
                     </button>
                 ))}
             </div>
@@ -65,6 +65,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                     onClick={() => {
                         const val = parseInt(inputRef.current?.value);
                         if (val > 0) { onDamage(val); inputRef.current.value = ''; }
+                        else if (inputRef.current) inputRef.current.value = '';
                     }}
                     aria-label={`Deal custom damage to ${label}`}
                     style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
@@ -75,6 +76,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                     onClick={() => {
                         const val = parseInt(inputRef.current?.value);
                         if (val > 0) { onHeal(val); inputRef.current.value = ''; }
+                        else if (inputRef.current) inputRef.current.value = '';
                     }}
                     aria-label={`Heal custom HP for ${label}`}
                     style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}

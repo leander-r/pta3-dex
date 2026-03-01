@@ -137,7 +137,18 @@ const Header = () => {
             }
         };
         const handleKeyDown = (event) => {
-            if (event.key === 'Escape') setShowCharacterMenu(false);
+            if (event.key === 'Escape') {
+                setShowCharacterMenu(false);
+            } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const buttons = Array.from(dropdownRef.current?.querySelectorAll('button:not([disabled])') || []);
+                if (buttons.length === 0) return;
+                const idx = buttons.indexOf(document.activeElement);
+                const next = event.key === 'ArrowDown'
+                    ? buttons[(idx + 1) % buttons.length]
+                    : buttons[(idx - 1 + buttons.length) % buttons.length];
+                next.focus();
+            }
         };
 
         if (showCharacterMenu) {
