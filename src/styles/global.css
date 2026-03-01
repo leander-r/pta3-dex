@@ -3495,6 +3495,47 @@
             }
         }
 
+        /* Very small phones (≤360px — Galaxy A series, older iPhones) */
+        @media (max-width: 360px) {
+            /* Reclaim 8px of horizontal space — every pixel counts */
+            .content-area {
+                padding: 8px 8px calc(72px + env(safe-area-inset-bottom, 0px)) 8px;
+            }
+
+            /* Header — keep trainer selector from overflowing */
+            .header {
+                padding: 8px 10px;
+                gap: 6px;
+            }
+
+            .header h1 {
+                font-size: 0.85em;
+            }
+
+            /* Maximize modal usable width */
+            .modal-overlay .modal {
+                width: 98vw !important;
+                padding: 12px !important;
+            }
+
+            /* Section cards — tighter inner padding */
+            .section-card,
+            .section-card-purple {
+                padding: 10px;
+            }
+
+            /* Nav labels are already 10px; shrink slightly */
+            .nav-button {
+                font-size: 9px;
+            }
+
+            /* Nav icon a touch smaller — avoids truncating the label */
+            .nav-button .nav-icon {
+                font-size: 1.3em;
+            }
+
+        }
+
         /* Touch-specific improvements */
         @media (hover: none) and (pointer: coarse) {
             /* Remove hover effects that don't work well on touch */
