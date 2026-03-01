@@ -302,7 +302,7 @@ export const DataProvider = ({ children }) => {
             trainerLevel: active?.level || 1,
             money: active?.money || 0,
             partyCount: active?.party?.length || 0,
-            partyNames: (active?.party || []).slice(0, 3).map(p => p.nickname || p.species || 'Unknown'),
+            partyNames: (active?.party || []).slice(0, 3).map(p => p.name || p.species || 'Unknown'),
             trainerCount: trainers.length
         };
     }, [trainers, activeTrainerId]);

@@ -74,11 +74,11 @@ const SlotCard = ({ index, slot, onSave, onLoad, onDelete, onRename }) => {
     };
 
     const cardStyle = {
-        border: '1px solid var(--border-medium, #ddd)',
+        border: '1px solid var(--border-medium)',
         borderRadius: '10px',
         padding: '14px 16px',
         marginBottom: '10px',
-        background: slot ? 'var(--surface-bg, #fff)' : 'var(--bg-secondary, #f8f8f8)'
+        background: slot ? 'var(--poke-cream)' : 'var(--bg-secondary)'
     };
 
     if (!slot) {
@@ -132,28 +132,28 @@ const SlotCard = ({ index, slot, onSave, onLoad, onDelete, onRename }) => {
                                     padding: '2px 8px',
                                     fontSize: '13px',
                                     borderRadius: '5px',
-                                    border: '1px solid var(--border-medium, #ccc)',
-                                    background: 'var(--input-bg, #fff)',
-                                    color: 'var(--text-color, #333)',
+                                    border: '1px solid var(--border-medium)',
+                                    background: 'var(--input-bg)',
+                                    color: 'var(--text-primary)',
                                     width: '140px'
                                 }}
                             />
                             <button
-                                onMouseDown={commitRename}
+                                onMouseDown={(e) => { e.preventDefault(); commitRename(); }}
                                 style={{ ...BTN_BASE, padding: '2px 8px', background: '#4caf50', color: 'white', fontSize: '12px' }}
                             >
                                 Save
                             </button>
                             <button
-                                onMouseDown={() => setRenaming(false)}
-                                style={{ ...BTN_BASE, padding: '2px 8px', background: 'var(--surface-bg, #eee)', color: 'var(--text-color, #333)', border: '1px solid var(--border-color, #ccc)', fontSize: '12px' }}
+                                onMouseDown={(e) => { e.preventDefault(); setRenaming(false); }}
+                                style={{ ...BTN_BASE, padding: '2px 8px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)', fontSize: '12px' }}
                             >
                                 Cancel
                             </button>
                         </>
                     ) : (
                         <>
-                            <span style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text-color, #333)' }}>
+                            <span style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text-primary)' }}>
                                 {slot.slotName}
                             </span>
                             <button
@@ -181,7 +181,7 @@ const SlotCard = ({ index, slot, onSave, onLoad, onDelete, onRename }) => {
             </div>
 
             {/* Preview info */}
-            <div style={{ fontSize: '13px', color: 'var(--text-color, #555)', marginBottom: '10px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '10px' }}>
                 <div>
                     <span style={{ fontWeight: '600' }}>{preview.trainerName}</span>
                     {preview.trainerLevel != null && <span> · Lv. {preview.trainerLevel}</span>}
@@ -210,9 +210,9 @@ const SlotCard = ({ index, slot, onSave, onLoad, onDelete, onRename }) => {
                     onClick={() => onSave(index, slot.slotName)}
                     style={{
                         ...BTN_BASE,
-                        background: 'var(--surface-bg, #eee)',
-                        color: 'var(--text-color, #333)',
-                        border: '1px solid var(--border-color, #ccc)'
+                        background: 'var(--bg-secondary)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-medium)'
                     }}
                 >
                     Overwrite
@@ -257,8 +257,11 @@ const AutoSaveCard = ({ autoSave, onLoad }) => {
         );
     }
 
-    const preview = autoSave._summary || {};
+    // Derive preview from raw trainer data — saveData() doesn't include _summary
     const savedAt = autoSave.lastSaved;
+    const trainers = autoSave.trainers || [];
+    const active = trainers.find(t => t.id === autoSave.activeTrainerId) || trainers[0];
+    const partyNames = (active?.party || []).slice(0, 3).map(p => p.name || p.species || 'Unknown');
 
     return (
         <div style={cardStyle}>
@@ -273,11 +276,17 @@ const AutoSaveCard = ({ autoSave, onLoad }) => {
                     {formatDate(savedAt)}
                 </span>
             </div>
-            <div style={{ fontSize: '13px', color: 'var(--text-color, #555)', marginBottom: '10px' }}>
-                {preview.trainerNames && <div style={{ fontWeight: '600' }}>{preview.trainerNames}</div>}
-                {preview.totalPokemon != null && (
-                    <div style={{ color: 'var(--text-muted, #888)', fontSize: '12px' }}>
-                        {preview.trainerCount} trainer{preview.trainerCount !== 1 ? 's' : ''} · {preview.totalPokemon} Pokémon
+            <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '10px' }}>
+                <div>
+                    <span style={{ fontWeight: '600' }}>{active?.name || 'Trainer'}</span>
+                    {active?.level != null && <span> · Lv. {active.level}</span>}
+                    {trainers.length > 1 && (
+                        <span style={{ color: 'var(--text-muted, #888)' }}> · {trainers.length} trainers</span>
+                    )}
+                </div>
+                {partyNames.length > 0 && (
+                    <div style={{ marginTop: '2px', color: 'var(--text-muted, #888)', fontSize: '12px' }}>
+                        {partyNames.join(', ')} ({active?.party?.length || 0}/6)
                     </div>
                 )}
             </div>
@@ -285,9 +294,9 @@ const AutoSaveCard = ({ autoSave, onLoad }) => {
                 onClick={onLoad}
                 style={{
                     ...BTN_BASE,
-                    background: 'var(--surface-bg, #eee)',
-                    color: 'var(--text-color, #333)',
-                    border: '1px solid var(--border-color, #ccc)'
+                    background: 'var(--bg-secondary)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-medium)'
                 }}
             >
                 Load Auto-Save

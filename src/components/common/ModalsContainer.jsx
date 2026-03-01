@@ -34,9 +34,9 @@ const ModalsContainer = () => (
         <SkillPickerModal />
         <DetailModal />
         <BulkExpModal />
-        <ConfirmModal />
         <ComparisonModal />
         <SaveLoadModal />
+        <ConfirmModal />
     </Suspense>
 );
 
