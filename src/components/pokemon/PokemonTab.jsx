@@ -43,11 +43,10 @@ const PokemonTab = () => {
     const [compareMode, setCompareMode] = useState(false);
     const [compareSelected, setCompareSelected] = useState([]);
 
-    // Coverage panel
-    const [showCoverage, setShowCoverage] = useState(false);
+    // Active tool panel: 'search' | 'coverage' | 'presets' | null
+    const [activePanel, setActivePanel] = useState(null);
 
     // Party presets
-    const [showPresets, setShowPresets] = useState(false);
     const [presetName, setPresetName] = useState('');
     const partyPresets = trainer.partyPresets || [];
 
@@ -156,6 +155,11 @@ const PokemonTab = () => {
         setCompareMode(false);
         setCompareSelected([]);
     }, []);
+
+    // Close coverage/presets panel when switching to reserve view
+    useEffect(() => {
+        if (pokemonView !== 'party') setActivePanel(p => (p === 'coverage' || p === 'presets') ? null : p);
+    }, [pokemonView]);
 
     // Persist filter and sort preferences across sessions
     useEffect(() => { safeLocalStorageSet('pta-pokemon-filter-type', filter.type); }, [filter.type]);
@@ -443,271 +447,286 @@ const PokemonTab = () => {
                 </button>
             </div>
 
-            {/* Search and Filters */}
-            <div className="section-card" style={{ marginBottom: '15px' }}>
-                <div style={{ marginBottom: '12px' }}>
-                    <input
-                        type="text"
-                        placeholder="Search by name, species, or type..."
-                        value={filter.search}
-                        onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
-                        style={{
-                            width: '100%',
-                            padding: '10px 15px',
-                            borderRadius: '8px',
-                            border: '2px solid var(--border-medium)',
-                            fontSize: '14px',
-                            background: 'var(--input-bg)',
-                            color: 'var(--text-primary)'
-                        }}
-                    />
-                </div>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
-                    <select
-                        value={filter.type}
-                        onChange={(e) => setFilter(prev => ({ ...prev, type: e.target.value }))}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            border: '1px solid var(--border-medium)',
-                            fontSize: '13px',
-                            background: filter.type ? getTypeColor(filter.type) : 'var(--input-bg)',
-                            color: filter.type ? 'white' : 'var(--text-primary)'
-                        }}
-                    >
-                        <option value="">All Types</option>
-                        {POKEMON_TYPES.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        value=""
-                        onChange={(e) => handleSort(e.target.value)}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
-                    >
-                        <option value="">Sort by...</option>
-                        <option value="name">Name</option>
-                        <option value="level">Level</option>
-                        <option value="species">Species</option>
-                        <option value="type">Type</option>
-                    </select>
-
-                    <button
-                        onClick={() => {
-                            const newDir = sortDir === 'asc' ? 'desc' : 'asc';
-                            setSortDir(newDir);
-                            if (lastSortBy) handleSort(lastSortBy, newDir);
-                        }}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}
-                    >
-                        {sortDir === 'asc' ? 'A-Z' : 'Z-A'}
-                    </button>
-
+            {/* Tools toolbar — Search / Coverage / Presets */}
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => setActivePanel(p => p === 'search' ? null : 'search')}
+                    aria-pressed={activePanel === 'search'}
+                    style={{
+                        padding: '6px 13px', borderRadius: '20px', cursor: 'pointer',
+                        border: `1.5px solid ${activePanel === 'search' ? '#667eea' : 'var(--border-medium)'}`,
+                        background: activePanel === 'search' ? '#667eea' : 'var(--input-bg)',
+                        color: activePanel === 'search' ? 'white' : 'var(--text-primary)',
+                        fontSize: '12px', fontWeight: 'bold',
+                        display: 'flex', alignItems: 'center', gap: '5px'
+                    }}
+                >
+                    🔍 Search
                     {(filter.search || filter.type) && (
-                        <button
-                            onClick={() => setFilter({ search: '', type: '' })}
-                            style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: '#dc3545', color: 'white', cursor: 'pointer', fontSize: '13px' }}
-                        >
-                            Clear
-                        </button>
-                    )}
-                </div>
-            </div>
-
-            {/* Team Coverage Panel — party view only */}
-            {pokemonView === 'party' && party.length > 0 && (
-                <div className="section-card" style={{ marginBottom: '15px' }}>
-                    <div
-                        onClick={() => setShowCoverage(v => !v)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}
-                    >
-                        <span style={{ fontSize: '16px' }}>📊</span>
-                        <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Team Coverage</span>
-                        <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)' }}>
-                            {showCoverage ? '▲ Hide' : '▼ Show'}
+                        <span style={{ background: activePanel === 'search' ? 'rgba(255,255,255,0.35)' : '#dc3545', color: 'white', borderRadius: '8px', padding: '0 5px', fontSize: '10px', fontWeight: 'bold' }}>
+                            {[filter.search && '✓', filter.type && filter.type].filter(Boolean).join(' ')}
                         </span>
-                    </div>
-
-                    {showCoverage && teamCoverage && (
-                        <div style={{ marginTop: '14px' }}>
-                            {/* Defensive weaknesses */}
-                            <div style={{ marginBottom: '14px' }}>
-                                <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    🛡 Defensive Weaknesses
-                                </div>
-                                {(() => {
-                                    const sorted = POKEMON_TYPES
-                                        .filter(t => teamCoverage.weakCount[t])
-                                        .sort((a, b) => (teamCoverage.weakCount[b] || 0) - (teamCoverage.weakCount[a] || 0));
-                                    if (!sorted.length) return (
-                                        <span style={{ fontSize: '12px', color: '#4caf50' }}>✅ No shared weaknesses!</span>
-                                    );
-                                    return (
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                            {sorted.map(t => (
-                                                <span key={t} style={{
-                                                    padding: '3px 8px',
-                                                    borderRadius: '10px',
-                                                    background: getTypeColor(t),
-                                                    color: 'white',
-                                                    fontSize: '11px',
-                                                    fontWeight: 'bold',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '4px'
-                                                }}>
-                                                    {t}
-                                                    <span style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '0 4px', fontSize: '10px' }}>
-                                                        ×{teamCoverage.weakCount[t]}
-                                                    </span>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    );
-                                })()}
-                            </div>
-
-                            {/* Immunities */}
-                            {Object.keys(teamCoverage.immuneCount).length > 0 && (
-                                <div style={{ marginBottom: '14px' }}>
-                                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                        ⬛ Immunities
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                        {POKEMON_TYPES.filter(t => teamCoverage.immuneCount[t]).map(t => (
-                                            <span key={t} style={{
-                                                padding: '3px 8px', borderRadius: '10px',
-                                                background: '#333', color: 'white',
-                                                fontSize: '11px', fontWeight: 'bold',
-                                                display: 'flex', alignItems: 'center', gap: '4px'
-                                            }}>
-                                                {t}
-                                                <span style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '8px', padding: '0 4px', fontSize: '10px' }}>
-                                                    ×{teamCoverage.immuneCount[t]}
-                                                </span>
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Offensive coverage */}
-                            <div>
-                                <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    ⚔️ Offensive Coverage (STAB + Move Types)
-                                </div>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                    {POKEMON_TYPES.map(t => {
-                                        const covered = teamCoverage.offenseTypes.has(t);
-                                        return (
-                                            <span key={t} style={{
-                                                padding: '3px 8px', borderRadius: '10px',
-                                                background: covered ? getTypeColor(t) : 'var(--border-medium)',
-                                                color: covered ? 'white' : 'var(--text-muted)',
-                                                fontSize: '11px', fontWeight: covered ? 'bold' : 'normal',
-                                                opacity: covered ? 1 : 0.5
-                                            }}>
-                                                {t}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
-                                {teamCoverage.offenseTypes.size < POKEMON_TYPES.length && (
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                                        Missing: {POKEMON_TYPES.filter(t => !teamCoverage.offenseTypes.has(t)).join(', ')}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
                     )}
-                </div>
-            )}
+                </button>
 
-            {/* Party Presets */}
-            {pokemonView === 'party' && (
-                <div className="section-card" style={{ marginBottom: '15px' }}>
-                    <div
-                        onClick={() => setShowPresets(v => !v)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}
+                {pokemonView === 'party' && party.length > 0 && (
+                    <button
+                        onClick={() => setActivePanel(p => p === 'coverage' ? null : 'coverage')}
+                        aria-pressed={activePanel === 'coverage'}
+                        style={{
+                            padding: '6px 13px', borderRadius: '20px', cursor: 'pointer',
+                            border: `1.5px solid ${activePanel === 'coverage' ? '#2196f3' : 'var(--border-medium)'}`,
+                            background: activePanel === 'coverage' ? '#2196f3' : 'var(--input-bg)',
+                            color: activePanel === 'coverage' ? 'white' : 'var(--text-primary)',
+                            fontSize: '12px', fontWeight: 'bold',
+                            display: 'flex', alignItems: 'center', gap: '5px'
+                        }}
                     >
-                        <span style={{ fontSize: '16px' }}>⭐</span>
-                        <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Party Presets</span>
+                        📊 Coverage
+                    </button>
+                )}
+
+                {pokemonView === 'party' && (
+                    <button
+                        onClick={() => setActivePanel(p => p === 'presets' ? null : 'presets')}
+                        aria-pressed={activePanel === 'presets'}
+                        style={{
+                            padding: '6px 13px', borderRadius: '20px', cursor: 'pointer',
+                            border: `1.5px solid ${activePanel === 'presets' ? '#ff9800' : 'var(--border-medium)'}`,
+                            background: activePanel === 'presets' ? '#ff9800' : 'var(--input-bg)',
+                            color: activePanel === 'presets' ? 'white' : 'var(--text-primary)',
+                            fontSize: '12px', fontWeight: 'bold',
+                            display: 'flex', alignItems: 'center', gap: '5px'
+                        }}
+                    >
+                        ⭐ Presets
                         {partyPresets.length > 0 && (
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--border-medium)', borderRadius: '10px', padding: '1px 7px' }}>
+                            <span style={{ background: activePanel === 'presets' ? 'rgba(255,255,255,0.3)' : 'var(--border-medium)', borderRadius: '8px', padding: '0 5px', fontSize: '10px' }}>
                                 {partyPresets.length}
                             </span>
                         )}
-                        <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)' }}>
-                            {showPresets ? '▲ Hide' : '▼ Show'}
-                        </span>
+                    </button>
+                )}
+            </div>
+
+            {/* Search panel */}
+            {activePanel === 'search' && (
+                <div className="section-card" style={{ marginBottom: '15px' }}>
+                    <div style={{ marginBottom: '12px' }}>
+                        <input
+                            type="text"
+                            placeholder="Search by name, species, or type..."
+                            value={filter.search}
+                            onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
+                            style={{
+                                width: '100%',
+                                padding: '10px 15px',
+                                borderRadius: '8px',
+                                border: '2px solid var(--border-medium)',
+                                fontSize: '14px',
+                                background: 'var(--input-bg)',
+                                color: 'var(--text-primary)'
+                            }}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                        <select
+                            value={filter.type}
+                            onChange={(e) => setFilter(prev => ({ ...prev, type: e.target.value }))}
+                            style={{
+                                padding: '8px 12px', borderRadius: '6px',
+                                border: '1px solid var(--border-medium)', fontSize: '13px',
+                                background: filter.type ? getTypeColor(filter.type) : 'var(--input-bg)',
+                                color: filter.type ? 'white' : 'var(--text-primary)'
+                            }}
+                        >
+                            <option value="">All Types</option>
+                            {POKEMON_TYPES.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                        </select>
+                        <select
+                            value=""
+                            onChange={(e) => handleSort(e.target.value)}
+                            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', fontSize: '13px', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
+                        >
+                            <option value="">Sort by...</option>
+                            <option value="name">Name</option>
+                            <option value="level">Level</option>
+                            <option value="species">Species</option>
+                            <option value="type">Type</option>
+                        </select>
+                        <button
+                            onClick={() => {
+                                const newDir = sortDir === 'asc' ? 'desc' : 'asc';
+                                setSortDir(newDir);
+                                if (lastSortBy) handleSort(lastSortBy, newDir);
+                            }}
+                            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}
+                        >
+                            {sortDir === 'asc' ? 'A-Z' : 'Z-A'}
+                        </button>
+                        {(filter.search || filter.type) && (
+                            <button
+                                onClick={() => setFilter({ search: '', type: '' })}
+                                style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', background: '#dc3545', color: 'white', cursor: 'pointer', fontSize: '13px' }}
+                            >
+                                Clear
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Coverage panel */}
+            {activePanel === 'coverage' && pokemonView === 'party' && party.length > 0 && teamCoverage && (
+                <div className="section-card" style={{ marginBottom: '15px' }}>
+                    {/* Defensive weaknesses */}
+                    <div style={{ marginBottom: '14px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            🛡 Defensive Weaknesses
+                        </div>
+                        {(() => {
+                            const sorted = POKEMON_TYPES
+                                .filter(t => teamCoverage.weakCount[t])
+                                .sort((a, b) => (teamCoverage.weakCount[b] || 0) - (teamCoverage.weakCount[a] || 0));
+                            if (!sorted.length) return (
+                                <span style={{ fontSize: '12px', color: '#4caf50' }}>✅ No shared weaknesses!</span>
+                            );
+                            return (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                    {sorted.map(t => (
+                                        <span key={t} style={{
+                                            padding: '3px 8px', borderRadius: '10px',
+                                            background: getTypeColor(t), color: 'white',
+                                            fontSize: '11px', fontWeight: 'bold',
+                                            display: 'flex', alignItems: 'center', gap: '4px'
+                                        }}>
+                                            {t}
+                                            <span style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '0 4px', fontSize: '10px' }}>
+                                                ×{teamCoverage.weakCount[t]}
+                                            </span>
+                                        </span>
+                                    ))}
+                                </div>
+                            );
+                        })()}
                     </div>
 
-                    {showPresets && (
-                        <div style={{ marginTop: '12px' }}>
-                            {/* Save current party */}
-                            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                                <input
-                                    type="text"
-                                    value={presetName}
-                                    onChange={(e) => setPresetName(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
-                                    placeholder="Preset name (e.g. Cave Team)"
-                                    style={{
-                                        flex: 1, padding: '8px 10px', borderRadius: '6px',
-                                        border: '1px solid var(--border-medium)',
-                                        background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '13px'
-                                    }}
-                                />
-                                <button
-                                    onClick={handleSavePreset}
-                                    style={{ padding: '8px 14px', background: '#667eea', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}
-                                >
-                                    Save Party
-                                </button>
+                    {/* Immunities */}
+                    {Object.keys(teamCoverage.immuneCount).length > 0 && (
+                        <div style={{ marginBottom: '14px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                ⬛ Immunities
                             </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                {POKEMON_TYPES.filter(t => teamCoverage.immuneCount[t]).map(t => (
+                                    <span key={t} style={{
+                                        padding: '3px 8px', borderRadius: '10px',
+                                        background: '#333', color: 'white',
+                                        fontSize: '11px', fontWeight: 'bold',
+                                        display: 'flex', alignItems: 'center', gap: '4px'
+                                    }}>
+                                        {t}
+                                        <span style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '8px', padding: '0 4px', fontSize: '10px' }}>
+                                            ×{teamCoverage.immuneCount[t]}
+                                        </span>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-                            {/* Preset list */}
-                            {partyPresets.length === 0 ? (
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', padding: '8px' }}>
-                                    No presets saved yet.
-                                </div>
-                            ) : (
-                                <div style={{ display: 'grid', gap: '6px' }}>
-                                    {partyPresets.map(preset => {
-                                        const allPokemon = [...party, ...reserve];
-                                        const members = preset.pokemonIds.map(id => allPokemon.find(p => p.id === id)).filter(Boolean);
-                                        return (
-                                            <div key={preset.id} style={{
-                                                display: 'flex', alignItems: 'center', gap: '8px',
-                                                padding: '8px 10px', borderRadius: '6px',
-                                                background: 'var(--input-bg)', border: '1px solid var(--border-medium)'
-                                            }}>
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                    <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{preset.name}</div>
-                                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                        {members.length ? members.map(p => p.name || p.species).join(', ') : '(pokemon not found)'}
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    onClick={() => handleLoadPreset(preset)}
-                                                    style={{ padding: '5px 10px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap' }}
-                                                >
-                                                    Load
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeletePreset(preset.id)}
-                                                    style={{ padding: '5px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
-                                                    title="Delete preset"
-                                                >
-                                                    ✕
-                                                </button>
+                    {/* Offensive coverage */}
+                    <div>
+                        <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            ⚔️ Offensive Coverage (STAB + Move Types)
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {POKEMON_TYPES.map(t => {
+                                const covered = teamCoverage.offenseTypes.has(t);
+                                return (
+                                    <span key={t} style={{
+                                        padding: '3px 8px', borderRadius: '10px',
+                                        background: covered ? getTypeColor(t) : 'var(--border-medium)',
+                                        color: covered ? 'white' : 'var(--text-muted)',
+                                        fontSize: '11px', fontWeight: covered ? 'bold' : 'normal',
+                                        opacity: covered ? 1 : 0.5
+                                    }}>
+                                        {t}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                        {teamCoverage.offenseTypes.size < POKEMON_TYPES.length && (
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                                Missing: {POKEMON_TYPES.filter(t => !teamCoverage.offenseTypes.has(t)).join(', ')}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Presets panel */}
+            {activePanel === 'presets' && pokemonView === 'party' && (
+                <div className="section-card" style={{ marginBottom: '15px' }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                        <input
+                            type="text"
+                            value={presetName}
+                            onChange={(e) => setPresetName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
+                            placeholder="Preset name (e.g. Cave Team)"
+                            style={{
+                                flex: 1, padding: '8px 10px', borderRadius: '6px',
+                                border: '1px solid var(--border-medium)',
+                                background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '13px'
+                            }}
+                        />
+                        <button
+                            onClick={handleSavePreset}
+                            style={{ padding: '8px 14px', background: '#667eea', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}
+                        >
+                            Save Party
+                        </button>
+                    </div>
+                    {partyPresets.length === 0 ? (
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', padding: '8px' }}>
+                            No presets saved yet.
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gap: '6px' }}>
+                            {partyPresets.map(preset => {
+                                const allPokemon = [...party, ...reserve];
+                                const members = preset.pokemonIds.map(id => allPokemon.find(p => p.id === id)).filter(Boolean);
+                                return (
+                                    <div key={preset.id} style={{
+                                        display: 'flex', alignItems: 'center', gap: '8px',
+                                        padding: '8px 10px', borderRadius: '6px',
+                                        background: 'var(--input-bg)', border: '1px solid var(--border-medium)'
+                                    }}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{preset.name}</div>
+                                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {members.length ? members.map(p => p.name || p.species).join(', ') : '(pokemon not found)'}
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => handleLoadPreset(preset)}
+                                            style={{ padding: '5px 10px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap' }}
+                                        >
+                                            Load
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeletePreset(preset.id)}
+                                            style={{ padding: '5px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                                            title="Delete preset"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
