@@ -9,12 +9,12 @@ import { useModal, useUI } from '../../contexts/index.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 
 const NAV_ITEMS = [
-    { tab: TABS.TRAINER,   icon: '👤', label: 'Trainer' },
-    { tab: TABS.POKEMON,   icon: '🎮', label: 'Pokémon Team' },
-    { tab: TABS.INVENTORY, icon: '🎒', label: 'Inventory' },
-    { tab: TABS.BATTLE,    icon: '🎲', label: 'Dice Roller' },
-    { tab: TABS.REFERENCE, icon: '📚', label: 'Quick Reference' },
-    { tab: TABS.NOTES,     icon: '📝', label: 'Campaign Notes' },
+    { tab: TABS.TRAINER,   icon: '👤', label: 'Trainer',        mobileLabel: 'Trainer' },
+    { tab: TABS.POKEMON,   icon: '🎮', label: 'Pokémon Team',   mobileLabel: 'Pokémon' },
+    { tab: TABS.INVENTORY, icon: '🎒', label: 'Inventory',      mobileLabel: 'Items'   },
+    { tab: TABS.BATTLE,    icon: '🎲', label: 'Dice Roller',    mobileLabel: 'Battle'  },
+    { tab: TABS.REFERENCE, icon: '📚', label: 'Quick Reference', mobileLabel: 'Refs'   },
+    { tab: TABS.NOTES,     icon: '📝', label: 'Campaign Notes', mobileLabel: 'Notes'   },
 ];
 
 const helpBtnStyle = {
@@ -41,40 +41,44 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
 
     return (
         <div className="sidebar" role="navigation" aria-label="Main navigation">
-            {NAV_ITEMS.map(({ tab, icon, label }) => (
+            {NAV_ITEMS.map(({ tab, icon, label, mobileLabel }) => (
                 <button
                     key={tab}
                     className={`nav-button ${activeTab === tab ? 'active' : ''}`}
                     onClick={() => setActiveTab(tab)}
                     aria-current={activeTab === tab ? 'page' : undefined}
+                    aria-label={label}
                 >
                     <span className="nav-icon">{icon}</span>
-                    <span>{label}</span>
+                    <span className="nav-label">{label}</span>
+                    <span className="nav-mobile-label">{mobileLabel}</span>
                 </button>
             ))}
 
-            <div style={{ height: '1px', background: 'var(--border-light)', margin: '8px 0' }} />
+            <div className="nav-divider" style={{ height: '1px', background: 'var(--border-light)', margin: '8px 0' }} />
 
             <button
-                className="nav-button"
+                className="nav-button nav-saveload"
                 onClick={openSaveLoadModal}
                 title="Save or load a game state snapshot"
                 aria-label="Open save and load menu"
                 style={{ display: 'flex', alignItems: 'center' }}
             >
                 <span className="nav-icon">💾</span>
-                <span style={{ flex: 1 }}>Save / Load</span>
+                <span className="nav-label" style={{ flex: 1 }}>Save / Load</span>
+                <span className="nav-mobile-label">Save</span>
                 <button
                     onClick={(e) => { e.stopPropagation(); showHelp('save-slots'); }}
                     style={helpBtnStyle}
+                    className="nav-help-btn"
                     aria-label="Help: Save and Load"
                     title="About save slots and export"
                 >?</button>
             </button>
 
-            {/* Onboarding checklist */}
+            {/* Onboarding checklist — hidden on mobile (bottom bar has no room) */}
             {showChecklist && (
-                <div style={{
+                <div className="nav-checklist" style={{
                     margin: '10px 8px 0',
                     borderRadius: '8px',
                     border: '1px solid #f5a62366',
@@ -164,9 +168,9 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                 </div>
             )}
 
-            {/* All done message */}
+            {/* All done message — hidden on mobile */}
             {showAllDone && (
-                <div style={{
+                <div className="nav-checklist" style={{
                     margin: '10px 8px 0',
                     padding: '8px 10px',
                     borderRadius: '8px',

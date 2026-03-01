@@ -541,7 +541,12 @@
         .nav-button:hover .nav-icon {
             transform: scale(1.15);
         }
-        
+
+        /* Mobile-only label — hidden on desktop, shown in bottom bar via media query */
+        .nav-mobile-label {
+            display: none;
+        }
+
         .stat-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -2313,35 +2318,7 @@
             font-size: 16px;
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                position: static;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-            
-            .nav-button {
-                width: auto;
-                flex: 1;
-                min-width: 120px;
-                text-align: center;
-                justify-content: center;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 10% auto;
-            }
-            
-            .header h1 {
-                font-size: 1.4em;
-            }
-        }
+        /* Superseded by the more detailed @media (max-width: 768px) block below */
         
         /* leander_rsr:6c65616e6465725f727372:2024 */
         ._lndr_rsr { --author: "leander_rsr"; }
@@ -2939,30 +2916,97 @@
 
         @media (max-width: 768px) {
             .main-content {
-                grid-template-columns: 1fr;
+                display: block;
             }
 
+            /* ── Fixed bottom navigation bar ── */
             .sidebar {
-                position: static;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                z-index: 200;
                 display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
                 flex-direction: row;
-                overflow-x: auto;
-                padding-bottom: 10px;
+                align-items: stretch;
+                padding: 0;
+                margin: 0;
+                border-radius: 0;
+                border: none;
+                border-top: 2px solid var(--poke-orange-light);
+                box-shadow: 0 -4px 20px var(--poke-shadow);
+                gap: 0;
+                height: auto;
+                /* notched phones */
+                padding-bottom: env(safe-area-inset-bottom, 0px);
             }
 
             .nav-button {
-                width: auto;
                 flex: 1;
-                min-width: 100px;
-                text-align: center;
+                flex-direction: column;
+                align-items: center;
                 justify-content: center;
-                padding: 12px 14px;
+                gap: 3px;
+                padding: 8px 2px;
+                margin-bottom: 0;
+                border-radius: 0;
+                width: auto;
+                min-width: 0;
+                text-align: center;
+                font-size: 10px;
+                line-height: 1.2;
+                border: none;
+                min-height: 56px;
+                overflow: hidden;
             }
 
+            /* Remove the left-sweep highlight — wrong shape for a bottom bar */
+            .nav-button::before {
+                display: none;
+            }
+
+            /* No translateX shift on bottom bar */
+            .nav-button:hover {
+                transform: none;
+                background: var(--poke-gray);
+            }
+
+            /* Active tab: top accent line instead of full gradient */
+            .nav-button.active {
+                background: rgba(245, 166, 35, 0.12);
+                border-top: 3px solid var(--poke-orange);
+                box-shadow: none;
+                color: var(--poke-orange-dark);
+            }
+
+            /* Bigger emoji in bottom bar */
+            .nav-button .nav-icon {
+                font-size: 1.5em;
+            }
+
+            /* Show short mobile labels, hide full desktop labels */
+            .nav-label {
+                display: none;
+            }
+            .nav-mobile-label {
+                display: block;
+            }
+
+            /* Hide the ? help button inside Save/Load on mobile — no room */
+            .nav-help-btn {
+                display: none;
+            }
+
+            /* Hide onboarding checklist and divider — no room in bottom bar */
+            .nav-checklist,
+            .nav-divider {
+                display: none;
+            }
+
+            /* Push content above the fixed bottom bar */
             .content-area {
-                padding: 12px;
+                padding: 12px 12px calc(72px + env(safe-area-inset-bottom, 0px)) 12px;
             }
 
             .modal-content {
@@ -3377,10 +3421,11 @@
                 font-size: 20px;
             }
             
-            /* Sidebar nav buttons */
+            /* Keep bottom bar sizing at 480px */
             .nav-button {
-                padding: 10px 12px;
-                font-size: 12px;
+                padding: 8px 2px;
+                font-size: 10px;
+                min-height: 56px;
             }
             
             /* Content padding */
@@ -3485,22 +3530,18 @@
         /* Landscape mobile */
         @media (max-width: 768px) and (orientation: landscape) {
             .modal-overlay .modal {
-                max-height: 85vh;
+                max-height: 92vh;
             }
-            
-            .main-content {
-                grid-template-columns: 150px 1fr;
-            }
-            
+
+            /* Keep the fixed bottom bar in landscape — sidebar column layout is
+               too wide on phone-sized landscape screens */
             .sidebar {
-                flex-direction: column;
-                overflow-x: visible;
-                overflow-y: auto;
-                max-height: calc(100vh - 100px);
+                flex-direction: row;
             }
-            
+
             .nav-button {
-                width: 100%;
+                width: auto;
+                min-height: 50px;
             }
         }
         
@@ -3509,7 +3550,8 @@
             body {
                 padding-left: max(8px, env(safe-area-inset-left));
                 padding-right: max(8px, env(safe-area-inset-right));
-                padding-bottom: max(8px, env(safe-area-inset-bottom));
+                /* Bottom safe area is handled by the fixed nav bar on mobile;
+                   on desktop there is no nav bar so no extra padding needed */
             }
         }
         
