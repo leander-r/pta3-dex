@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { COMBAT_STAGE_POSITIVE_MULTIPLIER, COMBAT_STAGE_NEGATIVE_MULTIPLIER } from '../../data/constants.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 const STATS = [
     { key: 'atk',  label: 'ATK',  color: '#f44336', desc: 'Attack - affects Physical move damage' },
@@ -15,19 +16,6 @@ const getModifiedStat = (baseStat, stages) => {
     if (stages > 0) return Math.floor(baseStat * (1 + stages * COMBAT_STAGE_POSITIVE_MULTIPLIER));
     if (stages < 0) return Math.ceil(baseStat * (1 - Math.abs(stages) * COMBAT_STAGE_NEGATIVE_MULTIPLIER));
     return baseStat;
-};
-
-const HELP_BTN_STYLE = {
-    background: 'none',
-    border: '1px solid var(--border-medium)',
-    borderRadius: '50%',
-    width: '22px', height: '22px',
-    fontSize: '12px', fontWeight: 'bold',
-    cursor: 'pointer',
-    color: 'var(--text-muted)',
-    lineHeight: '16px',
-    padding: 0, flexShrink: 0,
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
 };
 
 const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, updateCombatStage, resetCombatStages, onHelp }) => {

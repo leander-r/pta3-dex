@@ -11,18 +11,7 @@ import { useGameData, useModal, usePokemonContext, useUI } from '../../contexts/
 import { MAX_NATURAL_MOVES, MAX_TAUGHT_MOVES, MAX_TOTAL_MOVES } from '../../data/constants.js';
 import { getPokemonDisplayImage, getPokemonSprite } from '../../utils/pokemonSprite.js';
 
-const HELP_BTN_STYLE = {
-    background: 'none',
-    border: '1px solid var(--border-medium)',
-    borderRadius: '50%',
-    width: '22px', height: '22px',
-    fontSize: '12px', fontWeight: 'bold',
-    cursor: 'pointer',
-    color: 'var(--text-muted)',
-    lineHeight: '16px',
-    padding: 0, flexShrink: 0,
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
-};
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 const STATUS_CONDITIONS = [
     { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336' },
