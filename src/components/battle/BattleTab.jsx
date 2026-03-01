@@ -114,6 +114,13 @@ const BattleTab = () => {
 
     const selectedPokemon = useMemo(() => party.find(p => p.id === selectedPokemonId) || null, [party, selectedPokemonId]);
 
+    // Clear stale selection if the selected Pokemon is no longer in the party
+    useEffect(() => {
+        if (selectedPokemonId && !party.some(p => p.id === selectedPokemonId)) {
+            setSelectedPokemonId(null);
+        }
+    }, [party, selectedPokemonId]);
+
     const megaForms = useMemo(() => {
         if (!selectedPokemon || !pokedex) return [];
         const fromPokedex = pokedex.find(p => p.species === selectedPokemon.species)?.megaForms || [];

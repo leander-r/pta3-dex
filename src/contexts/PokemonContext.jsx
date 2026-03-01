@@ -187,7 +187,7 @@ export const PokemonProvider = ({ children }) => {
     // Add new Pokemon
     const addPokemon = useCallback(() => {
         const newPokemon = {
-            id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            id: Date.now() * 1000 + Math.floor(Math.random() * 999),
             name: 'New Pokémon',
             species: '',
             gender: '',
