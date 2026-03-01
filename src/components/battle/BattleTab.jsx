@@ -20,6 +20,26 @@ import HealModePanel from './HealModePanel.jsx';
 import RollHistory from './RollHistory.jsx';
 import DiscordWebhookConfig from './DiscordWebhookConfig.jsx';
 
+// Hardcoded battle form changes for Pokémon not covered by the external Pokédex's megaForms field.
+// Zygarde's Complete Forme activates via Power Construct (battle-only transformation).
+// Stat boosts are additive to the Pokémon's current PTA stats.
+const BATTLE_FORM_CHANGES = {
+    'Zygarde': [{
+        name: 'Complete',
+        baseSpeciesOverride: 'Zygarde', // sprite: zygarde-complete.png
+        types: ['Dragon', 'Ground'],
+        ability: 'Power Construct',
+        statBoosts: { hp: 8, def: 4, sdef: 4, spd: -2 },
+    }],
+    'Zygarde-10%': [{
+        name: 'Complete',
+        baseSpeciesOverride: 'Zygarde', // Complete uses Zygarde's sprite, not Zygarde-10%'s
+        types: ['Dragon', 'Ground'],
+        ability: 'Power Construct',
+        statBoosts: { hp: 8, def: 4, sdef: 4, spd: -2 },
+    }],
+};
+
 // Parse the AC number from a move frequency string, e.g. "EOT – 2" → 2
 const parseACFromFrequency = (freq) => {
     if (!freq) return 2;
@@ -93,7 +113,9 @@ const BattleTab = () => {
 
     const megaForms = useMemo(() => {
         if (!selectedPokemon || !pokedex) return [];
-        return pokedex.find(p => p.species === selectedPokemon.species)?.megaForms || [];
+        const fromPokedex = pokedex.find(p => p.species === selectedPokemon.species)?.megaForms || [];
+        const fromOverride = BATTLE_FORM_CHANGES[selectedPokemon.species] || [];
+        return [...fromPokedex, ...fromOverride];
     }, [selectedPokemon, pokedex]);
 
     const healingInventory = useMemo(() => inventory.filter(item => {
@@ -410,6 +432,7 @@ const BattleTab = () => {
                                 currentMegaForm={currentMegaForm}
                                 onMegaEvolve={handleMegaEvolve}
                                 onMegaRevert={handleMegaRevert}
+                                label={BATTLE_FORM_CHANGES[selectedPokemon?.species] ? 'Complete Forme' : 'Mega Evolution'}
                             />
 
                             <CombatStagesPanel

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMegaForm, onMegaEvolve, onMegaRevert }) => {
+const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMegaForm, onMegaEvolve, onMegaRevert, label = 'Mega Evolution' }) => {
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
             <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>Mega Evolution</span>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>{label}</span>
                         {megaEvolved && currentMegaForm && (
                             <span style={{ marginLeft: '8px', fontSize: '11px', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '10px', color: 'white' }}>
                                 {currentMegaForm.name} Active
@@ -30,7 +30,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                             onClick={() => megaForms.length === 1 ? onMegaEvolve(megaForms[0]) : setShowModal(true)}
                             style={{ padding: '6px 12px', background: 'white', color: '#667eea', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}
                         >
-                            Mega Evolve
+                            {label === 'Mega Evolution' ? 'Mega Evolve' : 'Transform'}
                         </button>
                     ) : (
                         <button
@@ -48,9 +48,9 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                             {currentMegaForm.ability && <span>• Ability: {currentMegaForm.ability}</span>}
                         </div>
                         <div style={{ marginTop: '4px' }}>
-                            Stat Boosts: {Object.entries(currentMegaForm.statBoosts || {})
-                                .filter(([, v]) => v > 0)
-                                .map(([k, v]) => `+${v} ${k.toUpperCase()}`)
+                            Stat Changes: {Object.entries(currentMegaForm.statBoosts || {})
+                                .filter(([, v]) => v !== 0)
+                                .map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${k.toUpperCase()}`)
                                 .join(', ') || 'None'}
                         </div>
                     </div>
@@ -84,7 +84,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                                         {form.types?.join('/') || 'Unknown Type'}{form.ability && ` • ${form.ability}`}
                                     </div>
                                     <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '4px' }}>
-                                        {Object.entries(form.statBoosts || {}).filter(([, v]) => v > 0).map(([k, v]) => `+${v} ${k.toUpperCase()}`).join(', ')}
+                                        {Object.entries(form.statBoosts || {}).filter(([, v]) => v !== 0).map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${k.toUpperCase()}`).join(', ')}
                                     </div>
                                 </button>
                             ))}

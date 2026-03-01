@@ -14,7 +14,7 @@ export const speciesSlug = (species) =>
         .toLowerCase()
         .replace(/♀/g, '-f')
         .replace(/♂/g, '-m')
-        .replace(/[.'\u2019]/g, '')      // remove periods and apostrophes
+        .replace(/[.'\u2019%]/g, '')      // remove periods, apostrophes, and % (e.g. Zygarde-10%)
         .replace(/[:\s]+/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
@@ -49,7 +49,8 @@ export const getPokemonSprite = (pokemon) => {
 //   "Primal"  → groudon-primal
 //   "Attack"  → deoxys-attack
 export const getMegaSprite = (pokemon, megaForm) => {
-    const base = speciesSlug(pokemon?.species);
+    // Allow form data to override the base species slug (e.g. Zygarde-10% → Complete uses Zygarde's sprite)
+    const base = speciesSlug(megaForm?.baseSpeciesOverride || pokemon?.species);
     if (!base || !megaForm?.name) return getPokemonSprite(pokemon);
     const formSlug = megaForm.name.toLowerCase().replace(/\s+/g, '');
     return `https://play.pokemonshowdown.com/sprites/gen5/${base}-${formSlug}.png`;

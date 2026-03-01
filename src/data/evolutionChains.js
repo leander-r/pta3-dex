@@ -529,4 +529,8 @@ export const EVOLUTION_CHAINS = {
     // Meltan line
     'Meltan': { evolvesTo: [{ species: 'Melmetal', method: 'level', requirement: 40 }] },
     'Melmetal': { evolvesFrom: { species: 'Meltan', method: 'level', requirement: 40 } },
+
+    // Zygarde forms (bidirectional form change — Complete Forme is a battle-only transformation)
+    'Zygarde': { evolvesTo: [{ species: 'Zygarde-10%', method: 'other', requirement: 'Form Change', note: '10% Forme' }] },
+    'Zygarde-10%': { evolvesTo: [{ species: 'Zygarde', method: 'other', requirement: 'Form Change', note: '50% Forme' }] },
 };
