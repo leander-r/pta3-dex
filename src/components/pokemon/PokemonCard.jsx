@@ -581,7 +581,7 @@ const PokemonCard = ({
                                 </span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
-                                <span className="text-muted" style={{ fontSize: '11px' }}>
+                                <span className="text-muted" style={{ fontSize: '12px' }}>
                                     {pokemon.nature || 'Hardy'} Nature
                                 </span>
                                 {/* Quick EXP Adjustment */}
@@ -595,20 +595,20 @@ const PokemonCard = ({
                                             updatePokemon({ exp: Math.max(0, (pokemon.exp || 0) - 100) });
                                         }}
                                         style={{
-                                            padding: '2px 6px',
+                                            padding: '4px 10px',
                                             borderRadius: '4px',
                                             border: 'none',
                                             background: '#f44336',
                                             color: 'white',
                                             cursor: 'pointer',
-                                            fontSize: '9px',
+                                            fontSize: '12px',
                                             fontWeight: 'bold'
                                         }}
                                         title="Remove 100 EXP"
                                     >
                                         -100
                                     </button>
-                                    <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#667eea', minWidth: '50px', textAlign: 'center' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#667eea', minWidth: '50px', textAlign: 'center' }}>
                                         {pokemon.exp || 0} XP
                                     </span>
                                     <button
@@ -617,13 +617,13 @@ const PokemonCard = ({
                                             updatePokemon({ exp: (pokemon.exp || 0) + 100 });
                                         }}
                                         style={{
-                                            padding: '2px 6px',
+                                            padding: '4px 10px',
                                             borderRadius: '4px',
                                             border: 'none',
                                             background: '#4caf50',
                                             color: 'white',
                                             cursor: 'pointer',
-                                            fontSize: '9px',
+                                            fontSize: '12px',
                                             fontWeight: 'bold'
                                         }}
                                         title="Add 100 EXP"
@@ -653,7 +653,7 @@ const PokemonCard = ({
                                             border: 'none',
                                             background: expandedSection === 'abilities' ? 'linear-gradient(135deg, #f093fb, #f5576c)' : 'var(--collapsed-btn-bg)',
                                             color: expandedSection === 'abilities' ? 'white' : 'var(--collapsed-btn-text)',
-                                            fontSize: '11px',
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
                                             cursor: 'pointer',
                                             display: 'flex',
@@ -678,7 +678,7 @@ const PokemonCard = ({
                                         border: 'none',
                                         background: expandedSection === 'moves' ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'var(--collapsed-btn-bg)',
                                         color: expandedSection === 'moves' ? 'white' : 'var(--collapsed-btn-text)',
-                                        fontSize: '11px',
+                                        fontSize: '12px',
                                         fontWeight: 'bold',
                                         cursor: 'pointer',
                                         display: 'flex',
@@ -702,7 +702,7 @@ const PokemonCard = ({
                                         border: 'none',
                                         background: expandedSection === 'skills' ? 'linear-gradient(135deg, #9c27b0, #4caf50)' : 'var(--collapsed-btn-bg)',
                                         color: expandedSection === 'skills' ? 'white' : 'var(--collapsed-btn-text)',
-                                        fontSize: '11px',
+                                        fontSize: '12px',
                                         fontWeight: 'bold',
                                         cursor: 'pointer',
                                         display: 'flex',
@@ -737,7 +737,7 @@ const PokemonCard = ({
                                                 borderRadius: '12px',
                                                 background: 'linear-gradient(135deg, #f093fb, #f5576c)',
                                                 color: 'white',
-                                                fontSize: '11px',
+                                                fontSize: '12px',
                                                 fontWeight: 'bold',
                                                 cursor: 'pointer'
                                             }}
@@ -767,7 +767,7 @@ const PokemonCard = ({
                                             borderRadius: '12px',
                                             background: getTypeColor(move.type),
                                             color: 'white',
-                                            fontSize: '11px',
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
                                             cursor: 'pointer'
                                         }}
@@ -805,7 +805,7 @@ const PokemonCard = ({
                                                 ? 'linear-gradient(135deg, #9c27b0, #7b1fa2)'
                                                 : 'linear-gradient(135deg, #4caf50, #388e3c)',
                                             color: 'white',
-                                            fontSize: '11px',
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
                                             cursor: 'pointer'
                                         }}
@@ -2535,12 +2535,12 @@ const quickBtnStyle = {
 };
 
 const quickBtnLabelStyle = {
-    padding: '4px 8px',
+    padding: '6px 10px',
     border: '1px solid var(--collapsed-quick-btn-border)',
     borderRadius: '4px',
     background: 'var(--collapsed-quick-btn-bg)',
     cursor: 'pointer',
-    fontSize: '10px',
+    fontSize: '12px',
     fontWeight: 'bold',
     display: 'flex',
     alignItems: 'center',
