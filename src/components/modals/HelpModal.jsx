@@ -77,6 +77,84 @@ const HELP_CONTENT = {
             </>
         )
     },
+    'trainer-features': {
+        title: 'Trainer Features',
+        body: () => (
+            <>
+                <p>Features are special abilities that customize your trainer's playstyle. Most cost <strong>1 feat point</strong> to acquire.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Feat Points</h4>
+                <p>You earn feat points by leveling up and through certain class choices. <strong>Base classes</strong> grant +2 feat points; <strong>Advanced classes</strong> each cost 1 feat point. Unspent points carry over.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Free Features</h4>
+                <p>Features listed under <em>General (Free)</em> cost <strong>0 feat points</strong>. Base class features are highlighted in green and are automatically granted — they do not cost extra points.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Removing Features</h4>
+                <p>Click a feature chip and choose <em>Remove</em> to refund the feat point. Class base features cannot be removed while that class is still active.</p>
+            </>
+        )
+    },
+    'trainer-skills': {
+        title: 'Trainer Skills',
+        body: () => (
+            <>
+                <p>Skills represent your trainer's proficiency in various areas. Each skill is linked to one of your six stats.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Skill Ranks</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Rank 0:</strong> untrained — roll only the stat modifier</li>
+                    <li><strong>Rank 1:</strong> trained — +2 + Stat Modifier</li>
+                    <li><strong>Rank 2:</strong> expert — +4 + (2 × Stat Modifier)</li>
+                </ul>
+                <p>Click a skill to cycle through ranks (0 → 1 → 2 → 0). HP-linked skills cap at <strong>Rank 1</strong>.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Skill Ranks from Classes</h4>
+                <p>Base classes grant <strong>3 skill ranks</strong>; Advanced classes grant <strong>1 skill rank</strong>. Ranks from classes are automatically applied when you add or change a class.</p>
+            </>
+        )
+    },
+    'pokemon-stats': {
+        title: 'Pokémon Stats',
+        body: () => (
+            <>
+                <p>Each Pokémon stat has two components that add together to form the <strong>total stat</strong> used in battle.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Base Stat</h4>
+                <p>Set by the species (Pokédex entry). This cannot be changed and represents the Pokémon's natural potential.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Added Stat (+)</h4>
+                <p>Points you invest from level-ups. Use the <strong>+</strong> and <strong>−</strong> buttons in each stat box to allocate your available <em>Stat Points</em>. The green number shows how many points have been added.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Stat Points</h4>
+                <p>Your Pokémon gains <strong>stat points when it levels up</strong>. Unspent points are shown at the top of this tab. You can freely reallocate points as long as the Pokémon still has enough added stats to cover what you remove.</p>
+            </>
+        )
+    },
+    'pokemon-skills': {
+        title: 'Pokémon Skills',
+        body: () => (
+            <>
+                <p>Pokémon Skills represent your Pokémon's natural physical capabilities outside of battle. They are fixed by the species and cannot be changed.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Common Skills</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Overland:</strong> base movement speed on land (meters per move action)</li>
+                    <li><strong>Swim:</strong> movement speed while swimming</li>
+                    <li><strong>Jump:</strong> vertical jump height in meters</li>
+                    <li><strong>Power:</strong> how many Combat Stages of weight the Pokémon can lift or push</li>
+                </ul>
+                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Some species have additional skills like Burrow, Sky, Levitate, or Stealth. Click a skill chip to see its full description.</p>
+            </>
+        )
+    },
+    'hp-tracking': {
+        title: 'HP Tracking',
+        body: () => (
+            <>
+                <p>The HP tracker lets you apply damage and healing during battle without leaving the app.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Quick Buttons</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>−10 / −5 / −1</strong> — apply that much damage (red buttons)</li>
+                    <li><strong>Full</strong> — instantly restore to Max HP (blue button)</li>
+                    <li><strong>+1 / +5 / +10</strong> — heal that many HP (green buttons)</li>
+                </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Custom Amount</h4>
+                <p>Type any number in the input box and click <strong>Dmg</strong> or <strong>Heal</strong> to apply an exact amount. Pressing <kbd>Enter</kbd> applies damage.</p>
+                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>HP is shown as a colour-coded bar: green above 50 %, orange above 25 %, red at 25 % or below.</p>
+            </>
+        )
+    },
 };
 
 const HelpModal = () => {

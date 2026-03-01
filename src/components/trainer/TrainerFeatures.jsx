@@ -3,7 +3,20 @@
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
-import { useModal, useTrainerContext, useGameData } from '../../contexts/index.js';
+import { useModal, useTrainerContext, useGameData, useUI } from '../../contexts/index.js';
+
+const HELP_BTN_STYLE = {
+    background: 'none',
+    border: '1px solid var(--border-medium)',
+    borderRadius: '50%',
+    width: '22px', height: '22px',
+    fontSize: '12px', fontWeight: 'bold',
+    cursor: 'pointer',
+    color: 'var(--text-muted)',
+    lineHeight: '16px',
+    padding: 0, flexShrink: 0,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
+};
 import toast from '../../utils/toast.js';
 
 // Features that modify trainer stats when acquired
@@ -44,6 +57,7 @@ const TrainerFeatures = () => {
     const { showDetail } = useModal();
     const { trainer, setTrainer } = useTrainerContext();
     const { GAME_DATA } = useGameData();
+    const { showHelp } = useUI();
     const [featureFilter, setFeatureFilter] = useState('all');
     const [featureSearch, setFeatureSearch] = useState('');
     const [pendingStatFeature, setPendingStatFeature] = useState(null); // { name, data, featureData }
@@ -213,6 +227,12 @@ const TrainerFeatures = () => {
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
             <h3 className="section-title-purple">
                 <span>⭐</span> Features
+                <button
+                    onClick={() => showHelp('trainer-features')}
+                    style={HELP_BTN_STYLE}
+                    aria-label="Help: Trainer Features"
+                    title="About trainer features"
+                >?</button>
                 <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
                     {currentFeatures.length} features | {trainer.featPoints || 0} points available
                 </span>

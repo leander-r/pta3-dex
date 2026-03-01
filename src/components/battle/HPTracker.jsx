@@ -1,13 +1,36 @@
 import React, { useRef } from 'react';
+import { useUI } from '../../contexts/index.js';
+
+const HELP_BTN_STYLE = {
+    background: 'none',
+    border: '1px solid var(--border-medium)',
+    borderRadius: '50%',
+    width: '22px', height: '22px',
+    fontSize: '12px', fontWeight: 'bold',
+    cursor: 'pointer',
+    color: 'var(--text-muted)',
+    lineHeight: '16px',
+    padding: 0, flexShrink: 0,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
+};
 
 const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
     const inputRef = useRef(null);
+    const { showHelp } = useUI();
     const hpPercent = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
 
     return (
         <div className="hp-tracker-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{label}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 'bold' }}>
+                    {label}
+                    <button
+                        onClick={() => showHelp('hp-tracking')}
+                        style={HELP_BTN_STYLE}
+                        aria-label="Help: HP tracking"
+                        title="About HP tracking"
+                    >?</button>
+                </span>
                 <span style={{ fontSize: '14px', fontWeight: 'bold', color: hpPercent > 50 ? '#4caf50' : hpPercent > 25 ? '#ff9800' : '#f44336' }}>
                     {currentHP} / {maxHP}
                 </span>

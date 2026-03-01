@@ -7,9 +7,22 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
 import toast from '../../utils/toast.js';
-import { useGameData, useModal, usePokemonContext } from '../../contexts/index.js';
+import { useGameData, useModal, usePokemonContext, useUI } from '../../contexts/index.js';
 import { MAX_NATURAL_MOVES, MAX_TAUGHT_MOVES, MAX_TOTAL_MOVES } from '../../data/constants.js';
 import { getPokemonDisplayImage, getPokemonSprite } from '../../utils/pokemonSprite.js';
+
+const HELP_BTN_STYLE = {
+    background: 'none',
+    border: '1px solid var(--border-medium)',
+    borderRadius: '50%',
+    width: '22px', height: '22px',
+    fontSize: '12px', fontWeight: 'bold',
+    cursor: 'pointer',
+    color: 'var(--text-muted)',
+    lineHeight: '16px',
+    padding: 0, flexShrink: 0,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
+};
 
 const STATUS_CONDITIONS = [
     { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336' },
@@ -57,6 +70,7 @@ const PokemonCard = ({
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
     const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm } = useModal();
     const { getEvolutionOptions } = usePokemonContext();
+    const { showHelp } = useUI();
     const [editTab, setEditTab] = useState('info');
     const [speciesSearch, setSpeciesSearch] = useState('');
     const [speciesTypeFilter, setSpeciesTypeFilter] = useState('all');
@@ -1916,8 +1930,14 @@ const PokemonCard = ({
 
                 {editTab === 'stats' && (
                     <div>
-                        <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px' }}>
-                            Stat Points Available: <strong title="Spend these to increase stats. Pokémon gain stat points when leveling up.">{pokemon.statPointsAvailable || 0}</strong>
+                        <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>Stat Points Available: <strong title="Spend these to increase stats. Pokémon gain stat points when leveling up.">{pokemon.statPointsAvailable || 0}</strong></span>
+                            <button
+                                onClick={() => showHelp('pokemon-stats')}
+                                style={HELP_BTN_STYLE}
+                                aria-label="Help: Pokémon Stats"
+                                title="About Pokémon stat allocation"
+                            >?</button>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -1998,8 +2018,14 @@ const PokemonCard = ({
 
                 {editTab === 'moves' && (
                     <div>
-                        <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px' }}>
-                            Moves: {(pokemon.moves || []).length}/{MAX_TOTAL_MOVES} ({MAX_NATURAL_MOVES} natural + {MAX_TAUGHT_MOVES} taught)
+                        <div className="text-muted" style={{ marginBottom: '10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>Moves: {(pokemon.moves || []).length}/{MAX_TOTAL_MOVES} ({MAX_NATURAL_MOVES} natural + {MAX_TAUGHT_MOVES} taught)</span>
+                            <button
+                                onClick={() => showHelp('move-slots')}
+                                style={HELP_BTN_STYLE}
+                                aria-label="Help: Move Slots"
+                                title="About move slots"
+                            >?</button>
                         </div>
 
                         {(pokemon.moves || []).map((move, idx) => (
@@ -2305,8 +2331,14 @@ const PokemonCard = ({
 
                 {editTab === 'skills' && (
                     <div>
-                        <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
-                            Pokemon Skills (from species data)
+                        <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>Pokemon Skills (from species data)</span>
+                            <button
+                                onClick={() => showHelp('pokemon-skills')}
+                                style={HELP_BTN_STYLE}
+                                aria-label="Help: Pokémon Skills"
+                                title="About Pokémon skills"
+                            >?</button>
                         </div>
 
                         {(pokemon.pokemonSkills || []).filter(s => s.value > 0).length === 0 ? (
