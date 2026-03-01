@@ -68,26 +68,22 @@ const TrainerStats = () => {
                 </span>
             </h3>
             {!collapsed && <>
-            <p className="section-description" style={{ fontSize: '12px' }}>
-                Stats determine your trainer's capabilities. The modifier (shown below each stat) affects skill rolls.
-            </p>
-
-            <div className="grid-responsive-3 trainer-stats-grid">
+            <div className="trainer-stats-compact">
                 {STAT_CONFIG.map(stat => {
                     const mod = calculateModifier(stat.key);
                     return (
                         <div
                             key={stat.key}
                             style={{
-                                borderRadius: '8px',
-                                padding: '10px',
+                                borderRadius: '6px',
+                                padding: '7px 5px',
                                 textAlign: 'center',
                                 border: `1px solid ${stat.color}30`,
                                 borderTop: `3px solid ${stat.color}`,
                                 background: `linear-gradient(180deg, ${stat.color}12 0%, var(--card-bg, #fff) 60%)`
                             }}
                         >
-                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: stat.color, marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color, marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 {stat.label}
                             </div>
                             <input
@@ -96,22 +92,22 @@ const TrainerStats = () => {
                                 onChange={(e) => updateTrainerStat(stat.key, e.target.value)}
                                 min="6"
                                 style={{
-                                    width: '60px',
+                                    width: '50px',
                                     textAlign: 'center',
-                                    fontSize: '20px',
+                                    fontSize: '16px',
                                     fontWeight: 'bold',
                                     border: `1px solid var(--border-medium, #ddd)`,
-                                    borderRadius: '6px',
-                                    padding: '5px',
+                                    borderRadius: '4px',
+                                    padding: '3px 2px',
                                     background: 'var(--input-bg)',
                                     color: 'var(--text-primary)'
                                 }}
                             />
                             <div style={{
-                                fontSize: '13px',
+                                fontSize: '11px',
                                 color: mod >= 0 ? '#4caf50' : '#f44336',
                                 fontWeight: 'bold',
-                                marginTop: '4px'
+                                marginTop: '2px'
                             }}>
                                 {mod >= 0 ? '+' : ''}{mod}
                             </div>
@@ -121,23 +117,18 @@ const TrainerStats = () => {
             </div>
 
             {/* Evasion Display */}
-            <div style={{ marginTop: '15px' }}>
-                <div className="text-muted" style={{ fontSize: '12px', marginBottom: '6px', textAlign: 'center' }}>
-                    Evasion bonuses make you harder to hit. Added to AC when targeted.
+            <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
+                <div className="evasion-box-phys" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Physical Evasion = DEF ÷ 5 (rounded down). Applies vs Physical attacks.">
+                    <div style={{ fontSize: '10px', color: '#1565c0' }}>Phys Eva</div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#1565c0' }}>+{Math.floor(trainer.stats.def / 5)}</div>
                 </div>
-                <div className="grid-responsive-3">
-                    <div className="evasion-box-phys" style={{ textAlign: 'center', padding: '8px', borderRadius: '6px' }} title="Physical Evasion = DEF ÷ 5 (rounded down). Applies vs Physical attacks.">
-                        <div style={{ fontSize: '12px', color: '#1565c0' }}>Phys Eva</div>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1565c0' }}>+{Math.floor(trainer.stats.def / 5)}</div>
-                    </div>
-                    <div className="evasion-box-spec" style={{ textAlign: 'center', padding: '8px', borderRadius: '6px' }} title="Special Evasion = SDEF ÷ 5 (rounded down). Applies vs Special attacks.">
-                        <div style={{ fontSize: '12px', color: '#e65100' }}>Spec Eva</div>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#e65100' }}>+{Math.floor(trainer.stats.sdef / 5)}</div>
-                    </div>
-                    <div className="evasion-box-spd" style={{ textAlign: 'center', padding: '8px', borderRadius: '6px' }} title="Speed Evasion = SPD modifier (capped 0-6). Applies to dodge-based checks.">
-                        <div style={{ fontSize: '12px', color: '#00838f' }}>Spd Eva</div>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#00838f' }}>+{Math.min(6, Math.max(0, calculateModifier(trainer.stats.spd)))}</div>
-                    </div>
+                <div className="evasion-box-spec" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Special Evasion = SDEF ÷ 5 (rounded down). Applies vs Special attacks.">
+                    <div style={{ fontSize: '10px', color: '#e65100' }}>Spec Eva</div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#e65100' }}>+{Math.floor(trainer.stats.sdef / 5)}</div>
+                </div>
+                <div className="evasion-box-spd" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Speed Evasion = SPD modifier (capped 0-6). Applies to dodge-based checks.">
+                    <div style={{ fontSize: '10px', color: '#00838f' }}>Spd Eva</div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#00838f' }}>+{Math.min(6, Math.max(0, calculateModifier(trainer.stats.spd)))}</div>
                 </div>
             </div>
             </>}

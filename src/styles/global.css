@@ -2880,6 +2880,13 @@
         .trainer-stats-grid {
             gap: 10px;
         }
+
+        /* Compact 6-column stats grid */
+        .trainer-stats-compact {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+        }
         
         /* Mobile-optimized section cards */
         .section-card-purple,
@@ -3044,6 +3051,11 @@
             .trainer-stats-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 8px;
+            }
+
+            /* Compact stats grid: 3 columns on mobile */
+            .trainer-stats-compact {
+                grid-template-columns: repeat(3, 1fr) !important;
             }
             
             /* ===== MOBILE SECTION CARDS ===== */

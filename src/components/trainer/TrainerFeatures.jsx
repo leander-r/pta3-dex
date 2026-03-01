@@ -531,14 +531,21 @@ const TrainerFeatures = () => {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                         {currentFeatures.slice(0, 8).map((f, i) => {
                             const name = typeof f === 'object' ? f.name : f;
-                            const isBase = GAME_DATA.features[name]?.isBase;
+                            const featureData = GAME_DATA.features[name];
+                            const isBase = featureData?.isBase;
                             return (
-                                <span key={i} style={{
-                                    padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
-                                    background: isBase ? '#e8f5e9' : '#ede7f6',
-                                    color: isBase ? '#2e7d32' : '#5e35b1',
-                                    border: `1px solid ${isBase ? '#a5d6a7' : '#b39ddb'}`
-                                }}>
+                                <span
+                                    key={i}
+                                    onClick={() => showDetail && showDetail('feature', name, featureData)}
+                                    title={`View ${name} details`}
+                                    style={{
+                                        padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
+                                        background: isBase ? '#e8f5e9' : '#ede7f6',
+                                        color: isBase ? '#2e7d32' : '#5e35b1',
+                                        border: `1px solid ${isBase ? '#a5d6a7' : '#b39ddb'}`,
+                                        cursor: 'pointer'
+                                    }}
+                                >
                                     {name}
                                 </span>
                             );

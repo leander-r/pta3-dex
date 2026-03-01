@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useTrainerContext, useGameData, useUI } from '../../contexts/index.js';
+import { useTrainerContext, useGameData, useModal, useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 const SKILL_STATS = ['HP', 'ATK', 'DEF', 'SATK', 'SDEF', 'SPD'];
@@ -60,6 +60,7 @@ const TrainerSkills = () => {
     const { trainer, setTrainer } = useTrainerContext();
     const { GAME_DATA } = useGameData();
     const { showHelp } = useUI();
+    const { showDetail } = useModal();
     const currentSkills = trainer.skills || {};
 
     const handleCycleRank = (skillName, isHPSkill) => {
@@ -276,13 +277,18 @@ const TrainerSkills = () => {
                 trainedCount > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                         {trainedList.map(({ name, rank }) => (
-                            <span key={name} style={{
-                                padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
-                                background: rank === 2
-                                    ? 'linear-gradient(135deg, #ff6b6b, #ee5a24)'
-                                    : 'linear-gradient(135deg, #667eea, #764ba2)',
-                                color: 'white'
-                            }}>
+                            <span
+                                key={name}
+                                onClick={() => showDetail && showDetail('skill', name, GAME_DATA.skills?.[name])}
+                                title={`View ${name} details`}
+                                style={{
+                                    padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
+                                    background: rank === 2
+                                        ? 'linear-gradient(135deg, #ff6b6b, #ee5a24)'
+                                        : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                    color: 'white', cursor: 'pointer'
+                                }}
+                            >
                                 {name}{rank === 2 && <span style={{ marginLeft: '3px', opacity: 0.85 }}>★★</span>}
                             </span>
                         ))}
