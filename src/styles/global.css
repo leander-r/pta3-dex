@@ -3457,7 +3457,7 @@
             }
             
             .form-group label {
-                font-size: 12px;
+                font-size: 13px;
             }
             
             /* Pokemon cards */
@@ -4240,7 +4240,7 @@
 
         /* Section description helper class */
         .section-description {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-muted, #666);
             margin-bottom: 15px;
             margin-top: -5px;
