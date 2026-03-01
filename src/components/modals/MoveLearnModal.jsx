@@ -167,8 +167,8 @@ const MoveLearnModal = () => {
                             onClick={() => showConfirm({
                                 title: 'Skip Move?',
                                 message: `${moveLearnData.pokemonName} will not learn ${moveLearnData.newMove.move}. This cannot be undone.`,
-                                confirmText: 'Skip',
-                                isDanger: true,
+                                confirmLabel: 'Skip',
+                                danger: true,
                                 onConfirm: handleClose
                             })}
                         >

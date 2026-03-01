@@ -57,8 +57,8 @@ const NotesTab = () => {
         showConfirm({
             title: 'Clear Session Notes?',
             message: 'This will erase all current session notes. Campaign notes are unaffected.',
-            confirmText: 'Clear',
-            isDanger: true,
+            confirmLabel: 'Clear',
+            danger: true,
             onConfirm: () => setTrainer(prev => ({ ...prev, sessionNotes: '' }))
         });
     };
@@ -90,8 +90,8 @@ const NotesTab = () => {
         showConfirm({
             title: 'Delete Quest?',
             message: 'Remove this quest from the log?',
-            confirmText: 'Delete',
-            isDanger: true,
+            confirmLabel: 'Delete',
+            danger: true,
             onConfirm: () => setTrainer(prev => ({
                 ...prev,
                 quests: (prev.quests || []).filter(q => q.id !== id)
