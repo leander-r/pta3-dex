@@ -31,11 +31,11 @@ const TrainerTab = () => {
             {/* Classes Section */}
             <TrainerClasses />
 
-            {/* Features Section */}
-            <TrainerFeatures />
-
             {/* Skills Section */}
             <TrainerSkills />
+
+            {/* Features Section */}
+            <TrainerFeatures />
         </div>
     );
 };

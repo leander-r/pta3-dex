@@ -22,6 +22,7 @@ const TrainerClasses = () => {
     // State for skill selection when adding a class
     const [pendingClass, setPendingClass] = useState(null);
     const [selectedClassSkills, setSelectedClassSkills] = useState([]);
+    const [collapsed, setCollapsed] = useState(false);
 
     // Get skill pool for a class
     const getClassSkillPool = (className) => {
@@ -249,10 +250,20 @@ const TrainerClasses = () => {
                     aria-label="Help: Trainer Classes"
                     title="About trainer classes"
                 >?</button>
-                <span className="text-muted" style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 'normal' }}>
-                    {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
+                        {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
+                    </span>
+                    <button
+                        onClick={() => setCollapsed(c => !c)}
+                        aria-label={collapsed ? 'Expand Classes' : 'Collapse Classes'}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
+                    >
+                        <span style={{ display: 'inline-block', transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '12px' }}>▼</span>
+                    </button>
                 </span>
             </h3>
+            {!collapsed && <>
             <p className="section-description" style={{ fontSize: '12px' }}>
                 Classes unlock features and skills. Lv1-4: 1 class | Lv5-11: 2 | Lv12-23: 3 | Lv24+: 4.
                 {currentClasses.length >= 1 && ' Additional classes cost 1 feat point.'}
@@ -412,6 +423,7 @@ const TrainerClasses = () => {
                     </button>
                 </div>
             )}
+            </>}
         </div>
     );
 };
