@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useModal } from '../../contexts/index.js';
+import { useModal, useUI } from '../../contexts/index.js';
 import { useData } from '../../contexts/DataContext.jsx';
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -309,6 +309,7 @@ const AutoSaveCard = ({ autoSave, onLoad }) => {
 
 const SaveLoadModal = () => {
     const { showSaveLoadModal, closeSaveLoadModal } = useModal();
+    const { showHelp } = useUI();
     const { saveSlots, saveToSlot, loadFromSlot, deleteSlot, renameSlot, restoreAutoBackup } = useData();
 
     const [autoSave, setAutoSave] = useState(null);
@@ -368,6 +369,23 @@ const SaveLoadModal = () => {
                         <span style={{ fontSize: '20px' }}>💾</span>
                         Save / Load
                     </h3>
+                    <button
+                        onClick={() => showHelp('save-slots')}
+                        aria-label="Help: Save and Load"
+                        title="About save slots and export"
+                        style={{
+                            background: 'rgba(0,0,0,0.1)',
+                            border: '2px solid rgba(0,0,0,0.15)',
+                            borderRadius: '50%',
+                            width: '28px', height: '28px',
+                            fontSize: '13px', fontWeight: 'bold',
+                            cursor: 'pointer',
+                            color: '#1a1a1a',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                            marginLeft: 'auto'
+                        }}
+                    >?</button>
                     <button
                         onClick={closeSaveLoadModal}
                         aria-label="Close modal"

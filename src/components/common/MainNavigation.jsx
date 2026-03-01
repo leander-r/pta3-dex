@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { TABS } from '../../data/constants.js';
-import { useModal, useUI } from '../../contexts/index.js';
+import { useModal } from '../../contexts/index.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 
 const NAV_ITEMS = [
@@ -17,23 +17,9 @@ const NAV_ITEMS = [
     { tab: TABS.NOTES,     icon: '📝', label: 'Campaign Notes', mobileLabel: 'Notes'   },
 ];
 
-const helpBtnStyle = {
-    background: 'none',
-    border: '1px solid var(--border-medium)',
-    borderRadius: '50%',
-    width: '22px', height: '22px',
-    fontSize: '12px', fontWeight: 'bold',
-    cursor: 'pointer',
-    color: 'var(--text-muted)',
-    lineHeight: '16px',
-    padding: 0, flexShrink: 0,
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    marginLeft: '4px'
-};
 
 const MainNavigation = ({ activeTab, setActiveTab }) => {
     const { openSaveLoadModal } = useModal();
-    const { showHelp } = useUI();
     const { steps, allDone, dismissed, dismiss } = useOnboarding();
 
     const showChecklist = !dismissed && !allDone;
@@ -57,26 +43,16 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
 
             <div className="nav-divider" style={{ height: '1px', background: 'var(--border-light)', margin: '8px 0' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <button
-                    className="nav-button nav-saveload"
-                    onClick={openSaveLoadModal}
-                    title="Save or load a game state snapshot"
-                    aria-label="Open save and load menu"
-                    style={{ flex: 1, display: 'flex', alignItems: 'center' }}
-                >
-                    <span className="nav-icon">💾</span>
-                    <span className="nav-label" style={{ flex: 1 }}>Save / Load</span>
-                    <span className="nav-mobile-label">Save</span>
-                </button>
-                <button
-                    onClick={() => showHelp('save-slots')}
-                    style={helpBtnStyle}
-                    className="nav-help-btn"
-                    aria-label="Help: Save and Load"
-                    title="About save slots and export"
-                >?</button>
-            </div>
+            <button
+                className="nav-button nav-saveload"
+                onClick={openSaveLoadModal}
+                title="Save or load a game state snapshot"
+                aria-label="Open save and load menu"
+            >
+                <span className="nav-icon">💾</span>
+                <span className="nav-label">Save / Load</span>
+                <span className="nav-mobile-label">Save</span>
+            </button>
 
             {/* Onboarding checklist — hidden on mobile (bottom bar has no room) */}
             {showChecklist && (
