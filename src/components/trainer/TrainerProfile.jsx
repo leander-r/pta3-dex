@@ -92,7 +92,7 @@ const TrainerProfile = () => {
     const badges = trainer.badges || [];
 
     return (
-        <div className="section-card-purple">
+        <div className="section-card-orange">
 
             {/* ── Gradient Header Banner (Pokémon-card style) ── */}
             <div style={{
@@ -304,18 +304,18 @@ const TrainerProfile = () => {
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e53935', lineHeight: 1.2 }}>{calculateMaxHP()}</div>
                 </div>
                 <div
-                    style={{ textAlign: 'center', padding: '10px 6px', background: `linear-gradient(180deg, ${(trainer.featPoints || 0) > 0 ? 'var(--quick-stat-feat-tint, #e8f5e9)' : 'var(--bg-light, #f5f5f5)'} 0%, var(--card-bg, #fff) 70%)`, borderRadius: '8px', borderTop: `3px solid ${(trainer.featPoints || 0) > 0 ? '#4caf50' : '#bdbdbd'}` }}
+                    style={{ textAlign: 'center', padding: '10px 6px', background: `linear-gradient(180deg, ${(trainer.featPoints || 0) > 0 ? 'var(--quick-stat-feat-tint, #fff3e0)' : 'var(--bg-light, #f5f5f5)'} 0%, var(--card-bg, #fff) 70%)`, borderRadius: '8px', borderTop: 'var(--poke-orange, #f5a623) 3px solid' }}
                     title="Feat points are used to buy features. Gain points from leveling up."
                 >
-                    <div style={{ fontSize: '10px', color: (trainer.featPoints || 0) > 0 ? '#2e7d32' : 'var(--text-muted, #666)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feat Pts</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: (trainer.featPoints || 0) > 0 ? '#4caf50' : '#999', lineHeight: 1.2 }}>{trainer.featPoints || 0}</div>
+                    <div style={{ fontSize: '10px', color: (trainer.featPoints || 0) > 0 ? 'var(--poke-orange-dark, #e8941c)' : 'var(--text-muted, #666)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feat Pts</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: (trainer.featPoints || 0) > 0 ? 'var(--poke-orange, #f5a623)' : '#999', lineHeight: 1.2 }}>{trainer.featPoints || 0}</div>
                 </div>
                 <div
-                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, var(--quick-stat-badge-tint, #e8eaf6) 0%, var(--card-bg, #fff) 70%)', borderRadius: '8px', borderTop: '3px solid #5c6bc0' }}
+                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, var(--quick-stat-badge-tint, #ede7f6) 0%, var(--card-bg, #fff) 70%)', borderRadius: '8px', borderTop: '3px solid var(--color-purple, #667eea)' }}
                     title="Gym Badges earned"
                 >
-                    <div style={{ fontSize: '10px', color: '#3949ab', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🏅 Badges</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#5c6bc0', lineHeight: 1.2 }}>{badges.length}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--color-purple, #667eea)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🏅 Badges</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--color-purple, #667eea)', lineHeight: 1.2 }}>{badges.length}</div>
                 </div>
             </div>
 
@@ -380,7 +380,7 @@ const TrainerProfile = () => {
                         style={{
                             padding: '3px 10px',
                             fontSize: '12px',
-                            background: 'linear-gradient(135deg, #5c6bc0, #3f51b5)',
+                            background: 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))',
                             color: 'white',
                             border: 'none',
                             borderRadius: '6px',

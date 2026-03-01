@@ -315,7 +315,7 @@ const TrainerClasses = () => {
                     padding: '15px',
                     background: 'var(--skill-picker-bg, linear-gradient(135deg, #e8f5e9, #c8e6c9))',
                     borderRadius: '8px',
-                    border: '2px solid #4caf50'
+                    border: '2px solid var(--color-purple, #667eea)'
                 }}>
                     <div style={{ marginBottom: '10px' }}>
                         <strong style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Adding: {pendingClass}</strong>
@@ -349,9 +349,9 @@ const TrainerClasses = () => {
                                     disabled={isMaxed}
                                     style={{
                                         padding: '6px 12px',
-                                        background: isSelected ? '#4caf50' : isMaxed ? 'var(--skill-btn-disabled-bg, #e0e0e0)' : alreadyHas ? 'var(--skill-btn-has-bg, #fff3e0)' : 'var(--skill-btn-bg, white)',
+                                        background: isSelected ? 'var(--poke-orange, #f5a623)' : isMaxed ? 'var(--skill-btn-disabled-bg, #e0e0e0)' : alreadyHas ? 'var(--skill-btn-has-bg, #fff3e0)' : 'var(--skill-btn-bg, white)',
                                         color: isSelected ? 'white' : isMaxed ? 'var(--skill-btn-disabled-text, #999)' : 'var(--skill-btn-text, #333)',
-                                        border: `2px solid ${isSelected ? '#4caf50' : isMaxed ? 'var(--skill-btn-disabled-border, #bdbdbd)' : alreadyHas ? '#ff9800' : 'var(--skill-btn-border, #ddd)'}`,
+                                        border: `2px solid ${isSelected ? 'var(--poke-orange-dark, #e8941c)' : isMaxed ? 'var(--skill-btn-disabled-border, #bdbdbd)' : alreadyHas ? '#ff9800' : 'var(--skill-btn-border, #e0d0f0)'}`,
                                         borderRadius: '20px',
                                         cursor: isMaxed ? 'not-allowed' : 'pointer',
                                         fontSize: '12px'
@@ -371,7 +371,7 @@ const TrainerClasses = () => {
                             style={{
                                 flex: 1,
                                 padding: '10px',
-                                background: selectedClassSkills.length >= getSkillCount(pendingClass) ? '#4caf50' : '#ccc',
+                                background: selectedClassSkills.length >= getSkillCount(pendingClass) ? 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))' : '#ccc',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '6px',

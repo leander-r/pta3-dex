@@ -256,7 +256,7 @@ const TrainerFeatures = () => {
                                     alignItems: 'center',
                                     gap: '6px',
                                     padding: '6px 10px',
-                                    background: isBase ? 'linear-gradient(135deg, #4caf50, #388e3c)' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                    background: isBase ? 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))' : 'linear-gradient(135deg, #667eea, #764ba2)',
                                     borderRadius: '15px',
                                     color: 'white',
                                     fontSize: '12px',
@@ -358,7 +358,7 @@ const TrainerFeatures = () => {
                                     marginBottom: '4px',
                                     background: 'white',
                                     borderRadius: '6px',
-                                    borderLeft: `3px solid ${data.category === 'General (Free)' ? '#4caf50' : '#667eea'}`,
+                                    borderLeft: `3px solid ${data.category === 'General (Free)' ? 'var(--poke-orange, #f5a623)' : '#667eea'}`,
                                     cursor: 'pointer'
                                 }}
                                 onClick={() => showDetail && showDetail('feature', name, data)}
@@ -428,7 +428,7 @@ const TrainerFeatures = () => {
                                     disabled={data.category !== 'General (Free)' && (trainer.featPoints || 0) <= 0}
                                     style={{
                                         padding: '4px 12px',
-                                        background: data.category === 'General (Free)' ? '#4caf50' : '#667eea',
+                                        background: data.category === 'General (Free)' ? 'var(--poke-orange, #f5a623)' : '#667eea',
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '4px',
@@ -540,9 +540,9 @@ const TrainerFeatures = () => {
                                     title={`View ${name} details`}
                                     style={{
                                         padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
-                                        background: isBase ? '#e8f5e9' : '#ede7f6',
-                                        color: isBase ? '#2e7d32' : '#5e35b1',
-                                        border: `1px solid ${isBase ? '#a5d6a7' : '#b39ddb'}`,
+                                        background: isBase ? '#fff3e0' : '#ede7f6',
+                                        color: isBase ? 'var(--poke-orange-dark, #e8941c)' : '#5e35b1',
+                                        border: `1px solid ${isBase ? '#ffb74d' : '#b39ddb'}`,
                                         cursor: 'pointer'
                                     }}
                                 >

@@ -121,8 +121,8 @@
             --collapsed-btn-text: #666;
             --collapsed-hp-track: #e0e0e0;
             --quick-stat-hp-tint: #ffebee;
-            --quick-stat-feat-tint: #e8f5e9;
-            --quick-stat-badge-tint: #e8eaf6;
+            --quick-stat-feat-tint: #fff3e0;
+            --quick-stat-badge-tint: #ede7f6;
             --collapsed-abilities-bg: #fce4ec;
             --collapsed-moves-bg: #ede7f6;
             --collapsed-skills-bg: #e8f5e9;
@@ -178,10 +178,10 @@
             --abilities-quick-btn-active-text: white;
 
             /* Skill Picker (TrainerClasses) */
-            --skill-picker-bg: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            --skill-picker-bg: linear-gradient(135deg, #f3e5f5, #ede7f6);
             --skill-btn-bg: white;
             --skill-btn-text: #333;
-            --skill-btn-border: #ddd;
+            --skill-btn-border: #e0d0f0;
             --skill-btn-has-bg: #fff3e0;
             --skill-btn-disabled-bg: #e0e0e0;
             --skill-btn-disabled-text: #999;
@@ -224,8 +224,8 @@
 
             /* Trainer quick stat tint colors */
             --quick-stat-hp-tint: rgba(229, 57, 53, 0.18);
-            --quick-stat-feat-tint: rgba(76, 175, 80, 0.18);
-            --quick-stat-badge-tint: rgba(63, 81, 181, 0.18);
+            --quick-stat-feat-tint: rgba(245, 166, 35, 0.12);
+            --quick-stat-badge-tint: rgba(102, 126, 234, 0.15);
 
             /* Status colors - dark mode */
             --warning-bg: #3d3520;
@@ -318,7 +318,7 @@
             --abilities-quick-btn-active-text: #1a1a2e;
 
             /* Skill Picker (TrainerClasses) - dark mode */
-            --skill-picker-bg: linear-gradient(135deg, #1a3320, #1e3a28);
+            --skill-picker-bg: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.12));
             --skill-btn-bg: #2a2a3a;
             --skill-btn-text: #e0e0e8;
             --skill-btn-border: #4d4d5d;
@@ -963,6 +963,24 @@
             right: 0;
             height: 3px;
             background: linear-gradient(90deg, var(--color-purple), var(--color-purple-dark));
+        }
+
+        /* Orange variant (identity/profile card) */
+        .section-card-orange {
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff8f0 100%);
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            border: 2px solid #ffe0b2;
+            position: relative;
+        }
+
+        .section-card-orange::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--poke-orange), var(--poke-orange-dark));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
         /* ========== GAME RULES CONTENT ========== */
@@ -2897,6 +2915,7 @@
         
         /* Mobile-optimized section cards */
         .section-card-purple,
+        .section-card-orange,
         .section-card,
         .section-card-accent {
             margin-bottom: 15px;
@@ -3068,7 +3087,8 @@
             /* ===== MOBILE SECTION CARDS ===== */
             .section-card,
             .section-card-accent,
-            .section-card-purple {
+            .section-card-purple,
+            .section-card-orange {
                 padding: 15px;
                 margin-bottom: 12px;
             }
@@ -3591,7 +3611,8 @@
 
             /* Section cards — tighter inner padding */
             .section-card,
-            .section-card-purple {
+            .section-card-purple,
+            .section-card-orange {
                 padding: 10px;
             }
 
@@ -3729,6 +3750,7 @@
             /* Section cards print as simple bordered boxes */
             .section-card,
             .section-card-purple,
+            .section-card-orange,
             .section-card-accent {
                 background: white !important;
                 border: 1px solid #ccc !important;
@@ -3817,7 +3839,8 @@
 
         [data-theme="dark"] .section-card,
         [data-theme="dark"] .section-card-accent,
-        [data-theme="dark"] .section-card-purple {
+        [data-theme="dark"] .section-card-purple,
+        [data-theme="dark"] .section-card-orange {
             background: var(--section-bg);
             border-color: var(--section-border);
         }
@@ -3825,6 +3848,11 @@
         [data-theme="dark"] .section-card-purple::before {
             background: linear-gradient(90deg, #9c27b0, #667eea);
             opacity: 0.7;
+        }
+
+        [data-theme="dark"] .section-card-orange::before {
+            background: linear-gradient(90deg, var(--poke-orange), var(--poke-orange-dark));
+            opacity: 0.85;
         }
 
         [data-theme="dark"] .form-group input,
@@ -5192,6 +5220,7 @@
         [data-compact="true"] .section-card,
         [data-compact="true"] .card-section,
         [data-compact="true"] .section-card-purple,
+        [data-compact="true"] .section-card-orange,
         [data-compact="true"] .section-card-accent {
             padding: 12px;
         }
