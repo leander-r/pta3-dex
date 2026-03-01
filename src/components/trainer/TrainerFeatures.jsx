@@ -214,10 +214,10 @@ const TrainerFeatures = () => {
 
     return (
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 <span>⭐</span> Features
                 <button
-                    onClick={() => showHelp('trainer-features')}
+                    onClick={(e) => { e.stopPropagation(); showHelp('trainer-features'); }}
                     style={HELP_BTN_STYLE}
                     aria-label="Help: Trainer Features"
                     title="About trainer features"
@@ -227,7 +227,7 @@ const TrainerFeatures = () => {
                         {currentFeatures.length} features | {trainer.featPoints || 0} points available
                     </span>
                     <button
-                        onClick={() => setCollapsed(c => !c)}
+                        onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Features' : 'Collapse Features'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >
@@ -341,7 +341,7 @@ const TrainerFeatures = () => {
                 </div>
 
                 {/* Feature List */}
-                <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
                     {availableFeatures.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
                             No features found

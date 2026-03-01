@@ -242,10 +242,10 @@ const TrainerClasses = () => {
 
     return (
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 <span>🎓</span> Classes
                 <button
-                    onClick={() => showHelp('classes')}
+                    onClick={(e) => { e.stopPropagation(); showHelp('classes'); }}
                     style={HELP_BTN_STYLE}
                     aria-label="Help: Trainer Classes"
                     title="About trainer classes"
@@ -255,7 +255,7 @@ const TrainerClasses = () => {
                         {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
                     </span>
                     <button
-                        onClick={() => setCollapsed(c => !c)}
+                        onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Classes' : 'Collapse Classes'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >

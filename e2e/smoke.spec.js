@@ -33,7 +33,8 @@ test('app shell renders header and navigation', async ({ page }) => {
 
 test('trainer tab is active by default', async ({ page }) => {
     await expect(page.locator('.nav-button[aria-current="page"]')).toContainText('Trainer');
-    await expect(page.locator(ACTIVE_H2)).toBeVisible();
+    // Trainer tab uses a two-column layout (no h2.section-title); check for the profile card
+    await expect(page.locator('.content-area > div:not([style*="none"]) .trainer-layout')).toBeVisible();
 });
 
 test('navigate to Pokémon Team tab', async ({ page }) => {

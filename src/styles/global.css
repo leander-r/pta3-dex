@@ -983,6 +983,26 @@
             border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
+        /* ========== TRAINER TAB LAYOUT ========== */
+
+        /* Profile card pinned left, data sections on the right */
+        .trainer-layout {
+            display: grid;
+            grid-template-columns: 330px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+        .trainer-layout__data {
+            min-width: 0;
+        }
+        /* Stack vertically below 960px (tablet/mobile) */
+        @media (max-width: 960px) {
+            .trainer-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        [data-compact="true"] .trainer-layout { gap: 10px; }
+
         /* ========== GAME RULES CONTENT ========== */
 
         .game-rules-content h4 {

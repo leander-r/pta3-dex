@@ -16,20 +16,16 @@ import TrainerSkills from './TrainerSkills.jsx';
  */
 const TrainerTab = () => {
     return (
-        <div>
-            <h2 className="section-title">Trainer</h2>
-
-            <TrainerProfile />
-            <TrainerStats />
-
-            {/* Classes Section */}
-            <TrainerClasses />
-
-            {/* Skills Section */}
-            <TrainerSkills />
-
-            {/* Features Section */}
-            <TrainerFeatures />
+        <div className="trainer-layout">
+            <div className="trainer-layout__profile">
+                <TrainerProfile />
+            </div>
+            <div className="trainer-layout__data">
+                <TrainerStats />
+                <TrainerClasses />
+                <TrainerSkills />
+                <TrainerFeatures />
+            </div>
         </div>
     );
 };

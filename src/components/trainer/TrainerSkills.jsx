@@ -107,10 +107,10 @@ const TrainerSkills = () => {
 
     return (
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 <span>🎯</span> Skills
                 <button
-                    onClick={() => showHelp('trainer-skills')}
+                    onClick={(e) => { e.stopPropagation(); showHelp('trainer-skills'); }}
                     style={HELP_BTN_STYLE}
                     aria-label="Help: Trainer Skills"
                     title="About trainer skills"
@@ -120,7 +120,7 @@ const TrainerSkills = () => {
                         {trainedCount} trained skills
                     </span>
                     <button
-                        onClick={() => setCollapsed(c => !c)}
+                        onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Skills' : 'Collapse Skills'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >
@@ -198,14 +198,14 @@ const TrainerSkills = () => {
                                         <span style={{
                                             display: 'flex',
                                             gap: '2px',
-                                            minWidth: isHPStat ? '14px' : '24px'
+                                            minWidth: isHPStat ? '17px' : '30px'
                                         }}>
                                             {[...Array(maxRank)].map((_, i) => (
                                                 <span
                                                     key={i}
                                                     style={{
-                                                        width: '10px',
-                                                        height: '10px',
+                                                        width: '13px',
+                                                        height: '13px',
                                                         borderRadius: '50%',
                                                         border: isTrained ? 'none' : '2px solid var(--border-medium, #ddd)',
                                                         background: i < rank
@@ -242,36 +242,6 @@ const TrainerSkills = () => {
                 })}
             </div>
 
-            {/* Current Skills Summary */}
-            {trainedCount > 0 && (
-                <div className="skill-search-section" style={{ marginTop: '15px', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '13px', marginBottom: '6px', color: '#303f9f' }}>
-                        Trained Skills:
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {trainedList.map(({ name, rank }) => (
-                            <span
-                                key={name}
-                                style={{
-                                    padding: '3px 8px',
-                                    background: rank === 2
-                                        ? 'linear-gradient(135deg, #ff6b6b, #ee5a24)'
-                                        : 'linear-gradient(135deg, #667eea, #764ba2)',
-                                    color: 'white',
-                                    borderRadius: '10px',
-                                    fontSize: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                }}
-                            >
-                                {name}
-                                {rank === 2 && <span style={{ opacity: 0.8 }}>★★</span>}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            )}
             </>}
             {collapsed && (
                 trainedCount > 0 ? (

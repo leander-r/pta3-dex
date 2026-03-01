@@ -176,7 +176,8 @@ const TrainerProfile = () => {
                             fontFamily: 'inherit'
                         }}
                     />
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px', flexWrap: 'wrap' }}>
+                    {/* Row: gender + age */}
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '8px' }}>
                         {/* Gender */}
                         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                             {[['male', '♂', '#90caf9'], ['female', '♀', '#f48fb1']].map(([val, sym, col]) => (
@@ -216,21 +217,25 @@ const TrainerProfile = () => {
                                 }}
                             />
                         </div>
-                        {/* Class pills */}
-                        {(trainer.classes || []).map((cls, i) => (
-                            <span key={i} style={{
-                                padding: '2px 8px',
-                                borderRadius: '8px',
-                                fontSize: '11px',
-                                fontWeight: '700',
-                                background: 'rgba(255,255,255,0.18)',
-                                color: 'white',
-                                border: '1px solid rgba(255,255,255,0.3)'
-                            }}>
-                                {cls}
-                            </span>
-                        ))}
                     </div>
+                    {/* Row: class pills */}
+                    {(trainer.classes || []).length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '6px' }}>
+                            {(trainer.classes || []).map((cls, i) => (
+                                <span key={i} style={{
+                                    padding: '2px 8px',
+                                    borderRadius: '8px',
+                                    fontSize: '11px',
+                                    fontWeight: '700',
+                                    background: 'rgba(255,255,255,0.18)',
+                                    color: 'white',
+                                    border: '1px solid rgba(255,255,255,0.3)'
+                                }}>
+                                    {cls}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

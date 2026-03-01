@@ -25,10 +25,10 @@ const TrainerStats = () => {
     const [collapsed, setCollapsed] = useState(true);
     return (
         <div className="section-card-purple">
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 <span>📊</span> Stats
                 <button
-                    onClick={() => showHelp('stat-allocation')}
+                    onClick={(e) => { e.stopPropagation(); showHelp('stat-allocation'); }}
                     style={HELP_BTN_STYLE}
                     aria-label="Help: Trainer Stats"
                     title="About stat allocation"
@@ -41,7 +41,7 @@ const TrainerStats = () => {
                     )}
                     {!collapsed && (
                         <button
-                            onClick={undoStatAllocation}
+                            onClick={(e) => { e.stopPropagation(); undoStatAllocation(); }}
                             disabled={!canUndoStat}
                             title="Undo last stat change"
                             style={{
@@ -59,7 +59,7 @@ const TrainerStats = () => {
                         </button>
                     )}
                     <button
-                        onClick={() => setCollapsed(c => !c)}
+                        onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Stats' : 'Collapse Stats'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >
