@@ -63,6 +63,7 @@ export const DataProvider = ({ children }) => {
     const dataLoadedRef = useRef(false);
     const lastAutoSaveDataRef = useRef(null);
     const saveDataRef = useRef(null);
+    const isImportingRef = useRef(false);
 
     // Save Discord webhook settings
     useEffect(() => {
@@ -451,10 +452,12 @@ export const DataProvider = ({ children }) => {
 
     // Import data from JSON file
     const importData = useCallback((file) => {
+        if (isImportingRef.current) return;
         if (file.size > MAX_TRAINER_IMPORT_BYTES) {
             toast.error('File too large. Maximum import size is 5MB.');
             return;
         }
+        isImportingRef.current = true;
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
@@ -568,8 +571,11 @@ export const DataProvider = ({ children }) => {
             } catch (err) {
                 console.error('Import error:', err);
                 toast.error('Error importing data: Invalid file format');
+            } finally {
+                isImportingRef.current = false;
             }
         };
+        reader.onerror = () => { isImportingRef.current = false; };
         reader.readAsText(file);
     }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, showConfirm]);
 

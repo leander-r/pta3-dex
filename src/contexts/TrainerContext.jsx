@@ -124,7 +124,7 @@ export const TrainerProvider = ({ children }) => {
     const addNewTrainer = useCallback(() => {
         const newTrainer = {
             ...DEFAULT_TRAINER,
-            id: Date.now(),
+            id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
             name: 'New Trainer'
         };
         setTrainers(prev => [...prev, newTrainer]);

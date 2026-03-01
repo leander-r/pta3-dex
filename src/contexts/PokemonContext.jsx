@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
-import { MAX_PARTY_SIZE, MAX_NATURAL_MOVES, POKEMON_HP_MULTIPLIER } from '../data/constants.js';
+import { MAX_PARTY_SIZE, MAX_NATURAL_MOVES, POKEMON_HP_MULTIPLIER, MAX_POKEMON_LEVEL } from '../data/constants.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
@@ -187,7 +187,7 @@ export const PokemonProvider = ({ children }) => {
     // Add new Pokemon
     const addPokemon = useCallback(() => {
         const newPokemon = {
-            id: Date.now(),
+            id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
             name: 'New Pokémon',
             species: '',
             gender: '',
@@ -280,6 +280,22 @@ export const PokemonProvider = ({ children }) => {
 
     // Forget moves when leveling down
     const forgetMovesAboveLevel = useCallback((pokemonId, newLevel, inParty = true) => {
+        // Identify moves that will be permanently lost (no history entry to restore them from)
+        const currentList = inParty ? party : reserve;
+        const currentPoke = currentList.find(p => p.id === pokemonId);
+        const lostMoveNames = currentPoke
+            ? currentPoke.moves
+                .filter(m =>
+                    m.source === 'natural' &&
+                    m.learnedAtLevel &&
+                    m.learnedAtLevel > newLevel &&
+                    !(currentPoke.moveHistory || []).some(
+                        h => h.replacedAtLevel === m.learnedAtLevel && h.name === m.name
+                    )
+                )
+                .map(m => m.name)
+            : [];
+
         const updateFn = (prev) => prev.map(p => {
             if (p.id !== pokemonId) return p;
 
@@ -319,7 +335,12 @@ export const PokemonProvider = ({ children }) => {
         } else {
             setReserve(updateFn);
         }
-    }, [setParty, setReserve]);
+
+        if (lostMoveNames.length > 0) {
+            const pokeName = currentPoke?.name || 'Pokémon';
+            toast.warning(`${pokeName} permanently lost: ${lostMoveNames.join(', ')}`);
+        }
+    }, [party, reserve, setParty, setReserve]);
 
     // Update Pokemon (works on both party and reserve)
     const updatePokemon = useCallback((id, updates) => {
@@ -341,7 +362,7 @@ export const PokemonProvider = ({ children }) => {
                 updates.level = newLevel;
                 hasLevelChange = newLevel !== p.level;
             } else if (updates.level !== undefined && updates.level !== p.level) {
-                newLevel = updates.level;
+                newLevel = Math.min(updates.level, MAX_POKEMON_LEVEL);
                 hasLevelChange = true;
                 updates.exp = GAME_DATA.pokemonExpChart[newLevel] || 0;
             }

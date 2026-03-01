@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMegaForm, onMegaEvolve, onMegaRevert, label = 'Mega Evolution' }) => {
+const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMegaForm, onMegaEvolve, onMegaRevert, label = 'Mega Evolution', isFormChange = false }) => {
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
@@ -30,7 +30,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                             onClick={() => megaForms.length === 1 ? onMegaEvolve(megaForms[0]) : setShowModal(true)}
                             style={{ padding: '6px 12px', background: 'white', color: '#667eea', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}
                         >
-                            {label === 'Mega Evolution' ? 'Mega Evolve' : 'Transform'}
+                            {isFormChange ? 'Transform' : 'Mega Evolve'}
                         </button>
                     ) : (
                         <button
@@ -72,7 +72,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                         aria-labelledby="mega-form-modal-title"
                     >
                         <h3 id="mega-form-modal-title" style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
-                            {label === 'Mega Evolution' ? 'Choose Mega Form' : 'Choose Form'}
+                            {isFormChange ? 'Choose Form' : 'Choose Mega Form'}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             {megaForms.map((form, idx) => (

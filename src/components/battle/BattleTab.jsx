@@ -436,6 +436,7 @@ const BattleTab = () => {
                                 onMegaEvolve={handleMegaEvolve}
                                 onMegaRevert={handleMegaRevert}
                                 label={BATTLE_FORM_CHANGES[selectedPokemon?.species] ? 'Form Change' : 'Mega Evolution'}
+                                isFormChange={!!BATTLE_FORM_CHANGES[selectedPokemon?.species]}
                             />
 
                             <CombatStagesPanel

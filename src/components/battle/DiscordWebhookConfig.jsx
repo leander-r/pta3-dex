@@ -63,6 +63,12 @@ const DiscordWebhookConfig = () => {
                         placeholder="Paste webhook URL..."
                         value={discordWebhook?.url || ''}
                         onChange={(e) => setDiscordWebhook(prev => ({ ...prev, url: e.target.value }))}
+                        onBlur={(e) => {
+                            const url = e.target.value.trim();
+                            if (url && !/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[\w-]+/.test(url)) {
+                                toast.warning('That doesn\'t look like a valid Discord webhook URL.');
+                            }
+                        }}
                         style={{ width: '100%', padding: '10px', borderRadius: '4px', border: 'none', fontSize: '12px', background: '#40444b', color: '#dcddde', marginBottom: '10px' }}
                     />
                     <button
