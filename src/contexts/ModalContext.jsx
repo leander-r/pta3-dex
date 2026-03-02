@@ -128,6 +128,11 @@ export const ModalProvider = ({ children }) => {
     const openSaveLoadModal  = useCallback(() => setShowSaveLoadModal(true),  []);
     const closeSaveLoadModal = useCallback(() => setShowSaveLoadModal(false), []);
 
+    // Print Sheet Modal
+    const [showPrintSheetModal, setShowPrintSheetModal] = useState(false);
+    const openPrintSheet  = useCallback(() => setShowPrintSheetModal(true),  []);
+    const closePrintSheet = useCallback(() => setShowPrintSheetModal(false), []);
+
     const value = {
         // Confirm Modal
         confirmModal,
@@ -212,7 +217,12 @@ export const ModalProvider = ({ children }) => {
         // Save/Load Modal
         showSaveLoadModal,
         openSaveLoadModal,
-        closeSaveLoadModal
+        closeSaveLoadModal,
+
+        // Print Sheet Modal
+        showPrintSheetModal,
+        openPrintSheet,
+        closePrintSheet
     };
 
     return (

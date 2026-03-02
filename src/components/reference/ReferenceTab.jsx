@@ -12,15 +12,17 @@ import MovesSection from './MovesSection.jsx';
 import AbilitiesSection from './AbilitiesSection.jsx';
 import ExpChartSection from './ExpChartSection.jsx';
 import GameRulesSection from './GameRulesSection.jsx';
+import PokedexSection from './PokedexSection.jsx';
 
 /**
  * ReferenceTab - Quick reference database browser
  * Sub-components use context for showDetail directly
  */
 const ReferenceTab = () => {
-    const [activeSection, setActiveSection] = useState('types');
+    const [activeSection, setActiveSection] = useState('pokedex');
 
     const sections = [
+        { id: 'pokedex', label: 'Pokédex' },
         { id: 'types', label: 'Type Chart' },
         { id: 'natures', label: 'Natures' },
         { id: 'moves', label: 'Moves Database' },
@@ -47,6 +49,7 @@ const ReferenceTab = () => {
             </div>
 
             {/* Content Sections */}
+            {activeSection === 'pokedex' && <PokedexSection />}
             {activeSection === 'types' && <TypeChartSection />}
             {activeSection === 'natures' && <NaturesSection />}
             {activeSection === 'moves' && <MovesSection />}

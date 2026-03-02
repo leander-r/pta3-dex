@@ -626,6 +626,173 @@ export const importSinglePokemon = (jsonData) => {
 };
 
 /**
+ * Generate a printable character sheet as a standalone HTML string.
+ * Open in a new tab — the page auto-triggers window.print().
+ */
+export const generatePrintSheetHTML = (trainer, party) => {
+    const genderSymbol = trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : '';
+    const classesDisplay = trainer.classes?.length > 0 ? trainer.classes.join(' / ') : 'Trainer';
+    const maxHP = (trainer.stats?.hp ?? 0) * 4 + (trainer.level ?? 0) * 4;
+
+    const statTable = (stats) => `
+        <table class="stat-table">
+            <thead><tr><th>HP</th><th>ATK</th><th>DEF</th><th>SATK</th><th>SDEF</th><th>SPD</th></tr></thead>
+            <tbody><tr>
+                <td>${stats?.hp ?? 0}</td><td>${stats?.atk ?? 0}</td><td>${stats?.def ?? 0}</td>
+                <td>${stats?.satk ?? 0}</td><td>${stats?.sdef ?? 0}</td><td>${stats?.spd ?? 0}</td>
+            </tr></tbody>
+        </table>`;
+
+    const skillsList = (() => {
+        if (!trainer.skills) return '';
+        if (Array.isArray(trainer.skills)) return trainer.skills.join(', ') || '—';
+        return Object.entries(trainer.skills)
+            .filter(([, rank]) => rank > 0)
+            .map(([name, rank]) => rank === 2 ? `${name} (★★)` : name)
+            .join(', ') || '—';
+    })();
+
+    const featuresList = (trainer.features || [])
+        .map(f => (typeof f === 'object' ? f.name || 'Unknown' : f))
+        .filter(Boolean).join(', ') || '—';
+
+    const badgeCount = trainer.badges?.length || 0;
+
+    const partyCards = (party || []).map(poke => {
+        const sp = poke.species && poke.species !== poke.name ? ` (${poke.species})` : '';
+        const types = (poke.types || []).join(' / ') || '—';
+        const pokeMaxHP = (poke.baseStats?.hp ?? 0) * 3 + (poke.level ?? 0) * 3;
+        const abilities = [poke.ability, poke.ability2, poke.ability3].filter(Boolean).join(', ') || '—';
+        const movesRows = (poke.moves || []).map(m =>
+            `<tr><td>${m.name || '?'}</td><td>${m.type || '?'}</td><td>${m.category || '?'}</td><td>${m.damage || '—'}</td><td>${m.frequency || '—'}</td></tr>`
+        ).join('') || '<tr><td colspan="5" style="color:#999;">No moves</td></tr>';
+
+        return `
+        <div class="poke-card">
+            <div class="poke-header">
+                <strong>${poke.name || poke.species || 'Unknown'}${sp}</strong>
+                <span>Lv. ${poke.level ?? 1} · ${types} · Max HP: ${pokeMaxHP}</span>
+            </div>
+            <p style="margin:4px 0;font-size:12px;"><strong>Nature:</strong> ${poke.nature || 'Hardy'} &nbsp; <strong>Abilities:</strong> ${abilities}</p>
+            ${statTable(poke.baseStats)}
+            <table class="move-table">
+                <thead><tr><th>Move</th><th>Type</th><th>Cat.</th><th>Damage</th><th>Frequency</th></tr></thead>
+                <tbody>${movesRows}</tbody>
+            </table>
+        </div>`;
+    }).join('');
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${trainer.name || 'Trainer'} — PTA Character Sheet</title>
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 13px;
+        line-height: 1.4;
+        color: #1a1a2e;
+        background: #fff;
+        margin: 0;
+        padding: 0;
+    }
+    .page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 15mm;
+    }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    h2 { font-size: 16px; margin: 14px 0 6px; border-bottom: 2px solid #f5a623; padding-bottom: 3px; color: #333; }
+    h3 { font-size: 14px; margin: 0 0 4px; }
+    p { margin: 4px 0; }
+    .trainer-header { margin-bottom: 12px; }
+    .trainer-meta { color: #555; font-size: 12px; margin-top: 2px; }
+    .stat-table, .move-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin: 6px 0;
+    }
+    .stat-table th, .stat-table td,
+    .move-table th, .move-table td {
+        border: 1px solid #ccc;
+        padding: 4px 7px;
+        text-align: center;
+    }
+    .stat-table th, .move-table th {
+        background: #f5a623;
+        color: #fff;
+        font-weight: 700;
+    }
+    .move-table td:first-child { text-align: left; }
+    .info-row { display: flex; gap: 20px; flex-wrap: wrap; margin: 6px 0; font-size: 12px; }
+    .info-row span { white-space: nowrap; }
+    .poke-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        page-break-inside: avoid;
+    }
+    .poke-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+    .poke-header strong { font-size: 15px; }
+    .poke-header span { font-size: 12px; color: #555; }
+    .badge-count { display: inline-block; background: #f5a623; color: #fff; border-radius: 12px; padding: 1px 10px; font-weight: 700; font-size: 12px; }
+    @media print {
+        body { font-size: 12px; }
+        .page { padding: 10mm; max-width: 100%; }
+        .poke-card { page-break-inside: avoid; }
+        h2 { color: #000; }
+    }
+</style>
+</head>
+<body>
+<div class="page">
+
+    <div class="trainer-header">
+        <h1>${trainer.name || 'Unnamed'} ${genderSymbol}</h1>
+        <div class="trainer-meta">Level ${trainer.level ?? 0} ${classesDisplay}</div>
+    </div>
+
+    <h2>Trainer Stats</h2>
+    <p style="font-size:12px;margin-bottom:6px;">Max HP: <strong>${maxHP}</strong></p>
+    ${statTable(trainer.stats)}
+
+    <div class="info-row">
+        <span><strong>Money:</strong> ₽${(trainer.money || 0).toLocaleString()}</span>
+        <span><strong>Badges:</strong> <span class="badge-count">${badgeCount}</span></span>
+        ${trainer.age ? `<span><strong>Age:</strong> ${trainer.age}</span>` : ''}
+    </div>
+
+    <h2>Features</h2>
+    <p>${featuresList}</p>
+
+    <h2>Skills</h2>
+    <p>${skillsList}</p>
+
+    <h2>Party (${(party || []).length}/6)</h2>
+    ${partyCards || '<p style="color:#999;">No Pokémon in party.</p>'}
+
+    <p style="text-align:center;font-size:11px;color:#aaa;margin-top:20px;">
+        Generated by PTA Dex · ${new Date().toLocaleDateString()}
+    </p>
+</div>
+<script>window.onload = function() { window.print(); };<\/script>
+</body>
+</html>`;
+};
+
+/**
  * Copy Pokemon data to clipboard for easy sharing
  */
 export const copyPokemonToClipboard = (pokemon) => {
