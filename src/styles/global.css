@@ -2944,6 +2944,10 @@
         .trainer-stats-compact input[type="number"] {
             -moz-appearance: textfield;
         }
+        /* Dark mode: keep stat inputs transparent so they blend with the card gradient */
+        [data-theme="dark"] .trainer-stats-compact input[type="number"] {
+            background: transparent !important;
+        }
 
         /* Trainer gradient header inputs — white text + white placeholder */
         .trainer-header-input::placeholder {
