@@ -208,18 +208,27 @@ const TrainerProfile = () => {
                 </div>
             )}
 
-            {/* Character creation tip */}
+            {/* Character Creation checklist (merged) — shown only at level 0 */}
             {isLevel0 && (
                 <div style={{
-                    background: 'var(--warning-bg, #fff3e0)',
                     padding: '10px 12px',
+                    background: 'var(--warning-bg, #fff3e0)',
                     borderRadius: '8px',
-                    marginBottom: '12px',
+                    border: '1px solid var(--warning-border, #ffcc80)',
                     fontSize: '12px',
-                    color: 'var(--warning-text, #e65100)',
-                    border: '1px solid var(--warning-border, #ffcc80)'
+                    marginBottom: '12px'
                 }}>
-                    <strong>Character Creation:</strong> Allocate stat points (30 total, range 6–14), pick a class, then level up to begin!
+                    <div style={{ fontWeight: 'bold', marginBottom: '6px', color: 'var(--warning-text, #e65100)' }}>
+                        Character Creation — allocate stats, pick a class, then level up!
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', color: creationPointsRemaining === 0 ? '#2e7d32' : '#c62828' }}>
+                        <span>{creationPointsRemaining === 0 ? '✓' : '○'}</span>
+                        <span>Spend all {CREATION_STAT_POINTS} Creation points ({CREATION_STAT_POINTS - creationPointsRemaining}/{CREATION_STAT_POINTS})</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: hasClass ? '#2e7d32' : '#c62828' }}>
+                        <span>{hasClass ? '✓' : '○'}</span>
+                        <span>Pick your first class</span>
+                    </div>
                 </div>
             )}
 
@@ -244,30 +253,6 @@ const TrainerProfile = () => {
                 >+</button>
             </div>
 
-            {/* Level 0 Checklist */}
-            {isLevel0 && (
-                <div style={{
-                    marginTop: '10px',
-                    padding: '10px',
-                    background: 'var(--warning-bg, #fff3e0)',
-                    borderRadius: '8px',
-                    border: '1px solid var(--warning-border, #ffcc80)',
-                    fontSize: '12px'
-                }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '6px', color: 'var(--warning-text, #e65100)' }}>
-                        Character Creation Checklist
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', color: creationPointsRemaining === 0 ? '#2e7d32' : '#c62828' }}>
-                        <span>{creationPointsRemaining === 0 ? '✓' : '○'}</span>
-                        <span>Spend all {CREATION_STAT_POINTS} Creation points ({CREATION_STAT_POINTS - creationPointsRemaining}/{CREATION_STAT_POINTS})</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: hasClass ? '#2e7d32' : '#c62828' }}>
-                        <span>{hasClass ? '✓' : '○'}</span>
-                        <span>Pick your first class</span>
-                    </div>
-                </div>
-            )}
-
             {/* Quick Stats — 3 boxes */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '14px' }}>
                 <div
@@ -285,57 +270,57 @@ const TrainerProfile = () => {
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: (trainer.featPoints || 0) > 0 ? 'var(--poke-orange, #f5a623)' : '#999', lineHeight: 1.2 }}>{trainer.featPoints || 0}</div>
                 </div>
                 <div
-                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, var(--quick-stat-badge-tint, #ede7f6) 0%, var(--card-bg, #fff) 70%)', borderRadius: '8px', borderTop: '3px solid var(--color-purple, #667eea)' }}
-                    title="Gym Badges earned"
+                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, var(--quick-stat-badge-tint, #ede7f6) 0%, var(--card-bg, #fff) 70%)', borderRadius: '8px', borderTop: '3px solid var(--color-purple, #667eea)', cursor: 'pointer' }}
+                    title="Gym Badges earned — click to jump to list"
+                    onClick={() => document.getElementById('trainer-badges-section')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
                 >
                     <div style={{ fontSize: '10px', color: 'var(--color-purple, #667eea)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🏅 Badges</div>
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--color-purple, #667eea)', lineHeight: 1.2 }}>{badges.length}</div>
                 </div>
             </div>
 
-            {/* Money + Respec row */}
-            <div style={{ display: 'flex', gap: '10px', marginTop: '12px', alignItems: 'center' }}>
-                <div style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 12px',
-                    background: 'linear-gradient(135deg, #ffd700, #ffb300)',
-                    borderRadius: '8px'
-                }}>
-                    <span style={{ fontWeight: 'bold', color: '#5d4e00', fontSize: '14px' }}>💰</span>
-                    <span style={{ fontWeight: 'bold', color: '#5d4e00', fontSize: '16px' }}>₽</span>
-                    <input
-                        type="number"
-                        value={trainer.money || 0}
-                        onChange={(e) => setTrainer(prev => ({ ...prev, money: parseInt(e.target.value) || 0 }))}
-                        style={{
-                            flex: 1,
-                            padding: '3px 6px',
-                            border: '2px solid #c9a800',
-                            borderRadius: '5px',
-                            fontSize: '15px',
-                            fontWeight: 'bold',
-                            textAlign: 'right',
-                            background: 'rgba(255,255,255,0.88)',
-                            minWidth: 0
-                        }}
-                    />
-                </div>
+            {/* Money */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                background: 'linear-gradient(135deg, #ffd700, #ffb300)',
+                borderRadius: '8px',
+                marginTop: '12px'
+            }}>
+                <span style={{ fontWeight: 'bold', color: '#5d4e00', fontSize: '14px' }}>💰</span>
+                <span style={{ fontWeight: 'bold', color: '#5d4e00', fontSize: '16px' }}>₽</span>
+                <input
+                    type="number"
+                    value={trainer.money || 0}
+                    onChange={(e) => setTrainer(prev => ({ ...prev, money: parseInt(e.target.value) || 0 }))}
+                    style={{
+                        flex: 1,
+                        padding: '3px 6px',
+                        border: '2px solid #c9a800',
+                        borderRadius: '5px',
+                        fontSize: '15px',
+                        fontWeight: 'bold',
+                        textAlign: 'right',
+                        background: 'rgba(255,255,255,0.88)',
+                        minWidth: 0
+                    }}
+                />
+            </div>
+            {/* Respec — de-emphasised, separated from money */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
                 <button
                     onClick={respecTrainer}
                     style={{
-                        padding: '8px 12px',
-                        fontSize: '13px',
-                        background: 'linear-gradient(135deg, #ff9800, #f57c00)',
-                        border: 'none',
-                        borderRadius: '8px',
-                        color: 'white',
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                        background: 'none',
+                        border: '1px solid var(--border-medium, #ddd)',
+                        borderRadius: '6px',
+                        color: 'var(--text-muted)',
                         cursor: 'pointer',
-                        fontWeight: '500',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0
+                        fontWeight: '500'
                     }}
                     title="Reset trainer to Level 0 for character recreation (keeps Pokémon)"
                 >
@@ -344,7 +329,7 @@ const TrainerProfile = () => {
             </div>
 
             {/* Badges */}
-            <div style={{ marginTop: '12px' }}>
+            <div id="trainer-badges-section" style={{ marginTop: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <span style={{ fontWeight: 'bold', color: 'var(--color-purple, #667eea)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         🏅 Badges ({badges.length})
@@ -352,7 +337,7 @@ const TrainerProfile = () => {
                     <button
                         onClick={handleAddBadge}
                         style={{
-                            padding: '3px 10px',
+                            padding: '6px 12px',
                             fontSize: '12px',
                             background: 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))',
                             color: 'white',

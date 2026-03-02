@@ -341,7 +341,7 @@ const TrainerFeatures = () => {
                 </div>
 
                 {/* Feature List */}
-                <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
+                <div>
                     {availableFeatures.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
                             No features found

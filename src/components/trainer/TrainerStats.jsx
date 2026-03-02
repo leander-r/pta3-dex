@@ -39,25 +39,6 @@ const TrainerStats = () => {
                             Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}
                         </span>
                     )}
-                    {!collapsed && (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); undoStatAllocation(); }}
-                            disabled={!canUndoStat}
-                            title="Undo last stat change"
-                            style={{
-                                padding: '2px 8px',
-                                fontSize: '13px',
-                                background: canUndoStat ? '#ff9800' : '#ccc',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: canUndoStat ? 'pointer' : 'not-allowed',
-                                fontWeight: 'bold'
-                            }}
-                        >
-                            ↩ Undo
-                        </button>
-                    )}
                     <button
                         onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Stats' : 'Collapse Stats'}
@@ -116,8 +97,8 @@ const TrainerStats = () => {
                 })}
             </div>
 
-            {/* Evasion Display */}
-            <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
+            {/* Evasion Display + Undo */}
+            <div style={{ marginTop: '8px', display: 'flex', gap: '6px', alignItems: 'center' }}>
                 <div className="evasion-box-phys" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Physical Evasion = DEF ÷ 5 (rounded down). Applies vs Physical attacks.">
                     <div style={{ fontSize: '10px', color: '#1565c0' }}>Phys Eva</div>
                     <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#1565c0' }}>+{Math.floor(trainer.stats.def / 5)}</div>
@@ -130,6 +111,24 @@ const TrainerStats = () => {
                     <div style={{ fontSize: '10px', color: '#00838f' }}>Spd Eva</div>
                     <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#00838f' }}>+{Math.min(6, Math.max(0, calculateModifier(trainer.stats.spd)))}</div>
                 </div>
+                <button
+                    onClick={undoStatAllocation}
+                    disabled={!canUndoStat}
+                    title="Undo last stat change"
+                    style={{
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                        background: canUndoStat ? '#ff9800' : 'var(--bg-light, #f5f5f5)',
+                        color: canUndoStat ? 'white' : 'var(--text-muted)',
+                        border: canUndoStat ? 'none' : '1px solid var(--border-medium, #ddd)',
+                        borderRadius: '4px',
+                        cursor: canUndoStat ? 'pointer' : 'not-allowed',
+                        fontWeight: 'bold',
+                        flexShrink: 0
+                    }}
+                >
+                    ↩ Undo
+                </button>
             </div>
             </>}
             {collapsed && (
