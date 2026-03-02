@@ -2935,6 +2935,15 @@
             grid-template-columns: repeat(6, 1fr);
             gap: 6px;
         }
+        /* Hide browser number-input spinners inside stat boxes */
+        .trainer-stats-compact input[type="number"]::-webkit-inner-spin-button,
+        .trainer-stats-compact input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .trainer-stats-compact input[type="number"] {
+            -moz-appearance: textfield;
+        }
 
         /* Trainer gradient header inputs — white text + white placeholder */
         .trainer-header-input::placeholder {

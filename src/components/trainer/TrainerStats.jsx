@@ -56,15 +56,15 @@ const TrainerStats = () => {
                         <div
                             key={stat.key}
                             style={{
-                                borderRadius: '6px',
-                                padding: '7px 5px',
+                                borderRadius: '7px',
+                                padding: '9px 6px',
                                 textAlign: 'center',
-                                border: `1px solid ${stat.color}30`,
+                                border: `1px solid ${stat.color}55`,
                                 borderTop: `3px solid ${stat.color}`,
-                                background: `linear-gradient(180deg, ${stat.color}12 0%, var(--card-bg, #fff) 60%)`
+                                background: `linear-gradient(180deg, ${stat.color}25 0%, var(--card-bg, #fff) 70%)`
                             }}
                         >
-                            <div style={{ fontSize: '10px', fontWeight: 'bold', color: stat.color, marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 {stat.label}
                             </div>
                             <input
@@ -77,18 +77,18 @@ const TrainerStats = () => {
                                     textAlign: 'center',
                                     fontSize: '16px',
                                     fontWeight: 'bold',
-                                    border: `1px solid var(--border-medium, #ddd)`,
-                                    borderRadius: '4px',
+                                    border: `1.5px solid ${stat.color}99`,
+                                    borderRadius: '5px',
                                     padding: '3px 2px',
                                     background: 'var(--input-bg)',
                                     color: 'var(--text-primary)'
                                 }}
                             />
                             <div style={{
-                                fontSize: '11px',
+                                fontSize: '12px',
                                 color: mod >= 0 ? '#4caf50' : '#f44336',
                                 fontWeight: 'bold',
-                                marginTop: '2px'
+                                marginTop: '3px'
                             }}>
                                 {mod >= 0 ? '+' : ''}{mod}
                             </div>
