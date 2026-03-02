@@ -845,7 +845,7 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                 {(() => {
                     const img = getPokemonDisplayImage(poke);
                     return img
-                        ? <img src={img} alt={poke.name} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.4)', boxShadow: '0 3px 10px rgba(0,0,0,0.3)' }} />
+                        ? <img src={img} alt={poke.name} data-pokedex-id={poke.pokedexId || ''} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.4)', boxShadow: '0 3px 10px rgba(0,0,0,0.3)' }} />
                         : <div style={{ width: '56px', height: '56px', borderRadius: '10px', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🎴</div>;
                 })()}
                 {/* Types under avatar */}
@@ -1083,21 +1083,31 @@ const PokemonCard = ({ poke }) => {
 
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', position: 'relative', zIndex: 1 }}>
-                <div style={{
-                    width: '100px',
-                    height: '100px',
-                    borderRadius: '16px',
-                    background: (() => { const img = getPokemonDisplayImage(poke); return img ? `url(${img}) center/cover` : 'rgba(255,255,255,0.2)'; })(),
-                    border: '4px solid rgba(255,255,255,0.5)',
-                    boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '44px',
-                    flexShrink: 0
-                }}>
-                    {!getPokemonDisplayImage(poke) && '?'}
-                </div>
+                {(() => {
+                    const spriteUrl = getPokemonDisplayImage(poke);
+                    return (
+                        <div style={{
+                            width: '100px',
+                            height: '100px',
+                            borderRadius: '16px',
+                            background: 'rgba(255,255,255,0.2)',
+                            border: '4px solid rgba(255,255,255,0.5)',
+                            boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '44px',
+                            flexShrink: 0,
+                            overflow: 'hidden',
+                            position: 'relative'
+                        }}>
+                            {spriteUrl
+                                ? <img src={spriteUrl} alt={poke.species || poke.name} data-pokedex-id={poke.pokedexId || ''} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                                : '?'
+                            }
+                        </div>
+                    );
+                })()}
                 <div style={{ flex: 1 }}>
                     <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800, textShadow: '0 3px 6px rgba(0,0,0,0.4)', color: 'white' }}>
                         {poke.name} <span style={{ opacity: 0.9 }}>{genderSymbol}</span>

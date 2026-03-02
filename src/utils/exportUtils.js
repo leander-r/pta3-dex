@@ -230,7 +230,16 @@ const captureCard = async (card, filename) => {
 
     const swapped = [];
     await Promise.all(externalImgs.map(async (img) => {
-        const dataUrl = await imgToDataURL(img.src);
+        let dataUrl = await imgToDataURL(img.src);
+        if (!dataUrl) {
+            // Pokémon Showdown CDN has no CORS headers — fall back to PokeAPI sprites
+            // on raw.githubusercontent.com which sends Access-Control-Allow-Origin: *
+            const dexId = img.dataset?.pokedexId;
+            if (dexId && /^\d+$/.test(dexId)) {
+                const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dexId}.png`;
+                dataUrl = await imgToDataURL(fallbackUrl);
+            }
+        }
         if (dataUrl) {
             swapped.push({ img, original: img.src });
             img.src = dataUrl;
