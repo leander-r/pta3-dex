@@ -10,7 +10,7 @@ import { copyToClipboard, downloadCardAsImage } from '../../utils/exportUtils.js
 import toast from '../../utils/toast.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useModal, useTrainerContext, usePokemonContext, useData, useGameData } from '../../contexts/index.js';
+import { useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { GAME_DATA } from '../../data/configs.js';
 
 // ============================================================
@@ -789,18 +789,6 @@ const TeamCard = ({ trainer, party }) => (
 );
 
 // ============================================================
-// Helper: resolve numeric dex ID for a party Pokémon.
-// poke.pokedexId is set for all newly-added Pokémon; fall back to a
-// pokedex lookup by species name for older saved data that lacks the field.
-// ============================================================
-const useResolvedDexId = (poke) => {
-    const { pokedex } = useGameData();
-    if (poke.pokedexId) return String(poke.pokedexId);
-    const entry = pokedex?.find(e => e.species?.toLowerCase() === poke.species?.toLowerCase());
-    return entry?.id ? String(entry.id) : '';
-};
-
-// ============================================================
 // Team Pokemon Slot Sub-component (horizontal layout)
 // ============================================================
 const TeamPokemonSlot = ({ poke, idx }) => {
@@ -809,7 +797,6 @@ const TeamPokemonSlot = ({ poke, idx }) => {
     const currentHP = maxHP - (poke.currentDamage || 0);
     const hpPercent = (currentHP / maxHP) * 100;
     const primaryType = poke.types?.[0] || 'Normal';
-    const dexId = useResolvedDexId(poke);
     const secondaryType = poke.types?.[1];
     const genderIcon = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : '';
     const bgGradient = secondaryType
@@ -858,7 +845,7 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                 {(() => {
                     const img = getPokemonDisplayImage(poke);
                     return img
-                        ? <img src={img} alt={poke.name} data-pokedex-id={dexId} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.4)', boxShadow: '0 3px 10px rgba(0,0,0,0.3)' }} />
+                        ? <img src={img} alt={poke.name} style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.4)', boxShadow: '0 3px 10px rgba(0,0,0,0.3)' }} />
                         : <div style={{ width: '56px', height: '56px', borderRadius: '10px', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🎴</div>;
                 })()}
                 {/* Types under avatar */}
@@ -1024,7 +1011,6 @@ const PokemonCard = ({ poke }) => {
     const genderSymbol = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : poke.gender === 'genderless' ? '⚪' : '';
     const primaryType = poke.types[0] || 'Normal';
     const secondaryType = poke.types[1];
-    const dexId = useResolvedDexId(poke);
     const bgGradient = secondaryType
         ? `linear-gradient(145deg, ${getTypeColor(primaryType)} 0%, ${getTypeColor(secondaryType)} 100%)`
         : `linear-gradient(145deg, ${getTypeColor(primaryType)} 0%, ${getTypeColor(primaryType)}bb 100%)`;
@@ -1116,7 +1102,7 @@ const PokemonCard = ({ poke }) => {
                             position: 'relative'
                         }}>
                             {spriteUrl
-                                ? <img src={spriteUrl} alt={poke.species || poke.name} data-pokedex-id={dexId} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                                ? <img src={spriteUrl} alt={poke.species || poke.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                                 : '?'
                             }
                         </div>

@@ -228,12 +228,19 @@ const captureCard = async (card, filename) => {
     await Promise.all(externalImgs.map(async (img) => {
         let dataUrl = await imgToDataURL(img.src);
         if (!dataUrl) {
-            // Pokémon Showdown CDN has no CORS headers — fall back to PokeAPI sprites
-            // on raw.githubusercontent.com which sends Access-Control-Allow-Origin: *
-            const dexId = img.dataset?.pokedexId;
-            if (dexId && /^\d+$/.test(dexId)) {
-                const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dexId}.png`;
-                dataUrl = await imgToDataURL(fallbackUrl);
+            // Pokémon Showdown CDN has no CORS headers.
+            // Extract the species slug from the Showdown URL and look up the sprite
+            // via the PokeAPI REST endpoint (by name, so IDs never mismatch).
+            const slug = img.src.match(/play\.pokemonshowdown\.com\/sprites\/gen5\/([^.]+)\.png/)?.[1];
+            if (slug) {
+                try {
+                    const apiResp = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`, { cache: 'no-store' });
+                    if (apiResp.ok) {
+                        const apiData = await apiResp.json();
+                        const spriteSrc = apiData.sprites?.front_default;
+                        if (spriteSrc) dataUrl = await imgToDataURL(spriteSrc);
+                    }
+                } catch { /* ignore — custom/homebrew species won't be in PokeAPI */ }
             }
         }
         if (dataUrl) {
