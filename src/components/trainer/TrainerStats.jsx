@@ -80,7 +80,7 @@ const TrainerStats = () => {
                                     border: `1.5px solid ${stat.color}99`,
                                     borderRadius: '5px',
                                     padding: '3px 2px',
-                                    background: 'var(--input-bg)',
+                                    background: 'transparent',
                                     color: 'var(--text-primary)'
                                 }}
                             />
