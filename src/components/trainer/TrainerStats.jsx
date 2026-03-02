@@ -61,7 +61,7 @@ const TrainerStats = () => {
                                 textAlign: 'center',
                                 border: `1px solid ${stat.color}55`,
                                 borderTop: `3px solid ${stat.color}`,
-                                background: `linear-gradient(180deg, ${stat.color}25 0%, var(--card-bg, #fff) 70%)`
+                                background: `linear-gradient(180deg, ${stat.color}25 0%, transparent 70%)`
                             }}
                         >
                             <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -100,16 +100,16 @@ const TrainerStats = () => {
             {/* Evasion Display + Undo */}
             <div style={{ marginTop: '8px', display: 'flex', gap: '6px', alignItems: 'center' }}>
                 <div className="evasion-box-phys" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Physical Evasion = DEF ÷ 5 (rounded down). Applies vs Physical attacks.">
-                    <div style={{ fontSize: '10px', color: '#1565c0' }}>Phys Eva</div>
+                    <div style={{ fontSize: '12px', color: '#1565c0' }}>Phys Eva</div>
                     <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#1565c0' }}>+{Math.floor(trainer.stats.def / 5)}</div>
                 </div>
                 <div className="evasion-box-spec" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Special Evasion = SDEF ÷ 5 (rounded down). Applies vs Special attacks.">
-                    <div style={{ fontSize: '10px', color: '#e65100' }}>Spec Eva</div>
+                    <div style={{ fontSize: '12px', color: '#e65100' }}>Spec Eva</div>
                     <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#e65100' }}>+{Math.floor(trainer.stats.sdef / 5)}</div>
                 </div>
                 <div className="evasion-box-spd" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Speed Evasion = SPD modifier (capped 0-6). Applies to dodge-based checks.">
-                    <div style={{ fontSize: '10px', color: '#00838f' }}>Spd Eva</div>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#00838f' }}>+{Math.min(6, Math.max(0, calculateModifier(trainer.stats.spd)))}</div>
+                    <div style={{ fontSize: '12px', color: '#00838f' }}>Spd Eva</div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#00838f' }}>+{Math.min(6, Math.max(0, calculateModifier('spd')))}</div>
                 </div>
                 <button
                     onClick={undoStatAllocation}
