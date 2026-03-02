@@ -26,6 +26,21 @@ export const STAT_COLORS = {
 export const getTypeColor = (type) => TYPE_COLORS[type?.toLowerCase()] || '#999';
 
 /**
+ * Returns 'white' or a dark text color for best WCAG contrast against hexColor.
+ * Threshold: luminance > 0.179 → use dark text (contrast ≥ 4.5:1 with both).
+ */
+export const getContrastTextColor = (hexColor) => {
+    if (!hexColor || hexColor.length < 7) return 'white';
+    const hex = hexColor.replace('#', '');
+    const toLinear = (c) => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    const r = toLinear(parseInt(hex.substring(0, 2), 16) / 255);
+    const g = toLinear(parseInt(hex.substring(2, 4), 16) / 255);
+    const b = toLinear(parseInt(hex.substring(4, 6), 16) / 255);
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return luminance > 0.179 ? '#1a1a2e' : 'white';
+};
+
+/**
  * Get stat color for display
  */
 export const getStatColor = (stat) => STAT_COLORS[stat?.toLowerCase()] || '#666';

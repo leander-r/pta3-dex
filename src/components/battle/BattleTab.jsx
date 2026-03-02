@@ -502,7 +502,7 @@ const BattleTab = () => {
                             <button
                                 onClick={rollPokemonMove}
                                 disabled={!selectedPokemon || !selectedMove}
-                                style={{ width: '100%', padding: '15px', background: selectedPokemon && selectedMove ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#ccc', color: 'white', border: 'none', borderRadius: '8px', cursor: selectedPokemon && selectedMove ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
+                                style={{ width: '100%', padding: '15px', background: selectedPokemon && selectedMove ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#ccc', color: selectedPokemon && selectedMove ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedPokemon && selectedMove ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
                             >
                                 Roll Attack!
                             </button>
@@ -606,7 +606,7 @@ const BattleTab = () => {
                             <button
                                 onClick={rollTrainerSkill}
                                 disabled={!selectedSkill}
-                                style={{ width: '100%', padding: '15px', background: selectedSkill ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#ccc', color: 'white', border: 'none', borderRadius: '8px', cursor: selectedSkill ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
+                                style={{ width: '100%', padding: '15px', background: selectedSkill ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#ccc', color: selectedSkill ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedSkill ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
                             >
                                 Roll Skill Check!
                             </button>

@@ -262,7 +262,7 @@ const Header = () => {
                 >
                     <select
                         value={activeTrainerId || ''}
-                        onChange={(e) => handleTrainerChange(parseInt(e.target.value))}
+                        onChange={(e) => handleTrainerChange(parseInt(e.target.value, 10))}
                         title={trainer ? `${trainer.name || 'Unnamed'} (Lv.${trainer.level})` : undefined}
                         className="header-trainer-select"
                         style={{
@@ -300,6 +300,7 @@ const Header = () => {
                 <div style={{ position: 'relative', flexShrink: 0, zIndex: 101 }} ref={menuRef}>
                     <div
                         onClick={() => setShowCharacterMenu(prev => !prev)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowCharacterMenu(prev => !prev); } }}
                         onTouchEnd={(e) => {
                             e.preventDefault();
                             setShowCharacterMenu(prev => !prev);

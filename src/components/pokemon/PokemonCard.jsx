@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { getTypeColor } from '../../utils/typeUtils.js';
+import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/dataUtils.js';
 import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportUtils.js';
 import toast from '../../utils/toast.js';
@@ -511,7 +511,7 @@ const PokemonCard = ({
                                         padding: '2px 8px',
                                         borderRadius: '10px',
                                         background: getTypeColor(type),
-                                        color: 'white',
+                                        color: getContrastTextColor(getTypeColor(type)),
                                         fontSize: '10px',
                                         fontWeight: 'bold'
                                     }}
@@ -722,7 +722,7 @@ const PokemonCard = ({
                                             padding: '4px 10px',
                                             borderRadius: '12px',
                                             background: getTypeColor(move.type),
-                                            color: 'white',
+                                            color: getContrastTextColor(getTypeColor(move.type)),
                                             fontSize: '12px',
                                             fontWeight: 'bold',
                                             cursor: 'pointer'
@@ -2149,7 +2149,7 @@ const PokemonCard = ({
                                                 fontSize: '11px',
                                                 cursor: 'pointer',
                                                 background: moveTypeFilter !== 'all' ? getTypeColor(moveTypeFilter) : 'white',
-                                                color: moveTypeFilter !== 'all' ? 'white' : '#333'
+                                                color: moveTypeFilter !== 'all' ? getContrastTextColor(getTypeColor(moveTypeFilter)) : '#333'
                                             }}
                                         >
                                             <option value="all">All</option>

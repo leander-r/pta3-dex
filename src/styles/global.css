@@ -2861,6 +2861,28 @@
             to { opacity: 0; transform: translateX(100%); }
         }
 
+        /* Toast dark mode overrides */
+        [data-theme="dark"] .toast-success {
+            background: #1b3a1e !important;
+            border-color: #4caf50 !important;
+            color: #a5d6a7 !important;
+        }
+        [data-theme="dark"] .toast-error {
+            background: #3a1b1b !important;
+            border-color: #f44336 !important;
+            color: #ef9a9a !important;
+        }
+        [data-theme="dark"] .toast-warning {
+            background: #3a2a1b !important;
+            border-color: #ff9800 !important;
+            color: #ffcc80 !important;
+        }
+        [data-theme="dark"] .toast-info {
+            background: #1b2a3a !important;
+            border-color: #2196f3 !important;
+            color: #90caf9 !important;
+        }
+
         .animate-fade-in {
             animation: fadeIn 0.3s ease;
         }

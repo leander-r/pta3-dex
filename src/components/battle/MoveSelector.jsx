@@ -1,5 +1,5 @@
 import React from 'react';
-import { getTypeColor } from '../../utils/typeUtils.js';
+import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 
 const parseACFromFrequency = (freq) => {
     if (!freq) return 2;
@@ -37,7 +37,7 @@ const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail,
                             style={{
                                 flex: 1, padding: '10px',
                                 background: selectedMove?.name === move.name ? getTypeColor(move.type) : undefined,
-                                color: selectedMove?.name === move.name ? 'white' : undefined,
+                                color: selectedMove?.name === move.name ? getContrastTextColor(getTypeColor(move.type)) : undefined,
                                 border: 'none', cursor: 'pointer', textAlign: 'left'
                             }}
                         >
@@ -51,7 +51,7 @@ const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail,
                         </button>
                         <button
                             onClick={() => showDetail && showDetail('move', move.name, { ...gameData?.moves?.[move.name], ...move })}
-                            style={{ padding: '0 12px', background: getTypeColor(move.type), color: 'white', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+                            style={{ padding: '0 12px', background: getTypeColor(move.type), color: getContrastTextColor(getTypeColor(move.type)), border: 'none', cursor: 'pointer', fontSize: '14px' }}
                             title="View move details"
                             aria-label={`View details for ${move.name}`}
                         >

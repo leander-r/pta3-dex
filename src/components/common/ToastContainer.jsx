@@ -57,6 +57,7 @@ const ToastContainer = () => {
                     <div
                         key={t.id}
                         role="alert"
+                        className={`toast-notification toast-${t.type}`}
                         style={{
                             background: s.bg,
                             border: `2px solid ${s.border}`,

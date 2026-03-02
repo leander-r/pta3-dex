@@ -226,7 +226,7 @@ const CustomSpeciesModal = () => {
 
     // Skills helpers
     const updateSkill = (skillKey, value) => {
-        const numValue = parseInt(value) || 0;
+        const numValue = parseInt(value, 10) || 0;
         const skillInfo = SKILL_FIELDS.find(s => s.key === skillKey);
         const maxVal = skillInfo?.max || 10;
         setSpecies(prev => ({
@@ -283,7 +283,7 @@ const CustomSpeciesModal = () => {
     };
 
     const updateStat = (stat, value) => {
-        const numValue = parseInt(value) || 0;
+        const numValue = parseInt(value, 10) || 0;
         setSpecies(prev => ({
             ...prev,
             baseStats: { ...prev.baseStats, [stat]: Math.max(1, Math.min(30, numValue)) }
@@ -568,7 +568,7 @@ const CustomSpeciesModal = () => {
                         {/* Add move button */}
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                             <span style={{ fontSize: '11px' }}>Lv.</span>
-                            <input type="number" min="0" max="100" value={pendingMoveLevel} onChange={(e) => setPendingMoveLevel(parseInt(e.target.value) || 1)} style={{ width: '50px', padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', textAlign: 'center', fontSize: '12px' }} />
+                            <input type="number" min="0" max="100" value={pendingMoveLevel} onChange={(e) => setPendingMoveLevel(parseInt(e.target.value, 10) || 1)} style={{ width: '50px', padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', textAlign: 'center', fontSize: '12px' }} />
                             <button onClick={() => { setShowMovePicker(!showMovePicker); setMoveFilter({ search: '', type: '', category: '' }); }} style={{ padding: '6px 12px', background: showMovePicker ? '#f44336' : '#667eea', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}>
                                 {showMovePicker ? 'Close Move Picker' : '+ Add Move'}
                             </button>
