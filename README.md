@@ -1,10 +1,10 @@
-# PTA Dex — Pokémon Tabletop Adventures Character Manager
+# PTA3 Dex — Pokémon Tabletop Adventures 3 Character Manager
 
-A fan-made, non-commercial web application for managing trainers, Pokémon, stats, moves, and game data for the **Pokémon Tabletop Adventures (PTA)** tabletop RPG system.
+A fan-made, non-commercial web application for managing trainers, Pokémon, stats, moves, and game data for the **Pokémon Tabletop Adventures 3 (PTA3)** tabletop RPG system.
 
-This tool replaces spreadsheets and manual note-taking with a clean, interactive interface designed for long-running PTA campaigns.
+This tool replaces spreadsheets and manual note-taking with a clean, interactive interface designed for long-running PTA3 campaigns.
 
-> **Live Demo:** [https://leander-r.github.io/pta-dex/](https://leander-r.github.io/pta-dex/)
+> **Live Demo:** [https://leander-r.github.io/pta3-dex/](https://leander-r.github.io/pta3-dex/)
 
 ---
 
@@ -98,8 +98,8 @@ No installation required — works in any modern browser.
 **Prerequisites:** [Node.js](https://nodejs.org/) v18 or higher
 
 ```bash
-git clone https://github.com/leander-r/pta-dex.git
-cd pta-dex
+git clone https://github.com/leander-r/pta3-dex.git
+cd pta3-dex
 npm install
 npm run dev        # dev server at http://localhost:5173
 ```
