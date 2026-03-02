@@ -34,11 +34,9 @@ const TrainerStats = () => {
                     title="About stat allocation"
                 >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {!collapsed && (
-                        <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }} title="Creation points are used during character creation (min 6, max 14). Level points are gained when leveling up.">
-                            Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}
-                        </span>
-                    )}
+                    <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }} title="Creation points are used during character creation (min 6, max 14). Level points are gained when leveling up.">
+                        Creation: {trainer.statPoints} | Level: {trainer.levelStatPoints || 0}
+                    </span>
                     <button
                         onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Stats' : 'Collapse Stats'}
