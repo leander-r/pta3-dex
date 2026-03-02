@@ -194,27 +194,64 @@ export const downloadCardAsImage = async (cardId, filename) => {
 };
 
 /**
+ * Load a cross-origin image and return it as a data URL.
+ * Uses crossOrigin="anonymous" + a cache-buster so the browser makes a fresh
+ * CORS-enabled request rather than reusing a cached non-CORS response.
+ * Resolves to null if the image cannot be loaded (CDN blocks CORS).
+ */
+const imgToDataURL = (src) => new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+        try {
+            const c = document.createElement('canvas');
+            c.width  = img.naturalWidth  || img.width;
+            c.height = img.naturalHeight || img.height;
+            c.getContext('2d').drawImage(img, 0, 0);
+            resolve(c.toDataURL());
+        } catch {
+            resolve(null); // tainted canvas — CDN doesn't support CORS
+        }
+    };
+    img.onerror = () => resolve(null);
+    // Cache-buster forces a fresh fetch with the crossOrigin header
+    img.src = src + (src.includes('?') ? '&' : '?') + '_cb=' + Date.now();
+});
+
+/**
  * Helper function to capture card as image
  */
 const captureCard = async (card, filename) => {
+    // Pre-convert any external <img> srcs to data URLs before html2canvas runs.
+    // html2canvas cannot read cross-origin images (e.g. Pokémon Showdown sprites)
+    // due to browser CORS restrictions, so we do the fetch ourselves first.
+    const externalImgs = Array.from(card.querySelectorAll('img[src]'))
+        .filter(img => img.src && !img.src.startsWith('data:'));
+
+    const swapped = [];
+    await Promise.all(externalImgs.map(async (img) => {
+        const dataUrl = await imgToDataURL(img.src);
+        if (dataUrl) {
+            swapped.push({ img, original: img.src });
+            img.src = dataUrl;
+        }
+    }));
+
     try {
-        // Clone the card and apply inline styles for better capture
         const canvas = await html2canvas(card, {
             backgroundColor: '#ffffff',
             scale: 2,
-            useCORS: true,
-            allowTaint: true,
+            useCORS: false,   // not needed — all imgs are now data URLs
+            allowTaint: false,
             logging: false,
-            // Fix for some CSS issues
             onclone: (clonedDoc) => {
                 const clonedCard = clonedDoc.getElementById(card.id);
                 if (clonedCard) {
-                    // Ensure fonts are loaded
                     clonedCard.style.fontFamily = 'Segoe UI, Arial, sans-serif';
                 }
             }
         });
-        
+
         const link = document.createElement('a');
         link.download = `${filename}.png`;
         link.href = canvas.toDataURL('image/png');
@@ -222,6 +259,11 @@ const captureCard = async (card, filename) => {
     } catch (err) {
         console.error('Error capturing card:', err);
         toast.error('Error creating image. Try right-clicking the card and using "Save image as..." or take a screenshot.');
+    } finally {
+        // Restore original srcs so the modal preview still shows sprites
+        for (const { img, original } of swapped) {
+            img.src = original;
+        }
     }
 };
 
