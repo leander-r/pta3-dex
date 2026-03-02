@@ -194,29 +194,25 @@ export const downloadCardAsImage = async (cardId, filename) => {
 };
 
 /**
- * Load a cross-origin image and return it as a data URL.
- * Uses crossOrigin="anonymous" + a cache-buster so the browser makes a fresh
- * CORS-enabled request rather than reusing a cached non-CORS response.
- * Resolves to null if the image cannot be loaded (CDN blocks CORS).
+ * Fetch a cross-origin image as a data URL using the Fetch API.
+ * fetch() with cache:'no-store' bypasses any cached non-CORS response.
+ * Resolves to null if the request fails (e.g. server blocks CORS).
  */
-const imgToDataURL = (src) => new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-        try {
-            const c = document.createElement('canvas');
-            c.width  = img.naturalWidth  || img.width;
-            c.height = img.naturalHeight || img.height;
-            c.getContext('2d').drawImage(img, 0, 0);
-            resolve(c.toDataURL());
-        } catch {
-            resolve(null); // tainted canvas — CDN doesn't support CORS
-        }
-    };
-    img.onerror = () => resolve(null);
-    // Cache-buster forces a fresh fetch with the crossOrigin header
-    img.src = src + (src.includes('?') ? '&' : '?') + '_cb=' + Date.now();
-});
+const imgToDataURL = async (src) => {
+    try {
+        const resp = await fetch(src, { mode: 'cors', cache: 'no-store' });
+        if (!resp.ok) return null;
+        const blob = await resp.blob();
+        return await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload  = (e) => resolve(e.target.result);
+            reader.onerror = ()  => resolve(null);
+            reader.readAsDataURL(blob);
+        });
+    } catch {
+        return null; // CORS blocked or network error
+    }
+};
 
 /**
  * Helper function to capture card as image
@@ -245,6 +241,10 @@ const captureCard = async (card, filename) => {
             img.src = dataUrl;
         }
     }));
+
+    // Yield two animation frames so the browser repaints with the swapped data-URL srcs
+    // before html2canvas clones the DOM for capture.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     try {
         const canvas = await html2canvas(card, {
