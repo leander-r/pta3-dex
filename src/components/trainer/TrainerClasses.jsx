@@ -399,7 +399,12 @@ const TrainerClasses = () => {
             )}
 
             {/* Add Class */}
-            {!pendingClass && (
+            {!pendingClass && currentClasses.length >= maxClasses && (
+                <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '8px', background: 'var(--bg-light)', borderRadius: '6px' }}>
+                    Maximum {maxClasses} class{maxClasses > 1 ? 'es' : ''} reached at level {trainer.level}. Level up to unlock more.
+                </p>
+            )}
+            {!pendingClass && currentClasses.length < maxClasses && (
                 <div className="input-row input-row-purple">
                     <select id="classSelectCombined">
                         <option value="">Add a class...</option>

@@ -2935,6 +2935,45 @@
             grid-template-columns: repeat(6, 1fr);
             gap: 6px;
         }
+        /* Trainer badge chips — gold in light mode, dark gold in dark mode */
+        .trainer-badge-chip {
+            background: linear-gradient(135deg, #ffd54f, #ffb300);
+            color: #5d4e00;
+            border: 1px solid #ffc107;
+        }
+        [data-theme="dark"] .trainer-badge-chip {
+            background: linear-gradient(135deg, #7a5c00, #5a4200) !important;
+            color: #ffe082 !important;
+            border-color: #a07800 !important;
+        }
+
+        /* Trainer respec button — subtle danger style with hover */
+        .trainer-respec-btn {
+            padding: 4px 10px;
+            font-size: 12px;
+            background: none;
+            border: 1px solid #ef9a9a;
+            border-radius: 6px;
+            color: #c62828;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .trainer-respec-btn:hover {
+            background: #ffebee;
+            border-color: #e53935;
+            color: #b71c1c;
+        }
+        [data-theme="dark"] .trainer-respec-btn {
+            border-color: #e57373 !important;
+            color: #ef9a9a !important;
+        }
+        [data-theme="dark"] .trainer-respec-btn:hover {
+            background: rgba(229, 57, 53, 0.15) !important;
+            border-color: #e53935 !important;
+            color: #ff8a80 !important;
+        }
+
         /* Hide browser number-input spinners inside stat boxes */
         .trainer-stats-compact input[type="number"]::-webkit-inner-spin-button,
         .trainer-stats-compact input[type="number"]::-webkit-outer-spin-button {

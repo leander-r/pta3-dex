@@ -317,20 +317,72 @@ const TrainerFeatures = () => {
                 </div>
             )}
 
+            {/* Stat Choice Picker — inline panel, shown instead of add-section */}
+            {pendingStatFeature && (
+                <div style={{
+                    padding: '15px',
+                    background: 'var(--bg-light, #f5f5f5)',
+                    borderRadius: '8px',
+                    border: '2px solid var(--color-purple, #667eea)'
+                }}>
+                    <h4 style={{ margin: '0 0 6px 0', color: 'var(--color-purple, #667eea)', fontSize: '14px' }}>
+                        {pendingStatFeature.name}
+                    </h4>
+                    <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                        {pendingStatFeature.data.label || 'Choose which stat to boost:'}
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '10px' }}>
+                        {pendingStatFeature.data.choices.map(stat => (
+                            <button
+                                key={stat}
+                                onClick={() => handleStatChoice(stat)}
+                                style={{
+                                    padding: '10px',
+                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '13px',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {STAT_LABELS[stat]} +{pendingStatFeature.data.value}
+                            </button>
+                        ))}
+                    </div>
+                    <button
+                        onClick={() => setPendingStatFeature(null)}
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            background: 'none',
+                            border: '1px solid var(--border-medium, #ddd)',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            color: 'var(--text-muted)'
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            )}
+
             {/* Add Feature Section */}
-            <div className="bg-light" style={{ padding: '12px', borderRadius: '8px' }}>
+            {!pendingStatFeature && <div className="bg-light" style={{ padding: '12px', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
                     <input
                         type="text"
                         placeholder="Search features..."
                         value={featureSearch}
                         onChange={(e) => setFeatureSearch(e.target.value)}
-                        style={{ flex: 1, minWidth: '150px', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                        style={{ flex: 1, minWidth: '150px', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium, #ddd)', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
                     />
                     <select
                         value={featureFilter}
                         onChange={(e) => setFeatureFilter(e.target.value)}
-                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                        style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium, #ddd)' }}
                     >
                         {categories.map(cat => (
                             <option key={cat} value={cat}>
@@ -343,7 +395,7 @@ const TrainerFeatures = () => {
                 {/* Feature List */}
                 <div>
                     {availableFeatures.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                        <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
                             No features found
                         </div>
                     ) : (
@@ -356,7 +408,7 @@ const TrainerFeatures = () => {
                                     alignItems: 'flex-start',
                                     padding: '8px',
                                     marginBottom: '4px',
-                                    background: 'white',
+                                    background: 'var(--input-bg)',
                                     borderRadius: '6px',
                                     borderLeft: `3px solid ${data.category === 'General (Free)' ? 'var(--poke-orange, #f5a623)' : '#667eea'}`,
                                     cursor: 'pointer'
@@ -416,9 +468,9 @@ const TrainerFeatures = () => {
                                                     }
                                                 })()}
                                             </div>
-                                    <div style={{ fontSize: '12px', color: '#666' }}>{data.category}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{data.category}</div>
                                     {data.description && (
-                                        <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
                                             {data.description.length > 100 ? data.description.substring(0, 100) + '...' : data.description}
                                         </div>
                                     )}
@@ -443,88 +495,7 @@ const TrainerFeatures = () => {
                         ))
                     )}
                 </div>
-            </div>
-
-            {/* Stat Choice Modal */}
-            {pendingStatFeature && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'rgba(0,0,0,0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1000
-                    }}
-                    onClick={() => setPendingStatFeature(null)}
-                >
-                    <div
-                        style={{
-                            background: 'white',
-                            borderRadius: '12px',
-                            padding: '20px',
-                            maxWidth: '400px',
-                            width: '90%',
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 style={{ margin: '0 0 8px 0', color: '#667eea' }}>{pendingStatFeature.name}</h3>
-                        <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666' }}>
-                            {pendingStatFeature.data.label || 'Choose which stat to boost:'}
-                        </p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-                            {pendingStatFeature.data.choices.map(stat => (
-                                <button
-                                    key={stat}
-                                    onClick={() => handleStatChoice(stat)}
-                                    style={{
-                                        padding: '12px 16px',
-                                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        fontWeight: 'bold',
-                                        transition: 'transform 0.1s, box-shadow 0.1s'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'scale(1.02)';
-                                        e.currentTarget.style.boxShadow = '0 4px 15px rgba(102,126,234,0.4)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'scale(1)';
-                                        e.currentTarget.style.boxShadow = 'none';
-                                    }}
-                                >
-                                    {STAT_LABELS[stat]} +{pendingStatFeature.data.value}
-                                </button>
-                            ))}
-                        </div>
-                        <button
-                            onClick={() => setPendingStatFeature(null)}
-                            style={{
-                                width: '100%',
-                                marginTop: '15px',
-                                padding: '10px',
-                                background: '#f5f5f5',
-                                border: '1px solid #ddd',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                color: '#666'
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            )}
+            </div>}
             </>}
             {collapsed && (
                 currentFeatures.length > 0 ? (
@@ -539,10 +510,9 @@ const TrainerFeatures = () => {
                                     onClick={() => showDetail && showDetail('feature', name, featureData)}
                                     title={`View ${name} details`}
                                     style={{
-                                        padding: '3px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold',
-                                        background: isBase ? '#fff3e0' : '#ede7f6',
-                                        color: isBase ? 'var(--poke-orange-dark, #e8941c)' : '#5e35b1',
-                                        border: `1px solid ${isBase ? '#ffb74d' : '#b39ddb'}`,
+                                        padding: '3px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold',
+                                        background: isBase ? 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                        color: 'white',
                                         cursor: 'pointer'
                                     }}
                                 >
@@ -551,7 +521,7 @@ const TrainerFeatures = () => {
                             );
                         })}
                         {currentFeatures.length > 8 && (
-                            <span style={{ padding: '3px 8px', fontSize: '11px', color: 'var(--text-muted)', alignSelf: 'center' }}>
+                            <span style={{ padding: '3px 8px', fontSize: '12px', color: 'var(--text-muted)', alignSelf: 'center' }}>
                                 +{currentFeatures.length - 8} more
                             </span>
                         )}

@@ -300,7 +300,7 @@ const TrainerProfile = () => {
                         padding: '3px 6px',
                         border: '2px solid #c9a800',
                         borderRadius: '5px',
-                        fontSize: '15px',
+                        fontSize: '16px',
                         fontWeight: 'bold',
                         textAlign: 'right',
                         background: 'rgba(255,255,255,0.88)',
@@ -312,16 +312,7 @@ const TrainerProfile = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
                 <button
                     onClick={respecTrainer}
-                    style={{
-                        padding: '4px 10px',
-                        fontSize: '12px',
-                        background: 'none',
-                        border: '1px solid var(--border-medium, #ddd)',
-                        borderRadius: '6px',
-                        color: 'var(--text-muted)',
-                        cursor: 'pointer',
-                        fontWeight: '500'
-                    }}
+                    className="trainer-respec-btn"
                     title="Reset trainer to Level 0 for character recreation (keeps Pokémon)"
                 >
                     🔄 Respec
@@ -359,18 +350,16 @@ const TrainerProfile = () => {
                             return (
                                 <div
                                     key={badgeId}
+                                    className="trainer-badge-chip"
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '4px',
                                         padding: '4px 8px',
-                                        background: 'linear-gradient(135deg, #ffd54f, #ffb300)',
                                         borderRadius: '12px',
                                         fontSize: '12px',
                                         fontWeight: 'bold',
-                                        color: '#5d4e00',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
-                                        border: '1px solid #ffc107'
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
                                     }}
                                 >
                                     <span>🏅</span>
