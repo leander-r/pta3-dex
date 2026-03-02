@@ -16,13 +16,16 @@ const STAT_COLORS = {
     satk: '#9c27b0', sdef: '#ff9800', spd: '#00bcd4'
 };
 
+// ── Sub-components ───────────────────────────────────────────
+
 const TypeChip = ({ type }) => {
     const bg    = getTypeColor(type);
     const color = getContrastTextColor(bg);
     return (
         <span style={{
-            background: bg, color, padding: '1px 7px', borderRadius: '10px',
-            fontSize: '11px', fontWeight: 700, letterSpacing: '0.3px', flexShrink: 0
+            background: bg, color, padding: '2px 8px', borderRadius: '10px',
+            fontSize: '11px', fontWeight: 700, letterSpacing: '0.3px',
+            flexShrink: 0, display: 'inline-block'
         }}>{type}</span>
     );
 };
@@ -30,29 +33,56 @@ const TypeChip = ({ type }) => {
 const StatBar = ({ label, statKey, value }) => {
     const pct = Math.min(100, Math.round((value / 20) * 100));
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-            <span style={{ width: '32px', fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)', textAlign: 'right', flexShrink: 0 }}>{label}</span>
-            <div style={{ flex: 1, height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ width: `${pct}%`, height: '100%', background: STAT_COLORS[statKey], borderRadius: '3px' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span style={{
+                width: '34px', fontSize: '10px', fontWeight: 700,
+                color: 'var(--text-muted)', textAlign: 'right', flexShrink: 0
+            }}>{label}</span>
+            <div style={{
+                flex: 1, height: '7px',
+                background: 'var(--border-medium)',
+                borderRadius: '4px', overflow: 'hidden'
+            }}>
+                <div style={{
+                    width: `${pct}%`, height: '100%',
+                    background: STAT_COLORS[statKey], borderRadius: '4px',
+                    transition: 'width 0.3s ease'
+                }} />
             </div>
-            <span style={{ width: '20px', fontSize: '11px', fontWeight: 700, textAlign: 'right', flexShrink: 0 }}>{value}</span>
+            <span style={{
+                width: '22px', fontSize: '12px', fontWeight: 700,
+                textAlign: 'right', flexShrink: 0, color: 'var(--text-primary)'
+            }}>{value}</span>
         </div>
     );
 };
 
-const MoveChip = ({ label }) => (
+const Chip = ({ label, accent }) => (
     <span style={{
-        fontSize: '11px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
-        borderRadius: '6px', padding: '2px 7px', whiteSpace: 'nowrap'
+        fontSize: '11px',
+        background: accent ? 'rgba(245,166,35,0.12)' : 'var(--poke-gray)',
+        border: `1px solid ${accent ? 'rgba(245,166,35,0.35)' : 'var(--border-light)'}`,
+        color: accent ? 'var(--poke-orange-dark)' : 'var(--text-primary)',
+        borderRadius: '6px', padding: '3px 8px', whiteSpace: 'nowrap',
+        fontWeight: accent ? 700 : 500
     }}>{label}</span>
 );
 
 const SectionLabel = ({ children }) => (
     <div style={{
-        fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)',
-        textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px'
+        fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)',
+        textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '7px'
     }}>{children}</div>
 );
+
+const DetailSection = ({ children, last }) => (
+    <div style={{
+        padding: '12px 16px',
+        borderBottom: last ? 'none' : '1px solid var(--border-light)'
+    }}>{children}</div>
+);
+
+// ── Expanded panel ────────────────────────────────────────────
 
 const SpeciesDetail = ({ species }) => {
     const {
@@ -63,76 +93,113 @@ const SpeciesDetail = ({ species }) => {
         eggMoves,
         tutorMoves,
         evolvedFrom,
-        evolutions
+        evolutions,
+        types = []
     } = species;
 
+    const bst = STAT_KEYS.reduce((sum, k) => sum + (baseStats[k] || 0), 0);
     const moveName = (m) => (typeof m === 'string' ? m : m?.name || '');
 
+    // Accent color from primary type
+    const accentColor = types[0] ? getTypeColor(types[0]) : '#f5a623';
+    const accentTextColor = getContrastTextColor(accentColor);
+
+    const hasAbilities = abilities.basic?.length > 0 || abilities.adv?.length > 0 || abilities.high?.length > 0;
+    const hasSkills    = skills && Object.keys(skills).length > 0;
+    const hasLvMoves   = levelUpMoves.length > 0;
+    const hasEggMoves  = eggMoves?.length > 0;
+    const hasTutor     = tutorMoves?.length > 0;
+    const hasEvo       = evolvedFrom || evolutions?.length > 0;
+
+    // Count sections to determine "last"
+    const sections = [true, hasAbilities, hasSkills, hasLvMoves, hasEggMoves || hasTutor, hasEvo].filter(Boolean);
+
     return (
-        <div style={{
-            padding: '14px 16px',
-            background: 'var(--bg-secondary)',
-            borderTop: '1px solid var(--border-color)'
-        }}>
-            {/* Base Stats */}
-            <div style={{ marginBottom: '14px' }}>
-                <SectionLabel>Base Stats</SectionLabel>
+        <div style={{ background: 'var(--bg-section)', borderTop: `2px solid ${accentColor}` }}>
+
+            {/* Stats */}
+            <DetailSection>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <SectionLabel>Base Stats</SectionLabel>
+                    <span style={{
+                        fontSize: '11px', fontWeight: 700, color: accentTextColor,
+                        background: accentColor, padding: '2px 8px', borderRadius: '8px'
+                    }}>BST {bst}</span>
+                </div>
                 {STAT_KEYS.map((key, i) => (
                     <StatBar key={key} label={STAT_LABELS[i]} statKey={key} value={baseStats[key] || 0} />
                 ))}
-            </div>
+            </DetailSection>
 
             {/* Abilities */}
-            {(abilities.basic?.length > 0 || abilities.adv?.length > 0 || abilities.high?.length > 0) && (
-                <div style={{ marginBottom: '14px' }}>
+            {hasAbilities && (
+                <DetailSection>
                     <SectionLabel>Abilities</SectionLabel>
-                    {abilities.basic?.length > 0 && (
-                        <div style={{ fontSize: '12px', marginBottom: '3px' }}>
-                            <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Basic: </span>
-                            {abilities.basic.join(', ')}
-                        </div>
-                    )}
-                    {abilities.adv?.length > 0 && (
-                        <div style={{ fontSize: '12px', marginBottom: '3px' }}>
-                            <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Advanced: </span>
-                            {abilities.adv.join(', ')}
-                        </div>
-                    )}
-                    {abilities.high?.length > 0 && (
-                        <div style={{ fontSize: '12px' }}>
-                            <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Hidden: </span>
-                            {abilities.high.join(', ')}
-                        </div>
-                    )}
-                </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
+                        {abilities.basic?.length > 0 && (
+                            <div>
+                                <span style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '11px' }}>Basic </span>
+                                {abilities.basic.join(', ')}
+                            </div>
+                        )}
+                        {abilities.adv?.length > 0 && (
+                            <div>
+                                <span style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '11px' }}>Advanced </span>
+                                {abilities.adv.join(', ')}
+                            </div>
+                        )}
+                        {abilities.high?.length > 0 && (
+                            <div>
+                                <span style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '11px' }}>Hidden </span>
+                                {abilities.high.join(', ')}
+                            </div>
+                        )}
+                    </div>
+                </DetailSection>
             )}
 
             {/* Skills */}
-            {skills && Object.keys(skills).length > 0 && (
-                <div style={{ marginBottom: '14px' }}>
+            {hasSkills && (
+                <DetailSection>
                     <SectionLabel>Skills</SectionLabel>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                         {Object.entries(skills).map(([name, value]) => (
-                            <MoveChip key={name} label={`${name.charAt(0).toUpperCase() + name.slice(1)} ${value}`} />
+                            <Chip key={name} label={`${name.charAt(0).toUpperCase() + name.slice(1)} ${value}`} />
                         ))}
                     </div>
-                </div>
+                </DetailSection>
             )}
 
             {/* Level-up Moves */}
-            {levelUpMoves.length > 0 && (
-                <div style={{ marginBottom: '14px' }}>
+            {hasLvMoves && (
+                <DetailSection>
                     <SectionLabel>Level-up Moves</SectionLabel>
-                    <div style={{ maxHeight: '160px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
+                    <div style={{
+                        maxHeight: '200px', overflowY: 'auto',
+                        border: '1px solid var(--border-light)', borderRadius: '6px',
+                        background: 'var(--poke-white)'
+                    }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                            <thead>
+                                <tr style={{ background: 'var(--bg-section)' }}>
+                                    <th style={{ padding: '5px 8px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)', width: '36px' }}>Lv</th>
+                                    <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Move</th>
+                                    <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Type</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {levelUpMoves.map((move, i) => (
-                                    <tr key={i} style={{ borderBottom: i < levelUpMoves.length - 1 ? '1px solid var(--border-color)' : 'none' }}>
-                                        <td style={{ padding: '4px 8px', color: 'var(--text-muted)', fontWeight: 600, width: '32px', textAlign: 'right' }}>
+                                    <tr key={i} style={{
+                                        borderBottom: i < levelUpMoves.length - 1 ? '1px solid var(--border-light)' : 'none',
+                                        background: i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)'
+                                    }}>
+                                        <td style={{ padding: '5px 8px', color: 'var(--text-muted)', fontWeight: 600, textAlign: 'right' }}>
                                             {move.level ?? '—'}
                                         </td>
-                                        <td style={{ padding: '4px 8px', fontWeight: 500 }}>{move.name || moveName(move)}</td>
-                                        <td style={{ padding: '4px 8px' }}>
+                                        <td style={{ padding: '5px 8px', color: 'var(--text-primary)', fontWeight: 500 }}>
+                                            {move.name || moveName(move)}
+                                        </td>
+                                        <td style={{ padding: '5px 8px' }}>
                                             {move.type && <TypeChip type={move.type} />}
                                         </td>
                                     </tr>
@@ -140,59 +207,67 @@ const SpeciesDetail = ({ species }) => {
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </DetailSection>
             )}
 
-            {/* Egg Moves */}
-            {eggMoves?.length > 0 && (
-                <div style={{ marginBottom: '14px' }}>
-                    <SectionLabel>Egg Moves</SectionLabel>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                        {eggMoves.map((m, i) => <MoveChip key={i} label={moveName(m)} />)}
-                    </div>
-                </div>
-            )}
-
-            {/* Tutor Moves */}
-            {tutorMoves?.length > 0 && (
-                <div style={{ marginBottom: '14px' }}>
-                    <SectionLabel>Tutor Moves</SectionLabel>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                        {tutorMoves.map((m, i) => <MoveChip key={i} label={moveName(m)} />)}
-                    </div>
-                </div>
+            {/* Egg & Tutor Moves */}
+            {(hasEggMoves || hasTutor) && (
+                <DetailSection>
+                    {hasEggMoves && (
+                        <div style={{ marginBottom: hasTutor ? '10px' : 0 }}>
+                            <SectionLabel>Egg Moves</SectionLabel>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                {eggMoves.map((m, i) => <Chip key={i} label={moveName(m)} />)}
+                            </div>
+                        </div>
+                    )}
+                    {hasTutor && (
+                        <div>
+                            <SectionLabel>Tutor Moves</SectionLabel>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                {tutorMoves.map((m, i) => <Chip key={i} label={moveName(m)} />)}
+                            </div>
+                        </div>
+                    )}
+                </DetailSection>
             )}
 
             {/* Evolution */}
-            {(evolvedFrom || evolutions?.length > 0) && (
-                <div>
+            {hasEvo && (
+                <DetailSection last>
                     <SectionLabel>Evolution</SectionLabel>
-                    {evolvedFrom && (
-                        <div style={{ fontSize: '12px', marginBottom: '4px' }}>
-                            Evolves from: <strong>
-                                {typeof evolvedFrom === 'string' ? evolvedFrom : (evolvedFrom.species || evolvedFrom.name || String(evolvedFrom))}
-                            </strong>
-                        </div>
-                    )}
-                    {evolutions?.length > 0 && evolutions.map((evo, i) => (
-                        <div key={i} style={{ fontSize: '12px', marginBottom: '2px' }}>
-                            {'→ '}
-                            <strong>{evo.into || evo.species || evo.name || String(evo)}</strong>
-                            {evo.level ? ` (Lv. ${evo.level})` : ''}
-                            {evo.condition ? ` — ${evo.condition}` : ''}
-                        </div>
-                    ))}
-                </div>
+                    <div style={{ fontSize: '13px', lineHeight: '1.7', color: 'var(--text-primary)' }}>
+                        {evolvedFrom && (
+                            <div style={{ color: 'var(--text-muted)', marginBottom: '2px' }}>
+                                ← Evolves from{' '}
+                                <strong style={{ color: 'var(--text-primary)' }}>
+                                    {typeof evolvedFrom === 'string' ? evolvedFrom : (evolvedFrom.species || evolvedFrom.name || String(evolvedFrom))}
+                                </strong>
+                            </div>
+                        )}
+                        {evolutions?.length > 0 && evolutions.map((evo, i) => (
+                            <div key={i}>
+                                {'→ '}
+                                <strong>{evo.into || evo.species || evo.name || String(evo)}</strong>
+                                {evo.level && <span style={{ color: 'var(--text-muted)' }}>{` (Lv. ${evo.level})`}</span>}
+                                {evo.condition && <span style={{ color: 'var(--text-muted)' }}>{` — ${evo.condition}`}</span>}
+                            </div>
+                        ))}
+                    </div>
+                </DetailSection>
             )}
         </div>
     );
 };
 
+// ── Main component ────────────────────────────────────────────
+
 const PokedexSection = () => {
     const { pokedex, customSpecies, pokedexLoading } = useGameData();
-    const [search, setSearch]       = useState('');
+    const [search, setSearch]         = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [expandedId, setExpandedId] = useState(null);
+    const [hoveredId, setHoveredId]   = useState(null);
 
     const allSpecies = useMemo(() =>
         [...(pokedex || []), ...(customSpecies || [])],
@@ -214,7 +289,10 @@ const PokedexSection = () => {
 
     if (pokedexLoading) {
         return (
-            <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--text-muted)' }}>
+            <div style={{
+                textAlign: 'center', padding: '56px 24px',
+                color: 'var(--text-muted)', fontSize: '14px'
+            }}>
                 Loading Pokédex…
             </div>
         );
@@ -223,25 +301,44 @@ const PokedexSection = () => {
     return (
         <div>
             {/* Filters */}
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                <input
-                    type="text"
-                    placeholder="Search species…"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    style={{
-                        flex: 1, minWidth: '160px', padding: '8px 12px',
-                        borderRadius: '8px', border: '1px solid var(--border-color)',
-                        background: 'var(--bg-card)', fontSize: '14px', color: 'var(--text-primary)'
-                    }}
-                />
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                {/* Search with clear button */}
+                <div style={{ flex: 1, minWidth: '160px', position: 'relative' }}>
+                    <input
+                        type="text"
+                        placeholder="Search species…"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        style={{
+                            width: '100%', padding: '8px 32px 8px 12px',
+                            borderRadius: '8px', border: '1px solid var(--input-border)',
+                            background: 'var(--input-bg)', fontSize: '14px',
+                            color: 'var(--text-primary)', outline: 'none',
+                            boxSizing: 'border-box'
+                        }}
+                    />
+                    {search && (
+                        <button
+                            onClick={() => setSearch('')}
+                            aria-label="Clear search"
+                            style={{
+                                position: 'absolute', right: '8px', top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                color: 'var(--text-muted)', fontSize: '16px', lineHeight: 1,
+                                padding: '2px 4px'
+                            }}
+                        >×</button>
+                    )}
+                </div>
                 <select
                     value={typeFilter}
                     onChange={e => setTypeFilter(e.target.value)}
                     style={{
                         padding: '8px 10px', borderRadius: '8px',
-                        border: '1px solid var(--border-color)',
-                        background: 'var(--bg-card)', fontSize: '14px', color: 'var(--text-primary)'
+                        border: '1px solid var(--input-border)',
+                        background: 'var(--input-bg)', fontSize: '14px',
+                        color: 'var(--text-primary)', cursor: 'pointer'
                     }}
                 >
                     <option value="">All Types</option>
@@ -249,63 +346,82 @@ const PokedexSection = () => {
                 </select>
             </div>
 
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                {filtered.length} {filtered.length === 1 ? 'species' : 'species'}
+            {/* Count */}
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                {filtered.length === allSpecies.length
+                    ? `${allSpecies.length} species`
+                    : `${filtered.length} of ${allSpecies.length} species`}
             </div>
 
             {/* Species List */}
-            <div style={{ border: '1px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden' }}>
+            <div style={{
+                border: '1px solid var(--border-light)', borderRadius: '10px',
+                overflow: 'hidden', background: 'var(--poke-white)'
+            }}>
                 {filtered.length === 0 ? (
-                    <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <div style={{
+                        padding: '40px', textAlign: 'center',
+                        color: 'var(--text-muted)', fontSize: '14px'
+                    }}>
                         No species found.
                     </div>
                 ) : (
                     filtered.map((s, idx) => {
                         const rowId      = s.id ?? s.species;
                         const isExpanded = expandedId === rowId;
+                        const isHovered  = hoveredId === rowId && !isExpanded;
                         const spriteUrl  = getPokemonDisplayImage(s);
 
                         return (
                             <div
                                 key={rowId}
-                                style={{ borderTop: idx === 0 ? 'none' : '1px solid var(--border-color)' }}
+                                style={{ borderTop: idx === 0 ? 'none' : '1px solid var(--border-light)' }}
                             >
                                 {/* Collapsed row */}
                                 <button
                                     onClick={() => handleRowClick(rowId)}
+                                    onMouseEnter={() => setHoveredId(rowId)}
+                                    onMouseLeave={() => setHoveredId(null)}
                                     style={{
                                         width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
-                                        padding: '6px 12px',
-                                        background: isExpanded ? 'var(--bg-secondary)' : 'var(--bg-card)',
-                                        border: 'none', cursor: 'pointer', textAlign: 'left',
-                                        transition: 'background 0.15s'
+                                        padding: '7px 12px', border: 'none', cursor: 'pointer',
+                                        textAlign: 'left', color: 'var(--text-primary)',
+                                        transition: 'background 0.12s',
+                                        background: isExpanded
+                                            ? 'var(--bg-section)'
+                                            : isHovered
+                                                ? 'var(--hover-bg)'
+                                                : 'transparent'
                                     }}
                                 >
                                     {/* Sprite */}
-                                    {spriteUrl ? (
-                                        <img
-                                            src={spriteUrl}
-                                            alt={s.species}
-                                            style={{ width: '40px', height: '40px', imageRendering: 'pixelated', flexShrink: 0 }}
-                                            onError={e => { e.target.style.display = 'none'; }}
-                                        />
-                                    ) : (
-                                        <div style={{ width: '40px', height: '40px', flexShrink: 0 }} />
-                                    )}
+                                    <div style={{ width: '40px', height: '40px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {spriteUrl ? (
+                                            <img
+                                                src={spriteUrl}
+                                                alt={s.species}
+                                                style={{ width: '40px', height: '40px', imageRendering: 'pixelated' }}
+                                                onError={e => { e.target.style.display = 'none'; }}
+                                            />
+                                        ) : null}
+                                    </div>
                                     {/* Dex # */}
-                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, width: '34px', flexShrink: 0, textAlign: 'right' }}>
-                                        #{s.id || '?'}
-                                    </span>
+                                    <span style={{
+                                        fontSize: '11px', color: 'var(--text-muted)',
+                                        fontWeight: 600, width: '34px', flexShrink: 0, textAlign: 'right'
+                                    }}>#{s.id || '?'}</span>
                                     {/* Name */}
-                                    <span style={{ fontWeight: 700, fontSize: '14px', flex: 1, textAlign: 'left' }}>{s.species}</span>
+                                    <span style={{ fontWeight: 700, fontSize: '14px', flex: 1 }}>
+                                        {s.species}
+                                    </span>
                                     {/* Types */}
                                     <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                                         {(s.types || []).map(t => <TypeChip key={t} type={t} />)}
                                     </div>
                                     {/* Chevron */}
                                     <svg
-                                        width="14" height="14" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" strokeWidth="2"
+                                        width="13" height="13" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" strokeWidth="2.5"
                                         style={{
                                             flexShrink: 0, color: 'var(--text-muted)',
                                             transform: isExpanded ? 'rotate(90deg)' : 'none',

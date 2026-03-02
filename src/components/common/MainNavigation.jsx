@@ -6,6 +6,7 @@
 import React from 'react';
 import { TABS } from '../../data/constants.js';
 import { useModal } from '../../contexts/index.js';
+import { useTrainerContext } from '../../contexts/TrainerContext.jsx';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 
 const NAV_ITEMS = [
@@ -19,7 +20,8 @@ const NAV_ITEMS = [
 
 
 const MainNavigation = ({ activeTab, setActiveTab }) => {
-    const { openSaveLoadModal } = useModal();
+    const { openSaveLoadModal, setShowCardModal, openPrintSheet } = useModal();
+    const { trainer } = useTrainerContext();
     const { steps, allDone, dismissed, dismiss } = useOnboarding();
 
     const showChecklist = !dismissed && !allDone;
@@ -53,6 +55,38 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                 <span className="nav-label">Save / Load</span>
                 <span className="nav-mobile-label">Save</span>
             </button>
+
+            {/* Export section — hidden on mobile (bottom bar has no room) */}
+            <div className="nav-checklist" style={{ margin: '8px 0 0' }}>
+                <div style={{ height: '1px', background: 'var(--border-light)', margin: '0 8px 6px' }} />
+                <div style={{
+                    padding: '2px 10px 4px',
+                    fontSize: '10px', fontWeight: 800,
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase', letterSpacing: '0.8px'
+                }}>
+                    Share &amp; Export
+                </div>
+                <button
+                    className="nav-button"
+                    onClick={() => setShowCardModal(true)}
+                    title={`Export trainer and Pokémon cards for ${trainer?.name || 'trainer'}`}
+                    style={{ marginBottom: '2px' }}
+                >
+                    <span className="nav-icon">🃏</span>
+                    <span className="nav-label">Export Cards</span>
+                    <span className="nav-mobile-label">Cards</span>
+                </button>
+                <button
+                    className="nav-button"
+                    onClick={openPrintSheet}
+                    title="Print or save a character sheet as PDF"
+                >
+                    <span className="nav-icon">🖨️</span>
+                    <span className="nav-label">Print Sheet</span>
+                    <span className="nav-mobile-label">Print</span>
+                </button>
+            </div>
 
             {/* Onboarding checklist — hidden on mobile (bottom bar has no room) */}
             {showChecklist && (

@@ -64,7 +64,7 @@ const Header = () => {
     } = useTrainerContext();
     const { exportSingleTrainer, exportAllData, importData, restoreAutoBackup, loadDemoTrainer } = useData();
     const { theme, setTheme, compactMode, setCompactMode, setEditingPokemon } = useUI();
-    const { setShowCardModal, showConfirm, openPrintSheet } = useModal();
+    const { showConfirm } = useModal();
 
     // Active (non-archived) and archived trainer lists
     const activeTrainers = trainers.filter(t => !t.archived);
@@ -397,42 +397,6 @@ const Header = () => {
                                     label="Clone Trainer"
                                     onClick={() => {
                                         duplicateTrainer(activeTrainerId);
-                                        setShowCharacterMenu(false);
-                                    }}
-                                />
-                            </div>
-
-                            <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
-
-                            {/* Card Export Section */}
-                            <div style={{ padding: '8px 0' }}>
-                                <MenuItem {...menuItemProps}
-                                    id="export-card"
-                                    icon={
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                            <polyline points="21 15 16 10 5 21"></polyline>
-                                        </svg>
-                                    }
-                                    label="Export Cards"
-                                    onClick={() => {
-                                        setShowCardModal(true);
-                                        setShowCharacterMenu(false);
-                                    }}
-                                />
-                                <MenuItem {...menuItemProps}
-                                    id="print-sheet"
-                                    icon={
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                            <rect x="6" y="14" width="12" height="8"></rect>
-                                        </svg>
-                                    }
-                                    label="Print Character Sheet"
-                                    onClick={() => {
-                                        openPrintSheet();
                                         setShowCharacterMenu(false);
                                     }}
                                 />
