@@ -256,26 +256,26 @@ const TrainerProfile = () => {
             {/* Quick Stats — 3 boxes */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '14px' }}>
                 <div
-                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, var(--quick-stat-hp-tint, #ffebee) 0%, var(--card-bg, #fff) 70%)', borderRadius: '8px', borderTop: '3px solid #e53935' }}
+                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #e5393525 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #e5393955', borderTop: '3px solid #e53935' }}
                     title="Max HP = (HP stat × 4) + (Level × 4)"
                 >
-                    <div style={{ fontSize: '10px', color: '#e53935', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Max HP</div>
+                    <div style={{ fontSize: '12px', color: '#e53935', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Max HP</div>
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e53935', lineHeight: 1.2 }}>{calculateMaxHP()}</div>
                 </div>
                 <div
-                    style={{ textAlign: 'center', padding: '10px 6px', background: `linear-gradient(180deg, ${(trainer.featPoints || 0) > 0 ? 'var(--quick-stat-feat-tint, #fff3e0)' : 'var(--bg-light, #f5f5f5)'} 0%, var(--card-bg, #fff) 70%)`, borderRadius: '8px', borderTop: 'var(--poke-orange, #f5a623) 3px solid' }}
+                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #f5a62325 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #f5a62355', borderTop: '3px solid #f5a623' }}
                     title="Feat points are used to buy features. Gain points from leveling up."
                 >
-                    <div style={{ fontSize: '10px', color: (trainer.featPoints || 0) > 0 ? 'var(--poke-orange-dark, #e8941c)' : 'var(--text-muted, #666)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feat Pts</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: (trainer.featPoints || 0) > 0 ? 'var(--poke-orange, #f5a623)' : '#999', lineHeight: 1.2 }}>{trainer.featPoints || 0}</div>
+                    <div style={{ fontSize: '12px', color: '#e8941c', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feat Pts</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: (trainer.featPoints || 0) > 0 ? '#f5a623' : 'var(--text-muted, #999)', lineHeight: 1.2 }}>{trainer.featPoints || 0}</div>
                 </div>
                 <div
-                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, var(--quick-stat-badge-tint, #ede7f6) 0%, var(--card-bg, #fff) 70%)', borderRadius: '8px', borderTop: '3px solid var(--color-purple, #667eea)', cursor: 'pointer' }}
+                    style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #667eea25 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #667eea55', borderTop: '3px solid #667eea', cursor: 'pointer' }}
                     title="Gym Badges earned — click to jump to list"
                     onClick={() => document.getElementById('trainer-badges-section')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
                 >
-                    <div style={{ fontSize: '10px', color: 'var(--color-purple, #667eea)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🏅 Badges</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--color-purple, #667eea)', lineHeight: 1.2 }}>{badges.length}</div>
+                    <div style={{ fontSize: '12px', color: '#667eea', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🏅 Badges</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#667eea', lineHeight: 1.2 }}>{badges.length}</div>
                 </div>
             </div>
 
