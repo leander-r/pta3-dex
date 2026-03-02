@@ -1,7 +1,7 @@
 {
-  "name": "pta3-dex",
-  "version": "1.0.0",
-  "description": "Pokémon Tabletop Adventures 3 - Advanced Character Manager",
+  "name": "pta-tool",
+  "version": "2.1.0",
+  "description": "Pokémon Tabletop Adventures - Advanced Character Manager",
   "author": "leander_rsr",
   "private": true,
   "type": "module",
