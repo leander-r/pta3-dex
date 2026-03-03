@@ -71,8 +71,8 @@ test('edit tab navigation: Stats tab shows stat grid, Moves tab shows move summa
 
     // Click the "stats" tab
     await card.locator('.pokemon-card-tabs .tab', { hasText: 'stats' }).click();
-    // "Stat Points Available:" is unique to the Pokémon card stats tab
-    await expect(card.getByText(/Stat Points Available/)).toBeVisible({ timeout: 5_000 });
+    // "Max HP" label is unique to the Pokémon card stats tab (PTA3: fixed species HP)
+    await expect(card.getByText(/Max HP/)).toBeVisible({ timeout: 5_000 });
 
     // Click the "moves" tab
     await card.locator('.pokemon-card-tabs .tab', { hasText: 'moves' }).click();
