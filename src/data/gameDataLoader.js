@@ -123,7 +123,7 @@ export const loadGameDataFromGitHub = async () => {
         if (data.moves) GAME_DATA.moves = data.moves;
         if (data.abilities) GAME_DATA.abilities = data.abilities;
         if (data.items) GAME_DATA.items = data.items;
-        if (data.pokemonExpChart) GAME_DATA.pokemonExpChart = data.pokemonExpChart;
+        // pokemonExpChart removed in PTA3 (honor-based leveling)
         
         GAME_DATA._loaded = true;
         GAME_DATA._loadedAt = Date.now();

@@ -7,6 +7,14 @@ export interface BaseStats {
   spd: number;
 }
 
+export interface TrainerStats {
+  atk: number;
+  def: number;
+  satk: number;
+  sdef: number;
+  spd: number;
+}
+
 export interface Move {
   name: string;
   type: string;
@@ -26,16 +34,13 @@ export interface Pokemon {
   gender: string;
   avatar: string;
   level: number;
-  exp: number;
   types: string[];
   nature: string;
   ability: string;
   baseStats: BaseStats;
-  addedStats: BaseStats;
   moves: Move[];
   notes: string;
   loyalty: number;
-  statPointsAvailable: number;
 }
 
 export interface Trainer {
@@ -45,12 +50,13 @@ export interface Trainer {
   age: string;
   avatar: string;
   level: number;
-  experience: number;
+  honors: number;
+  maxHp: number;
+  hpRolls: number[];
   classes: string[];
-  stats: BaseStats;
+  stats: TrainerStats;
   statPoints: number;
   levelStatPoints: number;
-  featPoints: number;
   skills: Record<string, number>;
   notes: string;
   badges: string[];

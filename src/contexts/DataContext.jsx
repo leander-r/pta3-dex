@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
+import { migrateSaveData } from '../utils/dataMigration.js';
 import { buildEmbed } from '../utils/discordEmbeds.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
@@ -14,7 +15,6 @@ import { useTrainerContext } from './TrainerContext.jsx';
 import { useGameData } from './GameDataContext.jsx';
 import {
     MAX_TRAINER_IMPORT_BYTES,
-    TRAINER_HP_MULTIPLIER,
     MS_PER_DAY,
     BACKUP_REMINDER_DAYS,
     AUTOSAVE_DEBOUNCE_MS,
@@ -220,7 +220,19 @@ export const DataProvider = ({ children }) => {
                     return;
                 }
 
-                const migratedData = migrateOldData(loadedData);
+                // Step 1: structural migration (single-trainer → trainers array, skills array → object)
+                let migratedData = migrateOldData(loadedData);
+
+                // Step 2: PTA3 rules migration (old stats/moves → new format); no-op on already-migrated saves
+                const { data: pta3Data, migrated: wasMigrated } = migrateSaveData(migratedData);
+                if (wasMigrated) {
+                    migratedData = pta3Data;
+                    toast.info('Save data migrated to PTA3 format. Please review your trainer stats.');
+                    // Persist the migration immediately so it does not re-trigger on next load
+                    try {
+                        safeLocalStorageSet('pta-enhanced-save-data', pta3Data);
+                    } catch {}
+                }
 
                 if (migratedData.trainers && Array.isArray(migratedData.trainers) && migratedData.trainers.length > 0) {
                     // Validate activeTrainerId exists in trainers array, otherwise use first trainer
@@ -596,16 +608,18 @@ export const DataProvider = ({ children }) => {
 
     // Export text functions
     const exportTrainerText = useCallback((trainer) => {
-        const maxHP = (trainer.stats.hp * TRAINER_HP_MULTIPLIER) + (trainer.level * TRAINER_HP_MULTIPLIER);
+        // PTA3: trainer HP = 20 base + milestone rolls; no HP stat
+        const maxHP = (trainer.maxHp ?? 20) + (trainer.hpRolls || []).reduce((s, v) => s + v, 0);
         const genderSymbol = trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : '';
         const classesDisplay = (trainer.classes && trainer.classes.length > 0) ? trainer.classes.join(' / ') : 'Trainer';
+        const honors = trainer.honors ?? 0;
 
         let text = `**━━━━━━ TRAINER CARD ━━━━━━**\n`;
         text += `**${trainer.name || 'Unnamed'}** ${genderSymbol}\n`;
-        text += `Level ${trainer.level} ${classesDisplay}\n\n`;
+        text += `Level ${trainer.level} ${classesDisplay} · ${honors} Honors\n\n`;
         text += `**Stats** (Max HP: ${maxHP})\n`;
-        text += `HP: ${trainer.stats.hp} | ATK: ${trainer.stats.atk} | DEF: ${trainer.stats.def}\n`;
-        text += `SATK: ${trainer.stats.satk} | SDEF: ${trainer.stats.sdef} | SPD: ${trainer.stats.spd}\n\n`;
+        text += `ATK: ${trainer.stats.atk ?? 0} | DEF: ${trainer.stats.def ?? 0} | SATK: ${trainer.stats.satk ?? 0}\n`;
+        text += `SDEF: ${trainer.stats.sdef ?? 0} | SPD: ${trainer.stats.spd ?? 0}\n\n`;
 
         const featureNames = (trainer.features || []).map(f => typeof f === 'object' ? f.name : f);
         if (featureNames.length > 0) {

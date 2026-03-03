@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { COMBAT_STAGE_POSITIVE_MULTIPLIER, COMBAT_STAGE_NEGATIVE_MULTIPLIER } from '../../data/constants.js';
+import { COMBAT_STAGE_FLAT_PER_STAGE } from '../../data/constants.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 const STATS = [
@@ -12,11 +12,8 @@ const STATS = [
     { key: 'eva',  label: 'EVA',  color: '#607d8b', desc: 'Evasion - subtracts from opponent hit rolls' },
 ];
 
-const getModifiedStat = (baseStat, stages) => {
-    if (stages > 0) return Math.floor(baseStat * (1 + stages * COMBAT_STAGE_POSITIVE_MULTIPLIER));
-    if (stages < 0) return Math.ceil(baseStat * (1 - Math.abs(stages) * COMBAT_STAGE_NEGATIVE_MULTIPLIER));
-    return baseStat;
-};
+// PTA3: flat +2 per stage (applies to both positive and negative)
+const getModifiedStat = (baseStat, stages) => (baseStat || 0) + stages * COMBAT_STAGE_FLAT_PER_STAGE;
 
 const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, updateCombatStage, resetCombatStages, onHelp }) => {
     const [show, setShow] = useState(false);
@@ -40,7 +37,7 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span
                         style={{ fontSize: '12px', fontWeight: 'bold' }}
-                        title="Combat Stages track stat buffs and debuffs from moves. Each positive stage increases the stat by 25%, each negative stage decreases it by 10%. Range: -6 to +6."
+                        title="Combat Stages track stat buffs and debuffs. Each stage adds or subtracts 2 from the stat (flat). Range: -6 to +6 (stat change: -12 to +12)."
                     >
                         Combat Stages
                     </span>
@@ -66,7 +63,7 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
             {show && (
                 <div className="combat-stages-content" style={{ padding: '10px', borderRadius: '6px' }}>
                     <div className="text-muted" style={{ fontSize: '12px', marginBottom: '8px', textAlign: 'center' }}>
-                        +1 stage = +25% stat | −1 stage = −10% stat | Range: −6 to +6
+                        +1 stage = +2 to stat | −1 stage = −2 to stat | Range: −6 to +6 (−12 to +12)
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                         {STATS.map(stat => {

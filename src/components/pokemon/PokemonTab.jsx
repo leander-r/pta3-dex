@@ -433,9 +433,9 @@ const PokemonTab = () => {
                     onClick={() => setShowBulkExpModal(true)}
                     className="btn btn-secondary"
                     style={{ padding: '10px 16px' }}
-                    title="Award EXP to multiple party Pokemon"
+                    title="Award Honors to trainer (Gym Badges, Ribbons, milestones)"
                 >
-                    Award EXP
+                    Award Honors
                 </button>
 
                 <button

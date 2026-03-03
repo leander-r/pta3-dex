@@ -16,7 +16,8 @@ const TrainerClasses = () => {
     const { GAME_DATA } = useGameData();
     const { showConfirm } = useModal();
     const { showHelp } = useUI();
-    const maxClasses = trainer.level < 5 ? 1 : trainer.level < 12 ? 2 : trainer.level < 24 ? 3 : 4;
+    // PTA3 class unlock levels: 1 at Lv1, 2 at Lv3, 3 at Lv7, 4 at Lv11
+    const maxClasses = trainer.level < 3 ? 1 : trainer.level < 7 ? 2 : trainer.level < 11 ? 3 : 4;
     const currentClasses = trainer.classes || [];
 
     // State for skill selection when adding a class
@@ -265,7 +266,7 @@ const TrainerClasses = () => {
             </h3>
             {!collapsed && <>
             <p className="section-description" style={{ fontSize: '12px' }}>
-                Classes unlock features and skills. Lv1-4: 1 class | Lv5-11: 2 | Lv12-23: 3 | Lv24+: 4.
+                Classes unlock features and skills. Lv1-2: 1 class | Lv3-6: 2 | Lv7-10: 3 | Lv11+: 4.
                 {currentClasses.length >= 1 && ' Additional classes cost 1 feat point.'}
             </p>
 

@@ -66,6 +66,33 @@ export const saveToPokedexDB = async (key, value) => {
 };
 
 /**
+ * Normalize a single Pokédex entry to the app's expected shape.
+ * Handles both old format (baseStats, levelUpMoves) and new PTA3 format
+ * (stats, moves, skills as string array, passives).
+ */
+export const normalizePokedexEntry = (entry) => {
+    if (!entry || typeof entry !== 'object') return entry;
+
+    // Already in old format — nothing to do
+    if (entry.baseStats) return entry;
+
+    // New PTA3 format detected (has `stats` but no `baseStats`)
+    const normalized = { ...entry };
+
+    // stats → baseStats (for backward compat with PokemonContext / PokedexSection)
+    if (entry.stats) {
+        normalized.baseStats = { ...entry.stats };
+    }
+
+    // moves → levelUpMoves (PokemonContext reads `speciesData.levelUpMoves`)
+    if (Array.isArray(entry.moves) && !entry.levelUpMoves) {
+        normalized.levelUpMoves = entry.moves.map(m => ({ ...m, level: null }));
+    }
+
+    return normalized;
+};
+
+/**
  * Load Pokédex data - checks cache first, then fetches from GitHub
  */
 export const loadPokedexFromGitHub = async (setPokedex, setPokedexLoading, setPokedexError) => {
@@ -78,7 +105,7 @@ export const loadPokedexFromGitHub = async (setPokedex, setPokedexLoading, setPo
         if (cachedMeta && (Date.now() - cachedMeta.timestamp) < POKEDEX_CONFIG.cacheDuration) {
             const cachedData = await getFromPokedexDB('pokedex');
             if (cachedData && Array.isArray(cachedData)) {
-                setPokedex(cachedData);
+                setPokedex(cachedData.map(normalizePokedexEntry));
                 setPokedexLoading(false);
                 return;
             }
@@ -159,12 +186,14 @@ export const loadPokedexFromGitHub = async (setPokedex, setPokedexLoading, setPo
             throw new Error('Failed to parse Pokédex JSON');
         }
         
-        const pokemonList = data.pokemon || data;
-        
-        if (!Array.isArray(pokemonList)) {
+        const rawList = data.pokemon || data;
+
+        if (!Array.isArray(rawList)) {
             throw new Error('Invalid Pokédex format - expected array');
         }
-        
+
+        const pokemonList = rawList.map(normalizePokedexEntry);
+
         // 3. Cache in IndexedDB
         await saveToPokedexDB('pokedex', pokemonList);
         await saveToPokedexDB('metadata', { 
@@ -178,7 +207,7 @@ export const loadPokedexFromGitHub = async (setPokedex, setPokedexLoading, setPo
         // Try stale cache
         const staleCache = await getFromPokedexDB('pokedex');
         if (staleCache && Array.isArray(staleCache)) {
-            setPokedex(staleCache);
+            setPokedex(staleCache.map(normalizePokedexEntry));
             setPokedexError('Using cached data');
         } else if (POKEDEX_CONFIG.fallbackEnabled) {
             setPokedex(FALLBACK_POKEDEX);

@@ -5,7 +5,11 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { GAME_DATA } from '../data/configs.js';
-import { DEFAULT_TRAINER, MAX_TRAINER_LEVEL, BASE_STAT_VALUE, CREATION_STAT_POINTS, CREATION_STAT_CAP } from '../data/constants.js';
+import {
+    DEFAULT_TRAINER, MAX_TRAINER_LEVEL, BASE_STAT_VALUE,
+    CREATION_STAT_POINTS, CREATION_STAT_CAP,
+    HONOR_THRESHOLDS, HP_MILESTONE_LEVELS, POINT_BUY_COSTS
+} from '../data/constants.js';
 
 /**
  * Create a new trainer with default values
@@ -16,13 +20,21 @@ const createNewTrainer = (name = 'New Trainer') => ({
     ...DEFAULT_TRAINER,
     id: Date.now(),
     name,
-    stats: { hp: 6, atk: 6, def: 6, satk: 6, sdef: 6, spd: 6 },
+    // PTA3: 5 stats (no HP), values 1-10, base 3
+    stats: { atk: 3, def: 3, satk: 3, sdef: 3, spd: 3 },
+    maxHp: 20,
+    hpRolls: [],
+    honors: 0,
     statPoints: CREATION_STAT_POINTS,
     levelStatPoints: 0,
-    featPoints: 0,
     party: [],
     reserve: []
 });
+
+// PTA3 cumulative point-buy cost for a stat value
+function getCumulativeCost(value) {
+    return POINT_BUY_COSTS[Math.min(value, 6)] || (value > 6 ? POINT_BUY_COSTS[6] + (value - 6) : 0);
+}
 
 /**
  * Custom hook for multi-trainer management
@@ -102,83 +114,48 @@ export const useTrainer = (initialTrainers = null, initialActiveId = null) => {
         return newTrainer;
     }, [trainers]);
 
-    // Update trainer stat
+    // Update trainer stat (PTA3 point-buy)
     const updateTrainerStat = useCallback((stat, value) => {
         const newValue = parseInt(value) || BASE_STAT_VALUE;
-        const oldValue = trainer.stats[stat];
-        const difference = newValue - oldValue;
+        const oldValue = trainer.stats[stat] || BASE_STAT_VALUE;
 
-        // Minimum stat is base value
-        if (newValue < BASE_STAT_VALUE) return false;
+        if (newValue < BASE_STAT_VALUE || newValue > 10) return false;
 
-        const totalAvailable = trainer.statPoints + (trainer.levelStatPoints || 0);
-        if (totalAvailable - difference < 0) return false;
+        const oldCost = getCumulativeCost(oldValue);
+        const newCost = getCumulativeCost(newValue);
+        const delta = newCost - oldCost;
 
-        if (difference > 0) {
+        const creationPoints = trainer.statPoints || 0;
+        const levelPoints = trainer.levelStatPoints || 0;
+
+        if (delta > 0) {
             // Spending points
-            if (newValue > CREATION_STAT_CAP && trainer.statPoints > 0) {
-                const pointsToReach14 = Math.max(0, CREATION_STAT_CAP - oldValue);
-                const creationPointsToUse = Math.min(trainer.statPoints, pointsToReach14);
-                const levelPointsToUse = difference - creationPointsToUse;
-
-                if (levelPointsToUse > (trainer.levelStatPoints || 0)) return false;
-
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: prev.statPoints - creationPointsToUse,
-                    levelStatPoints: (prev.levelStatPoints || 0) - levelPointsToUse
-                }));
-            } else if (newValue <= CREATION_STAT_CAP && trainer.statPoints >= difference) {
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: prev.statPoints - difference
-                }));
-            } else if (newValue <= CREATION_STAT_CAP && trainer.statPoints < difference) {
-                const creationPointsToUse = trainer.statPoints;
-                const levelPointsToUse = difference - creationPointsToUse;
-
-                if (levelPointsToUse > (trainer.levelStatPoints || 0)) return false;
-
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: 0,
-                    levelStatPoints: (prev.levelStatPoints || 0) - levelPointsToUse
-                }));
+            if (newValue <= CREATION_STAT_CAP) {
+                if (creationPoints >= delta) {
+                    setTrainer(prev => ({ ...prev, stats: { ...prev.stats, [stat]: newValue }, statPoints: prev.statPoints - delta }));
+                } else {
+                    const remaining = delta - creationPoints;
+                    if (remaining > levelPoints) return false;
+                    setTrainer(prev => ({ ...prev, stats: { ...prev.stats, [stat]: newValue }, statPoints: 0, levelStatPoints: (prev.levelStatPoints || 0) - remaining }));
+                }
             } else {
-                if (difference > (trainer.levelStatPoints || 0)) return false;
-
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    levelStatPoints: (prev.levelStatPoints || 0) - difference
-                }));
+                if (delta > levelPoints) return false;
+                setTrainer(prev => ({ ...prev, stats: { ...prev.stats, [stat]: newValue }, levelStatPoints: (prev.levelStatPoints || 0) - delta }));
             }
         } else {
             // Refunding points
-            const refund = Math.abs(difference);
-
-            if (trainer.level === 0) {
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    statPoints: prev.statPoints + refund
-                }));
+            const refund = Math.abs(delta);
+            if (oldValue <= CREATION_STAT_CAP) {
+                setTrainer(prev => ({ ...prev, stats: { ...prev.stats, [stat]: newValue }, statPoints: prev.statPoints + refund }));
             } else {
-                setTrainer(prev => ({
-                    ...prev,
-                    stats: { ...prev.stats, [stat]: newValue },
-                    levelStatPoints: (prev.levelStatPoints || 0) + refund
-                }));
+                setTrainer(prev => ({ ...prev, stats: { ...prev.stats, [stat]: newValue }, levelStatPoints: (prev.levelStatPoints || 0) + refund }));
             }
         }
 
         return true;
     }, [trainer, setTrainer]);
 
-    // Level up trainer
+    // Level up trainer (PTA3 honor-based)
     const levelUpTrainer = useCallback(() => {
         const newLevel = trainer.level + 1;
         if (newLevel > MAX_TRAINER_LEVEL) {
@@ -189,36 +166,36 @@ export const useTrainer = (initialTrainers = null, initialActiveId = null) => {
         if (trainer.level === 0) {
             const issues = [];
             if ((trainer.statPoints || 0) > 0) {
-                issues.push(`Spend all ${CREATION_STAT_POINTS} Creation stat points (${trainer.statPoints} remaining)`);
+                issues.push(`Spend all ${CREATION_STAT_POINTS} creation stat points (${trainer.statPoints} remaining)`);
             }
             if ((trainer.classes || []).length === 0) {
                 issues.push('Pick your first Trainer Class');
             }
-
             if (issues.length > 0) {
                 return { success: false, message: `Complete character creation first:\n${issues.join('\n')}` };
             }
         }
 
-        const levelData = GAME_DATA.trainerLevelProgression[newLevel] || { feats: 0, stats: 0 };
+        const isMilestone = HP_MILESTONE_LEVELS.includes(newLevel);
+        const hpRoll = isMilestone ? Math.ceil(Math.random() * 4) : 0;
 
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
-            levelStatPoints: (prev.levelStatPoints || 0) + levelData.stats,
-            featPoints: (prev.featPoints || 0) + levelData.feats
+            levelStatPoints: (prev.levelStatPoints || 0) + 2,
+            ...(isMilestone && { hpRolls: [...(prev.hpRolls || []), hpRoll] })
         }));
 
         return {
             success: true,
             level: newLevel,
-            statPoints: levelData.stats,
-            featPoints: levelData.feats,
-            note: levelData.note
+            statPoints: 2,
+            hpRoll: isMilestone ? hpRoll : null,
+            isMilestone
         };
     }, [trainer, setTrainer]);
 
-    // Level down trainer
+    // Level down trainer (PTA3 honor-based)
     const levelDownTrainer = useCallback(() => {
         if (trainer.level <= 1) {
             return { success: false, message: 'Cannot go below level 1!' };
@@ -226,70 +203,36 @@ export const useTrainer = (initialTrainers = null, initialActiveId = null) => {
 
         const currentLevel = trainer.level;
         const newLevel = currentLevel - 1;
-        const levelData = GAME_DATA.trainerLevelProgression[currentLevel] || { feats: 0, stats: 0 };
 
-        // Calculate if we can level down
-        let totalLevelStatsAtNewLevel = 0;
-        for (let i = 1; i <= newLevel; i++) {
-            totalLevelStatsAtNewLevel += (GAME_DATA.trainerLevelProgression[i]?.stats || 0);
-        }
+        // Check we can refund 2 level stat points
+        const totalLevelPointsGranted = newLevel * 2;
+        const levelPointsSpent = Math.max(0, (trainer.levelStatPoints || 0));
+        // Ensure dropping the level doesn't strand points in stats
+        const newLevelStatPoints = Math.max(0, (trainer.levelStatPoints || 0) + 2);
 
-        const totalStatsSpent = Object.values(trainer.stats).reduce((sum, val) => sum + val, 0) - 36;
-        const creationPointsSpent = CREATION_STAT_POINTS - trainer.statPoints;
-        const levelPointsSpent = Math.max(0, totalStatsSpent - creationPointsSpent);
-
-        if (levelPointsSpent > totalLevelStatsAtNewLevel) {
-            return {
-                success: false,
-                message: `Cannot level down! Reduce stats by ${levelPointsSpent - totalLevelStatsAtNewLevel} point(s) first.`
-            };
-        }
-
-        const newLevelStatPoints = totalLevelStatsAtNewLevel - levelPointsSpent;
-
-        // Calculate feat points
-        let totalFeatsAtNewLevel = 0;
-        for (let i = 1; i <= newLevel; i++) {
-            totalFeatsAtNewLevel += (GAME_DATA.trainerLevelProgression[i]?.feats || 0);
-        }
-
-        const featuresWithCost = (trainer.features || []).filter(f => {
-            const featureName = typeof f === 'object' ? f.name : f;
-            const featureData = GAME_DATA.features[featureName];
-            return featureData && featureData.category !== 'General (Free)' && !featureData.isBase;
-        }).length;
-
-        const classesWithCost = Math.max(0, (trainer.classes || []).length - 1);
-        const totalFeatPointsSpent = featuresWithCost + classesWithCost;
-
-        if (totalFeatPointsSpent > totalFeatsAtNewLevel) {
-            return {
-                success: false,
-                message: `Cannot level down! Remove ${totalFeatPointsSpent - totalFeatsAtNewLevel} feature(s) or class(es) first.`
-            };
-        }
-
-        const newFeatPoints = totalFeatsAtNewLevel - totalFeatPointsSpent;
+        const isMilestone = HP_MILESTONE_LEVELS.includes(currentLevel);
 
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
             levelStatPoints: newLevelStatPoints,
-            featPoints: newFeatPoints
+            ...(isMilestone && { hpRolls: (prev.hpRolls || []).slice(0, -1) })
         }));
 
         return { success: true, level: newLevel };
     }, [trainer, setTrainer]);
 
-    // Respec trainer (reset to level 0)
+    // Respec trainer (reset to level 0, PTA3 defaults)
     const respecTrainer = useCallback(() => {
         setTrainer(prev => ({
             ...prev,
             level: 0,
-            stats: { hp: 6, atk: 6, def: 6, satk: 6, sdef: 6, spd: 6 },
+            stats: { atk: 3, def: 3, satk: 3, sdef: 3, spd: 3 },
+            maxHp: 20,
+            hpRolls: [],
+            honors: 0,
             statPoints: CREATION_STAT_POINTS,
             levelStatPoints: 0,
-            featPoints: 0,
             classes: [],
             features: [],
             skills: {}
@@ -381,17 +324,15 @@ export const useTrainer = (initialTrainers = null, initialActiveId = null) => {
         });
     }, [setTrainer]);
 
-    // Calculate max HP
+    // Calculate max HP (PTA3: 20 base + sum of 1d4 rolls at Lv 3/7/11)
     const calculateMaxHP = useCallback(() => {
-        return (trainer.stats.hp * 4) + (trainer.level * 4);
-    }, [trainer.stats.hp, trainer.level]);
+        return (trainer.maxHp ?? 20) + (trainer.hpRolls || []).reduce((s, v) => s + v, 0);
+    }, [trainer.maxHp, trainer.hpRolls]);
 
-    // Calculate stat modifier
+    // Calculate stat modifier (PTA3: ⌊stat / 2⌋)
     const calculateModifier = useCallback((stat) => {
         const value = trainer.stats[stat] || BASE_STAT_VALUE;
-        if (value === 10) return 0;
-        if (value < 10) return -(10 - value);
-        return Math.floor((value - 10) / 2);
+        return Math.floor(value / 2);
     }, [trainer.stats]);
 
     return {

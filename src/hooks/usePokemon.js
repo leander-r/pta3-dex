@@ -7,7 +7,8 @@ import { useState, useCallback, useMemo } from 'react';
 import { GAME_DATA } from '../data/configs.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { DEFAULT_POKEMON, MAX_PARTY_SIZE } from '../data/constants.js';
-import { calculatePokemonLevel, getActualStats, calculatePokemonHP, calculateSTAB } from '../utils/dataUtils.js';
+import { getActualStats, calculatePokemonHP, calculateSTAB } from '../utils/dataUtils.js';
+// PTA3: Pokémon stats are fixed from Pokédex — no stat allocation system
 
 /**
  * Create a new Pokemon with default values
@@ -17,8 +18,7 @@ const createNewPokemon = () => ({
     ...DEFAULT_POKEMON,
     id: Date.now() + Math.random(),
     name: 'New Pokemon',
-    baseStats: { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
-    addedStats: { hp: 0, atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 }
+    baseStats: { hp: 30, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 }
 });
 
 /**
@@ -73,50 +73,18 @@ export const usePokemon = (setTrainer, trainer) => {
         return newPokemon;
     }, [pokemonView, party.length, setParty, setReserve]);
 
-    // Update Pokemon
+    // Update Pokemon (PTA3: no stat-point recalculation on level change)
     const updatePokemon = useCallback((id, updates) => {
         const inParty = party.some(p => p.id === id);
         const updateFn = (prev) => prev.map(p => {
             if (p.id !== id) return p;
 
-            // Handle level changes from exp
             let finalUpdates = { ...updates };
 
-            if (updates.exp !== undefined) {
-                const newLevel = calculatePokemonLevel(updates.exp);
-                const oldLevel = p.level || 1;
-
-                if (newLevel !== oldLevel) {
-                    const levelDiff = newLevel - oldLevel;
-                    const highestLevel = Math.max(p.highestLevelReached || oldLevel, newLevel);
-
-                    // Calculate stat points based on highest level reached
-                    if (newLevel > (p.highestLevelReached || oldLevel)) {
-                        const newStatPoints = (p.statPointsAvailable || 0) + levelDiff;
-                        finalUpdates = {
-                            ...finalUpdates,
-                            level: newLevel,
-                            highestLevelReached: highestLevel,
-                            statPointsAvailable: Math.max(0, newStatPoints)
-                        };
-                    } else {
-                        finalUpdates.level = newLevel;
-                    }
-                }
-            }
-
-            if (updates.level !== undefined && updates.exp === undefined) {
+            if (updates.level !== undefined) {
                 const newLevel = updates.level;
-                const oldLevel = p.level || 1;
-                const highestLevel = Math.max(p.highestLevelReached || oldLevel, newLevel);
-
-                if (newLevel > (p.highestLevelReached || oldLevel)) {
-                    const levelDiff = newLevel - oldLevel;
-                    finalUpdates = {
-                        ...finalUpdates,
-                        highestLevelReached: highestLevel,
-                        statPointsAvailable: (p.statPointsAvailable || 0) + levelDiff
-                    };
+                if (newLevel > (p.highestLevelReached || p.level)) {
+                    finalUpdates.highestLevelReached = newLevel;
                 }
             }
 
@@ -300,38 +268,7 @@ export const usePokemon = (setTrainer, trainer) => {
         updatePokemon(pokemonId, { moves: newMoves });
     }, [allPokemon, updatePokemon]);
 
-    // Add stat to Pokemon
-    const addStat = useCallback((pokemonId, stat) => {
-        const pokemon = allPokemon.find(p => p.id === pokemonId);
-        if (!pokemon || (pokemon.statPointsAvailable || 0) <= 0) return false;
-
-        const newAddedStats = { ...pokemon.addedStats };
-        newAddedStats[stat] = (newAddedStats[stat] || 0) + 1;
-
-        updatePokemon(pokemonId, {
-            addedStats: newAddedStats,
-            statPointsAvailable: pokemon.statPointsAvailable - 1,
-            statAllocationHistory: [...(pokemon.statAllocationHistory || []), stat]
-        });
-
-        return true;
-    }, [allPokemon, updatePokemon]);
-
-    // Remove stat from Pokemon
-    const removeStat = useCallback((pokemonId, stat) => {
-        const pokemon = allPokemon.find(p => p.id === pokemonId);
-        if (!pokemon || (pokemon.addedStats?.[stat] || 0) <= 0) return false;
-
-        const newAddedStats = { ...pokemon.addedStats };
-        newAddedStats[stat] = Math.max(0, (newAddedStats[stat] || 0) - 1);
-
-        updatePokemon(pokemonId, {
-            addedStats: newAddedStats,
-            statPointsAvailable: (pokemon.statPointsAvailable || 0) + 1
-        });
-
-        return true;
-    }, [allPokemon, updatePokemon]);
+    // PTA3: addStat/removeStat removed — stats are fixed from Pokédex
 
     // Get Pokemon by ID
     const getPokemon = useCallback((id) => {
@@ -389,9 +326,7 @@ export const usePokemon = (setTrainer, trainer) => {
         removeMove,
         replaceMove,
 
-        // Stats
-        addStat,
-        removeStat,
+        // Stats (read-only in PTA3)
         getPokemonStats,
 
         // Helpers

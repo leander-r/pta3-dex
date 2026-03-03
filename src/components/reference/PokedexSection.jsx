@@ -30,8 +30,11 @@ const TypeChip = ({ type }) => {
     );
 };
 
+// Scale: HP up to 160 (legendaries), combat stats up to 25
+const STAT_MAX = { hp: 160, atk: 25, def: 25, satk: 25, sdef: 25, spd: 25 };
+
 const StatBar = ({ label, statKey, value }) => {
-    const pct = Math.min(100, Math.round((value / 20) * 100));
+    const pct = Math.min(100, Math.round((value / (STAT_MAX[statKey] || 25)) * 100));
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
             <span style={{
@@ -88,31 +91,38 @@ const SpeciesDetail = ({ species }) => {
     const {
         baseStats = {},
         abilities = {},
-        skills = {},
+        skills,
+        passives,
+        moves,
         levelUpMoves = [],
         eggMoves,
         tutorMoves,
         evolvedFrom,
         evolutions,
-        types = []
+        types = [],
+        size,
+        weight,
+        speedFt,
     } = species;
 
-    const bst = STAT_KEYS.reduce((sum, k) => sum + (baseStats[k] || 0), 0);
+    // New PTA3 format: skills is a string array; old format: object
+    const isPTA3 = Array.isArray(skills);
     const moveName = (m) => (typeof m === 'string' ? m : m?.name || '');
 
-    // Accent color from primary type
+    // Moves: prefer the raw `moves` array for PTA3, fall back to levelUpMoves
+    const displayMoves = isPTA3 ? (moves || levelUpMoves) : levelUpMoves;
+
+    const bst = STAT_KEYS.reduce((sum, k) => sum + (baseStats[k] || 0), 0);
     const accentColor = types[0] ? getTypeColor(types[0]) : '#f5a623';
     const accentTextColor = getContrastTextColor(accentColor);
 
-    const hasAbilities = abilities.basic?.length > 0 || abilities.adv?.length > 0 || abilities.high?.length > 0;
-    const hasSkills    = skills && Object.keys(skills).length > 0;
-    const hasLvMoves   = levelUpMoves.length > 0;
-    const hasEggMoves  = eggMoves?.length > 0;
-    const hasTutor     = tutorMoves?.length > 0;
+    const hasAbilities = !isPTA3 && (abilities.basic?.length > 0 || abilities.adv?.length > 0 || abilities.high?.length > 0);
+    const hasSkills    = isPTA3 ? skills.length > 0 : (skills && Object.keys(skills).length > 0);
+    const hasPassives  = isPTA3 && passives?.length > 0;
+    const hasMoves     = displayMoves.length > 0;
+    const hasEggMoves  = !isPTA3 && eggMoves?.length > 0;
+    const hasTutor     = !isPTA3 && tutorMoves?.length > 0;
     const hasEvo       = evolvedFrom || evolutions?.length > 0;
-
-    // Count sections to determine "last"
-    const sections = [true, hasAbilities, hasSkills, hasLvMoves, hasEggMoves || hasTutor, hasEvo].filter(Boolean);
 
     return (
         <div style={{ background: 'var(--bg-section)', borderTop: `2px solid ${accentColor}` }}>
@@ -121,17 +131,47 @@ const SpeciesDetail = ({ species }) => {
             <DetailSection>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <SectionLabel>Base Stats</SectionLabel>
-                    <span style={{
-                        fontSize: '11px', fontWeight: 700, color: accentTextColor,
-                        background: accentColor, padding: '2px 8px', borderRadius: '8px'
-                    }}>BST {bst}</span>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        {size && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{size}</span>}
+                        {weight && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{weight}</span>}
+                        {speedFt && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{speedFt}ft</span>}
+                        <span style={{
+                            fontSize: '11px', fontWeight: 700, color: accentTextColor,
+                            background: accentColor, padding: '2px 8px', borderRadius: '8px'
+                        }}>BST {bst}</span>
+                    </div>
                 </div>
                 {STAT_KEYS.map((key, i) => (
                     <StatBar key={key} label={STAT_LABELS[i]} statKey={key} value={baseStats[key] || 0} />
                 ))}
             </DetailSection>
 
-            {/* Abilities */}
+            {/* Passives (PTA3) */}
+            {hasPassives && (
+                <DetailSection>
+                    <SectionLabel>Passives</SectionLabel>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                        {passives.map((p, i) => <Chip key={i} label={p} accent />)}
+                    </div>
+                </DetailSection>
+            )}
+
+            {/* Skills / Capabilities */}
+            {hasSkills && (
+                <DetailSection>
+                    <SectionLabel>Capabilities</SectionLabel>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                        {isPTA3
+                            ? skills.map((s, i) => <Chip key={i} label={s} />)
+                            : Object.entries(skills).map(([name, value]) => (
+                                <Chip key={name} label={`${name.charAt(0).toUpperCase() + name.slice(1)} ${value}`} />
+                            ))
+                        }
+                    </div>
+                </DetailSection>
+            )}
+
+            {/* Abilities (old format only) */}
             {hasAbilities && (
                 <DetailSection>
                     <SectionLabel>Abilities</SectionLabel>
@@ -158,50 +198,52 @@ const SpeciesDetail = ({ species }) => {
                 </DetailSection>
             )}
 
-            {/* Skills */}
-            {hasSkills && (
+            {/* Moves */}
+            {hasMoves && (
                 <DetailSection>
-                    <SectionLabel>Skills</SectionLabel>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                        {Object.entries(skills).map(([name, value]) => (
-                            <Chip key={name} label={`${name.charAt(0).toUpperCase() + name.slice(1)} ${value}`} />
-                        ))}
-                    </div>
-                </DetailSection>
-            )}
-
-            {/* Level-up Moves */}
-            {hasLvMoves && (
-                <DetailSection>
-                    <SectionLabel>Level-up Moves</SectionLabel>
+                    <SectionLabel>Moves</SectionLabel>
                     <div style={{
-                        maxHeight: '200px', overflowY: 'auto',
+                        maxHeight: '220px', overflowY: 'auto',
                         border: '1px solid var(--border-light)', borderRadius: '6px',
                         background: 'var(--poke-white)'
                     }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                             <thead>
                                 <tr style={{ background: 'var(--bg-section)' }}>
-                                    <th style={{ padding: '5px 8px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)', width: '36px' }}>Lv</th>
+                                    {!isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)', width: '36px' }}>Lv</th>}
                                     <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Move</th>
                                     <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Type</th>
+                                    {isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Freq</th>}
+                                    {isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Dmg</th>}
                                 </tr>
                             </thead>
                             <tbody>
-                                {levelUpMoves.map((move, i) => (
+                                {displayMoves.map((move, i) => (
                                     <tr key={i} style={{
-                                        borderBottom: i < levelUpMoves.length - 1 ? '1px solid var(--border-light)' : 'none',
+                                        borderBottom: i < displayMoves.length - 1 ? '1px solid var(--border-light)' : 'none',
                                         background: i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)'
                                     }}>
-                                        <td style={{ padding: '5px 8px', color: 'var(--text-muted)', fontWeight: 600, textAlign: 'right' }}>
-                                            {move.level ?? '—'}
-                                        </td>
+                                        {!isPTA3 && (
+                                            <td style={{ padding: '5px 8px', color: 'var(--text-muted)', fontWeight: 600, textAlign: 'right' }}>
+                                                {move.level ?? '—'}
+                                            </td>
+                                        )}
                                         <td style={{ padding: '5px 8px', color: 'var(--text-primary)', fontWeight: 500 }}>
                                             {move.name || moveName(move)}
                                         </td>
                                         <td style={{ padding: '5px 8px' }}>
                                             {move.type && <TypeChip type={move.type} />}
                                         </td>
+                                        {isPTA3 && (
+                                            <td style={{ padding: '5px 8px', color: 'var(--text-muted)', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                                                {move.frequency || '—'}
+                                            </td>
+                                        )}
+                                        {isPTA3 && (
+                                            <td style={{ padding: '5px 8px', color: 'var(--text-primary)', fontWeight: 600, fontSize: '11px' }}>
+                                                {move.damage || '—'}
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>
@@ -210,7 +252,7 @@ const SpeciesDetail = ({ species }) => {
                 </DetailSection>
             )}
 
-            {/* Egg & Tutor Moves */}
+            {/* Egg & Tutor Moves (old format only) */}
             {(hasEggMoves || hasTutor) && (
                 <DetailSection>
                     {hasEggMoves && (

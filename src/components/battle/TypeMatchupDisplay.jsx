@@ -15,7 +15,7 @@ const TypeChip = ({ type, label }) => (
 
 const Row = ({ heading, headingColor, items, label }) => items.length === 0 ? null : (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginBottom: '5px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 'bold', color: headingColor, whiteSpace: 'nowrap', minWidth: '60px', paddingTop: '3px' }}>
+        <span style={{ fontSize: '12px', fontWeight: 'bold', color: headingColor, whiteSpace: 'nowrap', minWidth: '76px', paddingTop: '3px' }}>
             {heading}
         </span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -44,11 +44,11 @@ const TypeMatchupDisplay = ({ selectedPokemon, megaEvolved, currentMegaForm }) =
                     {activeTypes.map(t => <TypeChip key={t} type={t} />)}
                 </div>
             </div>
-            <Row heading="Weak ×4"    headingColor="#c62828" items={eff.superWeak}   label=" ×4" />
-            <Row heading="Weak ×2"    headingColor="#f44336" items={eff.weak} />
-            <Row heading="Resists"    headingColor="#388e3c" items={eff.resist} />
-            <Row heading="Resists ×¼" headingColor="#1b5e20" items={eff.superResist} label=" ×¼" />
-            <Row heading="Immune"     headingColor="#555"    items={eff.immune}      label=" ×0" />
+            <Row heading="×4 (+2 dice)" headingColor="#c62828" items={eff.superWeak}   label=" ×4" />
+            <Row heading="×2 (+1 die)" headingColor="#f44336" items={eff.weak} />
+            <Row heading="½ (−1 die)"  headingColor="#388e3c" items={eff.resist} />
+            <Row heading="¼ (−2 dice)" headingColor="#1b5e20" items={eff.superResist} label=" ×¼" />
+            <Row heading="Immune"      headingColor="#555"    items={eff.immune}      label=" ×0" />
         </div>
     );
 };

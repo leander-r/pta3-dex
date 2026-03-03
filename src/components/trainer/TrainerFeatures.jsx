@@ -14,22 +14,17 @@ import toast from '../../utils/toast.js';
 const STAT_MODIFYING_FEATURES = {
     'League Member': { stat: 'sdef', value: 2 },
     'Study Session': { choices: ['satk', 'sdef'], value: 1, label: 'Choose stat to boost (+1)' },
-    'Workout': { choices: ['hp', 'atk', 'def', 'spd'], value: 1, label: 'Choose stat to boost (+1)' },
+    'Workout': { choices: ['atk', 'def', 'spd'], value: 1, label: 'Choose stat to boost (+1)' },
     'Alacrity': { stat: 'spd', calculated: { baseStat: 'atk', formula: 'halfMod' }, label: 'Adds half ATK modifier to Speed' },
     'Martial Endurance': { hpBonus: 'half', label: 'Adds (half ATK mod + half DEF mod) × 5 to Max HP' },
     'Improved Martial Endurance': { hpBonus: 'full', label: 'Adds (ATK mod + DEF mod) × 5 to Max HP', replaces: 'Martial Endurance' },
     'Mystic Veil': { hpBonus: 'mystic', label: 'Adds DEF modifier × 3 to Max HP' }
 };
 
-// Calculate stat modifier (PTA formula)
-const calculateModifier = (stat) => {
-    if (stat === 10) return 0;
-    if (stat < 10) return -(10 - stat);
-    return Math.floor((stat - 10) / 2);
-};
+// Calculate stat modifier (PTA3: ⌊stat / 2⌋)
+const calculateModifier = (stat) => Math.floor((stat || 0) / 2);
 
 const STAT_LABELS = {
-    hp: 'HP',
     atk: 'Attack',
     def: 'Defense',
     satk: 'Sp. Attack',

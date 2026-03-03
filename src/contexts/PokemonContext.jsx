@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
-import { MAX_PARTY_SIZE, MAX_NATURAL_MOVES, POKEMON_HP_MULTIPLIER, MAX_POKEMON_LEVEL } from '../data/constants.js';
+import { MAX_PARTY_SIZE, MAX_TOTAL_MOVES, MAX_POKEMON_LEVEL } from '../data/constants.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
@@ -47,10 +47,16 @@ const POKEMON_CAPABILITY_MAPPINGS = [
     ['mindslaver', 'Mindslaver'], ['powerOfTheLand', 'Power of the Land']
 ];
 
-// Build Pokemon skills array from a Pokédex species.skills object
+// Build Pokemon skills array from a Pokédex species.skills value.
+// Handles both new PTA3 format (string array) and old format (key-value object).
 const buildPokemonSkills = (skills) => {
+    if (!skills) return [];
+    // New PTA3 format: skills is a string array e.g. ["Sprouter", "Threaded"]
+    if (Array.isArray(skills)) {
+        return skills.filter(Boolean).map(name => ({ name }));
+    }
+    // Old format: skills is an object with numeric/boolean values
     const result = [];
-    if (!skills) return result;
     POKEMON_SKILL_MAPPINGS.forEach(([key, name]) => {
         if (skills[key] !== undefined && skills[key] !== null) {
             result.push({ name, value: skills[key] });
@@ -106,66 +112,7 @@ const resolveAbilityUpdates = (currentPoke, newAbilities) => {
     return updates;
 };
 
-// Calculate Pokemon level from experience
-const calculatePokemonLevel = (exp) => {
-    let level = 1;
-    for (let lvl in GAME_DATA.pokemonExpChart) {
-        if (exp >= GAME_DATA.pokemonExpChart[lvl]) {
-            level = parseInt(lvl);
-        } else {
-            break;
-        }
-    }
-    return level;
-};
-
-// ── Pure stat-point helpers ──────────────────────────────────
-// Each returns a partial `updates` object to be spread into the Pokemon record.
-
-function statPointsForLevelUp(p, newLevel) {
-    const newPointsEarned = newLevel - (p.highestLevelReached || p.level);
-    return {
-        highestLevelReached: newLevel,
-        statPointsAvailable: (p.statPointsAvailable || 0) + newPointsEarned
-    };
-}
-
-function statPointsForLevelDown(p, newLevel) {
-    const maxPossiblePoints = Math.max(0, newLevel - 1);
-    const totalAddedStats = Object.values(p.addedStats || {}).reduce((sum, val) => sum + (val || 0), 0);
-
-    if (totalAddedStats > maxPossiblePoints) {
-        const pointsToRemove = totalAddedStats - maxPossiblePoints;
-        const history = [...(p.statAllocationHistory || [])];
-        const newAddedStats = { ...p.addedStats };
-
-        for (let i = 0; i < pointsToRemove && history.length > 0; i++) {
-            const lastStat = history.pop();
-            if (lastStat && newAddedStats[lastStat] > 0) {
-                newAddedStats[lastStat]--;
-            }
-        }
-
-        return {
-            addedStats: newAddedStats,
-            statAllocationHistory: history,
-            statPointsAvailable: 0,
-            highestLevelReached: newLevel
-        };
-    }
-
-    return {
-        statPointsAvailable: Math.max(0, maxPossiblePoints - totalAddedStats)
-    };
-}
-
-function statPointsForRelevel(p, newLevel, pendingAddedStats) {
-    const maxPossiblePoints = Math.max(0, newLevel - 1);
-    const currentAddedStats = Object.values(pendingAddedStats || p.addedStats || {}).reduce((sum, val) => sum + (val || 0), 0);
-    return {
-        statPointsAvailable: Math.max(0, maxPossiblePoints - currentAddedStats)
-    };
-}
+// PTA3: No stat allocation helpers needed — stats are fixed from Pokédex
 
 export const PokemonProvider = ({ children }) => {
     const { pokedex, getMovesForLevelRange, customSpecies } = useGameData();
@@ -184,7 +131,7 @@ export const PokemonProvider = ({ children }) => {
     const partyRef = useRef(party);
     partyRef.current = party;
 
-    // Add new Pokemon
+    // Add new Pokemon (PTA3: no stat allocation fields)
     const addPokemon = useCallback(() => {
         const newPokemon = {
             id: Date.now() * 1000 + Math.floor(Math.random() * 999),
@@ -198,14 +145,11 @@ export const PokemonProvider = ({ children }) => {
             types: [],
             nature: 'Hardy',
             ability: '',
-            baseStats: { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
-            addedStats: { hp: 0, atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 },
-            statAllocationHistory: [],
+            baseStats: { hp: 30, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 },
             moves: [],
             skills: [],
             notes: '',
-            loyalty: 2,
-            statPointsAvailable: 0
+            loyalty: 2
         };
 
         if (pokemonView === 'party' && partyRef.current.length < MAX_PARTY_SIZE) {
@@ -350,42 +294,21 @@ export const PokemonProvider = ({ children }) => {
             ? party.find(p => p.id === id)
             : reserve.find(p => p.id === id);
 
-        // 2. Build the updater function (resolves level/exp sync + stat-point accounting)
+        // 2. Build the updater function (PTA3: no stat-point accounting on level change)
         const updateFn = (prev) => prev.map(p => {
             if (p.id !== id) return p;
 
             let newLevel = p.level;
             let hasLevelChange = false;
 
-            if (updates.exp !== undefined) {
-                newLevel = calculatePokemonLevel(updates.exp);
-                updates.level = newLevel;
-                hasLevelChange = newLevel !== p.level;
-            } else if (updates.level !== undefined && updates.level !== p.level) {
+            if (updates.level !== undefined && updates.level !== p.level) {
                 newLevel = Math.min(updates.level, MAX_POKEMON_LEVEL);
                 hasLevelChange = true;
-                updates.exp = GAME_DATA.pokemonExpChart[newLevel] || 0;
             }
 
-            if (hasLevelChange) {
-                const oldLevel = p.level;
-                const highestLevelReached = p.highestLevelReached || oldLevel;
-
-                if (newLevel > highestLevelReached) {
-                    const newPointsEarned = newLevel - highestLevelReached;
-                    Object.assign(updates, statPointsForLevelUp(p, newLevel));
-                    showLevelUpNotification({
-                        type: 'pokemon',
-                        name: p.name,
-                        level: newLevel,
-                        statPoints: newPointsEarned
-                    });
-                } else if (newLevel < oldLevel) {
-                    Object.assign(updates, statPointsForLevelDown(p, newLevel));
-                } else if (newLevel > oldLevel) {
-                    // Re-leveling within previously reached range
-                    Object.assign(updates, statPointsForRelevel(p, newLevel, updates.addedStats));
-                }
+            if (hasLevelChange && newLevel > (p.highestLevelReached || p.level)) {
+                updates.highestLevelReached = newLevel;
+                showLevelUpNotification({ type: 'pokemon', name: p.name, level: newLevel });
             }
 
             return { ...p, ...updates };
@@ -409,7 +332,7 @@ export const PokemonProvider = ({ children }) => {
                 const movesToLearn = getMovesForLevelRange(currentPoke, oldLvl, newLvl);
                 if (movesToLearn.length === 0) return;
 
-                let currentNaturalCount = startingMoves.filter(m => m.source === 'natural').length;
+                let currentMoveCount = startingMoves.length;
                 const movesToLearnDirectly = [];
                 const movesToQueue = [];
 
@@ -419,9 +342,10 @@ export const PokemonProvider = ({ children }) => {
                     );
                     if (alreadyKnows) return;
 
-                    if (currentNaturalCount < MAX_NATURAL_MOVES) {
+                    // PTA3: single pool of 6 moves, no natural/taught distinction for cap
+                    if (currentMoveCount < MAX_TOTAL_MOVES) {
                         movesToLearnDirectly.push(newMove);
-                        currentNaturalCount++;
+                        currentMoveCount++;
                     } else {
                         movesToQueue.push({
                             pokemonId,
@@ -446,9 +370,7 @@ export const PokemonProvider = ({ children }) => {
         };
 
         const oldLevel = currentPokemon?.level;
-        const newLevel = updates.exp !== undefined
-            ? calculatePokemonLevel(updates.exp)
-            : (updates.level !== undefined ? updates.level : oldLevel);
+        const newLevel = updates.level !== undefined ? updates.level : oldLevel;
         handleMoveLearning(currentPokemon, newLevel, oldLevel, inParty);
     }, [party, reserve, setParty, setReserve, showLevelUpNotification, getMovesForLevelRange, learnMove, forgetMovesAboveLevel, setPendingMoveLearn]);
 
@@ -672,14 +594,13 @@ export const PokemonProvider = ({ children }) => {
 
             if (freshPokemon) {
                 const freshMoves = freshPokemon.moves || [];
-                const naturalMoves = freshMoves.filter(m => m.source === 'natural');
                 const alreadyKnows = freshMoves.some(m =>
                     m.name.toLowerCase() === nextMove.newMove.move.toLowerCase()
                 );
 
                 if (alreadyKnows) {
                     setPendingMoveLearn(prev => prev.slice(1));
-                } else if (naturalMoves.length < MAX_NATURAL_MOVES) {
+                } else if (freshMoves.length < MAX_TOTAL_MOVES) {
                     learnMove(nextMove.pokemonId, nextMove.newMove, null, nextMove.inParty);
                     setPendingMoveLearn(prev => prev.slice(1));
                 } else {
@@ -697,10 +618,10 @@ export const PokemonProvider = ({ children }) => {
         }
     }, [pendingMoveLearn, showMoveLearnModal, party, reserve, learnMove, setPendingMoveLearn, setMoveLearnData, setShowMoveLearnModal]);
 
-    // Calculate Pokemon max HP
+    // Calculate Pokemon max HP (PTA3: fixed species HP stat, nature ±1 applied)
     const calculatePokemonMaxHP = useCallback((poke) => {
         const actualStats = getActualStats(poke);
-        return poke.level + (actualStats.hp * POKEMON_HP_MULTIPLIER);
+        return actualStats.hp;
     }, []);
 
     // Calculate STAB bonus
@@ -736,7 +657,7 @@ export const PokemonProvider = ({ children }) => {
                     seenMoves.add(moveLower);
                     return true;
                 })
-                .slice(0, MAX_NATURAL_MOVES)
+                .slice(0, MAX_TOTAL_MOVES)
                 .map(m => {
                     const moveData = GAME_DATA.moves[m.move] || {};
                     return {

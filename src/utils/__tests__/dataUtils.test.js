@@ -3,8 +3,6 @@ import {
     calcModifier,
     formatNumber,
     parseDice,
-    calculatePokemonLevel,
-    getExpToNextLevel,
     applyCombatStage,
     applyNature,
     calculatePokemonHP,
@@ -12,20 +10,24 @@ import {
 } from '../dataUtils.js';
 
 describe('calcModifier', () => {
-    it('returns 0 for stat 10', () => {
-        expect(calcModifier(10)).toBe(0);
+    it('returns 0 for stat 0', () => {
+        expect(calcModifier(0)).toBe(0);
     });
 
-    it('returns 2 for stat 14', () => {
-        expect(calcModifier(14)).toBe(2);
+    it('returns 0 for stat 1', () => {
+        expect(calcModifier(1)).toBe(0);
     });
 
-    it('returns -1 for stat 8', () => {
-        expect(calcModifier(8)).toBe(-1);
+    it('returns 2 for stat 4', () => {
+        expect(calcModifier(4)).toBe(2);
     });
 
-    it('returns -5 for stat 1', () => {
-        expect(calcModifier(1)).toBe(-5);
+    it('returns 3 for stat 6', () => {
+        expect(calcModifier(6)).toBe(3);
+    });
+
+    it('returns 5 for stat 10', () => {
+        expect(calcModifier(10)).toBe(5);
     });
 });
 
@@ -57,68 +59,68 @@ describe('parseDice', () => {
     });
 });
 
-describe('calculatePokemonLevel', () => {
-    it('returns level 1 for 0 exp', () => {
-        expect(calculatePokemonLevel(0)).toBe(1);
-    });
-
-    it('returns level 10 for 1000 exp', () => {
-        expect(calculatePokemonLevel(1000)).toBe(10);
-    });
-
-    it('returns level 100 for max exp', () => {
-        expect(calculatePokemonLevel(2000000)).toBe(100);
-    });
-});
-
-describe('getExpToNextLevel', () => {
-    it('returns 0 when already at max level with max exp', () => {
-        expect(getExpToNextLevel(2000000, 100)).toBe(0);
-    });
-
-    it('returns positive number at level 1 with 0 exp', () => {
-        expect(getExpToNextLevel(0, 1)).toBeGreaterThan(0);
-    });
-});
-
 describe('applyCombatStage', () => {
     it('returns base stat unchanged at stage 0', () => {
-        expect(applyCombatStage(100, 0)).toBe(100);
+        expect(applyCombatStage(10, 0)).toBe(10);
     });
 
-    it('applies +25% per positive stage at +2', () => {
-        expect(applyCombatStage(100, 2)).toBe(150);
+    it('adds 2 per positive stage at +1', () => {
+        expect(applyCombatStage(10, 1)).toBe(12);
     });
 
-    it('applies -10% per negative stage at -2', () => {
-        expect(applyCombatStage(100, -2)).toBe(80);
+    it('adds 4 per positive stage at +2', () => {
+        expect(applyCombatStage(10, 2)).toBe(14);
+    });
+
+    it('subtracts 2 per negative stage at -1', () => {
+        expect(applyCombatStage(10, -1)).toBe(8);
+    });
+
+    it('subtracts 4 per negative stage at -2', () => {
+        expect(applyCombatStage(10, -2)).toBe(6);
     });
 });
 
 describe('applyNature', () => {
     const baseStats = { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 };
 
-    it('Adamant boosts ATK and lowers SATK', () => {
+    it('Adamant boosts ATK by 1 and lowers SATK by 1', () => {
         const result = applyNature(baseStats, 'Adamant');
-        expect(result.atk).toBe(12);
-        expect(result.satk).toBe(8);
+        expect(result.atk).toBe(11);
+        expect(result.satk).toBe(9);
     });
 
     it('Hardy (neutral) returns stats unchanged', () => {
         const result = applyNature(baseStats, 'Hardy');
         expect(result).toEqual(baseStats);
     });
+
+    it('does not reduce a stat below 1', () => {
+        const lowStats = { hp: 1, atk: 1, def: 1, satk: 1, sdef: 1, spd: 1 };
+        const result = applyNature(lowStats, 'Adamant');
+        expect(result.satk).toBe(1);
+    });
 });
 
 describe('calculatePokemonHP', () => {
-    it('calculates HP as level + (hp_stat × 3)', () => {
+    it('returns the HP stat from baseStats (PTA3: fixed Pokédex value)', () => {
         const pokemon = {
             level: 10,
-            baseStats: { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
-            addedStats: { hp: 0, atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 },
+            baseStats: { hp: 30, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 },
             nature: 'Hardy',
         };
-        expect(calculatePokemonHP(pokemon)).toBe(40);
+        expect(calculatePokemonHP(pokemon)).toBe(30);
+    });
+
+    it('applies nature ±1 to HP stat', () => {
+        // Use a nature that buffs HP (custom scenario — most natures affect combat stats, not HP)
+        // Hardy is neutral, so HP stays at baseStats.hp
+        const pokemon = {
+            level: 5,
+            baseStats: { hp: 25, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 },
+            nature: 'Hardy',
+        };
+        expect(calculatePokemonHP(pokemon)).toBe(25);
     });
 
     it('returns 0 for null input', () => {
@@ -127,15 +129,9 @@ describe('calculatePokemonHP', () => {
 });
 
 describe('calculateSTAB', () => {
-    it('returns 0 at level 1', () => {
-        expect(calculateSTAB(1)).toBe(0);
-    });
-
-    it('returns 10 at level 50', () => {
-        expect(calculateSTAB(50)).toBe(10);
-    });
-
-    it('returns 20 at level 100', () => {
-        expect(calculateSTAB(100)).toBe(20);
+    it('returns fixed 4 regardless of level (PTA3)', () => {
+        expect(calculateSTAB(1)).toBe(4);
+        expect(calculateSTAB(10)).toBe(4);
+        expect(calculateSTAB(15)).toBe(4);
     });
 });

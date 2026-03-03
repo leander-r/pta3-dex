@@ -102,7 +102,7 @@ const MoveLearnModal = () => {
                     </div>
 
                     <div className={`move-learn-warning ${isNatural ? 'natural' : 'taught'}`}>
-                        <strong>⚠️ {moveLearnData.pokemonName} already knows 4 {isNatural ? 'Natural' : 'Taught'} moves!</strong>
+                        <strong>⚠️ {moveLearnData.pokemonName} already knows 6 moves!</strong>
                         <div className="move-learn-warning-text">
                             Tap a move to view details. Choose a move to forget, or skip learning.
                         </div>
@@ -110,12 +110,11 @@ const MoveLearnModal = () => {
 
                     <div className="move-learn-current-moves">
                         <div className="move-learn-section-title">
-                            Current {isNatural ? 'Natural' : 'Taught'} Moves:
+                            Current Moves:
                         </div>
                         <div className="move-learn-moves-list">
                             {(moveLearnData.currentMoves || [])
                                 .map((move, index) => ({ move, index }))
-                                .filter(({ move }) => move.source === moveSource)
                                 .map(({ move, index }) => {
                                     const moveDef = GAME_DATA.moves[move.name] || move;
                                     return (

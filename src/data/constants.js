@@ -11,7 +11,7 @@ export const EVOLUTION_STONES = [
 ];
 
 /**
- * Default trainer template for new trainers
+ * Default trainer template for new trainers (PTA3 rules)
  */
 export const DEFAULT_TRAINER = {
     id: Date.now(),
@@ -20,13 +20,15 @@ export const DEFAULT_TRAINER = {
     age: '',
     avatar: '',
     level: 0,
-    experience: 0,
+    honors: 0,             // Replaces experience; honors = gym badges, ribbons, etc.
     classes: [],
-    stats: { hp: 6, atk: 6, def: 6, satk: 6, sdef: 6, spd: 6 },
-    statPoints: 30,        // Character creation points (cap at 14 per stat)
+    stats: { atk: 3, def: 3, satk: 3, sdef: 3, spd: 3 },  // 5 stats, 1-10 scale, mid-range default
+    maxHp: 20,             // Fixed base HP; increases via rolls at milestone levels
+    hpRolls: [],           // 1d4 results added at levels 3, 7, 11
+    statPoints: 25,        // Character creation points (point-buy budget)
     levelStatPoints: 0,    // Level-up stat points (no cap)
     featPoints: 0,         // Feature points
-    skills: {},            // Skills with ranks: { 'Browbeat': 1, 'Jump': 2 }
+    skills: {},            // Skills with talents: { 'Athletics': 1, 'Stealth': 2 }
     features: [],
     notes: '',
     badges: [],
@@ -37,7 +39,8 @@ export const DEFAULT_TRAINER = {
 };
 
 /**
- * Default Pokemon template for new Pokemon
+ * Default Pokemon template for new Pokemon (PTA3 rules)
+ * Stats are now fixed from Pokédex entry; no addedStats or stat allocation.
  */
 export const DEFAULT_POKEMON = {
     id: Date.now(),
@@ -52,28 +55,18 @@ export const DEFAULT_POKEMON = {
     nature: 'Hardy',
     ability: '',
     baseStats: {
-        hp: 10,
-        atk: 10,
-        def: 10,
-        satk: 10,
-        sdef: 10,
-        spd: 10
+        hp: 30,
+        atk: 5,
+        def: 5,
+        satk: 5,
+        sdef: 5,
+        spd: 5
     },
-    addedStats: {
-        hp: 0,
-        atk: 0,
-        def: 0,
-        satk: 0,
-        sdef: 0,
-        spd: 0
-    },
-    statAllocationHistory: [],
     moves: [],
-    skills: [],
+    skills: [],   // Array of capability/skill strings e.g. ["Sprouter", "Threaded"]
     notes: '',
     loyalty: 2,
-    heldItem: '',
-    statPointsAvailable: 0
+    heldItem: ''
 };
 
 /**
@@ -123,9 +116,9 @@ export const MOVE_SOURCES = {
 export const MAX_PARTY_SIZE = 6;
 
 /**
- * Maximum trainer level
+ * Maximum trainer level (PTA3: honor-based leveling, max 15)
  */
-export const MAX_TRAINER_LEVEL = 50;
+export const MAX_TRAINER_LEVEL = 15;
 
 /**
  * Maximum Pokemon level
@@ -133,19 +126,19 @@ export const MAX_TRAINER_LEVEL = 50;
 export const MAX_POKEMON_LEVEL = 100;
 
 /**
- * Base stat value for new trainers
+ * Base stat value for new trainers (PTA3: 1-10 scale)
  */
-export const BASE_STAT_VALUE = 6;
+export const BASE_STAT_VALUE = 1;
 
 /**
- * Character creation stat points
+ * Character creation stat points (PTA3 point-buy budget)
  */
-export const CREATION_STAT_POINTS = 30;
+export const CREATION_STAT_POINTS = 25;
 
 /**
- * Character creation stat cap
+ * Character creation stat cap (PTA3: max 6 at creation)
  */
-export const CREATION_STAT_CAP = 14;
+export const CREATION_STAT_CAP = 6;
 
 /**
  * Network fetch timeout (milliseconds)
@@ -163,19 +156,21 @@ export const MAX_TRAINER_IMPORT_BYTES = 5 * 1024 * 1024;
 export const MAX_POKEMON_IMPORT_BYTES = 100 * 1024;
 
 /**
- * Maximum number of natural (level-up) moves a Pokemon can have at once
+ * @deprecated PTA3 does not distinguish natural vs taught moves.
+ * Use MAX_TOTAL_MOVES instead.
  */
-export const MAX_NATURAL_MOVES = 4;
+export const MAX_NATURAL_MOVES = 6;
 
 /**
- * Maximum number of taught (TM/tutor/egg/custom) moves a Pokemon can have at once
+ * @deprecated PTA3 does not distinguish natural vs taught moves.
+ * Use MAX_TOTAL_MOVES instead.
  */
-export const MAX_TAUGHT_MOVES = 4;
+export const MAX_TAUGHT_MOVES = 6;
 
 /**
- * Maximum total moves a Pokemon can have (natural + taught combined)
+ * Maximum total moves a Pokemon can have (PTA3: 6 total, no natural/taught distinction)
  */
-export const MAX_TOTAL_MOVES = MAX_NATURAL_MOVES + MAX_TAUGHT_MOVES;
+export const MAX_TOTAL_MOVES = 6;
 
 /**
  * Maximum number of roll entries kept in battle roll history
@@ -183,29 +178,26 @@ export const MAX_TOTAL_MOVES = MAX_NATURAL_MOVES + MAX_TAUGHT_MOVES;
 export const MAX_ROLL_HISTORY = 50;
 
 /**
- * Combat stage multiplier applied per positive stage (e.g. +1 stage → stat × 1.25)
+ * @deprecated PTA3 uses flat combat stages (+2 per stage), not multipliers.
+ * Retained only for save-data migration detection.
  */
 export const COMBAT_STAGE_POSITIVE_MULTIPLIER = 0.25;
 
 /**
- * Combat stage multiplier applied per negative stage (e.g. -1 stage → stat × 0.90)
+ * @deprecated PTA3 uses flat combat stages (+2 per stage), not multipliers.
+ * Retained only for save-data migration detection.
  */
 export const COMBAT_STAGE_NEGATIVE_MULTIPLIER = 0.10;
 
 /**
- * Trainer stat value at which the modifier is exactly 0
+ * Flat stat added per combat stage (PTA3: +2 per stage, applies to both + and -)
  */
-export const TRAINER_STAT_NEUTRAL = 10;
+export const COMBAT_STAGE_FLAT_PER_STAGE = 2;
 
 /**
- * Multiplier used in the trainer HP formula: maxHP = (hp_stat × n) + (level × n)
+ * STAB bonus (PTA3: fixed +4, no level scaling)
  */
-export const TRAINER_HP_MULTIPLIER = 4;
-
-/**
- * Multiplier used in the Pokemon HP formula: maxHP = level + (hp_stat × n)
- */
-export const POKEMON_HP_MULTIPLIER = 3;
+export const STAB_BONUS = 4;
 
 /**
  * Milliseconds in one day — used for backup-reminder age calculations
@@ -218,19 +210,40 @@ export const MS_PER_DAY = 86_400_000;
 export const BACKUP_REMINDER_DAYS = 7;
 
 /**
- * Minimum trainer level required to pick a 2nd class
+ * Minimum trainer level required to pick a 2nd class (PTA3)
  */
-export const CLASS_2_MIN_LEVEL = 5;
+export const CLASS_2_MIN_LEVEL = 3;
 
 /**
- * Minimum trainer level required to pick a 3rd class
+ * Minimum trainer level required to pick a 3rd class (PTA3)
  */
-export const CLASS_3_MIN_LEVEL = 12;
+export const CLASS_3_MIN_LEVEL = 7;
 
 /**
- * Minimum trainer level required to pick a 4th class
+ * Minimum trainer level required to pick a 4th class (PTA3)
  */
-export const CLASS_4_MIN_LEVEL = 24;
+export const CLASS_4_MIN_LEVEL = 11;
+
+/**
+ * Honor (gym badge/ribbon) thresholds for each trainer level (PTA3).
+ * Key = level, value = honors required to reach that level.
+ */
+export const HONOR_THRESHOLDS = {
+    1: 0, 2: 1, 3: 2, 4: 3, 5: 5, 6: 7, 7: 9, 8: 12, 9: 15, 10: 18,
+    11: 22, 12: 26, 13: 30, 14: 35, 15: 40
+};
+
+/**
+ * Trainer levels at which an HP milestone roll (1d4) is granted (PTA3)
+ */
+export const HP_MILESTONE_LEVELS = [3, 7, 11];
+
+/**
+ * Point-buy costs for each stat value during character creation (PTA3).
+ * Stat 1 costs 1 pt, stat 2 costs 2 pts (total), etc.
+ * These are CUMULATIVE costs from 1 to each level.
+ */
+export const POINT_BUY_COSTS = { 1: 1, 2: 2, 3: 3, 4: 6, 5: 8, 6: 11 };
 
 /**
  * Auto-save debounce delay (ms) — how long to wait after a data change before saving

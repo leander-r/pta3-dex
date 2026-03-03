@@ -12,24 +12,18 @@ const getGenderSymbol = (gender) =>
  * Export trainer data as formatted text for Discord/sharing
  */
 export const exportTrainerText = (trainer) => {
-    const actualStats = {
-        hp: trainer.stats.hp,
-        atk: trainer.stats.atk,
-        def: trainer.stats.def,
-        satk: trainer.stats.satk,
-        sdef: trainer.stats.sdef,
-        spd: trainer.stats.spd
-    };
-    const maxHP = (trainer.stats.hp * 4) + (trainer.level * 4);
+    // PTA3: 5 stats, no HP stat
+    const maxHP = (trainer.maxHp ?? 20) + (trainer.hpRolls || []).reduce((s, v) => s + v, 0);
     const genderSymbol = getGenderSymbol(trainer.gender);
     const classesDisplay = (trainer.classes && trainer.classes.length > 0) ? trainer.classes.join(' / ') : 'Trainer';
+    const honors = trainer.honors ?? 0;
 
     let text = `**━━━━━━ TRAINER CARD ━━━━━━**\n`;
     text += `**${trainer.name || 'Unnamed'}** ${genderSymbol}\n`;
-    text += `Level ${trainer.level} ${classesDisplay}\n\n`;
+    text += `Level ${trainer.level} ${classesDisplay} · ${honors} Honors\n\n`;
     text += `**Stats** (Max HP: ${maxHP})\n`;
-    text += `HP: ${actualStats.hp} | ATK: ${actualStats.atk} | DEF: ${actualStats.def}\n`;
-    text += `SATK: ${actualStats.satk} | SDEF: ${actualStats.sdef} | SPD: ${actualStats.spd}\n\n`;
+    text += `ATK: ${trainer.stats.atk ?? 0} | DEF: ${trainer.stats.def ?? 0} | SATK: ${trainer.stats.satk ?? 0}\n`;
+    text += `SDEF: ${trainer.stats.sdef ?? 0} | SPD: ${trainer.stats.spd ?? 0}\n\n`;
     
     if (trainer.features.length > 0) {
         const featureNames = trainer.features.map(f => typeof f === 'object' ? (f.name || 'Unknown') : f).filter(Boolean);
@@ -371,8 +365,6 @@ export const exportSinglePokemon = (pokemon) => {
             abilities: pokemon.abilities || [],
             moves: pokemon.moves || [],
             baseStats: pokemon.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
-            addedStats: pokemon.addedStats || { hp: 0, atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 },
-            statPointsAvailable: pokemon.statPointsAvailable || 0,
             currentDamage: pokemon.currentDamage || 0,
             gender: pokemon.gender || '',
             avatar: pokemon.avatar || ''
@@ -651,7 +643,6 @@ export const importSinglePokemon = (jsonData) => {
             name: sanitizeString(pokemon.name || pokemon.species || 'Unknown'),
             species: sanitizeString(pokemon.species || 'Unknown'),
             level: clampNumber(pokemon.level, 1, IMPORT_LIMITS.MAX_LEVEL, 1),
-            experience: clampNumber(pokemon.experience, 0, 1000000, 0),
             types,
             nature,
             abilities,
@@ -660,8 +651,6 @@ export const importSinglePokemon = (jsonData) => {
             ability3: sanitizeString(pokemon.ability3 || '', 50),
             moves,
             baseStats: validateStats(pokemon.baseStats, IMPORT_LIMITS.MAX_STAT),
-            addedStats: validateStats(pokemon.addedStats, IMPORT_LIMITS.MAX_ADDED_STAT),
-            statPointsAvailable: clampNumber(pokemon.statPointsAvailable, 0, 500, 0),
             currentDamage: clampNumber(pokemon.currentDamage, 0, 9999, 0),
             gender,
             avatar: validateAvatar(pokemon.avatar),
@@ -671,8 +660,7 @@ export const importSinglePokemon = (jsonData) => {
             notes: sanitizeString(pokemon.notes || '', IMPORT_LIMITS.MAX_NOTES_LENGTH),
             // These will be regenerated based on species data
             availableAbilities: [],
-            availableLevelUpMoves: [],
-            statAllocationHistory: []
+            availableLevelUpMoves: []
         };
 
         return importedPokemon;
@@ -690,13 +678,15 @@ export const importSinglePokemon = (jsonData) => {
 export const generatePrintSheetHTML = (trainer, party) => {
     const genderSymbol = trainer.gender === 'male' ? '♂' : trainer.gender === 'female' ? '♀' : '';
     const classesDisplay = trainer.classes?.length > 0 ? trainer.classes.join(' / ') : 'Trainer';
-    const maxHP = (trainer.stats?.hp ?? 0) * 4 + (trainer.level ?? 0) * 4;
+    // PTA3: trainer HP = 20 base + sum of 1d4 milestone rolls
+    const maxHP = (trainer.maxHp ?? 20) + (trainer.hpRolls || []).reduce((s, v) => s + v, 0);
 
+    // PTA3: trainers have 5 stats (no HP stat)
     const statTable = (stats) => `
         <table class="stat-table">
-            <thead><tr><th>HP</th><th>ATK</th><th>DEF</th><th>SATK</th><th>SDEF</th><th>SPD</th></tr></thead>
+            <thead><tr><th>ATK</th><th>DEF</th><th>SATK</th><th>SDEF</th><th>SPD</th></tr></thead>
             <tbody><tr>
-                <td>${stats?.hp ?? 0}</td><td>${stats?.atk ?? 0}</td><td>${stats?.def ?? 0}</td>
+                <td>${stats?.atk ?? 0}</td><td>${stats?.def ?? 0}</td>
                 <td>${stats?.satk ?? 0}</td><td>${stats?.sdef ?? 0}</td><td>${stats?.spd ?? 0}</td>
             </tr></tbody>
         </table>`;
@@ -719,7 +709,7 @@ export const generatePrintSheetHTML = (trainer, party) => {
     const partyCards = (party || []).map(poke => {
         const sp = poke.species && poke.species !== poke.name ? ` (${poke.species})` : '';
         const types = (poke.types || []).join(' / ') || '—';
-        const pokeMaxHP = (poke.baseStats?.hp ?? 0) * 3 + (poke.level ?? 0) * 3;
+        const pokeMaxHP = calculatePokemonHP(poke);
         const abilities = [poke.ability, poke.ability2, poke.ability3].filter(Boolean).join(', ') || '—';
         const movesRows = (poke.moves || []).map(m =>
             `<tr><td>${m.name || '?'}</td><td>${m.type || '?'}</td><td>${m.category || '?'}</td><td>${m.damage || '—'}</td><td>${m.frequency || '—'}</td></tr>`

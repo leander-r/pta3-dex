@@ -5,8 +5,9 @@
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 
-const STAT_OPTIONS = ['', 'hp', 'atk', 'def', 'satk', 'sdef', 'spd'];
-const STAT_LABELS = { '': 'All', 'hp': 'HP', 'atk': 'ATK', 'def': 'DEF', 'satk': 'SATK', 'sdef': 'SDEF', 'spd': 'SPD' };
+// PTA3 natures only affect the 5 battle stats (no HP)
+const STAT_OPTIONS = ['', 'atk', 'def', 'satk', 'sdef', 'spd'];
+const STAT_LABELS = { '': 'All', 'atk': 'ATK', 'def': 'DEF', 'satk': 'SATK', 'sdef': 'SDEF', 'spd': 'SPD' };
 
 const NaturesSection = () => {
     const [filter, setFilter] = useState({
@@ -73,7 +74,8 @@ const NaturesSection = () => {
         <div>
             <h3>Nature Effects ({totalNatures} Natures)</h3>
             <p style={{ marginBottom: '15px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                Natures modify base stats by +1/-1. HP modifications are always just +1 or -1 to the HP Base Stat.
+                Natures modify one stat by <strong>+1</strong> and lower another by <strong>−1</strong>.
+                The 5 neutral natures (Hardy, Docile, Serious, Bashful, Quirky) have no effect.
             </p>
 
             {/* Search and Filters */}

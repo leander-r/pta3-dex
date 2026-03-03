@@ -508,10 +508,9 @@ const TrainerCard = ({ trainer, pokemon }) => (
         }}>
             <SectionHeader
                 label="Stats"
-                rightContent={`Max HP: ${(trainer.stats.hp * 4) + (trainer.level * 4)}`}
+                rightContent={`Max HP: ${(trainer.maxHp ?? 20) + (trainer.hpRolls || []).reduce((s, v) => s + v, 0)}`}
             />
             {[
-                { label: 'HP', key: 'hp', value: trainer.stats.hp },
                 { label: 'ATK', key: 'atk', value: trainer.stats.atk },
                 { label: 'DEF', key: 'def', value: trainer.stats.def },
                 { label: 'SATK', key: 'satk', value: trainer.stats.satk },
