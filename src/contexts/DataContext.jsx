@@ -682,7 +682,7 @@ export const DataProvider = ({ children }) => {
             text += ` (${poke.species})`;
         }
         text += `\n`;
-        text += `Level ${poke.level} | ${(poke.types || []).join('/')} | ${poke.nature} Nature\n`;
+        text += `${(poke.types || []).join('/')} | ${poke.nature} Nature\n`;
 
         const abilities = [poke.ability, poke.ability2, poke.ability3].filter(a => a);
         text += `**Abilities:** ${abilities.length > 0 ? abilities.join(', ') : 'None'}\n`;
@@ -736,7 +736,7 @@ export const DataProvider = ({ children }) => {
                 const typeStr = poke.types?.join('/') || 'Normal';
 
                 text += `\n**${idx + 1}. ${poke.name || poke.species || 'Unknown'}** ${genderIcon}\n`;
-                text += `   Lv.${poke.level} | ${typeStr} | HP: ${currentHP}/${maxHP}\n`;
+                text += `   ${typeStr} | HP: ${currentHP}/${maxHP}\n`;
                 text += `   ATK:${actualStats.atk} DEF:${actualStats.def} SATK:${actualStats.satk} SDEF:${actualStats.sdef} SPD:${actualStats.spd}\n`;
 
                 if (poke.moves && poke.moves.length > 0) {

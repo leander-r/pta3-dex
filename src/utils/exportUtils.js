@@ -61,7 +61,7 @@ export const exportPokemonText = (poke) => {
         text += ` (${poke.species})`;
     }
     text += `\n`;
-    text += `Level ${poke.level} | ${(poke.types || []).join('/') || 'Normal'} | ${poke.nature || 'Hardy'} Nature\n`;
+    text += `${(poke.types || []).join('/') || 'Normal'} | ${poke.nature || 'Hardy'} Nature\n`;
     
     // Build abilities list
     const abilities = [poke.ability, poke.ability2, poke.ability3].filter(a => a);
@@ -120,7 +120,7 @@ export const exportTeamText = (trainer, party) => {
             const typeStr = poke.types?.join('/') || 'Normal';
             
             text += `\n**${idx + 1}. ${poke.name || poke.species || 'Unknown'}** ${genderIcon}\n`;
-            text += `   Lv.${poke.level} | ${typeStr} | HP: ${currentHP}/${maxHP}\n`;
+            text += `   ${typeStr} | HP: ${currentHP}/${maxHP}\n`;
             text += `   ATK:${actualStats.atk} DEF:${actualStats.def} SATK:${actualStats.satk} SDEF:${actualStats.sdef} SPD:${actualStats.spd}\n`;
             
             // Show moves (max 4)
@@ -359,7 +359,7 @@ export const exportSinglePokemon = (pokemon) => {
             // Ensure all important fields are included
             name: pokemon.name || pokemon.species || 'Unknown',
             species: pokemon.species || 'Unknown',
-            level: pokemon.level || 1,
+
             types: pokemon.types || ['Normal'],
             nature: pokemon.nature || 'Hardy',
             abilities: pokemon.abilities || [],
@@ -380,7 +380,7 @@ export const exportSinglePokemon = (pokemon) => {
     const a = document.createElement('a');
     a.href = url;
     const pokeName = (pokemon.name || pokemon.species || 'pokemon').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-    a.download = `pokemon-${pokeName}-lv${pokemon.level || 1}.json`;
+    a.download = `pokemon-${pokeName}.json`;
     a.click();
     URL.revokeObjectURL(url);
 };
@@ -400,7 +400,7 @@ const IMPORT_LIMITS = {
     MAX_MOVES: 8, // Max moves a Pokemon can have
     MAX_ABILITIES: 5, // Max abilities
     MAX_SKILLS: 20, // Max Pokemon skills
-    MAX_LEVEL: 100, // Max Pokemon level
+
     MAX_STAT: 50, // Max base stat value
     MAX_ADDED_STAT: 100, // Max added stat points per stat
 };
@@ -642,7 +642,7 @@ export const importSinglePokemon = (jsonData) => {
             id: Date.now() + Math.random(),
             name: sanitizeString(pokemon.name || pokemon.species || 'Unknown'),
             species: sanitizeString(pokemon.species || 'Unknown'),
-            level: clampNumber(pokemon.level, 1, IMPORT_LIMITS.MAX_LEVEL, 1),
+
             types,
             nature,
             abilities,
@@ -719,7 +719,7 @@ export const generatePrintSheetHTML = (trainer, party) => {
         <div class="poke-card">
             <div class="poke-header">
                 <strong>${poke.name || poke.species || 'Unknown'}${sp}</strong>
-                <span>Lv. ${poke.level ?? 1} · ${types} · Max HP: ${pokeMaxHP}</span>
+                <span>${types} · Max HP: ${pokeMaxHP}</span>
             </div>
             <p style="margin:4px 0;font-size:12px;"><strong>Nature:</strong> ${poke.nature || 'Hardy'} &nbsp; <strong>Abilities:</strong> ${abilities}</p>
             ${statTable(poke.baseStats)}

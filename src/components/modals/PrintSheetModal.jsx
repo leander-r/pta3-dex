@@ -95,7 +95,7 @@ const PrintSheetModal = () => {
                                 >
                                     <span style={{ fontWeight: 600 }}>{poke.name || poke.species || 'Unknown'}</span>
                                     <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-                                        Lv. {poke.level ?? 1} · {(poke.types || []).join('/')}
+                                        {(poke.types || []).join('/')}
                                     </span>
                                 </div>
                             ))

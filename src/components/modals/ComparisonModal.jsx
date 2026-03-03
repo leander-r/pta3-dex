@@ -62,7 +62,7 @@ const ComparisonModal = () => {
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{pok.species}</div>
                     )}
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                        Lv.{pok.level || 1}{pok.gender ? ` · ${pok.gender}` : ''}
+                        {pok.gender || ''}
                     </div>
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginTop: '6px', flexWrap: 'wrap' }}>
                         {(pok.types || []).map(type => (

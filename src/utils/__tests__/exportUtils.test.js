@@ -44,15 +44,6 @@ describe('importSinglePokemon', () => {
         expect(result.name).not.toContain('<b>');
     });
 
-    it('clamps level above 100 to 100', () => {
-        const data = {
-            ...validPokemonData,
-            pokemon: { ...validPokemonData.pokemon, level: 999 },
-        };
-        const result = importSinglePokemon(data);
-        expect(result.level).toBe(100);
-    });
-
     it('clamps base stats above MAX_STAT (50) to 50', () => {
         const data = {
             ...validPokemonData,

@@ -349,7 +349,7 @@ const CardExportModal = () => {
                             >
                                 <option value="">Select a Pokémon...</option>
                                 {allPokemon.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name} (Lv.{p.level})</option>
+                                    <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -887,7 +887,7 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                         marginLeft: '6px',
                         fontWeight: 600
                     }}>
-                        Lv.{poke.level}
+                        {poke.nature || 'Hardy'}
                     </span>
                 </div>
 
@@ -1123,7 +1123,7 @@ const PokemonCard = ({ poke }) => {
                         fontSize: '12px',
                         fontWeight: 600
                     }}>
-                        Level {poke.level} • {natureDisplay || 'Unknown'}
+                        {natureDisplay || 'Hardy'}
                     </div>
                     <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                         {poke.types.map(type => (
@@ -1233,7 +1233,7 @@ const PokemonCard = ({ poke }) => {
             }}>
                 <SectionHeader
                     label="Stats"
-                    rightContent={`STAB: +${calculateSTAB(poke.level)}`}
+                    rightContent={`STAB: +${calculateSTAB()}`}
                 />
                 {[
                     { label: 'HP', key: 'hp', value: actualStats.hp },

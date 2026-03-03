@@ -376,7 +376,6 @@ export const useTrainerState = (onLevelUp) => {
             const sorted = [...prev].sort((a, b) => {
                 let cmp = 0;
                 switch (sortBy) {
-                    case 'level': cmp = (b.level || 1) - (a.level || 1); break;
                     case 'species': cmp = (a.species || '').localeCompare(b.species || ''); break;
                     case 'type': cmp = (a.types?.[0] || '').localeCompare(b.types?.[0] || ''); break;
                     default: cmp = (a.name || a.species || '').localeCompare(b.name || b.species || '');

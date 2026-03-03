@@ -552,7 +552,6 @@ const PokemonTab = () => {
                         >
                             <option value="">Sort by...</option>
                             <option value="name">Name</option>
-                            <option value="level">Level</option>
                             <option value="species">Species</option>
                             <option value="type">Type</option>
                         </select>

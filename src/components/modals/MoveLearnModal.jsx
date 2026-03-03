@@ -94,11 +94,6 @@ const MoveLearnModal = () => {
                             <span>{moveData.category || 'Physical'}</span>
                             {moveData.damage && <span> • {moveData.damage}</span>}
                         </div>
-                        {moveLearnData.newMove.level && (
-                            <div className="move-learn-level">
-                                Learned at Level {moveLearnData.newMove.level}
-                            </div>
-                        )}
                     </div>
 
                     <div className={`move-learn-warning ${isNatural ? 'natural' : 'taught'}`}>

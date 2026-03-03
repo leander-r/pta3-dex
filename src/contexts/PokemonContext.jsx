@@ -139,9 +139,6 @@ export const PokemonProvider = ({ children }) => {
             species: '',
             gender: '',
             avatar: '',
-            level: 1,
-            exp: 0,
-            highestLevelReached: 1,
             types: [],
             nature: 'Hardy',
             ability: '',
@@ -222,70 +219,6 @@ export const PokemonProvider = ({ children }) => {
         }
     }, [setParty, setReserve]);
 
-    // Forget moves when leveling down
-    const forgetMovesAboveLevel = useCallback((pokemonId, newLevel, inParty = true) => {
-        // Identify moves that will be permanently lost (no history entry to restore them from)
-        const currentList = inParty ? party : reserve;
-        const currentPoke = currentList.find(p => p.id === pokemonId);
-        const lostMoveNames = currentPoke
-            ? currentPoke.moves
-                .filter(m =>
-                    m.source === 'natural' &&
-                    m.learnedAtLevel &&
-                    m.learnedAtLevel > newLevel &&
-                    !(currentPoke.moveHistory || []).some(
-                        h => h.replacedAtLevel === m.learnedAtLevel && h.name === m.name
-                    )
-                )
-                .map(m => m.name)
-            : [];
-
-        const updateFn = (prev) => prev.map(p => {
-            if (p.id !== pokemonId) return p;
-
-            let newMoves = [...p.moves];
-            let newMoveHistory = [...(p.moveHistory || [])];
-
-            const movesToForget = p.moves.filter(move =>
-                move.source === 'natural' &&
-                move.learnedAtLevel &&
-                move.learnedAtLevel > newLevel
-            );
-
-            movesToForget.forEach(moveToForget => {
-                const moveIndex = newMoves.findIndex(m => m.name === moveToForget.name);
-                if (moveIndex === -1) return;
-
-                const historyIdx = newMoveHistory.findIndex(h =>
-                    h.replacedAtLevel === moveToForget.learnedAtLevel &&
-                    h.name === moveToForget.name
-                );
-
-                if (historyIdx !== -1) {
-                    const restoredMove = newMoveHistory[historyIdx];
-                    const { replacedAtLevel, slotIndex, ...moveToRestore } = restoredMove;
-                    newMoves[moveIndex] = moveToRestore;
-                    newMoveHistory.splice(historyIdx, 1);
-                } else {
-                    newMoves.splice(moveIndex, 1);
-                }
-            });
-
-            return { ...p, moves: newMoves, moveHistory: newMoveHistory };
-        });
-
-        if (inParty) {
-            setParty(updateFn);
-        } else {
-            setReserve(updateFn);
-        }
-
-        if (lostMoveNames.length > 0) {
-            const pokeName = currentPoke?.name || 'Pokémon';
-            toast.warning(`${pokeName} permanently lost: ${lostMoveNames.join(', ')}`);
-        }
-    }, [party, reserve, setParty, setReserve]);
-
     // Update Pokemon (works on both party and reserve)
     const updatePokemon = useCallback((id, updates) => {
         // 1. Find where the Pokemon lives
@@ -298,19 +231,6 @@ export const PokemonProvider = ({ children }) => {
         const updateFn = (prev) => prev.map(p => {
             if (p.id !== id) return p;
 
-            let newLevel = p.level;
-            let hasLevelChange = false;
-
-            if (updates.level !== undefined && updates.level !== p.level) {
-                newLevel = Math.min(updates.level, MAX_POKEMON_LEVEL);
-                hasLevelChange = true;
-            }
-
-            if (hasLevelChange && newLevel > (p.highestLevelReached || p.level)) {
-                updates.highestLevelReached = newLevel;
-                showLevelUpNotification({ type: 'pokemon', name: p.name, level: newLevel });
-            }
-
             return { ...p, ...updates };
         });
 
@@ -321,58 +241,7 @@ export const PokemonProvider = ({ children }) => {
             setReserve(updateFn);
         }
 
-        // 4. Handle move learning/forgetting after state update
-        const handleMoveLearning = (currentPoke, newLvl, oldLvl, pokemonInParty) => {
-            if (!currentPoke?.species || newLvl === oldLvl || !getMovesForLevelRange) return;
-
-            const pokemonId = id;
-            const startingMoves = currentPoke.moves || [];
-
-            if (newLvl > oldLvl) {
-                const movesToLearn = getMovesForLevelRange(currentPoke, oldLvl, newLvl);
-                if (movesToLearn.length === 0) return;
-
-                let currentMoveCount = startingMoves.length;
-                const movesToLearnDirectly = [];
-                const movesToQueue = [];
-
-                movesToLearn.forEach(newMove => {
-                    const alreadyKnows = startingMoves.some(m =>
-                        m.name?.toLowerCase() === newMove.move.toLowerCase()
-                    );
-                    if (alreadyKnows) return;
-
-                    // PTA3: single pool of 6 moves, no natural/taught distinction for cap
-                    if (currentMoveCount < MAX_TOTAL_MOVES) {
-                        movesToLearnDirectly.push(newMove);
-                        currentMoveCount++;
-                    } else {
-                        movesToQueue.push({
-                            pokemonId,
-                            pokemonName: currentPoke.name,
-                            newMove,
-                            currentMoves: startingMoves,
-                            inParty: pokemonInParty,
-                            needsReplacement: true
-                        });
-                    }
-                });
-
-                if (movesToLearnDirectly.length > 0) {
-                    movesToLearnDirectly.forEach(move => learnMove(pokemonId, move, null, pokemonInParty));
-                }
-                if (movesToQueue.length > 0) {
-                    setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
-                }
-            } else {
-                forgetMovesAboveLevel(pokemonId, newLvl, pokemonInParty);
-            }
-        };
-
-        const oldLevel = currentPokemon?.level;
-        const newLevel = updates.level !== undefined ? updates.level : oldLevel;
-        handleMoveLearning(currentPokemon, newLevel, oldLevel, inParty);
-    }, [party, reserve, setParty, setReserve, showLevelUpNotification, getMovesForLevelRange, learnMove, forgetMovesAboveLevel, setPendingMoveLearn]);
+    }, [party, reserve, setParty, setReserve]);
 
     // Restore Pokemon to a previous snapshot (used by the Cancel button in edit mode).
     // Bypasses updatePokemon's level-change / move-learn logic — it's a direct replace.
@@ -445,7 +314,6 @@ export const PokemonProvider = ({ children }) => {
         if (!poke?.species) return { canEvolve: [], canDevolve: null };
 
         const species = poke.species;
-        const level = poke.level || 1;
         const regionalForm = poke.regionalForm || null;
 
         // Check for custom species evolution data first
@@ -633,8 +501,6 @@ export const PokemonProvider = ({ children }) => {
     const applySpeciesToPokemon = useCallback((pokemonId, speciesData, regionalForm) => {
         const currentPoke = party.find(p => p.id === pokemonId) || reserve.find(p => p.id === pokemonId);
         if (!currentPoke) return;
-        const currentLevel = currentPoke.level || 1;
-
         const { formData, updates } = buildSpeciesUpdateFields(speciesData, regionalForm);
 
         // Fresh species assignment — reset abilities unconditionally
@@ -645,12 +511,11 @@ export const PokemonProvider = ({ children }) => {
             updates.ability3 = '';
         }
 
-        // Add starting moves based on current level
+        // Add starting moves (PTA3: all moves available, no level gate)
         const levelUpMoves = updates.availableLevelUpMoves;
         if (levelUpMoves.length > 0) {
             const seenMoves = new Set();
             const startingMoves = levelUpMoves
-                .filter(m => m.level <= currentLevel)
                 .filter(m => {
                     const moveLower = m.move?.toLowerCase();
                     if (seenMoves.has(moveLower)) return false;
@@ -865,7 +730,6 @@ export const PokemonProvider = ({ children }) => {
 
         // Moves
         learnMove,
-        forgetMovesAboveLevel,
 
         // Evolution
         getEvolutionOptions,
