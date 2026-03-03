@@ -6,8 +6,8 @@ export const _0x72 = atob('bGVhbmRlcl9yc3I='); // ownership marker
 
 export const DATA_CONFIG = {
     // GitHub raw URLs for data files
-    pokedexUrl: 'https://raw.githubusercontent.com/leander-r/pta-dex/main/pokedex.min.json',
-    gameDataUrl: 'https://raw.githubusercontent.com/leander-r/pta-dex/main/pta-game-data.min.json',
+    pokedexUrl: 'https://raw.githubusercontent.com/leander-r/pta3-dex/main/pokedex.min.json',
+    gameDataUrl: 'https://raw.githubusercontent.com/leander-r/pta3-dex/main/pta-game-data.min.json',
     
     // IndexedDB configuration
     dbName: 'PTAData',
@@ -100,17 +100,17 @@ export let GAME_DATA = {
         'Investigate':           { stat: 'SATK', type: 'check',   description: 'Finding clues, deducing purpose, examining evidence.' },
         'Medicine':              { stat: 'SATK', type: 'check',   description: 'First aid, stabilizing injuries, identifying berries.' },
         'Nature':                { stat: 'SATK', type: 'check',   description: 'Pokémon types, tracking, identifying edible plants.' },
-        'Programming':           { stat: 'SATK', type: 'opposed', description: 'Accessing and manipulating computer systems.' },
+        'Programming':           { stat: 'SATK', type: 'check',   description: 'Accessing and manipulating computer systems.' },
         // SDEF Skills
         'Bluff/Deception':       { stat: 'SDEF', type: 'opposed', description: 'Lying, forging, disguise, misdirection.' },
         'Diplomacy/Persuasion':  { stat: 'SDEF', type: 'opposed', description: 'Convincing others, negotiations.' },
-        'Insight':               { stat: 'SDEF', type: 'check',   description: 'Discerning intention, reading people.' },
-        'Perception':            { stat: 'SDEF', type: 'opposed', description: 'Noticing things in the environment.' },
+        'Insight':               { stat: 'SDEF', type: 'opposed', description: 'Discerning intention, reading people.' },
+        'Perception':            { stat: 'SDEF', type: 'check',   description: 'Noticing things in the environment.' },
         'Perform':               { stat: 'SDEF', type: 'check',   description: 'Music, dance, speeches, entertainment.' },
         'Pokémon Handling':      { stat: 'SDEF', type: 'check',   description: 'Interacting with unfamiliar or hostile Pokémon.' },
         // SPD Skills
         'Acrobatics':            { stat: 'SPD',  type: 'check',   description: 'Balance, parkour, tumbling, maneuvering.' },
-        'Sleight of Hand':       { stat: 'SPD',  type: 'opposed', description: 'Pickpocketing, concealment, lock-picking, misdirection.' },
+        'Sleight of Hand':       { stat: 'SPD',  type: 'check',   description: 'Pickpocketing, concealment, lock-picking, misdirection.' },
         'Stealth':               { stat: 'SPD',  type: 'opposed', description: 'Moving quietly, hiding.' }
     },
 
@@ -121,35 +121,35 @@ export let GAME_DATA = {
             type: 'base',
             description: 'Skilled battler focused on optimizing Pokémon performance.',
             primaryStats: ['ATK', 'SATK'],
-            skillPool: ['Athletics', 'Insight', 'Perception', 'Nature', 'Pokémon Handling'],
+            skillPool: ['Acrobatics', 'Athletics', 'Concentration', 'Diplomacy/Persuasion', 'History', 'Pokémon Handling'],
             advancedClasses: ['Stat Ace', 'Strategist', 'Tag Battler', 'Type Ace', 'Underdog']
         },
         'Breeder': {
             type: 'base',
             description: 'Expert in raising and nurturing Pokémon to their full potential.',
             primaryStats: ['DEF', 'SDEF'],
-            skillPool: ['Medicine', 'Nature', 'Pokémon Handling', 'Investigate', 'Diplomacy/Persuasion'],
+            skillPool: ['Constitution', 'Diplomacy/Persuasion', 'History', 'Medicine', 'Nature', 'Pokémon Handling'],
             advancedClasses: ['Botanist', 'Chef', 'Evolver', 'Medic', 'Move Tutor']
         },
         'Coordinator': {
             type: 'base',
             description: 'Focuses on Pokémon Contests and performance.',
             primaryStats: ['SDEF', 'SPD'],
-            skillPool: ['Perform', 'Bluff/Deception', 'Diplomacy/Persuasion', 'Pokémon Handling', 'Insight'],
+            skillPool: ['Acrobatics', 'Athletics', 'Bluff/Deception', 'Diplomacy/Persuasion', 'Perform', 'Sleight of Hand'],
             advancedClasses: ['Choreographer', 'Coach', 'Designer', 'Groomer', 'Rising Star']
         },
         'Ranger': {
             type: 'base',
             description: 'Wilderness expert who partners closely with wild Pokémon.',
             primaryStats: ['DEF', 'SPD'],
-            skillPool: ['Athletics', 'Nature', 'Stealth', 'Pokémon Handling', 'Perception'],
+            skillPool: ['Acrobatics', 'Athletics', 'Diplomacy/Persuasion', 'Perception', 'Pokémon Handling', 'Stealth'],
             advancedClasses: ['Invoker', 'Officer', 'Rider', 'Special Operative', 'Survivalist']
         },
         'Researcher': {
             type: 'base',
             description: 'Academic who studies Pokémon biology, history, and mechanics.',
             primaryStats: ['SATK', 'SDEF'],
-            skillPool: ['History', 'Investigate', 'Nature', 'Medicine', 'Engineering/Operation'],
+            skillPool: ['Engineering/Operation', 'History', 'Investigate', 'Medicine', 'Perception', 'Programming'],
             advancedClasses: ['Archeologist', 'Ball Smith', 'Photographer', 'Scientist', 'Watcher']
         },
         // ── Base Classes (HB2) ───────────────────────────────────────────────────
@@ -157,14 +157,14 @@ export let GAME_DATA = {
             type: 'base',
             description: 'Combines physical prowess with Pokémon battle discipline.',
             primaryStats: ['ATK', 'DEF'],
-            skillPool: ['Athletics', 'Acrobatics', 'Concentration', 'Constitution', 'Insight'],
+            skillPool: ['Acrobatics', 'Athletics', 'Concentration', 'Constitution', 'Medicine', 'Perform'],
             advancedClasses: ['Aura Master', 'Dirty Fighter', 'Mentor', 'Ninja', 'Yogi']
         },
         'Psychic': {
             type: 'base',
             description: 'Channels psychic energy to influence battle and environment.',
             primaryStats: ['SATK', 'SPD'],
-            skillPool: ['Insight', 'Perception', 'Bluff/Deception', 'Investigate', 'Concentration'],
+            skillPool: ['Acrobatics', 'Concentration', 'Insight', 'Investigate', 'Perception', 'Pokémon Handling'],
             advancedClasses: ['Air Adept', 'Earth Shaker', 'Firebreather', 'Hex Maniac', 'Rain Waker']
         },
         // ── Advanced Classes (Ace Trainer tree) ─────────────────────────────────

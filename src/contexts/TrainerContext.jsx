@@ -301,19 +301,17 @@ export const TrainerProvider = ({ children }) => {
             }
         }
 
-        // Each level grants 2 stat points (level points, no cap)
+        // PTA3: stat increases only at milestone levels 3, 7, 11 (+1 to two different stats = 2 points)
         const isMilestone = HP_MILESTONE_LEVELS.includes(newLevel);
 
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
-            levelStatPoints: (prev.levelStatPoints || 0) + 2
+            levelStatPoints: (prev.levelStatPoints || 0) + (isMilestone ? 2 : 0)
         }));
 
-        const notifications = ['+2 stat points'];
-        if (isMilestone) {
-            notifications.push('Class slot unlocked! Roll HP bonus (d4)');
-        }
+        const notifications = isMilestone ? ['+2 stat points', 'Class slot unlocked! Roll HP bonus (d4)'] : [];
+        if (notifications.length === 0) notifications.push('Level up!');
 
         showLevelUpNotification({
             type: 'trainer',
@@ -356,8 +354,9 @@ export const TrainerProvider = ({ children }) => {
         const hpRolls = [...(trainer.hpRolls || [])];
         if (wasMilestone && hpRolls.length > 0) hpRolls.pop();
 
-        // Refund 2 level stat points (capped to what was actually spent)
-        const newLevelStatPoints = Math.max(0, (trainer.levelStatPoints || 0) + 2);
+        // PTA3: stat points are only granted at milestone levels — only refund at milestones
+        const wasMilestoneLevel = HP_MILESTONE_LEVELS.includes(trainer.level);
+        const newLevelStatPoints = Math.max(0, (trainer.levelStatPoints || 0) + (wasMilestoneLevel ? 2 : 0));
 
         setTrainer(prev => ({
             ...prev,
