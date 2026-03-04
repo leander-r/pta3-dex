@@ -68,14 +68,18 @@ const TrainerClasses = () => {
     const handleRemoveClass = (cls) => {
         showConfirm({
             title: 'Remove Class',
-            message: `Remove ${cls}? This will also remove its skills and Level 1 features.`,
+            message: `Remove ${cls}? This will also remove all its features and skills.`,
             danger: true,
             onConfirm: () => doRemoveClass(cls)
         });
     };
 
     const doRemoveClass = (cls) => {
-        const level1Features = getLevel1Features(cls);
+        const allClassFeatureNames = new Set(
+            Object.entries(GAME_DATA.features || {})
+                .filter(([_, data]) => data.category === cls)
+                .map(([name]) => name)
+        );
         const classSkillsToRemove = (trainer.classSkills || {})[cls] || [];
 
         setTrainer(prev => {
@@ -104,10 +108,9 @@ const TrainerClasses = () => {
             return {
                 ...prev,
                 classes: (prev.classes || []).filter(c => c !== cls),
-                // Only remove features that were auto-granted at level 1 (string features)
                 features: (prev.features || []).filter(f => {
                     const name = typeof f === 'object' ? f.name : f;
-                    return !level1Features.includes(name);
+                    return !allClassFeatureNames.has(name);
                 }),
                 skills: updatedSkills,
                 classSkills: newClassSkills,
@@ -176,7 +179,7 @@ const TrainerClasses = () => {
                 },
                 classLevels: {
                     ...(prev.classLevels || {}),
-                    [pendingClass]: 1
+                    [pendingClass]: trainer.level
                 }
             };
         });

@@ -415,7 +415,7 @@ export const TrainerProvider = ({ children }) => {
                     hpRolls.push(Math.ceil(Math.random() * 4));
                 }
                 Object.keys(classLevels).forEach(cls => {
-                    const newClsLevel = (classLevels[cls] || 1) + 1;
+                    const newClsLevel = (classLevels[cls] ?? 0) + 1;
                     classLevels[cls] = newClsLevel;
                     getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures).forEach(f => {
                         autoFeatures.push(f);
