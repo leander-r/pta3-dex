@@ -461,6 +461,17 @@ export const TrainerProvider = ({ children }) => {
         const wasMilestoneLevel = HP_MILESTONE_LEVELS.includes(trainer.level);
         const newLevelStatPoints = Math.max(0, (trainer.levelStatPoints || 0) + (wasMilestoneLevel ? 2 : 0));
 
+        // Remove features that were granted at the class level being lost
+        const allFeatures = liveGameData?.features || {};
+        const featuresToRemove = new Set();
+        Object.entries(trainer.classLevels || {}).forEach(([cls, clvl]) => {
+            Object.entries(allFeatures).forEach(([name, data]) => {
+                if (data.category !== cls) return;
+                const m = (data.prerequisites || '').match(/^Level (\d+)$/i);
+                if (m && parseInt(m[1]) === clvl) featuresToRemove.add(name);
+            });
+        });
+
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
@@ -468,9 +479,12 @@ export const TrainerProvider = ({ children }) => {
             hpRolls,
             classLevels: Object.fromEntries(
                 Object.entries(prev.classLevels || {}).map(([k, v]) => [k, Math.max(1, v - 1)])
-            )
+            ),
+            features: featuresToRemove.size > 0
+                ? (prev.features || []).filter(f => !featuresToRemove.has(typeof f === 'object' ? f.name : f))
+                : (prev.features || [])
         }));
-    }, [trainer, setTrainer]);
+    }, [trainer, setTrainer, liveGameData]);
 
     // Respec trainer
     const respecTrainer = useCallback(() => {
