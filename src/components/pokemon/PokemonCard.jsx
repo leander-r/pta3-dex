@@ -374,6 +374,7 @@ const PokemonCard = ({
             availableAbilities: availableAbilities,
             availableLevelUpMoves: levelUpMoves,
             moves: startingMoves,
+            passives: formData?.passives || speciesData.passives || [],
             regionalForm: isRegional ? regionalForm.name : null,
             pokemonSkills: Array.isArray(speciesData.skills)
                 ? speciesData.skills.filter(Boolean).map(s => ({ name: s }))
