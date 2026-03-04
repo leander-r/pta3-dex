@@ -237,8 +237,11 @@ const BattleTab = () => {
 
         let rolls = [], diceTotal = 0, stabBonus = 0, total = 0, diceCount = 0;
         if (isHit) {
-            diceCount = isCrit ? diceData.count * 2 : diceData.count;
-            rolls = rollDice(diceCount, diceData.sides);
+            diceCount = diceData.count;
+            // PTA3: critical hit = all dice at max value (not double dice)
+            rolls = isCrit
+                ? Array(diceCount).fill(diceData.sides)
+                : rollDice(diceCount, diceData.sides);
             diceTotal = rolls.reduce((sum, r) => sum + r, 0);
             if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
                 stabBonus = calculateSTAB();

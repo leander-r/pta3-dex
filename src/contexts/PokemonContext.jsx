@@ -83,6 +83,7 @@ const buildSpeciesUpdateFields = (speciesData, regionalForm) => {
             species: speciesData.species,
             types: formData ? [...formData.types] : [...speciesData.types],
             baseStats: formData?.baseStats ? { ...formData.baseStats } : { ...speciesData.baseStats },
+            passives: formData?.passives ? [...formData.passives] : (speciesData.passives ? [...speciesData.passives] : []),
             availableAbilities: formData?.abilities ? { ...formData.abilities } : (speciesData.abilities ? { ...speciesData.abilities } : null),
             pokedexId: speciesData.id,
             regionalForm: isRegional ? regionalForm.name : null,

@@ -605,7 +605,7 @@ const PokemonCard = ({
                                 </button>
                             )}
                             {/* Skills Button */}
-                            {(pokemon.pokemonSkills || []).filter(s => s.value > 0).length > 0 && (
+                            {(pokemon.pokemonSkills || []).filter(s => s.name && (s.value === undefined || s.value > 0)).length > 0 && (
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -625,7 +625,7 @@ const PokemonCard = ({
                                         gap: '4px'
                                     }}
                                 >
-                                    <span>🐾</span> Skills ({(pokemon.pokemonSkills || []).filter(s => s.value > 0).length})
+                                    <span>🐾</span> Skills ({(pokemon.pokemonSkills || []).filter(s => s.name && (s.value === undefined || s.value > 0)).length})
                                 </button>
                             )}
                         </div>
@@ -698,7 +698,7 @@ const PokemonCard = ({
                         {/* Expanded Skills */}
                         {expandedSection === 'skills' && (
                             <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: 'var(--collapsed-skills-bg)', borderRadius: '8px' }}>
-                                {(pokemon.pokemonSkills || []).filter(s => s.value > 0).map((skill, idx) => (
+                                {(pokemon.pokemonSkills || []).filter(s => s.name && (s.value === undefined || s.value > 0)).map((skill, idx) => (
                                     <span
                                         key={idx}
                                         onClick={(e) => {
@@ -2186,13 +2186,13 @@ const PokemonCard = ({
                             >?</button>
                         </div>
 
-                        {(pokemon.pokemonSkills || []).filter(s => s.value > 0).length === 0 ? (
+                        {(pokemon.pokemonSkills || []).filter(s => s.name && (s.value === undefined || s.value > 0)).length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
                                 No skills data for this species
                             </div>
                         ) : (
                             <div style={{ display: 'grid', gap: '8px' }}>
-                                {(pokemon.pokemonSkills || []).filter(s => s.value > 0).map((skill, idx) => (
+                                {(pokemon.pokemonSkills || []).filter(s => s.name && (s.value === undefined || s.value > 0)).map((skill, idx) => (
                                     <div
                                         key={idx}
                                         onClick={() => {
