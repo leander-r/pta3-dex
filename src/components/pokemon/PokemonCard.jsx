@@ -1394,10 +1394,36 @@ const PokemonCard = ({
                             </div>
                         </div>
 
-                        {/* Passives/Abilities Section - Up to 3 */}
+                        {/* Species Passives — read-only, fixed by Pokédex */}
+                        {(pokemon.passives || []).length > 0 && (
+                            <div style={{ marginBottom: '15px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                                    Passives
+                                </label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                    {(pokemon.passives || []).map((passive, idx) => (
+                                        <span
+                                            key={idx}
+                                            style={{
+                                                padding: '4px 10px',
+                                                background: 'linear-gradient(135deg, #f093fb, #f5576c)',
+                                                color: 'white',
+                                                borderRadius: '12px',
+                                                fontSize: '12px',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            {passive}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Abilities Section - Up to 3 */}
                         <div style={{ marginBottom: '15px' }}>
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                                <span>Passives</span>
+                                <span>Abilities</span>
                                 <span className="text-muted" style={{ fontWeight: 'normal' }}>
                                     {(pokemon.abilities || []).length}/3 selected
                                 </span>
