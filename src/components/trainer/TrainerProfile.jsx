@@ -19,7 +19,7 @@ const TrainerProfile = () => {
         respecTrainer,
         calculateMaxHP
     } = useTrainerContext();
-    const { showConfirm } = useModal();
+    const { showConfirm, setShowBulkExpModal } = useModal();
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
@@ -277,6 +277,18 @@ const TrainerProfile = () => {
                         : `${currentHonors}/${honorsForNext} honors for Lv ${nextLevel} — need ${honorsNeeded} more`
                     }
                 </div>
+            )}
+
+            {/* Award Honors button */}
+            {!isLevel0 && (
+                <button
+                    onClick={() => setShowBulkExpModal(true)}
+                    className="btn btn-purple"
+                    style={{ width: '100%', marginTop: '10px', padding: '8px', fontSize: '13px' }}
+                    title="Award Honors from Gym Badges, Ribbons, and story milestones"
+                >
+                    🎖 Award Honors
+                </button>
             )}
 
             {/* Quick Stats — 3 boxes */}

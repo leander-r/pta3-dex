@@ -22,7 +22,7 @@ const PokemonTab = () => {
     // Get state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
     const { pokemonView, setPokemonView, editingPokemon: editingPokemonId, setEditingPokemon: setEditingPokemonId } = useUI();
-    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowBulkExpModal, openComparison } = useModal();
+    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, openComparison } = useModal();
     const { trainer, setTrainer, party, reserve, setParty, setReserve, moveToParty, moveToReserve, movePokemonUp, movePokemonDown, sortPokemonList, reorderPokemon } = useTrainerContext();
     const { addPokemon, updatePokemon, restorePokemon, deletePokemon, importPokemon, getEvolutionOptions, evolvePokemon, devolvePokemon } = usePokemonContext();
     const [filter, setFilter] = useState(() => ({
@@ -428,15 +428,6 @@ const PokemonTab = () => {
                         View Comparison →
                     </button>
                 )}
-
-                <button
-                    onClick={() => setShowBulkExpModal(true)}
-                    className="btn btn-secondary"
-                    style={{ padding: '10px 16px' }}
-                    title="Award Honors to trainer (Gym Badges, Ribbons, milestones)"
-                >
-                    Award Honors
-                </button>
 
                 <button
                     onClick={handleAddPokemon}
