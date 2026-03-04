@@ -117,7 +117,19 @@ const TrainerStats = () => {
                     {/* 5 Stats Grid */}
                     <div className="trainer-stats-compact">
                         {STAT_CONFIG.map(stat => {
+                            const val = trainer.stats[stat.key] ?? 3;
                             const mod = calculateModifier(stat.key);
+                            const btnStyle = (disabled) => ({
+                                width: '28px', height: '28px',
+                                border: `1.5px solid ${stat.color}99`,
+                                borderRadius: '5px',
+                                background: disabled ? 'transparent' : `${stat.color}22`,
+                                color: disabled ? 'var(--text-muted)' : stat.color,
+                                cursor: disabled ? 'not-allowed' : 'pointer',
+                                fontWeight: 'bold', fontSize: '16px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                flexShrink: 0, lineHeight: 1, padding: 0
+                            });
                             return (
                                 <div
                                     key={stat.key}
@@ -130,33 +142,29 @@ const TrainerStats = () => {
                                         background: `linear-gradient(180deg, ${stat.color}25 0%, transparent 70%)`
                                     }}
                                 >
-                                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                         {stat.label}
                                     </div>
-                                    <input
-                                        type="number"
-                                        value={trainer.stats[stat.key] ?? 3}
-                                        onChange={(e) => updateTrainerStat(stat.key, e.target.value)}
-                                        min="1"
-                                        max="10"
-                                        style={{
-                                            width: '50px',
-                                            textAlign: 'center',
-                                            fontSize: '16px',
-                                            fontWeight: 'bold',
-                                            border: `1.5px solid ${stat.color}99`,
-                                            borderRadius: '5px',
-                                            padding: '3px 2px',
-                                            background: 'transparent',
-                                            color: 'var(--text-primary)'
-                                        }}
-                                    />
-                                    <div style={{
-                                        fontSize: '12px',
-                                        color: '#4caf50',
-                                        fontWeight: 'bold',
-                                        marginTop: '3px'
-                                    }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                        <button
+                                            onClick={() => updateTrainerStat(stat.key, val - 1)}
+                                            disabled={val <= 1}
+                                            style={btnStyle(val <= 1)}
+                                            aria-label={`Decrease ${stat.label}`}
+                                        >−</button>
+                                        <span style={{
+                                            minWidth: '28px', textAlign: 'center',
+                                            fontSize: '18px', fontWeight: 'bold',
+                                            color: 'var(--text-primary)', lineHeight: 1
+                                        }}>{val}</span>
+                                        <button
+                                            onClick={() => updateTrainerStat(stat.key, val + 1)}
+                                            disabled={val >= 10}
+                                            style={btnStyle(val >= 10)}
+                                            aria-label={`Increase ${stat.label}`}
+                                        >+</button>
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#4caf50', fontWeight: 'bold', marginTop: '4px' }}>
                                         +{mod}
                                     </div>
                                 </div>
