@@ -6,7 +6,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
-import { migrateSaveData } from '../utils/dataMigration.js';
+import { migrateSaveData, cleanupLegacyFeatures } from '../utils/dataMigration.js';
 import { buildEmbed } from '../utils/discordEmbeds.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
@@ -36,7 +36,7 @@ export const DataProvider = ({ children }) => {
     const { triggerSaveIndicator } = useUI();
     const { showConfirm } = useModal();
     const { trainers, setTrainers, activeTrainerId, setActiveTrainerId } = useTrainerContext();
-    const { customSpecies, setCustomSpecies } = useGameData();
+    const { customSpecies, setCustomSpecies, GAME_DATA } = useGameData();
 
     // Inventory owned here; shared with PokemonProvider via useData()
     const [inventory, setInventory] = useState([]);
@@ -252,6 +252,16 @@ export const DataProvider = ({ children }) => {
                     } catch {}
                 }
 
+                // Step 3: Strip old-PTA feature strings that have no PTA3 equivalent
+                const { data: cleanedData, cleaned: wasFeaturesCleaned } = cleanupLegacyFeatures(migratedData, GAME_DATA?.features || {});
+                if (wasFeaturesCleaned) {
+                    migratedData = cleanedData;
+                    // Persist immediately so old features don't reappear
+                    try {
+                        safeLocalStorageSet('pta3-save-data', cleanedData);
+                    } catch {}
+                }
+
                 if (migratedData.trainers && Array.isArray(migratedData.trainers) && migratedData.trainers.length > 0) {
                     // Validate activeTrainerId exists in trainers array, otherwise use first trainer
                     const validActiveId = migratedData.trainers.some(t => t.id === migratedData.activeTrainerId)
@@ -280,7 +290,7 @@ export const DataProvider = ({ children }) => {
             // Still enable auto-save on error so user can save their work
             dataLoadedRef.current = true;
         }
-    }, [migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+    }, [migrateOldData, GAME_DATA, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
 
     // Restore from the rolling auto-backup snapshot
     const restoreAutoBackup = useCallback(() => {

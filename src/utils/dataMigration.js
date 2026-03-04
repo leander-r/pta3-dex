@@ -103,6 +103,32 @@ const migratePokemon = (pokemon) => {
 };
 
 /**
+ * Strip string entries from trainer.features that are not in the known PTA3 features dict.
+ * Object entries (custom/stat-boost features) are always kept.
+ * Safe to call on any save format.
+ *
+ * @param {Object} data         - Full save payload
+ * @param {Object} knownFeatures - GAME_DATA.features dict (keys = feature names)
+ * @returns {{ data: Object, cleaned: boolean }}
+ */
+export const cleanupLegacyFeatures = (data, knownFeatures = {}) => {
+    if (!data?.trainers) return { data, cleaned: false };
+    let anyChanged = false;
+    const trainers = data.trainers.map(trainer => {
+        if (!Array.isArray(trainer.features) || trainer.features.length === 0) return trainer;
+        const filtered = trainer.features.filter(f => {
+            if (typeof f !== 'string') return true;      // always keep object features
+            return knownFeatures[f] !== undefined;        // keep known PTA3 features only
+        });
+        if (filtered.length === trainer.features.length) return trainer;
+        anyChanged = true;
+        return { ...trainer, features: filtered };
+    });
+    if (!anyChanged) return { data, cleaned: false };
+    return { data: { ...data, trainers }, cleaned: true };
+};
+
+/**
  * Migrate a full save payload from old PTA format to PTA3 format.
  * Safe to call even on new-format saves (no-op).
  *
