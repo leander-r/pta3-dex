@@ -353,15 +353,17 @@ const PokemonCard = ({
         // Auto-add starting moves (PTA3: all moves available, no level gate)
         const startingMoves = levelUpMoves
             .slice(0, MAX_TOTAL_MOVES)
-            .map(m => {
-                const moveData = GAME_DATA?.moves?.[m.move];
-                return {
-                    name: m.move,
-                    source: 'natural',
-                    learnedAtLevel: m.level,
-                    type: moveData?.type || 'Normal'
-                };
-            });
+            .map(m => ({
+                name: m.name || m.move,
+                source: 'natural',
+                learnedAtLevel: m.level,
+                type: m.type || 'Normal',
+                category: m.category || 'Physical',
+                frequency: m.frequency || 'At-Will',
+                damage: m.damage || '',
+                range: m.range || 'Melee',
+                effect: m.effect || ''
+            }));
 
         updatePokemon({
             species: speciesData.species,
@@ -373,7 +375,11 @@ const PokemonCard = ({
             availableLevelUpMoves: levelUpMoves,
             moves: startingMoves,
             regionalForm: isRegional ? regionalForm.name : null,
-            pokemonSkills: speciesData.skills ? Object.entries(speciesData.skills).map(([name, value]) => ({ name, value })) : []
+            pokemonSkills: Array.isArray(speciesData.skills)
+                ? speciesData.skills.filter(Boolean).map(s => ({ name: s }))
+                : speciesData.skills
+                    ? Object.entries(speciesData.skills).map(([name, value]) => ({ name, value }))
+                    : []
         });
         setSpeciesSearch('');
         setShowSpeciesDropdown(false);

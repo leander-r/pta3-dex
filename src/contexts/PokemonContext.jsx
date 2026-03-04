@@ -464,7 +464,7 @@ export const PokemonProvider = ({ children }) => {
             if (freshPokemon) {
                 const freshMoves = freshPokemon.moves || [];
                 const alreadyKnows = freshMoves.some(m =>
-                    m.name.toLowerCase() === nextMove.newMove.move.toLowerCase()
+                    m.name?.toLowerCase() === nextMove.newMove.move?.toLowerCase()
                 );
 
                 if (alreadyKnows) {
@@ -518,26 +518,23 @@ export const PokemonProvider = ({ children }) => {
             const seenMoves = new Set();
             const startingMoves = levelUpMoves
                 .filter(m => {
-                    const moveLower = m.move?.toLowerCase();
+                    const moveLower = (m.name || m.move)?.toLowerCase();
                     if (seenMoves.has(moveLower)) return false;
                     seenMoves.add(moveLower);
                     return true;
                 })
                 .slice(0, MAX_TOTAL_MOVES)
-                .map(m => {
-                    const moveData = GAME_DATA.moves[m.move] || {};
-                    return {
-                        name: m.move,
-                        type: moveData.type || m.type || 'Normal',
-                        category: moveData.category || 'Physical',
-                        frequency: moveData.frequency || 'At-Will',
-                        damage: moveData.damage || '',
-                        range: moveData.range || 'Melee',
-                        effect: moveData.effect || '',
-                        source: 'natural',
-                        learnedAtLevel: m.level
-                    };
-                });
+                .map(m => ({
+                    name: m.name || m.move,
+                    type: m.type || 'Normal',
+                    category: m.category || 'Physical',
+                    frequency: m.frequency || 'At-Will',
+                    damage: m.damage || '',
+                    range: m.range || 'Melee',
+                    effect: m.effect || '',
+                    source: 'natural',
+                    learnedAtLevel: m.level
+                }));
 
             const hasNoMoves = !currentPoke.moves || currentPoke.moves.length === 0;
             const hasNoSpecies = !currentPoke.species;
@@ -565,29 +562,36 @@ export const PokemonProvider = ({ children }) => {
 
         updatePokemon(pokemonId, updates);
 
-        // Queue evolution moves (level 0)
-        const evolutionMoves = updates.availableLevelUpMoves.filter(m => m.level === 0);
+        // Queue new species moves not already known (PTA3: all moves available, no level gate)
+        const newSpeciesMoves = updates.availableLevelUpMoves;
         const currentMoves = currentPoke.moves || [];
-
-        if (evolutionMoves.length > 0) {
-            const movesToQueue = [];
-            evolutionMoves.forEach(evoMove => {
-                const alreadyKnows = currentMoves.some(m =>
-                    m.name?.toLowerCase() === evoMove.move?.toLowerCase()
-                );
-                if (!alreadyKnows) {
-                    movesToQueue.push({
-                        pokemonId,
-                        pokemonName: currentPoke.name || speciesData.species,
-                        newMove: { move: evoMove.move, type: evoMove.type || 'Normal', level: 0 },
-                        inParty,
-                        isEvolutionMove: true
-                    });
-                }
-            });
-            if (movesToQueue.length > 0) {
-                setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
+        const movesToQueue = [];
+        newSpeciesMoves.forEach(evoMove => {
+            const moveName = evoMove.name || evoMove.move;
+            const alreadyKnows = currentMoves.some(m =>
+                m.name?.toLowerCase() === moveName?.toLowerCase()
+            );
+            if (!alreadyKnows) {
+                movesToQueue.push({
+                    pokemonId,
+                    pokemonName: currentPoke.name || speciesData.species,
+                    newMove: {
+                        move: moveName,
+                        name: moveName,
+                        type: evoMove.type || 'Normal',
+                        category: evoMove.category || 'Physical',
+                        frequency: evoMove.frequency || 'At-Will',
+                        damage: evoMove.damage || '',
+                        range: evoMove.range || 'Melee',
+                        effect: evoMove.effect || ''
+                    },
+                    inParty,
+                    isEvolutionMove: true
+                });
             }
+        });
+        if (movesToQueue.length > 0) {
+            setPendingMoveLearn(prev => [...prev, ...movesToQueue]);
         }
     }, [party, reserve, updatePokemon, setPendingMoveLearn]);
 
