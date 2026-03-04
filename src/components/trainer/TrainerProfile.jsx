@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useTrainerContext, useModal } from '../../contexts/index.js';
-import { CREATION_STAT_POINTS } from '../../data/constants.js';
+import { CREATION_STAT_POINTS, HONOR_THRESHOLDS, MAX_TRAINER_LEVEL } from '../../data/constants.js';
 
 /**
  * TrainerProfile - Trainer profile management
@@ -88,7 +88,24 @@ const TrainerProfile = () => {
     const isLevel0 = trainer.level === 0;
     const creationPointsRemaining = trainer.statPoints || 0;
     const hasClass = (trainer.classes || []).length > 0;
-    const canLevelUp = !isLevel0 || (creationPointsRemaining === 0 && hasClass);
+    const atMaxLevel = trainer.level >= MAX_TRAINER_LEVEL;
+    const nextLevel = trainer.level + 1;
+    const honorsForNext = HONOR_THRESHOLDS[nextLevel];
+    const currentHonors = trainer.honors || 0;
+    const honorsNeeded = !atMaxLevel && honorsForNext !== undefined
+        ? Math.max(0, honorsForNext - currentHonors)
+        : 0;
+    const honorsMet = atMaxLevel || honorsForNext === undefined || currentHonors >= honorsForNext;
+    const canLevelUp = isLevel0
+        ? (creationPointsRemaining === 0 && hasClass)
+        : honorsMet;
+    const levelUpTitle = isLevel0
+        ? (!canLevelUp ? 'Complete character creation first' : 'Become Level 1')
+        : atMaxLevel
+            ? 'Maximum level reached'
+            : !honorsMet
+                ? `Need ${honorsNeeded} more honor${honorsNeeded !== 1 ? 's' : ''} to reach Level ${nextLevel} (requires ${honorsForNext})`
+                : `Level up to ${nextLevel}`;
     const badges = trainer.badges || [];
 
     return (
@@ -248,10 +265,19 @@ const TrainerProfile = () => {
                     className="level-btn"
                     onClick={levelUpTrainer}
                     disabled={!canLevelUp}
-                    title={!canLevelUp ? 'Complete character creation first' : 'Level up trainer'}
+                    title={levelUpTitle}
                     aria-label="Increase level"
                 >+</button>
             </div>
+            {/* Honors progress toward next level */}
+            {!isLevel0 && !atMaxLevel && (
+                <div style={{ marginTop: '6px', fontSize: '11px', textAlign: 'center', color: honorsMet ? '#4caf50' : 'var(--text-muted)' }}>
+                    {honorsMet
+                        ? `✓ Ready to level up! (${currentHonors}/${honorsForNext} honors)`
+                        : `${currentHonors}/${honorsForNext} honors for Lv ${nextLevel} — need ${honorsNeeded} more`
+                    }
+                </div>
+            )}
 
             {/* Quick Stats — 3 boxes */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '14px' }}>

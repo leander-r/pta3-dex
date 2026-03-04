@@ -277,6 +277,7 @@ export const TrainerProvider = ({ children }) => {
     }, [setTrainer]);
 
     // Level up the trainer (PTA3: honor-based leveling)
+    // Requires enough honors for the next level (checked here and in TrainerProfile).
     const levelUpTrainer = useCallback(() => {
         const newLevel = trainer.level + 1;
         if (newLevel > MAX_TRAINER_LEVEL) {
@@ -297,6 +298,14 @@ export const TrainerProvider = ({ children }) => {
             }
             if (issues.length > 0) {
                 toast.warning(`Before becoming Level 1, you must complete character creation:\n${issues.join('\n')}`);
+                return;
+            }
+        } else {
+            // For levels 1+, require the honors threshold to be met
+            const required = HONOR_THRESHOLDS[newLevel];
+            if (required !== undefined && (trainer.honors || 0) < required) {
+                const needed = required - (trainer.honors || 0);
+                toast.warning(`Need ${needed} more honor${needed !== 1 ? 's' : ''} to reach level ${newLevel} (requires ${required} total).`);
                 return;
             }
         }
@@ -333,6 +342,51 @@ export const TrainerProvider = ({ children }) => {
             }
         }
     }, [trainer, setTrainer, showLevelUpNotification, rollMilestoneHP]);
+
+    /**
+     * Award honors and auto-apply all resulting level-ups in one atomic state update.
+     * Milestone HP rolls are applied automatically (random 1d4 each).
+     * Called by the Honor Award modal.
+     */
+    const awardHonors = useCallback((amount) => {
+        if (!amount || amount <= 0) return;
+
+        setTrainer(prev => {
+            const newHonors = (prev.honors || 0) + amount;
+            const oldLevel = prev.level || 1;
+
+            // Find the highest level the new honors qualify for
+            let newLevel = oldLevel;
+            for (let lvl = oldLevel + 1; lvl <= MAX_TRAINER_LEVEL; lvl++) {
+                if (newHonors >= (HONOR_THRESHOLDS[lvl] ?? Infinity)) {
+                    newLevel = lvl;
+                } else break;
+            }
+
+            if (newLevel === oldLevel) {
+                return { ...prev, honors: newHonors };
+            }
+
+            // Apply all effects for each level gained
+            let levelStatPoints = prev.levelStatPoints || 0;
+            let hpRolls = [...(prev.hpRolls || [])];
+            const classLevels = { ...(prev.classLevels || {}) };
+
+            for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
+                if (HP_MILESTONE_LEVELS.includes(lvl)) {
+                    levelStatPoints += 2;
+                    hpRolls.push(Math.ceil(Math.random() * 4));
+                }
+                Object.keys(classLevels).forEach(cls => {
+                    classLevels[cls] = (classLevels[cls] || 1) + 1;
+                });
+            }
+
+            return { ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels };
+        });
+
+        // Notification is shown by BulkExpModal after calling this
+    }, [setTrainer]);
 
     // Level down the trainer (PTA3)
     const levelDownTrainer = useCallback(() => {
@@ -530,6 +584,7 @@ export const TrainerProvider = ({ children }) => {
         canUndoStat: !!lastStatSnapshot,
         levelUpTrainer,
         levelDownTrainer,
+        awardHonors,
         respecTrainer,
         rollMilestoneHP,
 

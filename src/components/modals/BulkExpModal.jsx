@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useModal } from '../../contexts/index.js';
 import { useTrainerContext } from '../../contexts/TrainerContext.jsx';
+import toast from '../../utils/toast.js';
 import { HONOR_THRESHOLDS, MAX_TRAINER_LEVEL } from '../../data/constants.js';
 
 const getLevelForHonors = (honors) => {
@@ -25,7 +26,7 @@ const getLevelForHonors = (honors) => {
 
 const BulkHonorsModal = () => {
     const { showBulkExpModal, setShowBulkExpModal } = useModal();
-    const { trainer, setTrainer } = useTrainerContext();
+    const { trainer, awardHonors } = useTrainerContext();
 
     const [honorAmount, setHonorAmount] = useState(1);
     const [lastResult, setLastResult] = useState(null);
@@ -50,8 +51,14 @@ const BulkHonorsModal = () => {
 
     const handleAwardHonors = () => {
         if (honorAmount <= 0) return;
-        setTrainer(prev => ({ ...prev, honors: (prev.honors || 0) + honorAmount }));
+        awardHonors(honorAmount);
         setLastResult({ honorAmount, newHonors, levelsGained, newLevel });
+        if (levelsGained > 0) {
+            const milestones = [3, 7, 11].filter(m => m > currentLevel && m <= newLevel);
+            const parts = [`Reached Level ${newLevel}!`];
+            if (milestones.length > 0) parts.push(`+2 stat points & HP roll at level${milestones.length > 1 ? 's' : ''} ${milestones.join(', ')}`);
+            toast.success(parts.join(' — '));
+        }
         setHonorAmount(1);
     };
 
@@ -165,8 +172,8 @@ const BulkHonorsModal = () => {
                             <div style={{ fontWeight: '600', color: '#2e7d32', marginBottom: '6px' }}>Honors Awarded!</div>
                             <div>+{lastResult.honorAmount} Honor{lastResult.honorAmount !== 1 ? 's' : ''} — total now {lastResult.newHonors}</div>
                             {lastResult.levelsGained > 0 && (
-                                <div style={{ color: '#2e7d32', marginTop: '4px' }}>
-                                    {lastResult.levelsGained} level{lastResult.levelsGained !== 1 ? 's' : ''} available — use Level Up in Trainer Stats.
+                                <div style={{ color: '#2e7d32', marginTop: '4px', fontWeight: '600' }}>
+                                    Leveled up to {lastResult.newLevel}! Check Stats for any pending HP rolls.
                                 </div>
                             )}
                         </div>
