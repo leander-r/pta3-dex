@@ -5,6 +5,7 @@
 
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { GAME_DATA } from '../data/configs.js';
+import { useGameData } from './GameDataContext.jsx';
 import {
     DEFAULT_TRAINER,
     BASE_STAT_VALUE,
@@ -61,6 +62,22 @@ function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
     }
 }
 
+/**
+ * Returns feature names from allFeatures that belong to className
+ * and have a "Level X" prerequisite exactly matching newClassLevel,
+ * and are not already in ownedSet.
+ */
+function getNewFeaturesForClass(className, newClassLevel, ownedSet, allFeatures) {
+    return Object.entries(allFeatures)
+        .filter(([name, data]) => {
+            if (data.category !== className) return false;
+            if (ownedSet.has(name)) return false;
+            const m = (data.prerequisites || '').match(/^Level (\d+)$/i);
+            return m && parseInt(m[1]) === newClassLevel;
+        })
+        .map(([name]) => name);
+}
+
 const TrainerContext = createContext(null);
 
 export const useTrainerContext = () => {
@@ -74,6 +91,7 @@ export const useTrainerContext = () => {
 export const TrainerProvider = ({ children }) => {
     const { showLevelUpNotification } = useUI();
     const { showConfirm } = useModal();
+    const { GAME_DATA: liveGameData } = useGameData();
 
     // Multi-Trainer Management (owned here; DataProvider populates after loading saved data)
     const [trainers, setTrainers] = useState([{ ...DEFAULT_TRAINER, id: Date.now() }]);
@@ -313,13 +331,28 @@ export const TrainerProvider = ({ children }) => {
         // PTA3: stat increases only at milestone levels 3, 7, 11 (+1 to two different stats = 2 points)
         const isMilestone = HP_MILESTONE_LEVELS.includes(newLevel);
 
+        // Auto-grant features unlocked at the new class level for each class
+        const allFeatures = liveGameData?.features || {};
+        const ownedSet = new Set((trainer.features || []).map(f => typeof f === 'object' ? f.name : f));
+        const autoFeatures = [];
+        Object.entries(trainer.classLevels || {}).forEach(([cls, clvl]) => {
+            const newClsLevel = clvl + 1;
+            getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures).forEach(f => {
+                autoFeatures.push(f);
+                ownedSet.add(f);
+            });
+        });
+
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
             levelStatPoints: (prev.levelStatPoints || 0) + (isMilestone ? 2 : 0),
             classLevels: Object.fromEntries(
                 Object.entries(prev.classLevels || {}).map(([k, v]) => [k, v + 1])
-            )
+            ),
+            features: autoFeatures.length > 0
+                ? [...(prev.features || []), ...autoFeatures]
+                : (prev.features || [])
         }));
 
         const notifications = isMilestone ? ['+2 stat points', 'Class slot unlocked! Roll HP bonus (d4)'] : [];
@@ -341,7 +374,7 @@ export const TrainerProvider = ({ children }) => {
                 setTimeout(() => rollMilestoneHP(), 300);
             }
         }
-    }, [trainer, setTrainer, showLevelUpNotification, rollMilestoneHP]);
+    }, [trainer, setTrainer, showLevelUpNotification, rollMilestoneHP, liveGameData]);
 
     /**
      * Award honors and auto-apply all resulting level-ups in one atomic state update.
@@ -350,6 +383,8 @@ export const TrainerProvider = ({ children }) => {
      */
     const awardHonors = useCallback((amount) => {
         if (!amount || amount <= 0) return;
+
+        const allFeatures = liveGameData?.features || {};
 
         setTrainer(prev => {
             const newHonors = (prev.honors || 0) + amount;
@@ -371,6 +406,8 @@ export const TrainerProvider = ({ children }) => {
             let levelStatPoints = prev.levelStatPoints || 0;
             let hpRolls = [...(prev.hpRolls || [])];
             const classLevels = { ...(prev.classLevels || {}) };
+            const ownedSet = new Set((prev.features || []).map(f => typeof f === 'object' ? f.name : f));
+            const autoFeatures = [];
 
             for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
                 if (HP_MILESTONE_LEVELS.includes(lvl)) {
@@ -378,15 +415,24 @@ export const TrainerProvider = ({ children }) => {
                     hpRolls.push(Math.ceil(Math.random() * 4));
                 }
                 Object.keys(classLevels).forEach(cls => {
-                    classLevels[cls] = (classLevels[cls] || 1) + 1;
+                    const newClsLevel = (classLevels[cls] || 1) + 1;
+                    classLevels[cls] = newClsLevel;
+                    getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures).forEach(f => {
+                        autoFeatures.push(f);
+                        ownedSet.add(f);
+                    });
                 });
             }
 
-            return { ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels };
+            const features = autoFeatures.length > 0
+                ? [...(prev.features || []), ...autoFeatures]
+                : (prev.features || []);
+
+            return { ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels, features };
         });
 
         // Notification is shown by BulkExpModal after calling this
-    }, [setTrainer]);
+    }, [setTrainer, liveGameData]);
 
     // Level down the trainer (PTA3)
     const levelDownTrainer = useCallback(() => {
