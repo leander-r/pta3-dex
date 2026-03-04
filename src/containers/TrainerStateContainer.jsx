@@ -316,7 +316,7 @@ export const useTrainerState = (onLevelUp) => {
                             hpRolls: [],
                             statPoints: DEFAULT_TRAINER.statPoints,
                             levelStatPoints: 0,
-                            featPoints: 0,
+                            classLevels: {},
                             classes: [],
                             features: [],
                             skills: {}

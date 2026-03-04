@@ -184,10 +184,20 @@ export const DataProvider = ({ children }) => {
         if (loadedData.trainers) {
             return {
                 ...loadedData,
-                trainers: loadedData.trainers.map(t => ({
-                    ...migratePokemonToPartyReserve(t),
-                    skills: migrateSkillsToObject(t.skills)
-                }))
+                trainers: loadedData.trainers.map(t => {
+                    const migrated = {
+                        ...migratePokemonToPartyReserve(t),
+                        skills: migrateSkillsToObject(t.skills)
+                    };
+                    // If trainer has classes but no classLevels, initialise each class
+                    // to the trainer's current level (conservative: assume taken at Lv 1)
+                    if (Array.isArray(migrated.classes) && migrated.classes.length > 0 && !migrated.classLevels) {
+                        migrated.classLevels = Object.fromEntries(
+                            migrated.classes.map(cls => [cls, migrated.level || 1])
+                        );
+                    }
+                    return migrated;
+                })
             };
         }
 

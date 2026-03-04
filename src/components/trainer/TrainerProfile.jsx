@@ -264,10 +264,10 @@ const TrainerProfile = () => {
                 </div>
                 <div
                     style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #f5a62325 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #f5a62355', borderTop: '3px solid #f5a623' }}
-                    title="Feat points are used to buy features. Gain points from leveling up."
+                    title="Honors earned (gym badges, ribbons, etc.) — determines trainer level"
                 >
-                    <div style={{ fontSize: '12px', color: '#e8941c', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feat Pts</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: (trainer.featPoints || 0) > 0 ? '#f5a623' : 'var(--text-muted, #999)', lineHeight: 1.2 }}>{trainer.featPoints || 0}</div>
+                    <div style={{ fontSize: '12px', color: '#e8941c', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🎖 Honors</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f5a623', lineHeight: 1.2 }}>{trainer.honors || 0}</div>
                 </div>
                 <div
                     style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #667eea25 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #667eea55', borderTop: '3px solid #667eea', cursor: 'pointer' }}

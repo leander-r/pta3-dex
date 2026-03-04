@@ -8,8 +8,8 @@ import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
 /**
- * TrainerClasses - Manage trainer classes
- * Uses contexts for state management
+ * TrainerClasses - Manage trainer classes (PTA3)
+ * Classes unlock features and skill talents. No feat point cost.
  */
 const TrainerClasses = () => {
     const { trainer, setTrainer } = useTrainerContext();
@@ -19,8 +19,8 @@ const TrainerClasses = () => {
     // PTA3 class unlock levels: 1 at Lv1, 2 at Lv3, 3 at Lv7, 4 at Lv11
     const maxClasses = trainer.level < 3 ? 1 : trainer.level < 7 ? 2 : trainer.level < 11 ? 3 : 4;
     const currentClasses = trainer.classes || [];
+    const classLevels = trainer.classLevels || {};
 
-    // State for skill selection when adding a class
     const [pendingClass, setPendingClass] = useState(null);
     const [selectedClassSkills, setSelectedClassSkills] = useState([]);
     const [collapsed, setCollapsed] = useState(true);
@@ -28,86 +28,57 @@ const TrainerClasses = () => {
     // Get skill pool for a class
     const getClassSkillPool = (className) => {
         const classData = GAME_DATA.trainerClasses?.[className];
-        if (!classData?.skillPool) {
-            // Default skill pools based on class type if not defined
+        if (!classData?.skillPool?.length) {
             return Object.keys(GAME_DATA.skills || {});
         }
         return classData.skillPool;
     };
 
-    // Get how many skills a class grants
+    // How many skills a class grants (base = 2, advanced = 1)
     const getSkillCount = (className) => {
         const classData = GAME_DATA.trainerClasses?.[className];
-        return classData?.type === 'base' ? 3 : 1;
+        return classData?.type === 'base' ? 2 : 1;
     };
 
-    // Helper to get skill rank from skills object (handles legacy array format)
     const getSkillRank = (skillName) => {
         const skills = trainer.skills || {};
-        if (Array.isArray(skills)) {
-            return skills.filter(s => s === skillName).length;
-        }
+        if (Array.isArray(skills)) return skills.filter(s => s === skillName).length;
         return skills[skillName] || 0;
     };
 
-    // Check if a skill is already at max (rank 2, except HP skills which cap at rank 1)
     const isSkillMaxed = (skillName) => {
         const rank = getSkillRank(skillName);
         const skillData = GAME_DATA.skills?.[skillName];
-        const isHPSkill = skillData?.stat === 'HP';
-        return isHPSkill ? rank >= 1 : rank >= 2;
+        const isPassive = skillData?.type === 'passive';
+        return isPassive ? rank >= 1 : rank >= 2;
     };
 
-    // Get base features for a class
-    // Base classes: features with isBase: true
-    // Advanced classes: first 2 features without prerequisites
-    const getClassBaseFeatures = (className) => {
-        const classData = GAME_DATA.trainerClasses?.[className];
-        const isBaseClass = classData?.type === 'base';
-        const classFeatures = Object.entries(GAME_DATA.features || {})
-            .filter(([_, f]) => f.category === className);
-
-        if (isBaseClass) {
-            return classFeatures
-                .filter(([_, f]) => f.isBase)
-                .map(([name, _]) => name);
-        } else {
-            // Advanced classes: first 2 features without prerequisites
-            return classFeatures
-                .filter(([_, f]) => !f.prerequisites)
-                .slice(0, 2)
-                .map(([name, _]) => name);
-        }
+    // Features granted immediately when a class is taken (Level 1 features)
+    const getLevel1Features = (className) => {
+        return Object.entries(GAME_DATA.features || {})
+            .filter(([_, f]) => {
+                if (f.category !== className) return false;
+                if (!f.prerequisites) return true;
+                const levelMatch = f.prerequisites.match(/^Level\s+(\d+)/i);
+                return levelMatch && parseInt(levelMatch[1]) === 1;
+            })
+            .map(([name]) => name);
     };
 
     const handleRemoveClass = (cls) => {
         showConfirm({
             title: 'Remove Class',
-            message: `Remove ${cls} class? This will also remove associated skills and features.`,
+            message: `Remove ${cls}? This will also remove its skills and Level 1 features.`,
             danger: true,
             onConfirm: () => doRemoveClass(cls)
         });
     };
 
     const doRemoveClass = (cls) => {
-        const classData = GAME_DATA.trainerClasses[cls];
-        const isBaseClass = classData?.type === 'base';
-        const isFirstClass = currentClasses.indexOf(cls) === 0 && currentClasses.length > 0;
-
-        // Find base features for this class that should be removed
-        const baseFeaturesToRemove = getClassBaseFeatures(cls);
-
-        // Get skills that were granted by this class
+        const level1Features = getLevel1Features(cls);
         const classSkillsToRemove = (trainer.classSkills || {})[cls] || [];
 
-        // Calculate feat point refund
-        let featPointRefund = 0;
-        if (!isFirstClass && currentClasses.length > 1) {
-            featPointRefund = 1;
-        }
-
         setTrainer(prev => {
-            // Handle skills - convert legacy array to object if needed
             let prevSkills = prev.skills || {};
             if (Array.isArray(prevSkills)) {
                 prevSkills = prevSkills.reduce((acc, s) => {
@@ -116,27 +87,31 @@ const TrainerClasses = () => {
                 }, {});
             }
 
-            // Remove class skills by reducing rank
             const updatedSkills = { ...prevSkills };
             classSkillsToRemove.forEach(skillToRemove => {
                 if (updatedSkills[skillToRemove]) {
                     updatedSkills[skillToRemove] -= 1;
-                    if (updatedSkills[skillToRemove] <= 0) {
-                        delete updatedSkills[skillToRemove];
-                    }
+                    if (updatedSkills[skillToRemove] <= 0) delete updatedSkills[skillToRemove];
                 }
             });
 
             const newClassSkills = { ...(prev.classSkills || {}) };
             delete newClassSkills[cls];
 
+            const newClassLevels = { ...(prev.classLevels || {}) };
+            delete newClassLevels[cls];
+
             return {
                 ...prev,
                 classes: (prev.classes || []).filter(c => c !== cls),
-                features: (prev.features || []).filter(f => !baseFeaturesToRemove.includes(f)),
+                // Only remove features that were auto-granted at level 1 (string features)
+                features: (prev.features || []).filter(f => {
+                    const name = typeof f === 'object' ? f.name : f;
+                    return !level1Features.includes(name);
+                }),
                 skills: updatedSkills,
                 classSkills: newClassSkills,
-                featPoints: (prev.featPoints || 0) + featPointRefund
+                classLevels: newClassLevels
             };
         });
     };
@@ -146,30 +121,12 @@ const TrainerClasses = () => {
         if (!select.value) return;
 
         const cls = select.value;
-        const classData = GAME_DATA.trainerClasses[cls];
-        const isFirstClass = currentClasses.length === 0;
 
-        // Determine feat point cost
-        let featPointChange = 0;
-        if (classData?.type === 'base' && isFirstClass) {
-            featPointChange = 2; // First base class grants 2 features
-        } else if (currentClasses.length >= 1) {
-            featPointChange = -1; // Additional classes cost 1 feat point
-        }
-
-        // Check if can afford
-        if (featPointChange < 0 && (trainer.featPoints || 0) < Math.abs(featPointChange)) {
-            toast.warning('Not enough feat points for another class!');
-            return;
-        }
-
-        // Check max classes
         if (currentClasses.length >= maxClasses) {
-            toast.warning(`Maximum ${maxClasses} class(es) at level ${trainer.level}`);
+            toast.warning(`Maximum ${maxClasses} class(es) at level ${trainer.level}. Level up to unlock more.`);
             return;
         }
 
-        // Start skill selection process
         setPendingClass(cls);
         setSelectedClassSkills([]);
         select.value = '';
@@ -177,7 +134,6 @@ const TrainerClasses = () => {
 
     const handleToggleSkillSelection = (skillName) => {
         const maxSkills = getSkillCount(pendingClass);
-
         if (selectedClassSkills.includes(skillName)) {
             setSelectedClassSkills(prev => prev.filter(s => s !== skillName));
         } else if (selectedClassSkills.length < maxSkills) {
@@ -188,23 +144,14 @@ const TrainerClasses = () => {
     const handleConfirmClass = () => {
         if (!pendingClass) return;
 
-        const classData = GAME_DATA.trainerClasses[pendingClass];
-        const isBaseClass = classData?.type === 'base';
-        const isFirstClass = currentClasses.length === 0;
-
-        // Determine feat point cost
-        let featPointChange = 0;
-        if (isBaseClass && isFirstClass) {
-            featPointChange = 2;
-        } else if (currentClasses.length >= 1) {
-            featPointChange = -1;
-        }
-
-        // Get base features for this class
-        const baseFeatures = getClassBaseFeatures(pendingClass);
+        // Auto-grant Level 1 features
+        const level1Features = getLevel1Features(pendingClass);
+        const existingFeatureNames = new Set(
+            (trainer.features || []).map(f => typeof f === 'object' ? f.name : f)
+        );
+        const newFeatures = level1Features.filter(f => !existingFeatureNames.has(f));
 
         setTrainer(prev => {
-            // Handle skills - convert legacy array to object if needed
             let prevSkills = prev.skills || {};
             if (Array.isArray(prevSkills)) {
                 prevSkills = prevSkills.reduce((acc, s) => {
@@ -213,7 +160,6 @@ const TrainerClasses = () => {
                 }, {});
             }
 
-            // Add selected skills (increment rank or add with rank 1)
             const updatedSkills = { ...prevSkills };
             selectedClassSkills.forEach(skill => {
                 updatedSkills[skill] = (updatedSkills[skill] || 0) + 1;
@@ -222,15 +168,24 @@ const TrainerClasses = () => {
             return {
                 ...prev,
                 classes: [...(prev.classes || []), pendingClass],
-                features: [...(prev.features || []), ...baseFeatures],
-                featPoints: (prev.featPoints || 0) + featPointChange,
+                features: [...(prev.features || []), ...newFeatures],
                 skills: updatedSkills,
                 classSkills: {
                     ...(prev.classSkills || {}),
                     [pendingClass]: selectedClassSkills
+                },
+                classLevels: {
+                    ...(prev.classLevels || {}),
+                    [pendingClass]: 1
                 }
             };
         });
+
+        if (newFeatures.length > 0) {
+            toast.success(`${pendingClass} added! Gained ${newFeatures.length} feature${newFeatures.length > 1 ? 's' : ''}: ${newFeatures.join(', ')}`);
+        } else {
+            toast.success(`${pendingClass} added!`);
+        }
 
         setPendingClass(null);
         setSelectedClassSkills([]);
@@ -253,7 +208,7 @@ const TrainerClasses = () => {
                 >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
-                        {currentClasses.length === 0 ? 'First class grants +2 feat points!' : `${currentClasses.length}/${maxClasses} classes`}
+                        {currentClasses.length === 0 ? 'No class yet' : `${currentClasses.length}/${maxClasses} classes`}
                     </span>
                     <button
                         onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
@@ -267,48 +222,50 @@ const TrainerClasses = () => {
             {!collapsed && <>
             <p className="section-description" style={{ fontSize: '12px' }}>
                 Classes unlock features and skill talents. Lv 1: 1 class | Lv 3: 2 | Lv 7: 3 | Lv 11: 4.
+                Level 1 features are granted automatically when a class is taken.
             </p>
 
             {/* Current Classes */}
             {currentClasses.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '15px' }}>
-                    {currentClasses.map((cls, index) => (
-                        <div key={index} style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '8px 12px',
-                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                            borderRadius: '20px',
-                            color: 'white'
-                        }}>
-                            <span className="font-bold">{cls}</span>
-                            {GAME_DATA.trainerClasses[cls] && (
+                    {currentClasses.map((cls, index) => {
+                        const clsLevel = classLevels[cls] ?? trainer.level;
+                        return (
+                            <div key={index} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '8px 12px',
+                                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                borderRadius: '20px',
+                                color: 'white'
+                            }}>
+                                <span className="font-bold">{cls}</span>
                                 <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '10px', fontSize: '10px' }}>
-                                    {GAME_DATA.trainerClasses[cls].type === 'base' ? 'Base' : 'Adv'}
+                                    {GAME_DATA.trainerClasses?.[cls]?.type === 'base' ? 'Base' : 'Adv'} · Lv {clsLevel}
                                 </span>
-                            )}
-                            <button
-                                onClick={() => handleRemoveClass(cls)}
-                                style={{
-                                    background: 'rgba(255,255,255,0.2)',
-                                    border: 'none',
-                                    borderRadius: '50%',
-                                    width: '20px',
-                                    height: '20px',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '12px'
-                                }}
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
+                                <button
+                                    onClick={() => handleRemoveClass(cls)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.2)',
+                                        border: 'none',
+                                        borderRadius: '50%',
+                                        width: '20px',
+                                        height: '20px',
+                                        color: 'white',
+                                        cursor: 'pointer',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
 
-            {/* Skill Selection Modal */}
+            {/* Skill Selection for pending class */}
             {pendingClass && (
                 <div style={{
                     marginBottom: '15px',
@@ -322,18 +279,18 @@ const TrainerClasses = () => {
                         <span style={{
                             marginLeft: '8px',
                             padding: '2px 8px',
-                            background: GAME_DATA.trainerClasses[pendingClass]?.type === 'base' ? '#667eea' : '#9c27b0',
+                            background: GAME_DATA.trainerClasses?.[pendingClass]?.type === 'base' ? '#667eea' : '#9c27b0',
                             color: 'white',
                             borderRadius: '10px',
                             fontSize: '11px'
                         }}>
-                            {GAME_DATA.trainerClasses[pendingClass]?.type === 'base' ? 'Base' : 'Advanced'}
+                            {GAME_DATA.trainerClasses?.[pendingClass]?.type === 'base' ? 'Base' : 'Advanced'}
                         </span>
                     </div>
                     <div style={{ fontSize: '12px', marginBottom: '10px', color: 'var(--text-primary)' }}>
-                        Select {getSkillCount(pendingClass)} skill{getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:
-                        <span style={{ color: 'var(--text-muted)', fontSize: '12px', display: 'block', marginTop: '4px' }}>
-                            Trained skills add +2 to rolls. Getting the same skill twice adds another +2. HP skills can only be taken once.
+                        Select {getSkillCount(pendingClass)} skill talent{getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:
+                        <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginTop: '4px' }}>
+                            1 talent = +2 bonus | 2 talents = +5 bonus | Passive skills cap at 1 talent.
                         </span>
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
@@ -383,14 +340,7 @@ const TrainerClasses = () => {
                         </button>
                         <button
                             onClick={handleCancelClass}
-                            style={{
-                                padding: '10px 20px',
-                                background: '#f44336',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                cursor: 'pointer'
-                            }}
+                            style={{ padding: '10px 20px', background: '#f44336', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                         >
                             Cancel
                         </button>
@@ -411,14 +361,14 @@ const TrainerClasses = () => {
                         <optgroup label="━━ Base Classes ━━">
                             {Object.entries(GAME_DATA.trainerClasses || {})
                                 .filter(([_, data]) => data.type === 'base')
-                                .map(([cls, _]) => (
+                                .map(([cls]) => (
                                     <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
                                 ))}
                         </optgroup>
                         <optgroup label="━━ Advanced Classes ━━">
                             {Object.entries(GAME_DATA.trainerClasses || {})
                                 .filter(([_, data]) => data.type === 'advanced')
-                                .map(([cls, _]) => (
+                                .map(([cls]) => (
                                     <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
                                 ))}
                         </optgroup>
@@ -432,24 +382,25 @@ const TrainerClasses = () => {
             {collapsed && (
                 currentClasses.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {currentClasses.map((cls, i) => (
-                            <span key={i} style={{
-                                padding: '3px 10px', borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                                color: 'white', fontSize: '11px', fontWeight: 'bold'
-                            }}>
-                                {cls}
-                                {GAME_DATA.trainerClasses[cls] && (
+                        {currentClasses.map((cls, i) => {
+                            const clsLevel = classLevels[cls] ?? trainer.level;
+                            return (
+                                <span key={i} style={{
+                                    padding: '3px 10px', borderRadius: '10px',
+                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                    color: 'white', fontSize: '11px', fontWeight: 'bold'
+                                }}>
+                                    {cls}
                                     <span style={{ opacity: 0.75, marginLeft: '4px', fontSize: '10px' }}>
-                                        ({GAME_DATA.trainerClasses[cls].type === 'base' ? 'Base' : 'Adv'})
+                                        (Lv {clsLevel})
                                     </span>
-                                )}
-                            </span>
-                        ))}
+                                </span>
+                            );
+                        })}
                     </div>
                 ) : (
                     <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                        No classes yet — first class grants +2 feat points!
+                        No classes yet — add a class to unlock features!
                     </p>
                 )
             )}

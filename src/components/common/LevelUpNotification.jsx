@@ -34,9 +34,7 @@ const LevelUpNotification = ({ notification }) => {
             {notification.statPoints > 0 && (
                 <p>+{notification.statPoints} stat point(s)!</p>
             )}
-            {notification.featPoints > 0 && (
-                <p>+{notification.featPoints} feature(s)!</p>
-            )}
+
             {notification.note && (
                 <p style={{ fontStyle: 'italic', color: '#ffd700' }}>{notification.note}</p>
             )}

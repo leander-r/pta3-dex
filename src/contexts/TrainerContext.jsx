@@ -307,7 +307,10 @@ export const TrainerProvider = ({ children }) => {
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
-            levelStatPoints: (prev.levelStatPoints || 0) + (isMilestone ? 2 : 0)
+            levelStatPoints: (prev.levelStatPoints || 0) + (isMilestone ? 2 : 0),
+            classLevels: Object.fromEntries(
+                Object.entries(prev.classLevels || {}).map(([k, v]) => [k, v + 1])
+            )
         }));
 
         const notifications = isMilestone ? ['+2 stat points', 'Class slot unlocked! Roll HP bonus (d4)'] : [];
@@ -362,7 +365,10 @@ export const TrainerProvider = ({ children }) => {
             ...prev,
             level: newLevel,
             levelStatPoints: newLevelStatPoints,
-            hpRolls
+            hpRolls,
+            classLevels: Object.fromEntries(
+                Object.entries(prev.classLevels || {}).map(([k, v]) => [k, Math.max(1, v - 1)])
+            )
         }));
     }, [trainer, setTrainer]);
 
@@ -396,10 +402,11 @@ export const TrainerProvider = ({ children }) => {
                             honors: 0,
                             statPoints: DEFAULT_TRAINER.statPoints,
                             levelStatPoints: 0,
-                            featPoints: 0,
+                            classLevels: {},
                             classes: [],
                             features: [],
                             skills: {},
+                            classSkills: {},
                             edges: prev.edges || []
                         }));
                         toast.success('Trainer has been reset to Level 0! You can now rebuild your character.');

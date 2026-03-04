@@ -27,7 +27,7 @@ export const DEFAULT_TRAINER = {
     hpRolls: [],           // 1d4 results added at levels 3, 7, 11
     statPoints: 25,        // Character creation points (point-buy budget)
     levelStatPoints: 0,    // Level-up stat points (no cap)
-    featPoints: 0,         // Feature points
+    classLevels: {},       // Per-class level tracker: { 'Ace Trainer': 3, 'Stat Ace': 1 }
     skills: {},            // Skills with talents: { 'Athletics': 1, 'Stealth': 2 }
     features: [],
     notes: '',

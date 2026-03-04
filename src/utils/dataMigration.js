@@ -60,7 +60,7 @@ const migrateTrainer = (trainer) => {
         hpRolls: [],
         honors,
         statPoints: Math.min(25, trainer.statPoints ?? 25),
-        // Keep levelStatPoints and featPoints as-is
+        classLevels: {},  // Will be initialised in DataContext.migrateOldData based on trainer.level
     };
 };
 

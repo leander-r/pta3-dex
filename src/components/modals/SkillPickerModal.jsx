@@ -72,8 +72,7 @@ const SkillPickerModal = () => {
                 classSkills: {
                     ...(prev.classSkills || {}),
                     [cls]: skillPickerModal.selectedSkills
-                },
-                featPoints: (prev.featPoints || 0) + featPointChange
+                }
             };
         });
 

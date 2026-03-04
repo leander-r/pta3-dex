@@ -26,8 +26,7 @@ const CustomFeatureModal = () => {
         if (customFeature.name && customFeature.effect) {
             setTrainer(prev => ({
                 ...prev,
-                features: [...prev.features, { ...customFeature }],
-                featPoints: (prev.featPoints || 0) - 1
+                features: [...prev.features, { ...customFeature }]
             }));
             setShowCustomFeatureModal(false);
         }
@@ -185,7 +184,7 @@ const CustomFeatureModal = () => {
                             disabled={!customFeature.name || !customFeature.effect}
                             onClick={handleAddFeature}
                         >
-                            Add Feature (1 point)
+                            Add Feature
                         </button>
                     </div>
                 </div>
