@@ -1394,31 +1394,128 @@ const PokemonCard = ({
                             </div>
                         </div>
 
-                        {/* Species Passives — read-only, fixed by Pokédex */}
-                        {(pokemon.passives || []).length > 0 && (
-                            <div style={{ marginBottom: '15px' }}>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
-                                    Passives
-                                </label>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                    {(pokemon.passives || []).map((passive, idx) => (
-                                        <span
-                                            key={idx}
-                                            style={{
-                                                padding: '4px 10px',
-                                                background: 'linear-gradient(135deg, #f093fb, #f5576c)',
-                                                color: 'white',
-                                                borderRadius: '12px',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold'
-                                            }}
-                                        >
-                                            {passive}
+                        {/* Species Passives — up to 3, sourced from Pokédex pool */}
+                        {(() => {
+                            const speciesEntry = pokedex?.find(p => p.species === pokemon.species);
+                            const passivePool = speciesEntry?.passives || [];
+                            const selectedPassives = pokemon.passives || [];
+                            const unselectedPassives = passivePool.filter(p => !selectedPassives.includes(p));
+                            if (passivePool.length === 0 && selectedPassives.length === 0) return null;
+                            return (
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Passives</span>
+                                        <span className="text-muted" style={{ fontWeight: 'normal' }}>
+                                            {selectedPassives.length}/3 selected
                                         </span>
-                                    ))}
+                                    </label>
+
+                                    {/* Selected Passives */}
+                                    {selectedPassives.length > 0 && (
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+                                            {selectedPassives.map((passive, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '6px 10px',
+                                                        background: 'linear-gradient(135deg, #f093fb, #f5576c)',
+                                                        color: 'white',
+                                                        borderRadius: '16px',
+                                                        fontSize: '12px'
+                                                    }}
+                                                >
+                                                    <span
+                                                        onClick={() => showDetail && showDetail('feature', passive, null)}
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
+                                                        {passive}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => {
+                                                            updatePokemon({ passives: selectedPassives.filter(p => p !== passive) });
+                                                        }}
+                                                        style={{
+                                                            background: 'rgba(255,255,255,0.3)',
+                                                            border: 'none',
+                                                            borderRadius: '50%',
+                                                            width: '18px',
+                                                            height: '18px',
+                                                            color: 'white',
+                                                            cursor: 'pointer',
+                                                            fontSize: '12px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Available Passives to Add */}
+                                    {unselectedPassives.length > 0 && (
+                                        <div className="abilities-available-box" style={{ padding: '10px', borderRadius: '8px' }}>
+                                            <div className="text-muted" style={{ fontSize: '12px', marginBottom: '8px' }}>
+                                                Tap to view details, + to add:
+                                            </div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                                {unselectedPassives.map((passive, idx) => {
+                                                    const canAdd = selectedPassives.length < 3;
+                                                    return (
+                                                        <div
+                                                            key={idx}
+                                                            className="ability-option"
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                padding: '4px 10px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '12px',
+                                                                opacity: canAdd ? 1 : 0.5
+                                                            }}
+                                                        >
+                                                            <span
+                                                                onClick={() => showDetail && showDetail('feature', passive, null)}
+                                                                style={{ cursor: 'pointer' }}
+                                                            >
+                                                                {passive}
+                                                            </span>
+                                                            {canAdd && (
+                                                                <button
+                                                                    onClick={() => updatePokemon({ passives: [...selectedPassives, passive] })}
+                                                                    style={{
+                                                                        background: '#4caf50',
+                                                                        border: 'none',
+                                                                        borderRadius: '50%',
+                                                                        width: '16px',
+                                                                        height: '16px',
+                                                                        color: 'white',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '12px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        marginLeft: '4px'
+                                                                    }}
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {/* Abilities Section - Up to 3 */}
                         <div style={{ marginBottom: '15px' }}>
