@@ -67,17 +67,16 @@ function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
  * Returns feature names from allFeatures that belong to className
  * and have a "Level X" prerequisite exactly matching newClassLevel,
  * and are not already in ownedSet.
- * Secondary base classes never receive their Level 15 feature.
+ * Only the primaryBaseClass receives the Level 15 feature (PTA3 rule).
  */
-function getNewFeaturesForClass(className, newClassLevel, ownedSet, allFeatures, secondaryBaseClasses = []) {
-    const isSecondary = secondaryBaseClasses.includes(className);
+function getNewFeaturesForClass(className, newClassLevel, ownedSet, allFeatures, primaryBaseClass = '') {
     return Object.entries(allFeatures)
         .filter(([name, data]) => {
             if (data.category !== className) return false;
             if (ownedSet.has(name)) return false;
             const m = (data.prerequisites || '').match(/^Level (\d+)$/i);
             if (!m || parseInt(m[1]) !== newClassLevel) return false;
-            if (isSecondary && parseInt(m[1]) === 15) return false;
+            if (parseInt(m[1]) === 15 && className !== primaryBaseClass) return false;
             return true;
         })
         .map(([name]) => name);
@@ -342,12 +341,12 @@ export const TrainerProvider = ({ children }) => {
 
         // Auto-grant features unlocked at the new class level for each class
         const allFeatures = liveGameData?.features || {};
-        const secondaryBaseClasses = trainer.secondaryBaseClasses || [];
+        const primaryBaseClass = trainer.primaryBaseClass || (trainer.classes || [])[0] || '';
         const ownedSet = new Set((trainer.features || []).map(f => typeof f === 'object' ? f.name : f));
         const autoFeatures = [];
         Object.entries(trainer.classLevels || {}).forEach(([cls, clvl]) => {
             const newClsLevel = clvl + 1;
-            getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures, secondaryBaseClasses).forEach(f => {
+            getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures, primaryBaseClass).forEach(f => {
                 autoFeatures.push(f);
                 ownedSet.add(f);
             });
@@ -423,7 +422,7 @@ export const TrainerProvider = ({ children }) => {
         let levelStatPoints = trainer.levelStatPoints || 0;
         let hpRolls = [...(trainer.hpRolls || [])];
         const classLevels = { ...(trainer.classLevels || {}) };
-        const secondaryBaseClasses = trainer.secondaryBaseClasses || [];
+        const primaryBaseClass = trainer.primaryBaseClass || (trainer.classes || [])[0] || '';
         const ownedSet = new Set((trainer.features || []).map(f => typeof f === 'object' ? f.name : f));
         const autoFeatures = [];
 
@@ -435,7 +434,7 @@ export const TrainerProvider = ({ children }) => {
             Object.keys(classLevels).forEach(cls => {
                 const newClsLevel = (classLevels[cls] ?? 0) + 1;
                 classLevels[cls] = newClsLevel;
-                getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures, secondaryBaseClasses).forEach(f => {
+                getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures, primaryBaseClass).forEach(f => {
                     autoFeatures.push(f);
                     ownedSet.add(f);
                 });
@@ -542,6 +541,8 @@ export const TrainerProvider = ({ children }) => {
                             levelStatPoints: 0,
                             classLevels: {},
                             classes: [],
+                            primaryBaseClass: '',
+                            secondaryBaseClasses: [],
                             features: [],
                             skills: {},
                             classSkills: {},

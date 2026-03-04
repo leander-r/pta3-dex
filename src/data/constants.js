@@ -28,6 +28,7 @@ export const DEFAULT_TRAINER = {
     statPoints: 25,        // Character creation points (point-buy budget)
     levelStatPoints: 0,    // Level-up stat points (no cap)
     classLevels: {},           // Per-class level tracker: { 'Ace Trainer': 3, 'Stat Ace': 1 }
+    primaryBaseClass: '',      // First base class ever taken — only one to receive Level 15 feature
     secondaryBaseClasses: [],  // Base classes taken as 2nd/3rd slot (1 talent, no Lv15 feature)
     featureDropsUsed: 0,       // How many features have been dropped for +1 stat (max 4)
     skills: {},                // Skills with talents: { 'Athletics': 1, 'Stealth': 2 }

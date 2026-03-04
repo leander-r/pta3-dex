@@ -192,8 +192,13 @@ const TrainerClasses = () => {
                 },
                 classLevels: {
                     ...(prev.classLevels || {}),
-                    [pendingClass]: trainer.level
+                    // Initial base class (taken at level 0) starts at 0 so it tracks with trainer level.
+                    // Every other class (advanced or secondary base) always starts at 1 per PTA3 rules.
+                    [pendingClass]: prev.level === 0 ? 0 : 1
                 },
+                primaryBaseClass: prev.primaryBaseClass
+                    ? prev.primaryBaseClass
+                    : ((prev.classes || []).length === 0 ? pendingClass : ''),
                 secondaryBaseClasses: isSecondary
                     ? [...(prev.secondaryBaseClasses || []), pendingClass]
                     : (prev.secondaryBaseClasses || [])
