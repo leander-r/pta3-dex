@@ -9,8 +9,9 @@ export const DATA_CONFIG = {
     pokedexUrl: 'https://raw.githubusercontent.com/leander-r/pta3-dex/main/pokedex.min.json',
     gameDataUrl: 'https://raw.githubusercontent.com/leander-r/pta3-dex/main/pta-game-data.min.json',
     
-    // IndexedDB configuration
-    dbName: 'PTAData',
+    // IndexedDB configuration — app-specific name prevents collision with pta-dex
+    // (both apps share the same origin leander-r.github.io)
+    dbName: 'PTA3Data',
     dbVersion: 2,
     
     // Cache duration (7 days in milliseconds)
@@ -21,7 +22,7 @@ export const DATA_CONFIG = {
 export const POKEDEX_CONFIG = {
     remoteUrl: DATA_CONFIG.pokedexUrl,
     fallbackEnabled: true,
-    dbName: 'PTAPokedex',
+    dbName: 'PTA3Pokedex',
     dbVersion: 1,
     storeName: 'pokedex',
     cacheDuration: DATA_CONFIG.cacheDuration
