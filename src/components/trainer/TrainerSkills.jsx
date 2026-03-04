@@ -213,6 +213,24 @@ const TrainerSkills = () => {
                                                         {isPassive ? 'Passive' : `+${bonus}`}
                                                     </span>
                                                 )}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        showDetail && showDetail('skill', skill.name, GAME_DATA.skills?.[skill.name]);
+                                                    }}
+                                                    title={`View ${skill.name} details`}
+                                                    style={{
+                                                        background: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        fontSize: '13px',
+                                                        opacity: 0.7,
+                                                        padding: '0 2px',
+                                                        color: isTrained ? 'white' : 'var(--text-muted)'
+                                                    }}
+                                                >
+                                                    ℹ
+                                                </button>
                                             </div>
                                         );
                                     })}

@@ -1428,7 +1428,11 @@ const PokemonCard = ({
                                                     }}
                                                 >
                                                     <span
-                                                        onClick={() => showDetail && showDetail('feature', passive, null)}
+                                                        onClick={() => {
+                                                            if (!showDetail) return;
+                                                            const abilityData = GAME_DATA.abilities?.[passive];
+                                                            showDetail(abilityData ? 'ability' : 'feature', passive, abilityData || null);
+                                                        }}
                                                         style={{ cursor: 'pointer' }}
                                                     >
                                                         {passive}
@@ -1481,7 +1485,11 @@ const PokemonCard = ({
                                                             }}
                                                         >
                                                             <span
-                                                                onClick={() => showDetail && showDetail('feature', passive, null)}
+                                                                onClick={() => {
+                                                                    if (!showDetail) return;
+                                                                    const abilityData = GAME_DATA.abilities?.[passive];
+                                                                    showDetail(abilityData ? 'ability' : 'feature', passive, abilityData || null);
+                                                                }}
                                                                 style={{ cursor: 'pointer' }}
                                                             >
                                                                 {passive}

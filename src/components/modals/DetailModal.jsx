@@ -335,8 +335,8 @@ const FeatureDetails = ({ data, name }) => {
             }}>
                 <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>📋</span>
                 <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#666' }}>
-                    Feature data not found in database.<br />
-                    <span style={{ fontSize: '12px', color: '#999' }}>This feature may be custom or from an external source.</span>
+                    No description available yet.<br />
+                    <span style={{ fontSize: '12px', color: '#999' }}>Feature descriptions will be added in a future update.</span>
                 </div>
             </div>
         );
@@ -496,7 +496,7 @@ const SkillDetails = ({ data, getStatColor }) => (
             <span style={{ fontSize: '24px' }}>🎲</span>
             <div>
                 <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Roll</div>
-                <div style={{ fontSize: '16px', fontWeight: '700', color: '#0d47a1' }}>2d6 + {data.stat} modifier</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#0d47a1' }}>1d20 + {data.stat} modifier</div>
             </div>
         </div>
 
