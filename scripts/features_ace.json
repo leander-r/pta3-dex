@@ -1,0 +1,395 @@
+{
+  "Affirmation": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 1",
+    "effect": "Whenever your Pokémon knock out an opposing Pokémon, or whenever they score a critical hit, they gain temporary hit points equal to your Attack or Special Attack modifier."
+  },
+  "Improved Attacks": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 1",
+    "effect": "Whenever your Pokémon hits with an attack, they deal additional damage equal to your Attack or Special Attack modifier, depending on which Attack or Special Attack modifier your Pokémon is adding to their attack respectively."
+  },
+  "Intimidate": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 2",
+    "effect": "Ace Trainers can cause opposing Pokémon to question their aggressiveness by glaring intensely at them. 3/day, as an action, you can make a target Pokémon's Attack or Special Attack stat -2 for the remainder of an encounter. You need a line of sight to the target within 40ft. This penalty can stack with itself.",
+    "frequency": "3/day"
+  },
+  "Constructive Criticism": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 4",
+    "effect": "You can discern why your Pokémon's attacks are failing to get through an opposing Pokémon's defenses. Whenever your Pokémon misses with an attack, the next time they use that attack on the same target add 2 to their Accuracy Check. This bonus can stack with itself, if your Pokémon continues to miss against the same target with the same Move. Once your Pokémon hits, with that Move against the same target, Constructive Criticism's bonus is reset."
+  },
+  "Press": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 5",
+    "effect": "You can push your Pokémon harder through intense motivation. As an action, one of your Pokémon within line of sight has its stats raised by 2 until the end of an encounter. That Pokémon takes X damage, where X is 8 minus either your Attack or Special Attack modifier. Be careful, the repeated use of Press on your Pokémon may push them too far and you could begin to negatively affect their loyalty to you."
+  },
+  "Pokémon Master": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 6",
+    "effect": "You become a master commander to your Pokémon. As long as it's your Pokémon, they cannot disobey commands regardless of their loyalty. This does not improve their relationships with you, your Pokémon simply cannot disobey your commands."
+  },
+  "Taskmaster": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 8",
+    "effect": "You learn how to best push your Pokémon to their limits without causing them any distress. Whenever you use any Press actions, cure your Pokémon of being Stunned or Confused. Also restore any temporarily lowered stats to their normal stats. Your Pokémon's loyalty is not negatively affected by repeated uses of any Press actions."
+  },
+  "Battle Frenzy": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 9",
+    "effect": "You know when enemy Pokémon are nearing their limits and your Pokémon begin to mirror your excitement during battle. As an action, you can identify whether or not a target Pokémon is at or below half of its full HP. If a target is, one of your active Pokémon's Speed is raised by 2 as long as it is pursuing or attacking that Pokémon."
+  },
+  "Break Through": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 10",
+    "effect": "You see every weakness in every Pokémon just by studying them for a couple of seconds and specify the point while instructing your Pokémon. 3/day, as an action, you can target a Pokémon with Break Through! For the remainder of the encounter, your Pokémon can use both their Attack or Special Attack against either of the target's Defense or Special Defense in order to hit during accuracy check regardless of the attack's preference. In addition, after using Break Through, the target's Defense and Special Defense values are revealed to you.",
+    "frequency": "3/day"
+  },
+  "Press On": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 12",
+    "effect": "You can urge your Pokémon to make one more desperate attack. Once per day, you can issue a command to one of your Pokémon who was just knocked out during the last round of combat. If it does, you must immediately return it to its Poké Ball during your turn after it acts. If the Pokémon is further damaged to -100% HP, you may still need to roll a death saving throw if the foe had lethal intent.",
+    "frequency": "1/day"
+  },
+  "Battle Experience": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 13",
+    "effect": "You have enough battles behind you that you have a good idea of what to expect, or when to expect the unexpected. As an action, you may target an opposing Pokémon and identify whether or not the Pokémon has a super-effective Move against any of your active Pokémon. If they do, you are informed of what attacks they are."
+  },
+  "Finish It": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 14",
+    "effect": "Your Pokémon's attacks have more power in them as a foe gets nearer to being knocked out. If a target of one of your Pokémon's damaging attacks are lowered to 10 or less HP, it is knocked out or set to 1 HP (you decide)."
+  },
+  "Grand Master": {
+    "category": "Ace Trainer",
+    "prerequisites": "Level 15",
+    "effect": "Your Pokémon's strength is inspired by your presence to push out a little more with every attack. Whenever your Pokémon hits with an attack, they deal additional damage equal to twice your Attack or Special Attack stat, regardless of which Attack or Special Attack modifier your Pokémon is adding to their attack respectively. Your Pokémon may also add either twice your Attack or Special Attack modifier to attacks without a Damage value, to deal damage with those attacks (this feature does not replace Improved Attacks)."
+  },
+  "Favored Stat": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 1",
+    "effect": "When you become a Stat Ace, you will select either Attack, Special Attack, Defense, Special Defense, or Speed. This is relevant to all of your Stat Ace Features that refer to your favored stat. Unlike other Advanced classes, you may take Stat Ace more than once over time but you must choose a different Favored Stat each time."
+  },
+  "Specialist Training": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 1",
+    "effect": "You need something very specific from your Pokémon and they have matched that urgency, honing themselves to match your favored stat. Add half of your Attack or Special Attack modifier to the favored stat of each of your Pokémon that you've owned for at least a week. In addition, your Pokémon's stats cannot be lowered by a foe's effect if it is your favored stat (afflictions still affect your Pokémon's stats)."
+  },
+  "Favorable Recruitment": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 2",
+    "effect": "Something about your personality is picked up and mirrored by wild Pokémon. Whenever you capture or obtain a new wild Pokémon, or hatch a Pokémon egg, roll the Pokémon's Nature twice. If either nature positively influences your favored stat, you may choose that nature. If neither do, the Pokémon's nature is the second rolled nature."
+  },
+  "Stat Press": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 3",
+    "effect": "Your motivation may be harsh, but your Pokémon have the same goals as you when it comes to your favored combat style. Whenever you use Press on your Pokémon to temporarily raise your favored stat, you do not negatively affect your Pokémon's loyalty and it raised +4 instead."
+  },
+  "Affliction Resistance": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 4",
+    "effect": "Your specialized training has created a natural resistance to hardships that your Pokémon may be suffering. Depending on your favored stat, Pokémon you've owned for at least one week have the following immunities that apply to different afflictions. Attack: Your Pokémon's Attack stat is unaffected while Burned. Defense: While Frozen, your Pokémon get +4 during checks to break free of being Frozen. Special Attack: Your Pokémon's Special Attack stat is unaffected while Poisoned or Toxified. Special Defense: While Asleep, your Pokémon get +2 during checks to wake from induced Sleep. Speed: Your Pokémon's Speed stat is unaffected while Paralyzed."
+  },
+  "Field Tactics": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 6",
+    "effect": "Your Pokémon's aptitudes come into play on the field of battle, edging out every advantage possible during battle. Depending on your favored stat, your Pokémon's attacks, or reactions when attacked, have additional effects. Attack: Your Pokémon's moves that use the Attack stat have the following ability: 'On hit, you may move the targets up to 20ft away from you.' Defense: When an opponent attempts to hit your Pokémon using a move that uses the Attack stat and misses, your Pokémon may move the offender 20ft away from them. Special Attack: Your Pokémon's moves that use the Special Attack stat have the following ability: 'On hit, you may move the targets up to 20ft away from you.' Special Defense: When an opponent attempts to hit your Pokémon using a move that uses the Special Attack stat and misses, your Pokémon may move the offender 20ft away from them. Speed: After using an attack, your Pokémon can move 20ft, before the end of their turn."
+  },
+  "Attitude Adjustment": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 7",
+    "effect": "Your supervision can influence your Pokémon's behavior. Once per day, after one hour of work with one of your Pokémon, you may reroll that Pokémon's nature until you roll a nature that positively influences your favored stat.",
+    "frequency": "1/day"
+  },
+  "Honed Skill": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 8",
+    "effect": "Your specialized training has become a part of your Pokémon, even without you near them. If your Pokémon have been with you for at least a week, you may teach them the following Passives after one hour of additional training. When teaching your Pokémon this Passive, you may teach it to them even if they already have the Passive, if they already have a Passive from the same category. In this case, duplicate Passives are not redundant. The added Passive must still follow the stat passive limit of 3. Attack: Swords Dance (+2 Attack). Defense: Iron Defense (+2 Defense). Special Attack: Fake Tears (+2 Special Attack). Special Defense: Eerie Impulse (+2 Special Defense). Speed: Speed Boost (+2 Speed)."
+  },
+  "Desperate Measures": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 10",
+    "effect": "You weigh the needs of a battle to make desperate measures and win with your chosen strategies. Once per day, after two hours of work you can tutor the following moves to your Pokémon depending on your favored stat. Attack: Belly Drum - Self Normal Effect: 3/day. You lose HP equal to half of your Max HP, then your Attack is +6 for 10 mins. Defense: Unbreakable Armor - Self Normal Effect: 3/day. Your Defense is +4 for 10 mins, your Attack and Special Attack is -10 for 10 mins. Special Attack: Migraine - Self Normal Effect: 3/day. You lose HP equal to half of your Max HP, then your Special Attack is +6 for 10 mins. Special Defense: Unbreakable Barrier - Self Normal Effect: 3/day. Your Special Defense is +4 for 10 mins, your Attack and Special Attack is -10 for 10 mins. Speed: Mach Speeds - Self Normal Effect: 3/day. Your Speed is +8 for 10 mins, your Defense and Special Defense is -3 for 10 mins.",
+    "frequency": "1/day"
+  },
+  "Stat Affirmation": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 11",
+    "effect": "The fruit of your labors is coming forth. Every time your Pokémon succeed with your favored stat, they are energized by their efforts. Depending on your favored stat, your Pokémon have the following bonuses during combat. Attack: Whenever your Pokémon hits with a move that uses the Attack stat, they gain temporary HP equal to your Attack or Special Attack modifier. Defense: Whenever your Pokémon is attacked with a move that uses the Attack stat and the attack misses, they gain temporary HP equal to your Attack or Special Attack modifier. Special Attack: Whenever your Pokémon hits with a move that uses the Special Attack stat, they gain temporary HP equal to your Attack or Special Attack modifier. Special Defense: Whenever your Pokémon is attacked with a move that uses the Special Attack stat and the attack misses, they gain temporary HP equal to your Attack or Special Attack modifier. Speed: Whenever your Pokémon is attacked with an Effect move that uses their Speed during accuracy check and the attack misses, they gain temporary HP equal to your Attack or Special Attack modifier."
+  },
+  "Stat Tactics": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 12",
+    "effect": "You employ greater efforts to tutor your Pokémon, or your ally's Pokémon, finding even better uses for their skills. Once per week, you may spend three hours tutoring your Pokémon to learn a move depending on which favored stat you've chosen. If you tutor an ally's Pokémon it takes five hours. Attack: Giga Impact - Melee(10ft burst) Normal Attack: 1/day 5d20. Giga Impact has a recharge turn and -2 during Accuracy Check. Defense: Protect - Self Normal Effect: 1/day. Protect is used as a Reaction. When you would be hit by a move, use Protect to instead ignore the damage and any effects of the attack. Special Attack: Hyper Beam - Ranged(25ft beam) Normal Special Attack: 1/day 5d20. Hyper Beam has a recharge turn and -2 during Accuracy Check. Special Defense: Detect - Self Fighting Effect: 1/day. Detect is used as a Reaction. When you would be hit by a move, use Protect to instead ignore the damage and any effects of the attack. Speed: Double Team - Self Normal Effect: 1/day. You create 3 copies of yourself. You may attack from any copy and copies may inhabit spaces up to 25ft away from each other, though none can be more than 25ft from any other copies or the original. If a copy is hit, it disappears and you take 1/4th of the damage it would have taken. If your copy is hit by a non-damaging attack the copy is dismissed and you are unaffected by the attack. If you are hit, all copies disappear."
+  },
+  "Superior Aura": {
+    "category": "Stat Ace",
+    "prerequisites": "Level 13",
+    "effect": "Your glaring presence disparages enemy Pokémon and causes them to underperform during battle. 3/day, once per turn as a free action, you may disable a target (50ft) Pokémon's Stat Passives for 10 mins.",
+    "frequency": "3/day"
+  },
+  "Field Scout": {
+    "category": "Strategist",
+    "prerequisites": "Level 1",
+    "effect": "The field of battle is not always fair to your Pokémon, so you've focused your basic training on making the field much fairer. Once per day you may spend half an hour teaching any Pokémon the move Rapid Spin. Rapid Spin - Melee Normal Attack: At-Will 1d8. Destroy any Hazards or Coats, and free bound allies within 5ft. You may target Hazards, Coats, or bound allies with Rapid Spin without needing to roll Accuracy Check or damage.",
+    "frequency": "1/day"
+  },
+  "Terrain Mastery": {
+    "category": "Strategist",
+    "prerequisites": "Level 1",
+    "effect": "Positioning is key, and the ground is not always very helpful with that. You spend time every week training your Pokémon to overcome difficult terrains and get where they need to be in order to succeed during battle. Your Pokémon that you've had for at least one week are not affected by difficult terrain."
+  },
+  "Quick Set": {
+    "category": "Strategist",
+    "prerequisites": "Level 2",
+    "effect": "Your Pokémon are training in order to quickly set the stage of battle in order to maximize your chances of victory. 3/day you can have one of your Pokémon during their turn use two effect moves as one action if they are both Coat, Hazard, Terrain, Wall, and/or Weather moves.",
+    "frequency": "3/day"
+  },
+  "Adaptive Boost": {
+    "category": "Strategist",
+    "prerequisites": "Level 3",
+    "effect": "After spending time with your Pokémon, you've been able to urge more diverse tactical advantages out of the moves they already know. 3/week, after an hour of work with one of your Pokémon, you may permanently alter one of their Pokémon move effects to have one of the following abilities as long as it does not result in the move temporarily raising the same stat twice: 'On hit, your Attack is +1 for 10 mins.', 'On hit, your Defense is +1 for 10 mins.', 'On hit, your Special Attack is +1 for 10 mins.', 'On hit, your Special Defense is +1 for 10 mins.', or 'On hit, your Speed is +1 for 10 mins.' If a Pokémon move that has already been altered by Adaptive Boost is changed again, replace the previously added effect with the new effect.",
+    "frequency": "3/week"
+  },
+  "Healthy Priorities": {
+    "category": "Strategist",
+    "prerequisites": "Level 4",
+    "effect": "When you've spent time to focus on the urgency of your Pokémon's recovery in order to gain another advantage during battle, your Pokémon anticipates that urgency and acts, almost without your command. After an hour with one of your Pokémon who has a move that recovers Hit Points or heals Pokémon of afflictions, that move permanently gains Priority."
+  },
+  "Hazardous Intent": {
+    "category": "Strategist",
+    "prerequisites": "Level 6",
+    "effect": "Your Pokémon have really seen the advantages you've taught them pay off and have begun to ready themselves to set up a field of battle with little to no instruction. After half an hour with one of your Pokémon who has a Coat, Hazard, Terrain, Wall, and/or Weather move, choose one of those moves and the move permanently gains Priority for that Pokémon. Moves given priority this way can be used during a Quick Set simultaneously if both have priority."
+  },
+  "Move Recognition": {
+    "category": "Strategist",
+    "prerequisites": "Level 7",
+    "effect": "Your training has influenced how your Pokémon perceive and study battle. Whenever your Pokémon are targeted by an attack that they've already been hit with during the same encounter, regardless of who the attacker was, they have +2 Defense, Special Defense, or Speed during the offender's accuracy check. This effect is doubled if your Pokémon has been hit by the same attack twice during the same encounter. If your Pokémon is hit any further times, Move Recognition does not give higher than a +4 bonus to its relevant defense or speed during accuracy check."
+  },
+  "Terrain Shift": {
+    "category": "Strategist",
+    "prerequisites": "Level 8",
+    "effect": "Your Pokémon have been taught to mold the field of battle physically in order to create blocking, hindering, or difficult terrain. 3/day you may issue a 'Terraform' command to have one of your Pokémon with Fountain, Freezer, Groundshaper, or Sprouter change the field of battle as that Pokémon's action. Fountain: A Pokémon with Fountain can make a pool of water up to 20ft in diameter about 5ft deep, increase the size of a body of water by 8 contiguous 5x5ft squares, or change 8 contiguous 5x5ft squares of dirt or sand covered terrain into special muddy terrain. Freezer: A Pokémon with Freezer can make up to 8 contiguous 5x5ft squares of floor into icy difficult terrain, or create up to 20ft of wall 20ft high of icy blocking terrain with 80 Hit Points and a weakness to Fighting, Fire, Rock, and Steel type attacks. Groundshaper: A Pokémon with Groundshaper can create a tunnel equal to its movement speed big enough for large beings to pass through while moving, or can turn up to 8 contiguous 5x5ft squares of floor into difficult sandy terrain, or create up to 20ft of wall 20ft high of rocky blocking terrain with 80 Hit Points and a weakness to Fighting, Grass, Ground, Steel, and Water type attacks. Sprouter: A Pokémon with Sprouter can make up to 8 contiguous 5x5ft squares of floor into brush covered difficult terrain, or 8 contiguous 5x5ft squares of thicket covered hindering terrain, or create up to 20ft of walls 20ft high of vine blocking terrain with 80 Hit Points and a weakness to Bug, Fire, Flying, Ice, and Poison type attacks.",
+    "frequency": "3/day"
+  },
+  "Weather Vortex": {
+    "category": "Strategist",
+    "prerequisites": "Level 10",
+    "effect": "You train your Pokémon to manipulate the local climate and mingle effects on the field of battle to create powerful maelstroms that your Pokémon command to their benefit. Whenever your Pokémon uses a Weather move and it overlaps another Weather effect on the field of battle, you may choose for the previous weather effect to remain while the new weather effect is also active. Whenever your Pokémon uses a Terrain move and it overlaps another Terrain effect on the field of battle, you may choose for the previous terrain effect to remain while the new terrain effect is also active. A third instance of weather or terrain overlapping either areas affected by Weather Vortex will dismiss the other two weather or terrain effects."
+  },
+  "Malicious Priorities": {
+    "category": "Strategist",
+    "prerequisites": "Level 11",
+    "effect": "Your influence has made your Pokémon more eager to set up your opponent's Pokémon for failure. After an hour with one of your Pokémon who has an attack that does not deal damage on hit, you may teach that Pokémon the Passive, Prankster. Prankster (Your attacks that do not deal damage on hit have Priority.)"
+  },
+  "Sleight of Pokémon": {
+    "category": "Strategist",
+    "prerequisites": "Level 12",
+    "effect": "You begin to teach your Pokémon to physically manipulate individuals and not only the ground the battle is on. Once per day, after an hour of work with one of your Pokémon, you can teach them the passives Magician or Pickpocket, or the move Switcheroo. Each of your Pokémon may only be taught one of these three things with the Sleight of Pokémon feature. Magician (When hitting with a melee attack, you steal the target's held item, if any.) Pickpocket (When you are hit by a melee attack, you steal the offender's held item, if any.) Switcheroo - Melee Dark Effect: 1/day. On hit, you and the target trade any held items. If only you or the target has an item, take or give the item to exchange who has possession of it.",
+    "frequency": "1/day"
+  },
+  "Brute Strategy": {
+    "category": "Strategist",
+    "prerequisites": "Level 13",
+    "effect": "You teach your Pokémon their final lesson; when all else fails put everything you've got into your final attack. 3/day you may choose one of your attacking Pokémon. During their attack, the attack deals an additional 1d20 damage, has +5 during accuracy check, and is not resisted if it would be. That Pokémon may not act during the next round of combat.",
+    "frequency": "3/day"
+  },
+  "Sync Move": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 1",
+    "effect": "Working together comes naturally under your command. Once per day, any two adjacent Pokémon you've owned for at least a week can make a Sync Move attack during the faster of the two's turn. Either Pokémon involved in the Sync Move attack may move in order to arrive at the point of the Sync Move (this doesn't count as having more than one Pokémon act during the round). Sync Move - Ranged(30ft beam) Attack OR Special Attack: 1/day 3d12. You can't miss targets with less than 15 Defense or Special Defense. Sync Move has no type which means it can't be resisted and can't be super-effective. However, if both participating attackers share a type, they may have Sync Move's type be that type and be affected by weakness and resistance. Sync Move checks its accuracy against Defense or Special Defense, decided when declared as an attack. Add the higher attack bonus of the two Pokémon to the accuracy check. Sync Move's attackers apply both Attack or both Special Attack modifiers to Sync Move's damage. Sync Move takes up both attacker's turns during that round of combat.",
+    "frequency": "1/day"
+  },
+  "Team Spirit": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 1",
+    "effect": "Your Pokémon influence each other's flow on the field of battle, encouraging better performance out of both of them. 3/day you may target two of your active Pokémon as your action. Each of them has either Attack, Defense, Special Attack, Special Defense, or Speed raised +1 for 10 mins, depending on which of those stats its ally has the highest value in.",
+    "frequency": "3/day"
+  },
+  "Brace Allies": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 2",
+    "effect": "You train your Pokémon to better support allies from being manipulated around the field of battle. If any of your Pokémon are adjacent to any ally who would be moved by a foe's attack or feature effect, you may have your Pokémon brace that ally and ignore the effects of that ability."
+  },
+  "Helping Out": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 3",
+    "effect": "You begin teaching Pokémon how to help with an attack without the use of a Sync Move. You may spend an hour with a Pokémon to teach it the move Helping Hand. Helping Hand - Melee Normal Effect: 3/day. Target ally's next attack during this round will deal +1d20 damage.",
+    "frequency": "3/day"
+  },
+  "With Them": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 4",
+    "effect": "Your Pokémon begin to really figure out synced attacks and with little preparation, you can improvise an attack with yours and an ally's Pokémon. With permission from the owner, you may issue a command to your Pokémon and an adjacent ally Pokémon to make a Sync Move attack during the faster of the two's turn. In addition, you may issue a Sync Move command twice per day, through either your Sync Move or With Them features."
+  },
+  "Combination Tactics": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 6",
+    "effect": "You spend time studying combination tactics and teach your Pokémon to use them in combat. Once per day, you may spend an hour with one of your Pokémon to teach it the move Assurance, Instruct, or Round. Each of your Pokémon may only be taught one of these three moves with the Combination Tactics feature. Assurance - Melee Dark Attack: 3/day 3d8. If the target was already attacked this round, Assurance deals +1d8 damage. Instruct - Ranged(15ft) Psychic Effect: 3/day. Targeted ally may immediately act if they haven't this round. Round - Ranged(15ft burst) Normal Special Attack: 3/day 3d8. For every time anyone has used Round before you during this round of combat, Round deals +1d10 damage.",
+    "frequency": "1/day"
+  },
+  "Entwining Beam": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 7",
+    "effect": "You've trained your Pokémon to bring forth themselves into the Sync Moves they make. You may choose a type that each participant in a Sync Move has and apply both different types to the Sync Move, applying all weaknesses and resistances to both types during the attack and ignoring any immunities that defenders may have. In addition, you may issue a Sync Move command three times per day, through either your Sync Move or With Them features."
+  },
+  "Impossible Combination": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 8",
+    "effect": "Your creative strategies become mind-bogglingly unstoppable. Whenever one of your Pokémon attacks, while adjacent to another one of your Pokémon who shares no types with the first, the first Pokémon may make an attack while ignoring immunities of any targets, instead treating those immunities as resistances."
+  },
+  "All Together Now": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 10",
+    "effect": "You've managed to make room for even more in your powerful Sync Move attacks. You can command a third adjacent participant to attack during a Sync Move command, all three of them acting during the fastest participant's turn. If you do, Sync Move deals +2d12 more damage. All three participants must either be your own Pokémon or allied trainer's Pokémon, but at least one must be your own Pokémon. If using three Pokémon during a Sync Move, you cannot benefit from your Entwining Beam feature. In addition, you may issue a Sync Move command four times per day, through either your Sync Move, With Them, or All Together Now features."
+  },
+  "Dual Wielding": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 11",
+    "effect": "You've planned out field tactics and can issue commands like a pro. 3/day you may issue two different commands to two of your active Pokémon. Neither one of those commands can be a Sync Move.",
+    "frequency": "3/day"
+  },
+  "Friendly Fireproof": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 12",
+    "effect": "Your Pokémon are in sync with each other's movements and anticipate each other's attacks, making way whenever they would otherwise be harmed. Your Pokémon do not take damage from your own Pokémon's attacks, or any effects. This includes effects from weather, attacks with an area of effect, or even a misguided Thrash."
+  },
+  "One Heart": {
+    "category": "Tag Battler",
+    "prerequisites": "Level 13",
+    "effect": "Your Pokémon's training has unified the energy of each of their beings. The trust they have in each other manifests as an ultimate Sync Move. Whenever you issue a Sync Move command that involves only your Pokémon, the attack is treated as super-effective regardless of the types the Sync Move may be. In addition, you may issue a Sync Move command five times per day, through either your Sync Move, With Them, or All Together Now features."
+  },
+  "Favored Type": {
+    "category": "Type Ace",
+    "prerequisites": "Level 1",
+    "effect": "When you become a Type Ace, you will select either Bug, Dark, Dragon, Electric, Fairy, Fighting, Fire, Flying, Ghost, Grass, Ground, Ice, Normal, Poison, Psychic, Rock, Steel, or Water. This is relevant to all of your Type Ace Features that refer to your favored type. Unlike other Advanced classes, you may take Type Ace more than once over time but you must choose a different Favored Type each time."
+  },
+  "Improved Type Attacks": {
+    "category": "Type Ace",
+    "prerequisites": "Level 1",
+    "effect": "Your Pokémon have a shared love of your favorite type and match it with extra power whenever they get to fire off an attack with the same typing. Your Pokémon you've owned for at least one week deal +4 damage with any damaging attack when the attack's type matches your favored type."
+  },
+  "Type Resistance": {
+    "category": "Type Ace",
+    "prerequisites": "Level 2",
+    "effect": "Your Pokémon have become used to practicing with your favorite type and have learned to let attacks of that type roll off of them, inflicting less damage. Whenever your Pokémon is hit by an attack with the same type as your favored type, they take X less damage where X is equal to your Attack or Special Attack modifier."
+  },
+  "Elemental Metamorphosis": {
+    "category": "Type Ace",
+    "prerequisites": "Level 3",
+    "effect": "Your bond with the elemental type you love can influence your Pokémon to embrace the type permanently. Once per week, after eight hours of uninterrupted meditation with one of your Pokémon, they will permanently gain your favored type and gain move proficiency in your favored type. If your Pokémon has two types, permanently replace one of its types. If your Pokémon has a single type, it gains a second type. Your Pokémon's physical appearance is altered appropriately and may continue to change over the next two weeks to adjust to its new typing. Your Pokémon's change will only be successful if your Pokémon has at least loyalty 3. Without your influence, a Pokémon who underwent elemental metamorphosis might revert to their regular typing in the care of another trainer over time."
+  },
+  "Elemental Grit": {
+    "category": "Type Ace",
+    "prerequisites": "Level 4",
+    "effect": "People always think they know exactly how to take you down, but you're prepared for the worst. 3/day if your Pokémon with your favored type is hit by a super-effective or extremely-effective attack, the attack is treated as a resisted successful attack.",
+    "frequency": "3/day"
+  },
+  "Type Immunity": {
+    "category": "Type Ace",
+    "prerequisites": "Level 6",
+    "effect": "Your Pokémon can shake off what you've drilled into them with your encouragement. 3/day when one of your Pokémon who you've owned for at least one week are hit by an attack of the same type as your favored type, you can make your Pokémon take no damage from the successful attack. Any other effects of the attack may be ignored.",
+    "frequency": "3/day"
+  },
+  "Type Loyalty": {
+    "category": "Type Ace",
+    "prerequisites": "Level 7",
+    "effect": "By spending more time around similar Pokémon, you increase how comfortable your Pokémon feel in your care. If at least four Pokémon in your team share your favored type, your team's interactions with each other are never hostile. In addition, your team's loyalty is easier to improve, your interaction with your Pokémon more often ends with positive results, and it takes intentional and malicious mistreatment to lower your Pokémon's loyalty."
+  },
+  "Resistance Piercing": {
+    "category": "Type Ace",
+    "prerequisites": "Level 8",
+    "effect": "Your training has empowered your Pokémon's attacks to break through your foe's natural resistances. 3/day when your Pokémon hits with an attack with the same type as your favored type, the attack ignores any resistances or immunities. (If a Pokémon is benefitting from the Ace Trainer feature Type Immunity, your Pokémon's attack is treated as resisted in this case.)",
+    "frequency": "3/day"
+  },
+  "Bread and Butter": {
+    "category": "Type Ace",
+    "prerequisites": "Level 10",
+    "effect": "You begin to teach your Pokémon how to use a unique move that you've developed in your training. Once per week after training with one of your Pokémon who shares a type with your favored type for three hours, you teach them one of the following attacks. Type Smasher - Melee (Favored Type) Attack: 3/day 3d10. On hit, your Attack is +1 for 10 mins. Type Flash - Ranged(25ft) (Favored Type) Special Attack: 3/day 3d10. On hit, your Special Attack is +1 for 10 mins. In the move names for Type Smasher and Type Flash, replace the word 'Type' with your favored type. Type Smasher and Type Flash's type are your favored type.",
+    "frequency": "3/day"
+  },
+  "Move Molding": {
+    "category": "Type Ace",
+    "prerequisites": "Level 11",
+    "effect": "You begin to apply your special move's theorem to other attacks your Pokémon knows. Once per week after training with one of your Pokémon who shares a type with your favored type for three hours, you may permanently change the type of one of that Pokémon's moves to be your favored type."
+  },
+  "Type Embrace": {
+    "category": "Type Ace",
+    "prerequisites": "Level 12",
+    "effect": "When your Pokémon are hit by a familiar attack, they accept it like a warm hug. 3/day when one of your Pokémon that you've owned for at least one week are hit by an attack of the same type as your favored type, they take no damage and ignore any other effects of the attack, then are healed hit points equal to the amount of damage they would have taken.",
+    "frequency": "3/day"
+  },
+  "Elemental Surge": {
+    "category": "Type Ace",
+    "prerequisites": "Level 13",
+    "effect": "Your masterful training has perfected the essence of your elemental affinity and you can push Pokémon to unleash their inner strength to defeat any foe. 3/day when a Pokémon who shares a type with your favored type hits with an attack with the same type as your favored type, the attack is treated as extremely effective.",
+    "frequency": "3/day"
+  },
+  "Eversoul": {
+    "category": "Underdog",
+    "prerequisites": "Level 1",
+    "effect": "Through will alone, your Pokémon are able to ward off the lure of evolution. While straining to resist evolution is something that any Pokémon is capable of, your Pokémon never feel exhausted while doing so, instead it is as if they are always holding an Everstone. Your Pokémon are considered Underdog Pokémon for class features if they've been your Pokémon for at least one week and are in one of the three following categories: has never evolved but can still evolve (e.g. Bulbasaur, Taillow, Nincada); can still evolve, even if it has evolved (e.g. Ivysaur, Pikachu, Duosion); or cannot evolve but never evolved (e.g. Kangaskhan, Torkoal, Maractus)."
+  },
+  "Hidden Strength": {
+    "category": "Underdog",
+    "prerequisites": "Level 1",
+    "effect": "Your training brings out the best of your enthusiastic Pokémon. 3/day you can issue an attack command to use a Move that your Pokémon knows naturally upon evolution. The move may come from your Pokémon's next evolution, or its final evolution. Even though they may temporarily use the move, your Pokémon must still follow the move's frequency limits.",
+    "frequency": "3/day"
+  },
+  "The Bigger They Are": {
+    "category": "Underdog",
+    "prerequisites": "Level 2",
+    "effect": "Your guidance has instilled a confidence in your Pokémon, they never feel outmatched. Whenever your Underdog Pokémon hits an evolved Pokémon with an attack that deals damage, it deals an additional 4 damage."
+  },
+  "Versatile Technique": {
+    "category": "Underdog",
+    "prerequisites": "Level 3",
+    "effect": "Your Pokémon feel their potential within themselves. When attacking, your Underdog Pokémon benefit from the same-type attack bonus as if they were any of the types of their potential evolved forms, even if they have branch evolutions. (STAB is always +4 damage)"
+  },
+  "Passive Improvement": {
+    "category": "Underdog",
+    "prerequisites": "Level 4",
+    "effect": "Your Pokémon begin to mature in ways that are unique to their evolutionary stage. Pokémon that you've owned for at least one week may have up to six passives gained from this feature and may immediately gain passives from any of their possible evolutions. In addition, those Pokémon can use the skills of any of their evolved forms. If necessary, your Pokémon's physical appearance may slightly change over a couple of weeks to accommodate new passives or skills."
+  },
+  "Champ in the Making": {
+    "category": "Underdog",
+    "prerequisites": "Level 6",
+    "effect": "Your intensive training has improved the general being of your underdog Pokémon. 3/day as an action choose one of your Underdog Pokémon that has not been targeted by this feature today gains 12 temporary HP. The temporary HP lasts for up to 1 hour.",
+    "frequency": "3/day"
+  },
+  "Young Luck": {
+    "category": "Underdog",
+    "prerequisites": "Level 7",
+    "effect": "Your intuition in battle has given your underdogs a great deal of confidence, at times they feel as if everything is in their favor. 3/day when one of your Underdog Pokémon misses an attack against an evolved Pokémon, you may reroll the accuracy check.",
+    "frequency": "3/day"
+  },
+  "Perfect as Is": {
+    "category": "Underdog",
+    "prerequisites": "Level 8",
+    "effect": "Your intensive training has improved the general being of your underdog Pokémon. Any of your Underdog Pokémon that you've had for at least a week have their Attack, Special Attack, and Speed permanently raised by 2; and their Defense and Special Defense raised by 1."
+  },
+  "Underdog Tactics": {
+    "category": "Underdog",
+    "prerequisites": "Level 10",
+    "effect": "After some studying and planning, you begin tutoring your team to employ tactics to edge out victories in tight spots. After an hour with one of your Pokémon, you can teach them one of the moves: Endeavor, Endure, Flail, Laser Focus, Lock-On, or Quick Attack. Each of your Pokémon may only be taught one of these moves with the Underdog Tactics feature. Endeavor - Melee Normal Attack: 3/day. On hit, if the target has more HP than you, the target's HP is set to equal your HP. Endure - Self Normal Effect: 1/day. Endure is used as a Reaction. If you would be hit by an attack that would knock you out, use Endure to instead be left with 1 HP. Flail - Melee Normal Attack: 1/day 1d10. If you are at less than half of your Max HP, Flail has 1d20 for damage instead. If you are at less than 5 HP, Flail has 5d12 for damage instead. Laser Focus - Ranged(30ft) Normal Effect: 3/day. On hit, your next attack against the same target will be a Critical Hit. You still need to make an Accuracy Check. Lock-On - Ranged(40ft) Normal Effect: 1/day. Lock-On can't miss. Your next attack against the same target will not miss. Quick Attack - Melee Normal Attack: At-Will 2d6. Quick Attack has Priority."
+  },
+  "Superior Defiance": {
+    "category": "Underdog",
+    "prerequisites": "Level 11",
+    "effect": "Your Pokémon outwardly deny expectations and fight against those others that might think they have the upper hand. Whenever one of your Underdog Pokémon are hit by an attack by a fully evolved Pokémon, you may have their Attack or Special Attack raised by 2 for 10 mins."
+  },
+  "Rising Up": {
+    "category": "Underdog",
+    "prerequisites": "Level 12",
+    "effect": "The stronger an opponent is, the more your Pokémon can rise up to meet their foes. 3/day, as an action, you may choose one stat and a foe's evolved Pokémon. One of your Underdog Pokémon's stat is changed to equal that foe's evolved Pokémon's stat if it is higher than your Pokémon's stat for 15 mins.",
+    "frequency": "3/day"
+  },
+  "Underdog Comeback": {
+    "category": "Underdog",
+    "prerequisites": "Level 13",
+    "effect": "Your Pokémon have grown to dominate the field of battle and can overcome anything with your inspiring leadership. Once per day, when one of your Underdog Pokémon are knocked out, instead they recover to half of their max HP.",
+    "frequency": "1/day"
+  }
+}

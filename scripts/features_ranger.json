@@ -1,0 +1,393 @@
+{
+  "Authority Figure": {
+    "category": "Ranger",
+    "prerequisites": "Level 1",
+    "effect": "Rangers are protectors of the Pokémon world, acting as an intermediary for humans and Pokémon alike and coming to the aid of anyone in need results in a certain attitude from the general public. When making Diplomacy checks, roll twice and use the better result. You work with and are generally respected by other Rangers. When requesting assistance from a local Ranger station on an important issue, the station is obligated to lend help in some form except for in extraordinary circumstances."
+  },
+  "Befriend": {
+    "category": "Ranger",
+    "prerequisites": "Level 1",
+    "effect": "A Ranger's styler isn't just a symbol of authority, it's a valuable tool used to work with wild Pokémon and help your causes. 3/day, as an action, a non-agitated wild Pokémon within 25ft becomes Helpful. This Helpful Pokémon will remain under your guidance until the Helpful Pokémon is hit by an attack, severely distracted, or has helped you in a significant manner once, such as by making an attack. The wild Pokémon will act, moving or attacking when you issue it a command during your turn. You do not get a list of any Skills or moves you cannot deduce yourself, and it cannot be taken from the area you found it in or it will run away. You may only have one Helpful Pokémon at a time. In addition, when using Pokémon Handling, you may add your Defense or Speed modifier to your skill check instead of your Special Defense modifier.",
+    "frequency": "3/day"
+  },
+  "Companion": {
+    "category": "Ranger",
+    "prerequisites": "Level 2",
+    "effect": "After finding a valuable ally, the Ranger may promote a wild and make them a fellow defender of the Pokémon world. Once per day, make a Helpful Pokémon your Companion. You may only have one Companion at a time. If you give a new Pokémon the Companion title, you free your previous Companion and replace it with your new one. This process makes your Companion Pokémon have at least loyalty 2. Your Companion Pokémon will be obedient towards the Ranger, regardless of circumstances before being restrained. The Companion Pokémon cannot participate in official battles or contests. The Pokémon cannot be returned to a Poke Ball. Companions are considered Helpful, but act in combat as if they were owned. Companion Pokémon who are replaced by a new Companion Pokémon are still wild and will likely return to the wild. You may have a Companion Pokémon and a Helpful Pokémon at the same time. In addition, you may now use your Befriend feature 5/day.",
+    "frequency": "1/day"
+  },
+  "Dizzy": {
+    "category": "Ranger",
+    "prerequisites": "Level 4",
+    "effect": "Using a styler with some extra effort lets you disorient Pokémon. 3/day, you may use the attack Stylish Spin. Stylish Spin - Ranged(10ft) Normal Effect: 3/day. On hit, the target is Confused.",
+    "frequency": "3/day"
+  },
+  "Part of the Team": {
+    "category": "Ranger",
+    "prerequisites": "Level 5",
+    "effect": "After working with your companion for some time, they'll smoothly transition onto your team. If you've been with your Companion Pokémon for three days, you may capture it without having to roll a capture roll."
+  },
+  "Safe Passage": {
+    "category": "Ranger",
+    "prerequisites": "Level 6",
+    "effect": "Rangers find a way to navigate safely in the wild so as not to disturb any wilds. When travelling in the wild out of combat, roll twice while making Acrobatics, Investigate, Perception, or Stealth checks and use the better result."
+  },
+  "Ward": {
+    "category": "Ranger",
+    "prerequisites": "Level 8",
+    "effect": "Wild Pokémon going on rampages aren't unheard of and it's a Ranger's duty to stop them before anyone gets hurt, including the rampaging Pokémon. 3/day, as an action, an aggressive or rampaging wild Pokémon within 25ft becomes Helpful. This Helpful Pokémon will remain under your guidance until the Helpful Pokémon is hit by an attack, severely distracted, or has helped the Ranger in a significant manner once, such as by making an attack. You do not get a list of any Skills or moves you cannot deduce yourself, and it cannot be taken from the area you found it in or it will run away. You may only have one Helpful Pokémon at a time. In addition, you may now use your Befriend feature 7/day.",
+    "frequency": "3/day"
+  },
+  "Herder": {
+    "category": "Ranger",
+    "prerequisites": "Level 9",
+    "effect": "It's not easy, but by using your styler to restrain multiple wilds, you can control more of them to aid you in your fight to protect the world. Using your Befriend feature, you may have up to two Helpful Pokémon at the same time in addition to a Companion Pokémon."
+  },
+  "Aid of the Wild": {
+    "category": "Ranger",
+    "prerequisites": "Level 10",
+    "effect": "When working to save the Pokémon world, friendly Pokémon can follow your lead with little direction. Once per day, for a number of rounds equal to your Defense or Speed modifiers, a chosen Helpful Pokémon acts on its own in combat, attacking foes or helping to complete a task without requiring orders. The GM controls the Helpful Pokémon under the effect of this feature. The target does not flee or retreat if injured while under the effects of this feature like another Helpful Pokémon.",
+    "frequency": "1/day"
+  },
+  "Styler Slinger": {
+    "category": "Ranger",
+    "prerequisites": "Level 12",
+    "effect": "Throwing your styler around skillfully has become second nature. As an action, you can use Befriend twice during your turn. You can also use Ward and Befriend as a single action during your turn. If you use Befriend or Ward with your Styler Slinger feature, you still deplete their uses per day. In addition, you may now use your Befriend feature 9/day."
+  },
+  "Natural Leader": {
+    "category": "Ranger",
+    "prerequisites": "Level 13",
+    "effect": "Working with wild Pokémon and studying them has led to a natural well of knowledge — you just know how to work with Pokémon that you lasso with your styler. You know of any special skills, moves, or unusual typing a wild you've made into a Helpful Pokémon. In addition, Helpful Pokémon are only dismissed once you dismiss them (usually Helpful Pokémon are dismissed after being hit by an attack, severely distracted, or after helping you in a significant manner once). You may not force Helpful Pokémon to leave their homes, only your Companion can leave wild areas with you."
+  },
+  "Wild Commander": {
+    "category": "Ranger",
+    "prerequisites": "Level 14",
+    "effect": "Serving the world of Pokémon comes with special responsibilities, but successfully protecting both people and Pokémon alike until renowned carries a sort of aura that makes wild Pokémon join your cause. You may use Befriend as many times as you'd like per day, and you may use Ward up to 7/day. In addition, using your Befriend feature, you may have up to three Helpful Pokémon at the same time in addition to a Companion Pokémon."
+  },
+  "Commander's Rally": {
+    "category": "Ranger",
+    "prerequisites": "Level 15",
+    "effect": "After serving the world of Pokémon for a long enough time, your presence alone inspires greatness. Once per day, all allied trainers and Pokémon within 30ft of you get +3 to their Attack, Defense, Special Attack, Special Defense and Speed for X rounds of combat, where X is your Defense or Speed modifier.",
+    "frequency": "1/day"
+  },
+  "Courageous Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 1",
+    "effect": "The first sign that an Invoker learns to create is the symbol of the legendary beasts, encouraging Pokémon to help. 3/day, when a Helpful Pokémon is dismissed after performing a task for you, you may make it Helpful again as a free action.",
+    "frequency": "3/day"
+  },
+  "Guardian Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 1",
+    "effect": "The second sign is the symbol of your legendary protector, helping to defend Pokémon who are in need of aid. 1/day you can use Guardian Sign. Guardian Sign - Ranged(25ft) Normal Effect: 1/day. Guardian Sign is used as a Reaction (as your action if you haven't acted yet this round). If one of your Pokémon, your Helpful Pokémon, or your Companion Pokémon is hit by an attack, ignore the damage and any effects of the attack.",
+    "frequency": "1/day"
+  },
+  "Valiant Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 2",
+    "effect": "Signing the symbol of the legendary swords of justice empowers your Pokémon. 3/day, as an action, one of your adjacent Pokémon, your Helpful Pokémon, or your Companion Pokémon is given +2 Attack and +2 Special Attack for 10 mins. This cannot be stacked.",
+    "frequency": "3/day"
+  },
+  "Sturdy Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 3",
+    "effect": "The sign of the legendary golems helps to maintain a Pokémon's will to keep helping you. 3/day, when a Helpful Pokémon is dismissed by getting attacked by a foe, you may make it Helpful again as a free action.",
+    "frequency": "3/day"
+  },
+  "Soaring Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 4",
+    "effect": "The sign of the legendary birds temporarily grants a Pokémon the ability to fly in the air. 3/day, as an action you may target one of your Pokémon, your Helpful Pokémon, or your Companion Pokémon and it is granted wings made of light so it can fly at its regular speed for ten minutes.",
+    "frequency": "3/day"
+  },
+  "Healing Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 6",
+    "effect": "Signing the symbol of the legendary guardian deities restores the strength of a Pokémon in need. 3/day, as an action, heal target Pokémon HP equal to the sum of your Defense and Speed stat.",
+    "frequency": "3/day"
+  },
+  "Swift Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 7",
+    "effect": "By quickly signing the symbol of the legendary eon duo, you speed up your Companion. Once per day, as an action, your Companion can be issued a command letting them act on the same turn as another one of your Pokémon or Helpful Pokémon who is also being issued a command.",
+    "frequency": "1/day"
+  },
+  "Dark Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 8",
+    "effect": "The sign of the legendary Pokémon of darkness is used to ward off threats. 1/day, you can use Dark Sign. Dark Sign - Ranged(10ft) Dark Effect: 1/day. On hit, the target is put Asleep.",
+    "frequency": "1/day"
+  },
+  "Weather Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 10",
+    "effect": "By signing the symbol of the legendary forces of nature, you summon a change of weather. 1/day you can use one of the following moves: Defog, Hail, Haze, Mist, Rain Dance, Sandstorm, or Sunny Day. Defog - Ranged(30ft burst) Flying Field Effect: 3/day. Any Walls, Hazards, Weather, or Terrains within range are destroyed. Hail - Ice Field Effect: 3/day. You create a circle of Hailing Weather with a 60ft diameter. Anyone who acts within the Hailing weather takes 2d4 damage after acting unless they are Ice Type. This weather disappears after 2 mins. Haze - Ice Field Effect: 3/day. You create a circle of Hazy Weather with a 60ft diameter. Within the Hazy weather, all stat altering passives are disabled. Stats cannot be altered by anything within the Hazy weather. This weather disappears after 2 mins. Mist - Ice Field Effect: 3/day. You create a circle of Misty Weather with a 60ft diameter. Within the Misty weather, Stats cannot be lowered. This weather disappears after 2 mins. Rain Dance - Water Field Effect: 3/day. You create a circle of Raining Weather with a 60ft diameter. Within the Raining weather, Water-type attacks deal an additional 8 damage and Fire-type attacks deal 8 less damage. This weather disappears after 2 mins. Sandstorm - Rock Field Effect: 3/day. You create a circle of Sandstorming Weather with a 60ft diameter. Anyone who acts within the Sandstorming weather takes 2d4 damage after acting unless they are Rock-type, Ground-type, or Steel-type. This weather disappears after 2 mins. Sunny Day - Fire Field Effect: 3/day. You create a circle of Sunny Weather with a 60ft diameter. Within the Sunny weather, Fire-type attacks deal an additional 8 damage and Water-type attacks deal 8 less damage. This weather disappears after 2 mins.",
+    "frequency": "1/day"
+  },
+  "Decisive Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 11",
+    "effect": "The symbol of the legendary lake guardians imbues Pokémon with an aura of protection. Once per day, as an action, your target Pokémon or Companion Pokémon's Defense and Special Defense is raised by 2 for two mins.",
+    "frequency": "1/day"
+  },
+  "Smiting Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 12",
+    "effect": "Calling forth the symbol of the legendary Tao trio, you loose a bolt of energy from your styler. 3/day, you can use Smite. Smite - Ranged(20ft) Normal Special Attack: 3/day 3d8. Smite uses your Special Defense or Speed modifier during accuracy check and damage. Smite cannot be resisted, nor can a target be immune to it. You may not use Invoker features for 2 mins.",
+    "frequency": "3/day"
+  },
+  "Divine Sign": {
+    "category": "Invoker",
+    "prerequisites": "Level 13",
+    "effect": "Signing the symbol of the legendary creator, your Pokémon brings out dormant power within. Once per day, your Pokémon or your Companion Pokémon uses Divine Verdict. Then, you may not use Invoker features for 5 mins. Divine Verdict - Ranged(30ft, 5ft blast) Normal Special Attack: 1/day 4d12. Divine Verdict's type can be changed when it's used and may use Attack for accuracy check and damage instead of Special Attack.",
+    "frequency": "1/day"
+  },
+  "Conspiracy Catcher": {
+    "category": "Officer",
+    "prerequisites": "Level 1",
+    "effect": "The world of Pokémon is not short of criminal activity and you have a knack for overcoming anyone who'd looking to start trouble for others. Whenever you make a Skill check while confronting or battling any criminal or criminal suspect, add 1 to your rolls. In addition, when using an Insight check against these individuals, you may add your Defense or Speed modifier to your skill check instead of your Special Defense modifier."
+  },
+  "Intuition's Arsenal": {
+    "category": "Officer",
+    "prerequisites": "Level 1",
+    "effect": "Officers who serve both city and wild have picked up natural tendencies to remain even more vigilant than other Rangers. You gain the following passive abilities: Infiltrator, Inner Focus, Insomnia, Keen Eye. Infiltrator - Hindering terrain and Walls do not affect you or your attacks. Inner Focus - You are immune to being Stunned. Insomnia - You are immune to being put to Sleep. Keen Eye - Your accuracy checks cannot be negatively affected by foes."
+  },
+  "Detective Training": {
+    "category": "Officer",
+    "prerequisites": "Level 2",
+    "effect": "Keeping on the lookout is tiring, but with some basic training your companion has got your back. After spending one hour with your Companion, they gain the Skills Stealth and Investigate. Your Companion loses these Skills when they are no longer your Companion."
+  },
+  "Partner's Aid": {
+    "category": "Officer",
+    "prerequisites": "Level 3",
+    "effect": "Your companion has taken a liking to police work and will help any way it can to succeed in bringing down criminals. If your Conspiracy Catcher feature is applicable to a Skill check and your Companion Pokémon is within 5ft of you, add 3 to your Skill Check."
+  },
+  "Disguise": {
+    "category": "Officer",
+    "prerequisites": "Level 4",
+    "effect": "Sometimes, it's better if you don't look like a Ranger. After ten minutes of work, you are unrecognizable unless you reveal who you are to someone else or if they observed you disguising yourself. Your Pokémon, Helpful Pokémon, and Companion Pokémon can recognize you. You may not impersonate anyone with Disguise."
+  },
+  "Stop Right There": {
+    "category": "Officer",
+    "prerequisites": "Level 6",
+    "effect": "When you've got a criminal in your sights, you'll do everything in your power to apprehend them. While chasing a foe, you may move an additional 30ft per round of combat and your Speed modifier is +2 while using any Skills."
+  },
+  "Lie Detector": {
+    "category": "Officer",
+    "prerequisites": "Level 7",
+    "effect": "Catching criminals has revealed various tells that help you understand truth from falsehood. When making Insight skill checks, roll twice and use the better result. In addition, if you've talked to anyone for more than two minutes, you can tell if they are lying to you."
+  },
+  "Intuition Training": {
+    "category": "Officer",
+    "prerequisites": "Level 8",
+    "effect": "Your companion has picked up on many of your mannerisms and natural tendencies after a good training session. After spending three hours with your Companion, they are treated as if they have the following passive abilities: Infiltrator, Inner Focus, Insomnia, Keen Eye."
+  },
+  "Restraining Order": {
+    "category": "Officer",
+    "prerequisites": "Level 10",
+    "effect": "Maneuvering wilds with your styler can help you stop any criminal who might try to get away. 3/day, you may issue a command to any of your Pokémon, your Helpful Pokémon, or your Companion Pokémon to use the move Block. Helpful Pokémon are not compelled to leave your service until Block's effect ends. Block - Melee Normal Effect: 3/day. On hit, the target is bound to you for 1d6 rounds.",
+    "frequency": "3/day"
+  },
+  "Master of Disguise": {
+    "category": "Officer",
+    "prerequisites": "Level 11",
+    "effect": "You've studied the trade of infiltration and would say that you've mastered impersonation. After one hour of work, you may disguise yourself as a specific person, Pokémon, or even an inanimate object of your size and be unrecognizable as a fake to the eyes of everyone around you. Your voice passes if you succeed a Bluff skill check, but you may roll twice during Bluff skill checks while disguised as someone and use the better result."
+  },
+  "What's That Over There": {
+    "category": "Officer",
+    "prerequisites": "Level 12",
+    "effect": "Misdirection often lets you get by pesky guards, nosy bystanders, or shady civilians and investigate in unorthodox ways. 3/day, you may distract a target human or Pokémon with a trick or a menial chore for X minutes, where X is equal to your Defense or Speed modifier. The target is compelled to complete whatever task you convince them to do. If they become distracted by something other than you or your chore, or are otherwise alerted, they will stop whatever it is they were doing earlier than normal, if not immediately.",
+    "frequency": "3/day"
+  },
+  "Ultimate Interrogator": {
+    "category": "Officer",
+    "prerequisites": "Level 13",
+    "effect": "Through whatever means you've developed, you're able to break open any locked lips and find out what you need in order to nab your criminal quarry. After spending twenty minutes with your Companion and a bound criminal foe, they will answer questions you have of them truthfully and as detailed as possible. Ultimate Interrogation must be used in a relatively private space, such as a questioning room in a Ranger Station or a room in a private residence."
+  },
+  "Battle Capable Riding": {
+    "category": "Rider",
+    "prerequisites": "Level 1",
+    "effect": "Using a mount in combat means you're a part of combat, but your Pokémon's got you covered. Whenever you are hit by an attack while mounted, your mount may automatically intercept the hit as a free action and take the damage and effects for you. If you would have both been hit, only your mount takes damage."
+  },
+  "Stick to It": {
+    "category": "Rider",
+    "prerequisites": "Level 1",
+    "effect": "You're a natural Pokémon rider and know all the tricks to stay on your mount when riding. When mounted on one of your Pokémon or your Companion Pokémon, you automatically succeed on all checks to remain on your mount caused by attacks and status conditions. You can ride your mounts on their side, while hanging upside down from them, while standing on them or any other odd way of staying on your mount as if you are riding the mount as normal."
+  },
+  "All-Terrain Pokémon": {
+    "category": "Rider",
+    "prerequisites": "Level 2",
+    "effect": "With careful guidance, you've trained your Pokémon to navigate anything from rocky crag or oil-slicked streets. When mounted on one of your Pokémon or your Companion Pokémon, treat all ground terrain as normal terrain. Your All-Terrain Pokémon feature doesn't work if your mount can't swim and is in or under water."
+  },
+  "Mount Mobility": {
+    "category": "Rider",
+    "prerequisites": "Level 3",
+    "effect": "You move as one with your Pokémon and often act in battle simultaneously. Instead of using your Speed to determine your turn order during combat, you may choose to use your mount's Speed."
+  },
+  "Full Speed": {
+    "category": "Rider",
+    "prerequisites": "Level 4",
+    "effect": "By encouraging your Pokémon, you fly ahead at amazing speeds. 3/day, as an action, your Pokémon or Companion Pokémon who you are mounted on has its Speed raised +4 for 10 mins. The Pokémon cannot have its Speed raised by anything else while benefitting from Full Speed.",
+    "frequency": "3/day"
+  },
+  "Mounted Quick Switch": {
+    "category": "Rider",
+    "prerequisites": "Level 6",
+    "effect": "Training and practice has led to an amazing maneuver allowing you to make a small jump in order to change your mounted Pokémon without a moment between. You can switch out Pokémon you are mounted on to another Pokémon in your Poke Balls without dismounting by placing the new Pokémon in the exact place as a Pokémon you are returning, even if your mount is in motion. You may even switch the type of mount while it is moving (sky to land, sea to sky, etc.)."
+  },
+  "Qualified Ride": {
+    "category": "Rider",
+    "prerequisites": "Level 7",
+    "effect": "It doesn't matter what you're riding into battle, your expertise transfers with you, not your ride. Allied trainer's Pokémon and Helpful Pokémon are treated as your own Pokémon and Companion Pokémon for the purposes of using Rider features."
+  },
+  "Ride Pager": {
+    "category": "Rider",
+    "prerequisites": "Level 8",
+    "effect": "With little effort you can find wilds willing to help you get to where you need to be. While in wild territory you can spend twenty minutes to find a Pokémon who can serve as a mount for yourself or an allied trainer. Once Helpful, the Pokémon will allow itself to be ridden for up to 8 hours or until it has been hit by an attack or given another command that would dismiss it."
+  },
+  "Watch and Learn": {
+    "category": "Rider",
+    "prerequisites": "Level 10",
+    "effect": "By using your styler to steer another Pokémon, you can handle Pokémon you aren't even riding as well as you handle your own. As long as they are within 10ft of you, allied trainers can benefit from your Battle Capable Riding, All-Terrain Pokémon, Full Speed, and Mounted Quick Switch features."
+  },
+  "Charge": {
+    "category": "Rider",
+    "prerequisites": "Level 11",
+    "effect": "While maneuvering your Pokémon, nothing can stop your advance. 3/day, if you maneuver a Pokémon you are mounted on through a space occupied by any enemy Pokémon, your Pokémon may make a Charge on Through attack against them. You may still make another attack with your mounted Pokémon at the end of their movement. Charge on Through - Melee Normal Attack: 3/day 3d6. Charge on Through can only be made against enemies that you passed through while moving during your turn. Any Pokémon making this attack may still use a move during their turn.",
+    "frequency": "3/day"
+  },
+  "Form Up": {
+    "category": "Rider",
+    "prerequisites": "Level 12",
+    "effect": "On your signal, your ally's mounted Pokémon group up with you for better maneuvering and mounted combat at your lead. 3/day, you may use Form Up as your action in order to move all allied mounted Pokémon up to 25ft closer to you. Form Up does not take away those Pokémon's ability to move during their turns. If allied trainers get close enough during this action they may immediately start benefitting from your Watch and Learn feature.",
+    "frequency": "3/day"
+  },
+  "Overrun": {
+    "category": "Rider",
+    "prerequisites": "Level 13",
+    "effect": "Ready to vanquish any opposition, you and your allies charge forward and destroy any obstacle. Once per day, you, your mount, and each allied mounted Pokémon within 10ft moves forward with you while using your mounted Pokémon's attack: Stampede. Stampede - Melee Normal Attack: 1/day 3d12. Stampede can only be made against enemies that you passed through while moving during your turn. While moving with Stampede, it rolls an accuracy check to hit every foe you and any allied mounted Pokémon moves through with you. Stampede deals +1d12 damage for every allied mounted Pokémon that is moving with you. If all mounted Pokémon moving with Stampede share a type, Stampede's type may be changed from Normal to that type. If you or any allied mounted Pokémon were bound, they are no longer bound. Any Pokémon involved in making this attack may still use a move during their turn.",
+    "frequency": "1/day"
+  },
+  "Operation Gear (Level 1)": {
+    "category": "Special Operative",
+    "prerequisites": "Level 1",
+    "effect": "When promoted to a special operative in the ranger union, you're given access to the spec. ops. lockers and you may borrow any gear for yourself from any ranger station. At any time, you may have up to 3 Special Operative gear with you from a ranger station. In order to retrieve a new piece of gear, you can return and exchange Spec. Ops. gear at any Ranger stations. Gear is licensed to you and you'll need to replace any damaged or stolen equipment which may result in disciplinary action from regional captains. As a newly appointed special operative, you have access to the following 3 pieces of equipment. Coiled Styler Attachment: 3/day, as an action, use Wrap on an owned enemy Pokémon. Pokémon bound by Coiled Styler cannot move or use attacks unless they break free by besting you in an Athletics Skill check, but they will roll the skill check twice using the lower result. Wrap - Melee Normal Attack: At-Will 1d4. On hit, the target is bound to you for 1d4 rounds. For each round the target is bound, it takes 1d4 damage on its turns. Scanner: 5/day, as a free action, you may reveal target Pokémon's current hit points as a percentage representing its amount of hit points out of its max hit points. In addition, the goggles these scanners are attached to are able to see through fog, smoke, heavy sandstorm or any other moving non-permanent visual obstruction. Shield Styler Attachment: When you or an adjacent ally is attacked, the foe must roll +1 during accuracy check in order to hit. If an opponent fails to hit after attacking you or an adjacent ally your energy shield shatters and must recharge for 1 min before it is reformed. You may not use the Shield Styler Attachment while using Wrap with the Coiled Styler Attachment."
+  },
+  "Endure": {
+    "category": "Special Operative",
+    "prerequisites": "Level 2",
+    "effect": "Special operatives often combat violent threats, so are trained to hold on whenever possible. Once per day, you may use Endure. Endure - Self Normal Effect: 1/day. Endure is used as a Reaction. If you would be hit by an attack that would knock you out, use Endure to instead be left with 1 HP.",
+    "frequency": "1/day"
+  },
+  "Operation Gear (Level 3)": {
+    "category": "Special Operative",
+    "prerequisites": "Level 3",
+    "effect": "Further promotion allows access to additional equipment within the ranger union. You may still only have 3 pieces of Spec. Ops. gear from ranger stations at a time. Ranger's Rebreather: The rebreather allows you to breathe underwater for a maximum of 1 hour. After the rebreather is used for at least half an hour, it must be cleaned and dried, rendering it unable to be used for 1 hour. Riot Gear: When taking damage from moves that use the Attack stat to calculate damage, take 5 less damage."
+  },
+  "Take Down": {
+    "category": "Special Operative",
+    "prerequisites": "Level 4",
+    "effect": "Sometimes a reckless tackle is the most reliable tool at your disposal. 3/day, as an action, you may use Take Down. If you are wearing Riot Gear, you do not take damage from the effects of the attack. Take Down - Melee Normal Attack: 3/day 3d10. On hit, you lose HP equal to 1/4th of the damage you deal.",
+    "frequency": "3/day"
+  },
+  "Element of Surprise": {
+    "category": "Special Operative",
+    "prerequisites": "Level 6",
+    "effect": "By planning stings and operations in order to maximize chances of success without any harm coming to your allies, you've figured out the best means of attack in any given situation. During an ambush, where you and your allies are attacking before being spotted by any enemies, all allies deal +5 damage on hit."
+  },
+  "Operation Gear (Level 7)": {
+    "category": "Special Operative",
+    "prerequisites": "Level 7",
+    "effect": "Further promotion allows access to additional equipment within the ranger union. You may still only have 3 pieces of Spec. Ops. gear from ranger stations at a time. Control Tactical Launcher - Smoke: At any given time, the ranger union allows Spec. Ops. rangers to take three canisters of ammunition for this launcher and you must return to a ranger station in order to retrieve more after using any ammunition. As an action, use the move Smoke Screen. Smoke Screen - Ranged(10ft) Normal Effect: 3/day. Place up to 25 contiguous ft of Smoke Screen Wall. Smoke Screen Wall has no thickness, is 12 ft tall and has the following ability: Attacks that target through or within the wall have -2 during Accuracy Check. This Wall disappears after 2 mins. Control Tactical Launcher - Stun: At any given time, the ranger union allows Spec. Ops. rangers to take three canisters of ammunition for this launcher and you must return to a ranger station in order to retrieve more after using any ammunition. As an action, use the move Stun Gas. Stun Gas - Ranged(15ft, 10ft burst) Grass Effect: 3/day. Stun Gas has -2 during Accuracy Check. On hit, the target is Paralyzed."
+  },
+  "Retaliate": {
+    "category": "Special Operative",
+    "prerequisites": "Level 8",
+    "effect": "A burst of adrenaline can hit you when you see a teammate going down and you've learned to channel that surge into a powerful show of force. Once per day, as an action, you may use Retaliate. Retaliate - Melee Normal Attack: 1/day 1d12. If the target knocked out an ally during this round, Retaliate has 5d12 for damage instead.",
+    "frequency": "1/day"
+  },
+  "Creative Application": {
+    "category": "Special Operative",
+    "prerequisites": "Level 10",
+    "effect": "Using the tools given to you by the ranger union, you've developed unorthodox means of applying their use against enemies of the Pokémon world. 3/day, if you have the Coiled Styler Attachment with you, you may use the move Slash as an action. If you have the Scanner with you, you may use the move Foresight as an action. 3/day, if you have the Shield Styler Attachment with you, you may use the move Bash as an action. If you have the Rebreather, it now lasts for 1 hour and can be used for up to 45 minutes without needing to be cleaned. If you have the Riot Gear with you, it reduces damage by 10 instead of 5. Slash - Melee Normal Attack: 3/day 3d8. On hit, if you got 18 or higher on Accuracy Check, Slash is a critical hit. Foresight - Self Normal Effect: At-Will. You can hit Ghost-types with Normal and Fighting type moves as if they are not immune to those types of attacks for two mins. Bash - Melee Normal Attack: 3/day 3d10. Bash has -2 during Accuracy Check. Your energy shield shatters and may not be used for 1 min.",
+    "frequency": "3/day"
+  },
+  "Operation Gear (Level 11)": {
+    "category": "Special Operative",
+    "prerequisites": "Level 11",
+    "effect": "Further promotion allows access to additional equipment within the ranger union. You may still only have 3 pieces of Spec. Ops. gear from ranger stations at a time. Suppression Tactical Launcher - Sleep: While dangerous, this gear is lent to very trusted rangers who will not abuse the weapon made available to you. At any given time, the ranger union allows Spec. Ops. rangers to take three canisters of ammunition for this launcher and you must return to a ranger station in order to retrieve more after using any ammunition. As an action, use the move Sleep Gas. Sleep Gas - Ranged(15ft, 10ft burst) Grass Effect: 3/day. Sleep Gas has -2 during Accuracy Check. On hit, the target is put to Sleep. Suppression Tactical Launcher - Web: This device uses ammunition developed with different products made by Pokémon to hinder the escape of any fleeing criminals. At any given time, the ranger union allows Spec. Ops. rangers to take three canisters of ammunition for this launcher and you must return to a ranger station in order to retrieve more after using any ammunition. As an action, use the move Spider Webbing. Spider Webbing - Ranged(20ft, 10ft burst) Bug Effect: 3/day. On hit, the target is bound in place for 1d6 turns."
+  },
+  "Double-Edge": {
+    "category": "Special Operative",
+    "prerequisites": "Level 12",
+    "effect": "Surging forward with everything you have, you tackle your quarry. Once per day, as an action, you may use Double Edge. If you are wearing Riot Gear, you do not take damage from the effects of the attack. Double Edge - Melee Normal Attack: 1/day 5d12. On hit, you lose HP equal to 1/3rd of the damage you deal.",
+    "frequency": "1/day"
+  },
+  "Quartermaster": {
+    "category": "Special Operative",
+    "prerequisites": "Level 13",
+    "effect": "Once appointed the rank of quartermaster, the ranger union assumes your knowledge and responsibility of the use and distribution of advanced spec. ops. gear. You may check out and borrow as many different spec. ops. gear pieces at a time as you'd like. Only yourself and other rangers may use anything you've checked out during any given mission and you are responsible for the return of all equipment borrowed by non-Special Operative rangers."
+  },
+  "Food Scavenger": {
+    "category": "Survivalist",
+    "prerequisites": "Level 1",
+    "effect": "Studying nature has led to a knack for surviving in it. After spending twenty minutes in wild terrain, you find enough food and water for a whole day for up to seven humans and/or Pokémon."
+  },
+  "Internalized Senses": {
+    "category": "Survivalist",
+    "prerequisites": "Level 1",
+    "effect": "Leaving civilization for days at a time is a lot safer now that you have a natural tendency to explore the wild. At any time, you can discern the direction you are facing. You know a complete forecast of the day's natural weather. You know a rough estimate of the time of day, to the nearest quarter of an hour. In addition, when using Nature, you may add your Defense or Speed modifier to your skill check instead of your Special Attack modifier."
+  },
+  "Freeclimbing": {
+    "category": "Survivalist",
+    "prerequisites": "Level 2",
+    "effect": "Overcoming any terrain is a requirement for a ranger so well versed in the wilds of the world. You do not need to make any Skills checks to navigate any terrain and are not hindered by hindering terrain while moving."
+  },
+  "Watch the Sky": {
+    "category": "Survivalist",
+    "prerequisites": "Level 3",
+    "effect": "Weather can be bad for different reasons, but careful planning helps you and your Pokémon get through the worst nature can throw at you. Your Pokémon, Helpful Pokémon, and Companion Pokémon are treated as if they have the Overcoat passive ability. In addition, you can tell if wild Pokémon nearby have any way to change the weather through the use of moves, passives, or other abilities. (Overcoat: You are immune to damage from weather.)"
+  },
+  "Pacifier": {
+    "category": "Survivalist",
+    "prerequisites": "Level 4",
+    "effect": "Using your styler to help the wilds comes naturally and easily when you're not working to fight against another Pokémon. Whenever a Helpful Pokémon leaves your care after aiding you, if you did not give it a command to use an attack at another Pokémon you get back one of your uses per day of Befriend or Ward, depending on how you made that Pokémon Helpful."
+  },
+  "Archer": {
+    "category": "Survivalist",
+    "prerequisites": "Level 6",
+    "effect": "Combating Pokémon is dangerous work, but to survive you've mastered the use of the bow and arrow in order to supplement your work in the wild. You may spend one hour in the wild to build your own bow. You may spend one hour in the wild to build twenty arrows. During your turn, as an action, you may use one arrow to use the attack Arrow Cut. In addition, when making accuracy checks with ranged weaponry roll twice and use the better result. Arrow Cut - Ranged(25ft) Normal Attack: At-Will 2d6.",
+    "frequency": "At-Will"
+  },
+  "Tent Thatcher": {
+    "category": "Survivalist",
+    "prerequisites": "Level 7",
+    "effect": "The best camps are made with what the wilds have to offer and you can make safe lodgings for yourself and allies. After spending thirty minutes in the wild you can make a sturdy shelter out of materials in your surroundings large enough for five trainers. The shelters are impossible to recognize as shelters unless standing next to them and wild Pokémon will ignore shelters built by you."
+  },
+  "At Ease in the Wild": {
+    "category": "Survivalist",
+    "prerequisites": "Level 8",
+    "effect": "You favor the wilds to human civilization and feel better rested when at your true home. Whenever you rest in the wilds for at least 6 hours, you wake up at your max HP, cured of any afflictions. If you are suffering from diseases, have any broken bones or open wounds, these are not automatically healed. You, your Pokémon, your Helpful Pokémon, and your Companion, feel well rested after only 6 hours of sleep in the wild."
+  },
+  "Natural Guide": {
+    "category": "Survivalist",
+    "prerequisites": "Level 10",
+    "effect": "Rangers don't always travel on their own and others don't inherently work as well in the wild as their guide, except when they're with you. While in the wild, difficult terrain does not slow you or any of your allies, you and your allies cannot become lost unless they are more than a mile away from you, and you and your allies do not suffer any penalties on Perception skill checks even while engaged in other activities."
+  },
+  "Natural Medicine": {
+    "category": "Survivalist",
+    "prerequisites": "Level 11",
+    "effect": "The world is filled with natural cures and aid; your expertise allows you to find and use it all. Once per day, after one hour of foraging in the wilds and then one hour of working on yourself or a patient, you heal yourself or a patient to max HP, close any open wounds, and set and put into casts any broken bones.",
+    "frequency": "1/day"
+  },
+  "Pokémon Whisperer": {
+    "category": "Survivalist",
+    "prerequisites": "Level 12",
+    "effect": "At times, you are one with the wilds and do not even need your styler to command wild Pokémon. You may issue commands to wild Pokémon as if they are Helpful if the commands are for them to move away from yourself and your allies, to help complete a task related to making shelter or gathering food, or help to work against a natural non-Pokémon disaster."
+  },
+  "One with Nature": {
+    "category": "Survivalist",
+    "prerequisites": "Level 13",
+    "effect": "You could do anything in the wilds and never need to revisit a city or town ever again. When making skills checks out of combat in the wild, roll three times and use the best result. When rolling accuracy checks in the wild, you and your Companion Pokémon roll twice and use the better result. While targeted by an attack while in the wilds, you have +2 Defense, Special Defense, and Speed. You are immune to afflictions while in the wild."
+  }
+}

@@ -1,0 +1,415 @@
+{
+  "Psychic Agility": {
+    "category": "Psychic",
+    "prerequisites": "Level 1",
+    "effect": "Your awakened psychic abilities enable you to move swiftly in battle and lock onto your targets with ease. Add your Special Attack or Speed modifier multiplied by 5ft to your movement speed per turn. In addition, when using a ranged attack, add +1 to your accuracy checks."
+  },
+  "Telekinesis": {
+    "category": "Psychic",
+    "prerequisites": "Level 1",
+    "effect": "With your powers, you could float, grab things from afar, and even strike into the minds of your foes. As an action, you may move one object at a time, up to Medium size and weight, up to 30ft away at your movement speed in any direction. If you attempt to move someone who is unwilling to move, they can break free with a check of 6 (check of 11 at level 10), adding their best modifier. In addition, you may choose two of the following attacks and use them: Confusion, Mind Rise, Psyspikes, Whirling Kinesis. At level 5, you may choose another attack to have access to. At level 10, you have access to all four of these moves. You may not use more than eight different Psychic and/or Psychic advanced class moves per day.\n\nConfusion - Ranged(10ft) Psychic Special Attack: At-Will 1d12. On hit, if you got 19 or higher on Accuracy Check, the target is Confused.\n\nMind Rise - Self Psychic Effect: 3/day. You gain an immunity to Ground type attacks and gain a flight movement speed equal to your land speed for two mins.\n\nPsyspikes - Ranged(10ft) Normal Special Attack: At-Will 1d4. Psyspikes has -2 during Accuracy Check. Psyspikes is a Scatter attack. Up to 5 attacks.\n\nWhirling Kinesis - Ranged(10ft) Psychic Effect: At-Will. On hit, the target's Accuracy Checks are -3 during their next turn."
+  },
+  "Telepathy": {
+    "category": "Psychic",
+    "prerequisites": "Level 2",
+    "effect": "As your psionic powers grow, you become able to connect to other individual's minds. You may read the surface thoughts of other humans, as well as project your surface thoughts to other humans. You may also project telepathic messages to your Pokémon, but may not read your Pokémon's minds. This leaves Psychic residue, that other psychics can detect. In addition, you can detect psychic residue in the minds of others you read through. Different psychic residues are a hue and a weight that you can sense and is identical across several minds it has touched, and once you meet its source it's recognizable."
+  },
+  "Healing Power": {
+    "category": "Psychic",
+    "prerequisites": "Level 4",
+    "effect": "Your psychic powers can mend and repair yourself and others. 3/day as an action you may heal any adjacent trainer or Pokémon 15 hit points.",
+    "frequency": "3/day"
+  },
+  "Psychic Shielding": {
+    "category": "Psychic",
+    "prerequisites": "Level 5",
+    "effect": "You've learned to create barriers of psychic walls with your power. When you're being attacked, your Defense and Special Defense stats are +2. In addition, you may use the moves Light Screen and Reflect.\n\nLight Screen - Ranged(30ft) Psychic Effect: 3/day. Place 40ft of Light Screen Wall. Light Screen Wall has the following ability: Special Attacks that target through this wall deal 10 less damage after applying weakness and resistance. This Wall disappears after 2 mins.\n\nReflect - Melee Psychic Effect: 3/day. Put a Reflect Coat on the target or yourself. The Coat has the following ability: Reduce damage from attacks that use the attack stat that hit you by 10. This Coat lasts for 2 mins."
+  },
+  "Extrasensory": {
+    "category": "Psychic",
+    "prerequisites": "Level 6",
+    "effect": "By overwhelming others with a psychic information overload, you cause your target a massive migraine that can knock anyone out. 3/day you may use the move Extrasensory.\n\nExtrasensory - Ranged(10ft) Psychic Special Attack: 3/day 3d10. On hit, if you got 18 or higher on Accuracy Check, the target is Stunned.",
+    "frequency": "3/day"
+  },
+  "Psychic Connection": {
+    "category": "Psychic",
+    "prerequisites": "Level 8",
+    "effect": "Once your Pokémon grow close enough to you, your psychic powers adapt to meld with their minds and enable them to freely communicate with you. Your Pokémon with loyalty 3 or higher can speak to you in human languages telepathically. This leaves psychic residue, that other psychics can detect."
+  },
+  "Dig Deep": {
+    "category": "Psychic",
+    "prerequisites": "Level 9",
+    "effect": "While focusing on someone else, you can force your way into their private thoughts with your telepathic abilities. You may look around into the minds of another by rolling an Investigation skill check against their Bluff / Deception or Concentration skill check. You must have an idea of what you're looking for to find it, otherwise you may drift in random memories or be distracted by day dreams. This leaves Psychic residue, that other psychics can detect."
+  },
+  "Metaphysical Psychometry": {
+    "category": "Psychic",
+    "prerequisites": "Level 10",
+    "effect": "You can rapidly repair yourself by bringing forth your psychic powers or even rapidly reconstitute your location. 1/day as a free action, you may use the move Recover or Teleport. Psionic Maelstrom does not let you ignore Metaphysical Psychometry's frequency.\n\nRecover - Self Normal Effect: 1/day. You are healed HP equal to half of your Max HP.\n\nTeleport - Ranged(50ft) Psychic Effect: 1/day. Teleport may be used as a Reaction. Teleport moves you up to 50ft away in your line of sight. If an enemy would hit you with a move that deals damage, use Teleport as a Reaction to move up to 50ft away in your line of sight and take only 1/4th the damage you would have taken from the attack.",
+    "frequency": "1/day"
+  },
+  "Greater Healing Power": {
+    "category": "Psychic",
+    "prerequisites": "Level 12",
+    "effect": "Your telepathic ability to connect to others allows you to rapidly repair their form. 1/day as an action you may heal any adjacent trainer or Pokémon 30 hit points.",
+    "frequency": "1/day"
+  },
+  "Telekinetic Mastery": {
+    "category": "Psychic",
+    "prerequisites": "Level 13",
+    "effect": "Your powers continue to grow as you begin to manipulate multiple things with greater force and precision. As an action, you may move up to three objects at a time, up to Large size and Heavy weight, up to 30ft away at your movement speed in any direction."
+  },
+  "Psychic Overwhelming": {
+    "category": "Psychic",
+    "prerequisites": "Level 14",
+    "effect": "You lay into a target, crushing them from all sides with your telekinetic power. 1/day you may use Psychic Force. Psionic Maelstrom does not let you ignore Psychic Overwhelming's frequency.\n\nPsychic Force - Ranged(40ft) Psychic Special Attack: 1/day 5d12. On hit, the target's Special Defense is -1 for 10 mins. Your Defense and Special Defense is -1 for 10 mins. These effects cannot be stacked.",
+    "frequency": "1/day"
+  },
+  "Psionic Maelstrom": {
+    "category": "Psychic",
+    "prerequisites": "Level 15",
+    "effect": "You have mastered your psychic powers and are ready to fight anything that comes your way. You may use any Psychic or Psychic advanced class non-Reaction moves at-will. You are not limited to the number of different Psychic and/or Psychic advanced class moves that you may use per day. Whenever you hit with a Psychic attack, add three times your relevant modifier to your damage."
+  },
+  "Aerokinesis": {
+    "category": "Air Adept",
+    "prerequisites": "Level 1",
+    "effect": "Your telekinetic abilities have evolved to influence air currents around you. You can manipulate wind in many ways, for example; as an action you could create a Medium sized dust devil up to 30ft away, as an action you could burst upwards an umbrella or awning up to 30ft away, or even sustain a flow of air into a sail while you maintain focus on your task. In addition, you may use the move Gust. You may not use more than eight different Psychic and/or Psychic advanced class moves per day.\n\nGust - Ranged(20ft) Flying Special Attack: At-Will 1d12. If the target is at least 20 ft off the ground airborne, Gust deals +1d20 damage.",
+    "frequency": "At-Will"
+  },
+  "Flight": {
+    "category": "Air Adept",
+    "prerequisites": "Level 1",
+    "effect": "With practice, you sustain gales to lift you off the ground so you don't even need to lift yourself with your telekinetic hold. You can move through the air at your movement speed. In addition, add your Speed modifier multiplied by 5ft to your movement speed per turn."
+  },
+  "Aerodynamic": {
+    "category": "Air Adept",
+    "prerequisites": "Level 2",
+    "effect": "Air doesn't slow you down, it pushes you along faster. In clear weather, when determining initiative during combat, your Speed is +3."
+  },
+  "Defog": {
+    "category": "Air Adept",
+    "prerequisites": "Level 3",
+    "effect": "After taking in a deep breath, you expel the space around you of any ill effects created by Pokémon. 3/day, you may use the move Defog.\n\nDefog - Ranged(30ft burst) Flying Field Effect: 3/day. Any Walls, Hazards, Weather, or Terrains within range are destroyed.",
+    "frequency": "3/day"
+  },
+  "Air Slash": {
+    "category": "Air Adept",
+    "prerequisites": "Level 4",
+    "effect": "A quick burst of air while slashing with your arms creates a whiplash of harm for your target. 1/day you may use the move Air Slash. Psionic Maelstrom does not let you ignore Air Slash's frequency.\n\nAir Slash - Ranged(15ft) Flying Special Attack: 1/day 3d12. Air Slash has -1 during Accuracy Check. On hit, if you got 14 or higher on Accuracy Check, the target is Stunned.",
+    "frequency": "1/day"
+  },
+  "Electrokinesis": {
+    "category": "Air Adept",
+    "prerequisites": "Level 6",
+    "effect": "After working with air and wind for a long enough time, you've learned to harness the electrical charge in the air and suddenly strike others. You can manipulate electricity in many ways, for example; you could slowly charge an electrical device over time, as an action you could fry a Small machine within melee range, you could create small bursts of light. In addition, you may use the move Thunder Shock.\n\nThunder Shock - Ranged(20ft) Electric Special Attack: At-Will 1d12. On hit, if you got 18 or higher on Accuracy Check, the target is Paralyzed.",
+    "frequency": "At-Will"
+  },
+  "Static Cling": {
+    "category": "Air Adept",
+    "prerequisites": "Level 7",
+    "effect": "Your kinetic abilities draw electricity to your body, often bursting out of you when you are suddenly struck. Whenever you are hit with a melee attack, roll 1d4. On 4, Paralyze the attacker."
+  },
+  "Mass Levitation": {
+    "category": "Air Adept",
+    "prerequisites": "Level 8",
+    "effect": "You can better sustain the winds necessary to carry allies in the air. You can allow your allies to hover in midair and fly using your movement speed, as long as they are within 50 ft of you and within line of sight. You can do this for up to X allies simultaneously, where X is your Special Attack or Speed modifier. Large allies count as two allies for this purpose, and Huge or larger allies cannot be affected."
+  },
+  "Thunderbolt": {
+    "category": "Air Adept",
+    "prerequisites": "Level 10",
+    "effect": "With a clap, a bolt of lightning releases from your hands. 3/day you may use the move Thunderbolt.\n\nThunderbolt - Ranged(30ft) Electric Special Attack: 3/day 3d10. On hit, if you got 18 or higher on Accuracy Check, the target is Paralyzed.",
+    "frequency": "3/day"
+  },
+  "Aerial Whip": {
+    "category": "Air Adept",
+    "prerequisites": "Level 11",
+    "effect": "With the snap of your fingers, you create a sudden slicing burst of wind. 3/day you can use the move Aerial Whip.\n\nAerial Whip - Ranged(30ft) Flying Special Attack: 3/day 3d8. You can't miss targets with less than 10 Special Defense.",
+    "frequency": "3/day"
+  },
+  "Thunder Strike": {
+    "category": "Air Adept",
+    "prerequisites": "Level 12",
+    "effect": "You connect to points of energy in the air and release a massive stream of lightning. 1/day you may use the move Thunder. Psionic Maelstrom does not let you ignore Thunder Strike's frequency.\n\nThunder - Ranged(30ft, 5ft blast) Electric Special Attack: 1/day 5d12. Thunder has -2 during Accuracy Check unless it's Raining. On hit, if you got 14 or higher on Accuracy Check, the targets are Paralyzed.",
+    "frequency": "1/day"
+  },
+  "Hurricane": {
+    "category": "Air Adept",
+    "prerequisites": "Level 13",
+    "effect": "Summoning all of your psychic powers, you throw a terrible cyclone. 1/day you may use the move Hurricane. Psionic Maelstrom does not let you ignore Hurricane's frequency.\n\nHurricane - Ranged(25ft, 10ft blast) Flying Special Attack: 1/day 5d12. Hurricane has -2 during Accuracy Check unless it's Raining. On hit, if you got 14 or higher on Accuracy Check, the targets are Confused.",
+    "frequency": "1/day"
+  },
+  "Terra Form": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 1",
+    "effect": "Your body has taken on a rock-like aversion to many forms of attack. When hit by a Fire-type, Flying-type, Normal-type, or Poison-type attack, the attack is resisted. In addition, whenever you use a Rock-type or Ground-type attack, you may add your Special Attack modifier to its accuracy check and damage instead of using your Attack modifier."
+  },
+  "Terrakinesis": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 1",
+    "effect": "Your psionic abilities seem attuned to rock and earth as you are able to freely manipulate the ground with ease. You can manipulate the earth in many ways, for example; as an action you could create a Medium sized wall of earth up to 30ft away, over many actions you could lift a platform of earth upwards, or slowly build an entire structure made of stone and earth. In addition, you may use the move Rock Throw. You may not use more than eight different Psychic and/or Psychic advanced class moves per day.\n\nRock Throw - Ranged(20ft) Rock Attack: At-Will 2d6.",
+    "frequency": "At-Will"
+  },
+  "Earth Vision": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 2",
+    "effect": "Your attunement to the earth allows you to feel what it feels and see through it. You can see through earth, stone, clay, and any non-metallic material made of earth for 50ft, as long as you are touching the ground or a wall with your hand. Even if there are multiple walls of earth, you can see through each up to 50ft from where you are. You will not be able to see things that are not touching the ground with Earth Vision."
+  },
+  "Sandstorm": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 3",
+    "effect": "You begin to swirl sand and stone in a maelstrom surrounding you to tear apart your foes. 3/day you may use Sandstorm. In addition, you are immune to Sandstorm's damaging effect.\n\nSandstorm - Rock Field Effect: 3/day. You create a circle of Sandstorming Weather with a 60ft diameter. Anyone who acts within the Sandstorming weather takes 2d4 damage after acting unless they are Rock-type, Ground-type, or Steel-type. This weather disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Power Gem": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 4",
+    "effect": "You focus your psionic energy into the air and materialize a blast of stone by your target. 3/day you may use the move Power Gem.\n\nPower Gem - Ranged(20ft) Rock Special Attack: 3/day 3d10.",
+    "frequency": "3/day"
+  },
+  "Earthwalk": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 6",
+    "effect": "You move through earth and stone as if it were not even there. You can quickly move through solid earth, rock, clay, or even soft sand. When moving through any earth, you treat underground as normal terrain, without penalizing your movement speed. In addition, you can walk up and scale stone, clay, or any other earthen material as if it is normal terrain."
+  },
+  "Sand Tomb": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 7",
+    "effect": "You rain debris continuously to keep a target stuck in place. 3/day you may use the move Sand Tomb.\n\nSand Tomb - Ranged(10ft) Ground Attack: 3/day 1d4. On hit, the target is bound in place for 1d4 rounds. For each round the target is bound, it takes 1d4 physical damage on its turns.",
+    "frequency": "3/day"
+  },
+  "Rock Tomb": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 8",
+    "effect": "You throw a bunch of rock and earth in one sudden push. 3/day you may use the move Rock Tomb.\n\nRock Tomb - Ranged(15ft) Rock Attack: 3/day 3d8. On hit, the target's Speed is -1 for 10 mins.",
+    "frequency": "3/day"
+  },
+  "Earth Power": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 10",
+    "effect": "Shoving your hand into the ground, you release a burst of raw energy beneath your target. 3/day you may use the move Earth Power.\n\nEarth Power - Ranged(15ft) Ground Special Attack: 3/day 3d10. On hit, the target's Special Defense is -1 for 10 mins.",
+    "frequency": "3/day"
+  },
+  "Materializer": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 11",
+    "effect": "You can seemingly form rock from nothing as you focus your power together and grow as a powerful psychic. You can manipulate the earth in many ways, for example; as an action you could create a Huge sized wall of earth up to 30ft away from the ground, you can move a Large platform of earth as your movement at your movement speed, or as two consecutive actions seemingly create a Small boulder out of nothing."
+  },
+  "Earthquake": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 12",
+    "effect": "With a stomp to the ground, sudden crags burst upwards and explode in a wave of force. 1/day you may use the move Earthquake. Psionic Maelstrom does not let you ignore Earthquake's frequency.\n\nEarthquake - Ranged(30ft burst) Ground Attack: 1/day 5d12.",
+    "frequency": "1/day"
+  },
+  "Stone Fall": {
+    "category": "Earth Shaker",
+    "prerequisites": "Level 13",
+    "effect": "Collapsing a mass of energy into a solid form, you strike your target with a rush of stone-like matter. 1/day you may use the move Stone Fall. Psionic Maelstrom does not let you ignore Stone Fall's frequency.\n\nStone Fall - Ranged(35ft) Rock Special Attack: 1/day 5d12. On hit, if you got 18 or higher on Accuracy Check, Stone Fall is a critical hit.",
+    "frequency": "1/day"
+  },
+  "Pyrokinesis": {
+    "category": "Firebreather",
+    "prerequisites": "Level 1",
+    "effect": "You can spark fire into the air with your powers, a dangerous form of psychic energy. You can manipulate the fire in many ways, for example; as an action you could create a Small sized fire next to you, as an action spread a flame from Small to Large or Large to Huge, or as an action eliminate a Large fire. In addition, you may use the move Ember. You may not use more than eight different Psychic and/or Psychic advanced class moves per day.\n\nEmber - Ranged(10ft) Fire Special Attack: At-Will 1d12. On hit, if you got 18 or higher on Accuracy Check, the target is Burned.",
+    "frequency": "At-Will"
+  },
+  "Scorching Assault": {
+    "category": "Firebreather",
+    "prerequisites": "Level 1",
+    "effect": "As you keep your assault focused, you feel the fire continue to surge forth. When targeting a foe that you targeted with an attack during your last action with an attack, add +2 to your damage on hit, then +4 on the round after, then +6, then +8, +10, +12 and, so on until you target a different foe, skip a turn attacking, or combat ends. If you are dealing +10 damage with Scorching Assault or more, you take 4 damage each turn that you continue Scorching Assault."
+  },
+  "Warmth": {
+    "category": "Firebreather",
+    "prerequisites": "Level 2",
+    "effect": "The fire within yourself burns warmly and encourages healing in your allies around you. Whenever an ally is healed while adjacent to you, they heal an additional 4 health. In addition, any allies who have extended rests within 20ft of you heal 8 health during their rest. In addition, you are immune to Freezing, when hit by an Ice-type attack the attack is resisted, and cannot become cold due to external forces."
+  },
+  "Sunny Day": {
+    "category": "Firebreather",
+    "prerequisites": "Level 3",
+    "effect": "You turn up the heat and brighten up the space around you. 3/day you can use the move Sunny Day.\n\nSunny Day - Fire Field Effect: 3/day. You create a circle of Sunny Weather with a 60ft diameter. Within the Sunny weather, Fire-type attacks deal an additional 8 damage and Water-type attacks deal 8 less damage. This weather disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Fire Spin": {
+    "category": "Firebreather",
+    "prerequisites": "Level 4",
+    "effect": "You kick up a vortex of fire, trapping an enemy in place. 3/day you may use the move Fire Spin.\n\nFire Spin - Ranged(20ft) Fire Special Attack: 3/day 1d4. On hit, the target is bound in place for 1d4 rounds. For each round the target is bound, it takes 1d4 special damage on its turns.",
+    "frequency": "3/day"
+  },
+  "Photokinesis": {
+    "category": "Firebreather",
+    "prerequisites": "Level 6",
+    "effect": "Light is fleeting and momentary, but you can produce it with focus as you further develop the fire within you. You can manipulate light in many ways, for example; as an action you could create a Tiny orb of light that you place somewhere next to you that lasts for 10 mins, as an action you can create a beam of light from your hand, or as sustained actions over at least two turns you can mute a few man-made sources of light as you continue focus on it. In addition, you may use the move Heat Flash.\n\nHeat Flash - Ranged(10ft) Fire Effect: At-Will 1d4. On hit, the target's Accuracy Checks are -1 during their next turn.",
+    "frequency": "At-Will"
+  },
+  "Heat Seeker": {
+    "category": "Firebreather",
+    "prerequisites": "Level 7",
+    "effect": "Your affinity to heat draws you to sources of heat. You have infrared vision working up to 60ft away. You can clearly see sources of heat in the light or the dark, that are not heavily obstructed by cold objects (unless the source of the heat is hotter than a cold item is cold)."
+  },
+  "Smokescreen": {
+    "category": "Firebreather",
+    "prerequisites": "Level 8",
+    "effect": "You flare up your flames as you light up the field of battle. 3/day, once per round, you may use the move Smoke Screen as a free action targeting the space between your target and you. You may also use the move 3/day as a regular action.\n\nSmoke Screen - Ranged(10ft) Normal Effect: 3/day. Place up to 25 contiguous ft of Smoke Screen Wall. Smoke Screen Wall has no thickness, is 12 ft tall and has the following ability: Attacks that target through or within the wall have -2 during Accuracy Check. This Wall disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Flamethrower": {
+    "category": "Firebreather",
+    "prerequisites": "Level 10",
+    "effect": "You surge a burst of flame forward, engulfing your foes. 3/day you may use the move Flamethrower.\n\nFlamethrower - Ranged(20ft beam) Fire Special Attack: 3/day 3d10. On hit, if you got 18 or higher on Accuracy Check, the target is Burned.",
+    "frequency": "3/day"
+  },
+  "Mirage": {
+    "category": "Firebreather",
+    "prerequisites": "Level 11",
+    "effect": "When you're lit up, the waves of heat that you emit can cause others to miss with their attacks aimed at you. Whenever you are attacked by a foe with a ranged attack who acts after you during a round of combat, if you used a Fire-type move on your turn, the foe's accuracy check is -2."
+  },
+  "Solar Beam": {
+    "category": "Firebreather",
+    "prerequisites": "Level 12",
+    "effect": "You harness the warmth of the sun and unleash it on your foes, devastating them. 1/day you may use the move Solar Beam. Psionic Maelstrom does not let you ignore Solar Beam's frequency.\n\nSolar Beam - Ranged(30ft beam) Grass Special Attack: 1/day 5d12. When you use this attack you immediately end your turn unless it's Sunny. During your next turn, or immediately if it's Sunny, you may target with and roll Solar Beam's Accuracy Check and damage.",
+    "frequency": "1/day"
+  },
+  "Fire Blast": {
+    "category": "Firebreather",
+    "prerequisites": "Level 13",
+    "effect": "You open your heart to your foes and burn them down. 1/day you may use the move Fire Blast. Psionic Maelstrom does not let you ignore Fire Blast's frequency.\n\nFire Blast - Ranged(40ft, 10ft blast) Fire Special Attack: 1/day 5d12. Fire Blast has -2 during Accuracy Check unless it's Sunny. On hit, if you got 18 or higher on Accuracy Check, the targets are Burned.",
+    "frequency": "1/day"
+  },
+  "Psychometry": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 1",
+    "effect": "As your power expands in unexpected ways, you learn to grab things with your telekinesis even if you can't see it! You may target objects that you know of, but cannot necessarily see, with your telekinesis. You need to have a general idea of where it is and it must still be within the range of your telekinesis. In addition, you may add your Special Attack modifier instead of your Speed modifier if you want to during your accuracy checks for effect moves. You may not use more than eight different Psychic and/or Psychic advanced class moves per day."
+  },
+  "Terrify": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 1",
+    "effect": "You create a terrifying image in the mind of a poor victim to your terrible tricks. 1/day you may use the move Glare.\n\nGlare - Ranged(20ft) Normal Effect: 1/day. On hit, the target becomes Paralyzed.",
+    "frequency": "1/day"
+  },
+  "Probability Control": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 2",
+    "effect": "You pull at strings of fate with your strange psychic powers. Once per turn, as a free action, you may reroll any one of your own dice at the cost of 5 HP. The second time you use Probability Control per day you will lose 10 HP, then 15 HP, then 20 HP, increasing 5 times each time you use it per day."
+  },
+  "Curse": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 3",
+    "effect": "You weave a terrible curse on a foe then pay the price to drain your target. 1/day you may use the move Curse. Curse can only target Pokémon and when you use it, you are treated as Ghost-type Pokémon. Psionic Maelstrom does not let you ignore Curse's frequency.\n\nCurse - Ranged(20ft) Ghost Effect: 1/day. Curse can only be used by Ghost-Type Pokémon. On hit, you lose hit points equal to 1/3rd of your max HP, then the target is Cursed.",
+    "frequency": "1/day"
+  },
+  "Make it Weird": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 4",
+    "effect": "Your manic mood releases strange psychic powers that warp the space around you. 3/day you can use the moves Gravity, Magic Room, Trick Room, or Wonder Room.\n\nGravity - Psychic Field Effect: 3/day. You create a circle of Gravity Terrain with a 60ft diameter. Within the terrain, Pokémon may not leave the ground and any Pokémon that are in the air are brought down to the ground. This terrain disappears after 2 mins.\n\nMagic Room - Psychic Field Effect: 3/day. You create a circle of Magical Terrain with a 60ft diameter. If within the Magical terrain, Pokémon cannot use any held items. This terrain disappears after 2 mins.\n\nTrick Room - Psychic Field Effect: 3/day. You create a circle of Tricky Terrain with a 60ft diameter. Within the Tricky terrain, turn orders are reversed during each round. If some are outside of Tricky terrain while others are within Tricky terrain, all actions are still made in reverse order. This terrain disappears after 2 mins.\n\nWonder Room - Psychic Field Effect: 3/day. You create a circle of Wonderful Terrain with a 60ft diameter. Anyone who attacks within the Wonderful terrain makes Attack Accuracy Checks against Special Defense and Special Attack Accuracy Checks against Defense. This terrain disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Discombobulate": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 6",
+    "effect": "You spin their mind with the flick of your wrist and a curse under your breath. 1/day you may use the move Confuse Ray. If a foe you Confused knocks themselves out during a failed Confusion check, you may use Discombobulate an additional time that day.\n\nConfuse Ray - Ranged(20ft) Ghost Effect: 1/day. On hit, the target becomes Confused.",
+    "frequency": "1/day"
+  },
+  "Burning Malediction": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 7",
+    "effect": "Dark mutterings and the wave of your hand sends out a terrible wisp of fire into your foes. 1/day you may use the move Will-O-Wisp. If a foe you Burned is knocked out by their Burn, you may use Burning Malediction an additional time that day.\n\nWill-O-Wisp - Ranged(10ft) Fire Effect: 1/day. On hit, the target is Burned.",
+    "frequency": "1/day"
+  },
+  "Hypnotize": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 8",
+    "effect": "You enter into the minds of others and think of a deep sleep. 3/day you may use the move Hypnosis. If the target wakes up before the end of your next turn, you may use Hypnotize an additional time that day.\n\nHypnosis - Ranged(10ft) Psychic Effect: 3/day. Hypnosis has -4 during Accuracy Check. On hit, the target is put Asleep.",
+    "frequency": "3/day"
+  },
+  "Fumble": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 10",
+    "effect": "You rip at strings of fate, sowing discord and mayhem. Once per turn, as a free action, you may have a foe reroll a successful accuracy check or skill check by losing 15 HP."
+  },
+  "Binding Spell": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 11",
+    "effect": "You mutter ill will and trap the target in place. 1/day you may use the move Shadow Tag.\n\nShadow Tag - Ranged(10ft) Psychic Effect: 1/day. On hit, the target is bound in place. Ghost Pokémon are immune to Shadow Tag.",
+    "frequency": "1/day"
+  },
+  "Shared Trauma": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 12",
+    "effect": "You grab onto another, reflecting each other's pains onto each other and sharing them evenly. 1/day you can use the move Pain Split. Psionic Maelstrom does not let you ignore Shared Trauma's frequency.\n\nPain Split - Melee Normal Effect: 1/day. On hit, you and target's current HPs are added together and halved, assigning both you and the target that new value. Neither can have their new HPs be more than their Max.",
+    "frequency": "1/day"
+  },
+  "Ruin": {
+    "category": "Hex Maniac",
+    "prerequisites": "Level 13",
+    "effect": "Your psychic spell work flows naturally as the wave of your arms bring destruction to your enemies. 3/day you may use two moves gained through Hex Maniac features targeting the same foe as one action. Roll each accuracy check separately.",
+    "frequency": "3/day"
+  },
+  "Hydrodynamics": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 1",
+    "effect": "When you're submerged in water, you shoot through swimming faster than many Water-type Pokémon. You move through water at your movement speed and hold your breath for 10 minutes at a time without needing to make any skill checks. In addition, add your Speed modifier multiplied by 5ft to your movement speed per turn while in water."
+  },
+  "Hydrokinesis": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 1",
+    "effect": "Pulling all the moisture in the air together allows you to create water and manipulate it. You can manipulate water in many ways, for example; as an action you could part a Small path in a pool, as an action move a tub full of water up to 30ft away, or as an action create a Tiny puddle of water. In addition, you may use the move Water Gun. You may not use more than eight different Psychic and/or Psychic advanced class moves per day.\n\nWater Gun - Ranged(20ft) Water Special Attack: At-Will 2d6.",
+    "frequency": "At-Will"
+  },
+  "Surface Tension": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 2",
+    "effect": "Water works for you, supporting your weight as you run across open water. You treat the surface of water as normal terrain, no matter how choppy it may be. In addition, anyone else who you are holding with your hands can also cross the surface of water as if it is normal terrain."
+  },
+  "Rain Dance": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 3",
+    "effect": "You can pull raindrops right out of the sky, blanketing the surrounding area in rain. 3/day you can use the move Rain Dance.\n\nRain Dance - Water Field Effect: 3/day. You create a circle of Raining Weather with a 60ft diameter. Within the Raining weather, Water-type attacks deal an additional 8 damage and Fire-type attacks deal 8 less damage. This weather disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Bubble Beam": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 4",
+    "effect": "You gather together orbs of water and throw it forward, causing the bubbles to explode on impact. 3/day you may use the move Bubble Beam.\n\nBubble Beam - Ranged(20ft beam) Water Special Attack: 3/day 3d8. On hit, the target's Speed is -1 for 10 mins.",
+    "frequency": "3/day"
+  },
+  "Cryokinesis": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 6",
+    "effect": "As a hydrokinetic's power grows they learn to manipulate the temperature of the water they control. You can manipulate water by turning it into ice in many ways, for example; as an action you could create a Medium sized wall of ice up to 30ft away, as an action create a Huge space of ice on the floor where there was water, or as an action melt a Medium sized area of ice. In addition, you may use the move Powder Snow. You may not use more than eight different Psychic and/or Psychic advanced class moves per day.\n\nPowder Snow - Ranged(5ft burst) Ice Special Attack: At-Will 1d12. On hit, if you got 19 or higher on Accuracy Check, the target is Frozen.",
+    "frequency": "At-Will"
+  },
+  "Hail Storm": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 7",
+    "effect": "You chill the air and bring forth a dangerous hailstorm. 3/day you may use Hail. In addition, you are immune to Hail's damaging effect.\n\nHail - Ice Field Effect: 3/day. You create a circle of Hailing Weather with a 60ft diameter. Anyone who acts within the Hailing weather takes 2d4 damage after acting unless they are Ice Type. This weather disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Hydro Therapy": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 8",
+    "effect": "Using your familiarity with water, you work to help heal those around you by soothing wounds or diluting harmful substances. 3/day, as two consecutive actions, you may cure an adjacent ally of a Burn, Confusion, Freezing, Poison, or Toxin.",
+    "frequency": "3/day"
+  },
+  "Ice Beam": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 10",
+    "effect": "You throw a terrible beam of cold from your hands, freezing your target in place. 3/day you may use the move Ice Beam. Psionic Maelstrom does not let you ignore Ice Beam's frequency.\n\nIce Beam - Ranged(20ft beam) Ice Special Attack: 3/day 3d10. On hit, if you got 18 or higher on Accuracy Check, the target is Frozen.",
+    "frequency": "3/day"
+  },
+  "Scald": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 11",
+    "effect": "You've learned to manipulate the temperature of the water around you in a different way and can boil the water you control if only for moments at a time. 3/day you may use the move Scald. Psionic Maelstrom does not let you ignore Scald's frequency.\n\nScald - Ranged(10ft) Water Special Attack: 3/day 3d10. On hit, if you got 14 or higher on Accuracy Check, the target is Burned. Scald can Burn Fire-types.",
+    "frequency": "3/day"
+  },
+  "Blizzard": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 12",
+    "effect": "By reaching forward you create shards of ice and slice up everything in your way. 1/day you may use the move Blizzard. Psionic Maelstrom does not let you ignore Blizzard's frequency.\n\nBlizzard - Ranged(20ft, 10ft wave) Ice Special Attack: 1/day 5d12. Blizzard has -2 during Accuracy Check unless it's Hailing. On hit, if you got 18 or higher on Accuracy Check, the targets are Frozen.",
+    "frequency": "1/day"
+  },
+  "Hydro Surge": {
+    "category": "Rain Waker",
+    "prerequisites": "Level 13",
+    "effect": "You release a powerful force of water that tears away at your enemies. 1/day you may use the move Hydro Surge. Psionic Maelstrom does not let you ignore Hydro Surge's frequency.\n\nHydro Surge - Ranged(30ft beam, 10ft blast) Water Special Attack: 1/day 5d12. If it's Raining, Hydro Surge has +2 during Accuracy Check.",
+    "frequency": "1/day"
+  }
+}

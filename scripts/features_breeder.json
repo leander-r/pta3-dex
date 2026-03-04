@@ -1,0 +1,396 @@
+{
+  "Hatcher": {
+    "category": "Breeder",
+    "prerequisites": "Level 1",
+    "effect": "Your loving care of the eggs you receive brings out your new Pokémon with particular haste. Your eggs in your care never take longer than 72 hours to hatch."
+  },
+  "Natural Edge": {
+    "category": "Breeder",
+    "prerequisites": "Level 1",
+    "effect": "Your Pokémon are born with a natural lead on other trainer's Pokémon; your caring watch has given them a reason to be more, for you. Whenever you hatch an egg, after you know the Pokémon's nature, choose one of Attack, Defense, Special Attack, Special Defense, and Speed. That Pokémon's chosen stat is permanently raised X, where X is half of either your Defense or Special Defense modifier."
+  },
+  "Philoprogenitive": {
+    "category": "Breeder",
+    "prerequisites": "Level 2",
+    "effect": "You put your Pokémon children before yourself. Whenever one of your hatched Pokémon is targeted with an attack and hit, if they are within 10ft of you, you may move to your Pokémon and take the damage and effects they would have taken for them as a free action. You may use this feature as many times as you would like within the same round, regardless of turn order and regardless of whether or not you have already acted."
+  },
+  "Egg Finder": {
+    "category": "Breeder",
+    "prerequisites": "Level 4",
+    "effect": "Something about your care raises the likelihood of two matched Pokémon producing a Pokémon egg for you. Whenever you make a Breeding Check for any two Pokémon, you may make three checks and use the best result."
+  },
+  "Unexpected Hatch": {
+    "category": "Breeder",
+    "prerequisites": "Level 5",
+    "effect": "Your eggs begin to hatch across species!? Whenever you hatch an egg that you found after making a Breeding Check, you may flip a coin. If you win the flip, you may choose to have the egg hatch as a Pokémon of the father's species instead of the default mother's species."
+  },
+  "Natural Breeder": {
+    "category": "Breeder",
+    "prerequisites": "Level 6",
+    "effect": "You've learned just how to influence your baby Pokémon's first moments of life. When you hatch an egg, you may choose which of Attack, Defense, Special Attack, Special Defense, or Speed is positively or negatively influenced by nature. The nature is still randomized, but will be a nature that matches your preference when using Natural Breeder. In addition, if you don't choose to influence the Pokémon's nature you can pick its gender."
+  },
+  "Parental Hyperlexia": {
+    "category": "Breeder",
+    "prerequisites": "Level 8",
+    "effect": "You begin to pick on the slightest hints, differences in tone, and micro expressions from your Pokémon as if they are speaking to you in a human language. You can understand any Pokémon that you hatched with a loyalty of 3 or higher, when it tries to speak to you in its own Pokémon languages. If the Pokémon is unable to speak to you in a comprehensible sense, you still understand its general needs and you still understand anything it might be trying to communicate to you."
+  },
+  "Inherited Moves": {
+    "category": "Breeder",
+    "prerequisites": "Level 9",
+    "effect": "Your pairings yield powerful children often with powers beyond the baby Pokémon's ability to understand; with your guidance they will wield awesome attacks. Whenever you hatch your eggs, choose any one move from either parent and give it to your baby Pokémon."
+  },
+  "Scrambled Moves": {
+    "category": "Breeder",
+    "prerequisites": "Level 10",
+    "effect": "Your influence on your Pokémon while they are eggs continues to yield unique results. Whenever you hatch an egg, choose one of the three moves the Pokémon is assigned in the Pokédex. They are given an appropriate different move by your GM that are aligned with its proficiencies (different type, same frequency)."
+  },
+  "Unlikely Pairings": {
+    "category": "Breeder",
+    "prerequisites": "Level 12",
+    "effect": "The mysterious ways that Pokémon create eggs are still unclear to you, but you've figured out a way to coerce eggs from Pokémon that otherwise would never make an egg. When trying to have Pokémon make Pokémon eggs in privacy, they do not need to have a matching egg group."
+  },
+  "Familial Bond": {
+    "category": "Breeder",
+    "prerequisites": "Level 13",
+    "effect": "Your Pokémon treat you as if you were their actual parent. Any Pokémon you've hatched starts at loyalty 3 with you. It takes intentional and malicious mistreatment to lower these Pokémon's loyalties. In addition, any Pokémon you obtain are quick to warm up to you and not treat you as hostile; in no more than one week any Pokémon you obtain reach loyalty 3."
+  },
+  "Gleaming Eggs": {
+    "category": "Breeder",
+    "prerequisites": "Level 14",
+    "effect": "Your warm influence brings out a rare quality on occasion from your baby Pokémon. Whenever you hatch one of your eggs, roll 1d20 and add your Defense or Special Defense modifier. On 20 or higher, the Pokémon that hatches is shiny."
+  },
+  "Matchmaker": {
+    "category": "Breeder",
+    "prerequisites": "Level 15",
+    "effect": "You've become a master Breeder and can guarantee the Pokémon eggs that you desire. Once per day, when you make a Breeding Check for two Pokémon, of which at least one of the two is your Pokémon, you are guaranteed to find an egg. When the egg hatches, you pick which species of the two parents the Pokémon is, which sex the Pokémon has, and which nature the Pokémon has.",
+    "frequency": "1/day"
+  },
+  "Berry Mixer": {
+    "category": "Botanist",
+    "prerequisites": "Level 1",
+    "effect": "When it comes to berry treats, you're an expert. Whenever you're making any kind of food or item that requires berries, you are considered a certified expert and can supply your wares to specialty stores (usually at half their value), or to strangers willing to pay for your expertise."
+  },
+  "Botanical Encyclopedia": {
+    "category": "Botanist",
+    "prerequisites": "Level 1",
+    "effect": "You've memorized every book there is on botany in the Pokémon world. You can instantly identify any berries, plants, or fungi and know any of their special properties. You also can tell if any of them have been modified to have unique attributes. In addition, you can identify any Grass-type Pokémon on sight, or any Pokémon known to work with, or that pretends to be, flora."
+  },
+  "Berry Finder": {
+    "category": "Botanist",
+    "prerequisites": "Level 2",
+    "effect": "You apply your encyclopedic knowledge to the field and know where to best find berries. Whenever you make any skill checks related to berries, or finding them, you may roll twice and use the better result."
+  },
+  "Berry Booster": {
+    "category": "Botanist",
+    "prerequisites": "Level 3",
+    "effect": "Your care for your plants is evident by the particular energy they release when consumed. Whenever a Pokémon consumes berries that you've grown, double any numerical effect the berry might have."
+  },
+  "Growth Spurt": {
+    "category": "Botanist",
+    "prerequisites": "Level 4",
+    "effect": "You've started to apply a special fertilizer to your plants, promising quick results. Whenever you plant berries, including in a portable planter, it will never take more than 48 hours for the plant to produce fruit. In addition, if you roll under 6 while making Nature checks while caring for Berry plants, treat the roll as a 6."
+  },
+  "Berry Combination": {
+    "category": "Botanist",
+    "prerequisites": "Level 6",
+    "effect": "You begin to practice with the qualities of berries by extracting and injecting different berries together. Once per day, after spending an hour with two of your berries, you destroy one and give its flavor and effects to the other berry to create one berry with the effects of both. Call the combination whatever you'd like. You may not combine a berry with an already combined berry.",
+    "frequency": "1/day"
+  },
+  "Apricorn Finder": {
+    "category": "Botanist",
+    "prerequisites": "Level 7",
+    "effect": "You apply your knowledge of berries to lesser known and lesser studied apricorn; whenever you make any skill checks related to apricorns, or finding them, you may roll twice and use the better result."
+  },
+  "Hybridization": {
+    "category": "Botanist",
+    "prerequisites": "Level 8",
+    "effect": "You begin to apply your studies to a berry plant itself. Whenever you plant a berry, you can plant two berries together to produce a tree that grows berries with the flavors and effects of both of the planted berries. This includes berries you may plant in a portable planter. Call the resulting combination whatever you'd like. You may not hybridize a berry with an already hybridized or combined berry."
+  },
+  "Berry Seeker": {
+    "category": "Botanist",
+    "prerequisites": "Level 10",
+    "effect": "You find unusual signs of rarer berries and explore the space around you to find unusual and lesser seen berries. Whenever you make any skill checks related to finding berries, you may attempt to find an uncommon berry. If you do, only roll once on your skill check. If you succeed, you find one of the following berries of your choice: Pomeg Berry, Kelpsy Berry, Qualot Berry, Hondew Berry, Grepa Berry, Tamato Berry, Occa Berry, Passho Berry, Wacan Berry, Rindo Berry, Yache Berry, Chople Berry, Kebia Berry, Shuca Berry, Coba Berry, Payapa Berry, Tanga Berry, Charti Berry, Kasib Berry, Haban Berry, Colbur Berry, Babiri Berry, Chilan Berry, or Roseli Berry."
+  },
+  "Miniature Specimen": {
+    "category": "Botanist",
+    "prerequisites": "Level 11",
+    "effect": "You apply a theory towards creating smaller, but still just as effective berry plants. You can grow two plants in a portable planter at the same time, and the berries these plants produce are small enough to fit in the palm of your hand. Berries produced with the Miniature Specimen feature cannot be stolen from any Pokémon who is holding onto one during battle."
+  },
+  "Rare Berry Seeker": {
+    "category": "Botanist",
+    "prerequisites": "Level 12",
+    "effect": "You may apply your vast knowledge base to explore wild space and locate treasures in the berry collecting world. Whenever you make any skill checks related to finding berries, you may attempt to find a rare berry. If you do, only roll once on your skill check. If you succeed, you find one of the following berries of your choice: Liechi Berry, Ganlon Berry, Salac Berry, Petaya Berry, Apicot Berry, Lansat Berry, Starf Berry, Enigma Berry, Micle Berry, Custap Berry, Joboca Berry, Rowap Berry, Kee Berry, or Maranga Berry."
+  },
+  "Berry Monstrosities": {
+    "category": "Botanist",
+    "prerequisites": "Level 13",
+    "effect": "You've mastered the hybridizations and combination of natural berries and put it to unbelievable use and execution. When using your Berry Combination or Hybridization features, the berries you make can have a total of five different qualities from different berries. This will combine all flavors and all effects. If you combine or hybridize a sixth berry into your monstrosities, choose another berry's flavor and effects to replace in said monstrosity. Call the combination whatever you'd like."
+  },
+  "Energy Shot": {
+    "category": "Chef",
+    "prerequisites": "Level 1",
+    "effect": "You've concocted a drink that really gives you an adrenaline rush; it could be useful out there in the wilds. Once per day, after one hour of work, you create one pint of an energy drink for trainers. Call it whatever you'd like. You have enough for four servings of the drink. When one serving is consumed, it gives a trainer temporary hit points equal to the sum of your Defense and Special Defense stat. The drink's effect wears off after an hour. Drinking multiple servings will remove any temporary hit points gained by the drink. The drink's potency wears off after 24 hours and then becomes a regular drink.",
+    "frequency": "1/day"
+  },
+  "Soul Food": {
+    "category": "Chef",
+    "prerequisites": "Level 1",
+    "effect": "You're a great chef and have loads of experience whipping up meals. When looking for edible food in the wild, you can add your Defense or Special Defense modifiers while making skill checks. It takes you less than 20 mins to create a soulful meal out of any edible ingredients for ten people and/or Pokémon. Whenever a Pokémon consumes a soulful meal within an hour of its creation, they are relaxed unless they are agitated again (it takes at least 5 mins to consume a meal). Your Pokémon quickly gain loyalty to you if you're feeding them often and are very unlikely to lose loyalty unless there's any intentional mistreatment."
+  },
+  "Wild Bait": {
+    "category": "Chef",
+    "prerequisites": "Level 2",
+    "effect": "You can create powerful aromas that attract various wilds to a place of your choosing. After 30 mins of work, you create a dish of wild bait. The bait has a powerful smell that will lure wild Pokémon to its location once you ready it. If you and your party are not sufficiently hidden, wilds may approach but then flee if any wilds detect you or your party."
+  },
+  "Sugar Rush": {
+    "category": "Chef",
+    "prerequisites": "Level 3",
+    "effect": "You can produce treats that energize your Pokémon like nothing else. Once per day, after thirty minutes of work, you create one serving of a sugary energy drink for Pokémon. Call it whatever you'd like. When it is consumed, it gives a Pokémon temporary hit points equal to the sum of your Defense and Special Defense stat. The drink's effect wears off after an hour. Drinking multiple servings will remove any temporary hit points gained by the drink. The drink's potency wears off after 72 hours and then becomes a regular drink.",
+    "frequency": "1/day"
+  },
+  "Pâtissier": {
+    "category": "Chef",
+    "prerequisites": "Level 4",
+    "effect": "You begin practicing the art of dessert and can spend time to create delicious replicas of famous treats. Once per day, after 30 mins of work you can create two of any of the following treats. Unlike real versions of these treats, your food made with the Pâtissier feature does not have their effects after 48 hours, instead only tasting delicious. Treat options and effects — Recovers 10 Hit Points (Pokémon): Big Malasada, Casteliacone, Lava Cookie, Rage Candy Bar, Sweet Heart. Removes any affliction: Berry Juice, Lumiose Galette, Old Gateau, Pewter Crunchies, Shalour Sable.",
+    "frequency": "1/day"
+  },
+  "Herbal Medicine": {
+    "category": "Chef",
+    "prerequisites": "Level 6",
+    "effect": "You improve several qualities of the treats you can make, but less people would call them treats now. Once per day, after 10 mins of work you can create one of the following medicines. Your Pokémon are not repulsed by your Herbal Medicine, but another trainer's Pokémon or wild Pokémon will be disgusted. Medicine options — Heal Powder: Removes any affliction. Energy Powder: Recovers 25 Hit Points (Pokémon).",
+    "frequency": "1/day"
+  },
+  "Vile Cook": {
+    "category": "Chef",
+    "prerequisites": "Level 7",
+    "effect": "You figure out how to create food that hides undesirable effects underneath delicious disguises. Whenever you make food, or an edible item, you may make the food Poison the consumer, Paralyze the consumer, or put the consumer to Sleep. The tampered food loses its potency after one hour and becomes regular edible food."
+  },
+  "Palette Pleaser": {
+    "category": "Chef",
+    "prerequisites": "Level 8",
+    "effect": "You've mastered flavor in every form. Whenever you make a meal, or mix any ingredients to make a food item with any effects, you make it in a way that is pleasing to anyone or any Pokémon who consumes it regardless of their nature, preferred flavors, or disliked flavors."
+  },
+  "Power Recovery": {
+    "category": "Chef",
+    "prerequisites": "Level 10",
+    "effect": "Your soul food becomes invigorating and empowers your Pokémon to unleash powerful attacks as if they've rested for hours. Pokémon who have eaten your soulful food may again use their 3/day or 1/day moves as if they have rested for 8 hours. Pokémon may not benefit from the Power Recovery feature multiple times per day."
+  },
+  "Powerful Herbs": {
+    "category": "Chef",
+    "prerequisites": "Level 11",
+    "effect": "You've strengthened your foul-smelling recipes. Once per day, after one hour of work you can create one of the following medicines. Your Pokémon are not repulsed by your Powerful Herbs, but another trainer's Pokémon or wild Pokémon will be disgusted. Medicine options — Energy Root: Recovers 50 Hit Points (Pokémon). Revival Herb: Recovers an unconscious Pokémon to half of their max HP.",
+    "frequency": "1/day"
+  },
+  "Leftovers": {
+    "category": "Chef",
+    "prerequisites": "Level 12",
+    "effect": "Through your practice, you discovered a way to create a meal that continues to heal a Pokémon after it's consumed. Once per day, after working for one hour you create a serving of Leftovers. As an action, a Pokémon can start consuming Leftovers for 1 min (10 rounds) or until at max HP. While consuming Leftovers, they regain 10 hp per round. Afterwards, Leftovers is destroyed.",
+    "frequency": "1/day"
+  },
+  "Master Chef": {
+    "category": "Chef",
+    "prerequisites": "Level 13",
+    "effect": "You've proven yourself to be an unmatched chef. Nothing can dislike your food, and you know how to make any meal by tasting or looking at it once. Any effects from any food you've made are doubled when possible. This includes things you make with or without your features. In addition, Vile Cook can be used to Toxify food and Revival Herbs that you've made will recover an unconscious Pokémon to full HP."
+  },
+  "Early Evolution": {
+    "category": "Evolver",
+    "prerequisites": "Level 1",
+    "effect": "Every Pokémon has different triggers that encourage evolution and you've learned to nurture these different influences and induce evolution. Your Pokémon are unhindered by any natural timing to evolve and can evolve regardless of day or night time constraints. Your Pokémon whose evolutions require environmental influences may evolve anywhere. Pokémon who need to evolve based solely on loyalty or their relationship with you evolve much faster, even if they are barely a week old. In addition, in rare occasions, your Pokémon may evolve twice rapidly into its final evolution if given the opportunity."
+  },
+  "Mega Stone Smith": {
+    "category": "Evolver",
+    "prerequisites": "Level 1",
+    "effect": "After studying mega stones, you've figured out how to imbue simple marbles with the mysterious spirit that enables Pokémon to mega evolve. Once per week, after five hours of work, you create a Keystone exclusively for your use or you create a Mega Stone exclusively for one of your fully-evolved Pokémon. When creating a Mega Stone, decide which stats are boosted while the Pokémon is using the created Mega Stone. You can modify Attack, Defense, Special Attack, Special Defense, or Speed by a total of 4 points, but no individual stat can be modified by more than 2. You may not affect any stats negatively. You choose how your Pokémon's physical appearance changes appropriately. Special: Mega Evolution is done once per day by activating your Keystone with one of your Pokémon who has a Mega Stone. It lasts for 10 minutes."
+  },
+  "Elemental Evolution": {
+    "category": "Evolver",
+    "prerequisites": "Level 2",
+    "effect": "Working with some theories about the effects of elemental stones on Pokémon, you've figured out how to induce elemental evolution. Once per day, you may spend one hour with a Pokémon who can evolve with the use of any evolution stone and they will evolve at the end of that hour. In addition, you've figured out how to repress evolution in a Pokémon and after spending one hour with one of your Pokémon, you can abate evolution for 48 hours without the use of an Everstone.",
+    "frequency": "1/day"
+  },
+  "Evolution Guidance": {
+    "category": "Evolver",
+    "prerequisites": "Level 3",
+    "effect": "Your training and care helps to mold your Pokémon's futures and helps their paths of evolution. If your Pokémon has a branched evolution, when it evolves you may choose what it evolves into regardless of any other factors in its evolution. The Evolution Guidance feature overrides requirements during evolutions such as gendered evolutions (Gallade, Vespiquen), evolutions that differ based on time of day (Cascoon, Lycanroc), environment influenced evolutions (Wormadam S, Weezing A), stone evolutions (Bellossom, Vaporeon), or stat based evolutions (Hitmonchan, Gorebyss). This means you could have a male Nidorina, a night time Silcoon, a Fairy type Rapidash from a Fire type Ponyta, a Glaceon from a Moon Stone, or any other unusual evolution. In the Pokédex, familial species that are connected by Evolution Guidance will have this icon."
+  },
+  "Keystone Burst": {
+    "category": "Evolver",
+    "prerequisites": "Level 4",
+    "effect": "Keystones usually need time to regain their ambient energy after use; however you've trained your Pokémon to only dip into the Key Stone's power with their Mega Stones instead of draining it completely. Your Keystone may be used twice per day or three times per day if you only Mega Evolve the same Pokémon each time. You may still only have one Mega Pokémon at a time."
+  },
+  "Mega Stone Shift": {
+    "category": "Evolver",
+    "prerequisites": "Level 6",
+    "effect": "Spending some time with your Mega Stones can give you some insight to their magical properties; with a little bit of focus you can change how your Mega Stones change your Pokémon. After two hours of work, one of your unique Mega Stones will alter your Pokémon's types by replacing one type or by adding one type while the Pokémon is Mega Evolved. You choose how your Pokémon's physical appearance changes appropriately."
+  },
+  "Key Stone Stretch": {
+    "category": "Evolver",
+    "prerequisites": "Level 7",
+    "effect": "Keystones ring while your Pokémon are Mega Evolved, but you've learned to quell that into a hum, prolonging a Mega Evolution's stay. Your Pokémon's Mega Evolutions can retain their form for up to one hour, even if returned to their Poké Ball."
+  },
+  "Peak Form": {
+    "category": "Evolver",
+    "prerequisites": "Level 8",
+    "effect": "Raising your Pokémon through their evolutions and keeping them in top shape has increased their performance. When one of your Pokémon evolves into its final stage of evolution, choose two of Attack, Defense, Special Attack, Special Defense, or Speed and permanently add 1 to that Pokémon's stats. Additionally, for any of your fully-evolved Pokémon that you've owned for at least one week who haven't benefitted from Peak Form yet, choose two of Attack, Defense, Special Attack, Special Defense, or Speed and permanently add 1 to that Pokémon's stats."
+  },
+  "Keystone Overflow": {
+    "category": "Evolver",
+    "prerequisites": "Level 10",
+    "effect": "Your Pokémon have grown to use the flow of energy from the Key Stone and can even borrow its energy from each other when standing together in battle! You may have two Mega Pokémon at the same time."
+  },
+  "Potential Break": {
+    "category": "Evolver",
+    "prerequisites": "Level 11",
+    "effect": "Mega Stones bring Pokémon to unreal levels of power, but to most you need to already be strong to use a Mega Stone with your Key Stone. However, you've figured out a way to induce Mega Evolution with unreal results. If you own a Mega Stone that corresponds to a Mega Evolution that appears in the Pokédex, your not-fully-evolved Pokémon that will eventually be fully compatible with a Mega Stone may already use the Mega Stone. For example, if you own Blazikenite or have created a Mega Stone to Mega Evolve Blaziken, your Torchic or Combusken could use it to turn into Mega Blaziken."
+  },
+  "Evolution Shift": {
+    "category": "Evolver",
+    "prerequisites": "Level 12",
+    "effect": "Pokémon have their previous selves, potential selves, and sometimes impossible selves within, and you've developed a way to manipulate and work with your Pokémon to bring out any hidden part. Once per day, after working for five hours with one of your Pokémon, you may return it to its previous stage of evolution or change its evolution to another in its branch of evolutions. You could for example change your Rapidash into a Rapidash (Forest Glade), your Purrserker into a Persian, or your Poliwrath into a Politoed. Evolution Shift removes any benefits given to your Pokémon by Peak Form if they are unevolved during Evolution Shift until that Pokémon evolves again. In the Pokédex, familial species that are connected by Evolution Shift will have this icon with information on the potential branch evolutions available.",
+    "frequency": "1/day"
+  },
+  "Keystone Kaleidoscope": {
+    "category": "Evolver",
+    "prerequisites": "Level 13",
+    "effect": "Evolution is different for every Pokémon and can continue to change and create new surprises for everyone. Whenever you Mega Evolve a Pokémon, you may choose which of its stats are modified by its Mega Stone and which types it becomes (you may choose different stats and types each time). You must still follow the Mega Stone rules of the features Mega Stone Smith and Mega Stone Shift while Mega Evolving your Pokémon."
+  },
+  "Muscle Relaxants": {
+    "category": "Medic",
+    "prerequisites": "Level 1",
+    "effect": "While they may only help without cure sometimes, your careful application of injected relaxants is a sure fix for any paralyzed ally. 3/day you may use your medical field kit as an action to cure any adjacent trainer or Pokémon of Paralysis.",
+    "frequency": "3/day"
+  },
+  "Treat Minor Wound": {
+    "category": "Medic",
+    "prerequisites": "Level 1",
+    "effect": "Your study of medicine has led to more effective use of your kit to heal the broken, damaged, and hurt. 3/day you may use your medical field kit as an action to heal any adjacent trainer or Pokémon 10 hit points, then give them 5 temporary hit points which last for 10 mins. In addition, you may not use your Medic features on unwilling, conscious targets. (A Pokémon who is healed this way cannot use a Move during the same round.)",
+    "frequency": "3/day"
+  },
+  "Medicinal Expert": {
+    "category": "Medic",
+    "prerequisites": "Level 2",
+    "effect": "Your training and practice has led to some improved procedures that will help your friends in a pinch. Whenever you use a restorative item such as an Antidote or Potion, or a Medic feature on an allied trainer or Pokémon, heal the target additional hit points equal to your Defense or Special Defense modifier."
+  },
+  "Better Living Through Medicine": {
+    "category": "Medic",
+    "prerequisites": "Level 3",
+    "effect": "Careful study and repetition has given your hands the precision and skill to move rapidly and help those in need. During your turn, you may use two Medic features on adjacent targets during the same turn as one action. You still deplete your uses per day on any of your Medic features used."
+  },
+  "Treat Wound": {
+    "category": "Medic",
+    "prerequisites": "Level 4",
+    "effect": "Your continuous practice of medicine has led to more effective use of your kit to heal the injured. 3/day you may use your medical field kit as an action to heal any adjacent trainer or Pokémon 20 hit points, then give them 10 temporary hit points which last for 10 mins. (A Pokémon who is healed this way cannot use a Move during the same round.)",
+    "frequency": "3/day"
+  },
+  "Pain Killers": {
+    "category": "Medic",
+    "prerequisites": "Level 6",
+    "effect": "After modifying the available drugs in your kit, you've created pills that will eliminate potentially deadly afflictions. 3/day you may use your medical field kit as an action to cure any adjacent trainer or Pokémon of Burns, Poisoning, or Toxification. (A Pokémon who is healed this way cannot use a Move during the same round.)",
+    "frequency": "3/day"
+  },
+  "Shock Therapy": {
+    "category": "Medic",
+    "prerequisites": "Level 7",
+    "effect": "After modifying the micro defibrillator in your kit, you've created a function of minor bursts of power to help friends in a tight spot. 3/day you may use your medical field kit as an action to cure any adjacent trainer or Pokémon of being Asleep or Freezing. (A Pokémon who is healed this way cannot use a Move during the same round.)",
+    "frequency": "3/day"
+  },
+  "Restore Strength": {
+    "category": "Medic",
+    "prerequisites": "Level 8",
+    "effect": "By using a combination of energy recovering drugs and adrenaline, you've given your Pokémon a chance at pushing out more power in a tight spot. 3/day you may use your medical field kit as an action to restore an adjacent Pokémon's use of 1/day or 3/day frequency moves as if they have rested for 8 hours. (A Pokémon who is healed this way cannot use a Move during the same round.)",
+    "frequency": "3/day"
+  },
+  "Treat Major Wound": {
+    "category": "Medic",
+    "prerequisites": "Level 10",
+    "effect": "Your expertise of medicine has led to efficient use of your kit to repair the injured. 3/day you may use your medical field kit as an action to heal any adjacent trainer or Pokémon 30 hit points, then give them 15 temporary hit points which last for 10 mins. (A Pokémon who is healed this way cannot use a Move during the same round.)",
+    "frequency": "3/day"
+  },
+  "Do No Harm": {
+    "category": "Medic",
+    "prerequisites": "Level 11",
+    "effect": "Your fervor in battle and willingness to risk your life while protecting others burns brightly as you save lives around you every day. On any turn where you haven't attacked any targets and have not issued any attack commands to any of your Pokémon, your Treat Minor Wound, Treat Wound, Treat Major Wound, and Treat Serious Wound features heal an additional 10 hit points, but grant 10 less temporary hit points. You may not issue attack commands to any Pokémon after benefitting from the Do No Harm feature."
+  },
+  "Treat Serious Wound": {
+    "category": "Medic",
+    "prerequisites": "Level 12",
+    "effect": "Your mastery of medicine has led to perfect use of your kit to completely heal the injured. 3/day you may use your medical field kit as an action to heal any adjacent trainer or Pokémon 40 hit points, then give them 20 temporary hit points which last for 10 mins. (A Pokémon who is healed this way cannot use a Move during the same round.)",
+    "frequency": "3/day"
+  },
+  "Won't Die on Me": {
+    "category": "Medic",
+    "prerequisites": "Level 13",
+    "effect": "The lives of others are not expendable and your watch guarantees their survival. Once per day, if an adjacent ally fails their final death saving throw, they instead succeed the death saving throw and are set to 1 hit point, then regain consciousness.",
+    "frequency": "1/day"
+  },
+  "Natural Tutoring": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 1",
+    "effect": "For a tutor, reteaching Pokémon how to do something they used to do before is a trivial exercise. Once per day, after spending one hour working with a Pokémon, you may teach a move to that Pokémon that they've known but have since removed from their move list, as long as the Pokémon is proficient in its use.",
+    "frequency": "1/day"
+  },
+  "Observation Training": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 1",
+    "effect": "Tutors figure out how to bring out the best from a Pokémon by studying attacks and by teaching your Pokémon everything there is to know about their own attacks; you've increased their odds of surviving in battle. Whenever one of your Pokémon is targeted by an attack they know, or used to know, their Defense, Special Defense, and Speed stat is raised +1 during the attacker's accuracy check."
+  },
+  "Passive Tutoring": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 2",
+    "effect": "By studying some basic field tactics you've learned how to teach Pokémon how to improve their odds on the field of battle. Once per day, after spending two hours working with a Pokémon, you may teach one of the following passives to that Pokémon: Defense Curl (+1 Defense), Howl (+1 Attack), Nasty Plot (+1 Special Attack), Run Away (+1 Speed), Confide (+1 Special Defense).",
+    "frequency": "1/day"
+  },
+  "Rudimentary Tutoring": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 3",
+    "effect": "There are some pretty basic things you've learned how to teach during your studies, and sometimes the most basic tricks should be taught. Once per day, after spending one hour working with a Pokémon, you may teach one of the following moves to that Pokémon. Moves taught with the Rudimentary Tutoring feature must still fit the Pokémon's proficiencies. Move options: Air Dart (Ranged(10ft) Flying Attack: At-Will 2d6), Brutal Hit (Melee Dark Attack: At-Will 2d6), Clearing Smog (Ranged(20ft) Poison Special Attack: At-Will 1d12), Confusioning (Ranged(20ft) Psychic Special Attack: At-Will 1d12), Emberish (Ranged(20ft) Fire Special Attack: At-Will 1d12), Fairy Wind (Ranged(20ft) Fairy Special Attack: At-Will 1d12), Icy Breeze (Ranged(20ft) Ice Special Attack: At-Will 2d6), Karate Slap (Melee Fighting Attack: At-Will 2d6), Leafage (Ranged(20ft) Grass Special Attack: At-Will 1d12), Metal Cut (Melee Steel Attack: At-Will 2d6), Mud Throw (Ranged(20ft) Ground Special Attack: At-Will 2d6), Rock Throw (Ranged(20ft) Rock Attack: At-Will 2d6), Spook (Melee Ghost Attack: At-Will 2d6), Struggling Bug (Ranged(20ft) Bug Special Attack: At-Will 2d6), Tackle (Melee Normal Attack: At-Will 2d6), Thunder Spark (Ranged(20ft) Electric Special Attack: At-Will 1d12), Twisting Gust (Ranged(20ft) Dragon Special Attack: At-Will 1d12), Water Gun (Ranged(20ft) Water Special Attack: At-Will 2d6).",
+    "frequency": "1/day"
+  },
+  "Machine Mentor": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 4",
+    "effect": "By studying the effects of Technical Machines and Technical Records, you've learned to replicate their techniques in training. Once per day, after spending six hours working with a Pokémon, you may teach that Pokémon any move you've previously taught with a Technical Machine or Technical Record. Moves taught with the Machine Mentor feature must still fit the Pokémon's proficiencies.",
+    "frequency": "1/day"
+  },
+  "Vocation Tutoring": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 6",
+    "effect": "After spending enough time in the study of Pokémon tutoring, people will expect certain moves to be taught by you and you're not one to disappoint. Once per day, after spending six hours working with a Pokémon, you may teach one of the following moves to that Pokémon. Moves taught with the Vocation Tutoring feature must still fit the Pokémon's proficiencies. Move options (all 3/day): Aerial Ace (Melee Flying Attack: 3/day 3d8, can't miss targets with less than 15 Defense), Cross Poison (Melee Poison Attack: 3/day 3d8, on hit if 18+ on Accuracy Check it is a critical hit and target is Poisoned), Dark Pulse (Ranged(10ft) Dark Special Attack: 3/day 3d10, on hit if 16+ on Accuracy Check target is Stunned), Dragon Tail (Melee Dragon Attack: 3/day 3d8, on hit move target 40ft away), Energy Ball (Ranged(20ft) Grass Special Attack: 3/day 3d10, on hit target's Special Defense is -1 for 10 mins), Flamethrower (Ranged(20ft beam) Fire Special Attack: 3/day 3d10, on hit if 18+ on Accuracy Check target is Burned), Ice Beam (Ranged(20ft) Ice Special Attack: 3/day 3d10, on hit if 18+ on Accuracy Check target is Frozen), Iron Head (Melee Steel Attack: 3/day 3d10, on hit if 14+ on Accuracy Check target is Stunned), Jump Kick (Melee Fighting Attack: 3/day 3d10, has -2 during Accuracy Check; if you miss, lose HP equal to half of your Max HP), Moonblast (Ranged(20ft) Fairy Special Attack: 3/day 3d10, on hit target's Special Attack is -1 for 10 mins), Mud Bomb (Ranged(10ft) Ground Special Attack: 3/day 3d8, on hit target's Accuracy Checks are -1 during their next turn), Power Gem (Ranged(20ft) Rock Special Attack: 3/day 3d10), Psychic (Ranged(25ft) Psychic Special Attack: 3/day 3d10, on hit target's Special Defense is -1 for 10 mins), Scald (Ranged(10ft) Water Special Attack: 3/day 3d10, on hit if 14+ on Accuracy Check target is Burned; Scald can Burn Fire-types), Shadow Ball (Ranged(20ft) Ghost Special Attack: 3/day 3d10, on hit target's Special Defense is -1 for 10 mins), Signal Beam (Ranged(15ft beam) Bug Special Attack: 3/day 3d10, on hit if 18+ on Accuracy Check all targets are Confused), Swift (Ranged(20ft) Normal Special Attack: 3/day 3d8, can't miss targets with less than 15 Special Defense), Thunderbolt (Ranged(30ft) Electric Special Attack: 3/day 3d10, on hit if 18+ on Accuracy Check target is Paralyzed).",
+    "frequency": "1/day"
+  },
+  "Field Tutoring": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 7",
+    "effect": "Battle tactics are just as important as battle prowess and a good move tutor knows how to bring out the best of field advantages in Pokémon. Once per day, after spending six hours working with a Pokémon, you may teach one of the following moves to that Pokémon. Moves taught with the Field Tutoring feature must still fit the Pokémon's proficiencies. Move options (all 3/day): Electric Terrain (Electric Field Effect: 3/day, creates Electrified Terrain 60ft diameter — immune to Sleep, Electric attacks +8 damage, lasts 2 mins), Flower Shield (Fairy Field Effect: 3/day, creates Flowery Terrain 60ft diameter — Grass-types and Fairy-types get +1 Defense and +1 Special Defense, lasts 2 mins), Grassy Terrain (Grass Field Effect: 3/day, creates Grassy Terrain 60ft diameter — anyone acting recovers 1d12 HP after acting, Grass attacks +8 damage, lasts 2 mins), Gravity (Psychic Field Effect: 3/day, creates Gravity Terrain 60ft diameter — Pokémon may not leave the ground and airborne Pokémon are brought down, lasts 2 mins), Hail (Ice Field Effect: 3/day, creates Hailing Weather 60ft diameter — anyone acting takes 2d4 damage after acting unless Ice-type, lasts 2 mins), Haze (Ice Field Effect: 3/day, creates Hazy Weather 60ft diameter — all stat altering passives disabled and stats cannot be altered, lasts 2 mins), Ion Deluge (Electric Field Effect: 3/day, creates Ionic Terrain 60ft diameter — all Normal-type attacks become Electric-type, lasts 2 mins), Magic Room (Psychic Field Effect: 3/day, creates Magical Terrain 60ft diameter — Pokémon cannot use any held items, lasts 2 mins), Mist (Ice Field Effect: 3/day, creates Misty Weather 60ft diameter — stats cannot be lowered, lasts 2 mins), Misty Terrain (Fairy Field Effect: 3/day, creates Misty Terrain 60ft diameter — Dragon-type attacks resisted by non-Dragon-resistant targets and afflictions cannot be given, lasts 2 mins), Psychic Terrain (Psychic Field Effect: 3/day, creates Psychic Terrain 60ft diameter — immune to Reaction/Priority move damage, Psychic attacks +8 damage, lasts 2 mins), Rain Dance (Water Field Effect: 3/day, creates Raining Weather 60ft diameter — Water attacks +8 damage, Fire attacks -8 damage, lasts 2 mins), Sandstorm (Rock Field Effect: 3/day, creates Sandstorming Weather 60ft diameter — anyone acting takes 2d4 damage after acting unless Rock/Ground/Steel-type, lasts 2 mins), Snowscape (Ice Field Effect: 3/day, creates Snowing Weather 60ft diameter — Ice-types get +2 Defense and Hailing weather benefits apply, lasts 2 mins), Sunny Day (Fire Field Effect: 3/day, creates Sunny Weather 60ft diameter — Fire attacks +8 damage, Water attacks -8 damage, lasts 2 mins), Tidepools (Water Field Effect: 3/day, creates Tide Terrain 60ft diameter — Pokémon with Flopper or Beached ignore those skills within, does not replace other Terrains, lasts 5 mins), Trick Room (Psychic Field Effect: 3/day, creates Tricky Terrain 60ft diameter — turn orders are reversed each round, lasts 2 mins), Wonder Room (Psychic Field Effect: 3/day, creates Wonderful Terrain 60ft diameter — Attack Accuracy Checks made against Special Defense and Special Attack Accuracy Checks made against Defense, lasts 2 mins).",
+    "frequency": "1/day"
+  },
+  "Destructive Tutoring": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 8",
+    "effect": "Tweaking the main tricks of the trade let you teach Pokémon how to unleash grand displays of power. Once per day, after spending six hours working with a Pokémon, you may teach one of the following moves to that Pokémon. Moves taught with the Destructive Tutoring feature must still fit the Pokémon's type proficiencies. Move options (all 1/day): Blizzard (Ranged(20ft, 10ft wave) Ice Special Attack: 1/day 5d12, -2 on Accuracy Check unless Hailing; on hit if 18+ target is Frozen), Close Combat (Melee Fighting Attack: 1/day 5d12, on hit your Defense and Special Defense are -2 for 10 mins), Draco Meteor (Ranged(20ft, 10ft blast) Dragon Special Attack: 1/day 5d12, after use Special Attack is -4 for 10 mins), Earthquake (Ranged(30ft burst) Ground Attack: 1/day 3d12), Fire Blast (Ranged(40ft, 10ft blast) Fire Special Attack: 1/day 5d12, -2 on Accuracy Check unless Sunny; on hit if 18+ targets Burned), Giga Impact (Melee(10ft burst) Normal Attack: 1/day 5d20, has recharge turn and -2 on Accuracy Check), Gunk Shot (Ranged(20ft, 10ft blast) Poison Attack: 1/day 5d12, on hit if 14+ all targets Poisoned), Hurricane (Ranged(25ft, 10ft blast) Flying Special Attack: 1/day 5d12, -2 on Accuracy Check unless Raining; on hit if 14+ targets Confused), Hydro Pump (Ranged(30ft beam) Water Special Attack: 1/day 5d12, -2 on Accuracy Check unless Raining), Hyper Beam (Ranged(25ft beam) Normal Special Attack: 1/day 5d20, has recharge turn and -2 on Accuracy Check), Megahorn (Melee Bug Attack: 1/day 5d12), Meteor Rain (Ranged(20ft, 10ft blast) Steel Special Attack: 1/day 5d12, after use Special Attack is -4 for 10 mins), Moonwrecker (Ranged(20ft, 10ft blast) Fairy Special Attack: 1/day 5d12, after use Special Attack is -4 for 10 mins), Poltergeist (Ranged(20ft) Ghost Attack: 1/day 5d12, can only be used if target has a held item), Psionic Fury (Ranged(20ft) Psychic Special Attack: 1/day 5d12, on hit your Defense and Special Defense are -2 for 10 mins), Solar Beam (Ranged(30ft beam) Grass Special Attack: 1/day 5d12, two-turn move unless Sunny — on first turn do nothing, on second turn or if Sunny roll Accuracy Check and damage), Stone Edge (Ranged(25ft) Rock Attack: 1/day 5d12, -2 on Accuracy Check; on hit if 18+ it is a critical hit), Thunder (Ranged(30ft, 5ft blast) Electric Special Attack: 1/day 5d12, -2 on Accuracy Check unless Raining; on hit if 14+ targets Paralyzed), Void Fury (Melee Dark Attack: 1/day 5d12, on hit your Defense and Special Defense are -2 for 10 mins).",
+    "frequency": "1/day"
+  },
+  "Class Time": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 10",
+    "effect": "Putting in the time to tutor Pokémon can be consuming for them, but you can split your attention without problems. While tutoring Pokémon, you can work with two Pokémon at a time and tutor both of them while using different Move Tutor features, or teach the same thing to both Pokémon with the same Move Tutor feature."
+  },
+  "Photographic Tutoring": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 11",
+    "effect": "Memory serves well when training and mastering the ability to tutor moves, and you've developed a near perfect mind when viewing how Pokémon produce attacks. Once per day, after spending six hours with a Pokémon, you may teach the Pokémon any non-legendary move you've seen used before. Moves taught with the Photographic Tutoring feature must still fit the Pokémon's learnable moves description.",
+    "frequency": "1/day"
+  },
+  "Passive Mastery": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 12",
+    "effect": "By spending time with Pokémon you're able to bring out the best of their natural abilities that they have concealed within. Once per day, after spending six hours working with a Pokémon, you may teach the Pokémon any non-legendary, non-mega passive. You must use some reasoning here — for example if a Pokémon cannot produce water or ice, it cannot learn Refrigerate. You also cannot tutor unique passives; for example you can't give Wonder Guard to any Pokémon, as the passive explicitly mentions Shedinja in its effect description. You may not tutor the same Pokémon twice with Passive Mastery unless you're replacing a passive previously taught with the Passive Mastery feature or if the passive taught with the Passive Mastery feature has previously been removed from that Pokémon's passive list.",
+    "frequency": "1/day"
+  },
+  "Tutor Mastery": {
+    "category": "Move Tutor",
+    "prerequisites": "Level 13",
+    "effect": "You spent enough time practicing move theory. Now, you can apply it however you'd like. Once per day, after spending six hours working with one of your Pokémon, you may teach it any non-legendary move. You may tutor moves that do not fit your Pokémon's learnable moves description. You may not tutor the same Pokémon twice with Tutor Mastery unless you're replacing a move previously taught with the Tutor Mastery feature or if the move taught with the Tutor Mastery feature has previously been removed from that Pokémon's move list. Natural Tutoring does not enable you to reteach moves learned through Tutor Mastery.",
+    "frequency": "1/day"
+  }
+}

@@ -1,0 +1,398 @@
+{
+  "Field Commander": {
+    "category": "Researcher",
+    "prerequisites": "Level 1",
+    "effect": "Your expertise helps to see lines of strategy that might not necessarily need the help from one of your Pokémon in any given moment and by working with your allied trainers, you can help to turn tides and dominate the ever-flowing field of combat. You may issue commands to allied Pokémon who has not already acted during this round of combat. There must be understood consent from the Pokémon's trainer unless they are unconscious. Pokémon may still only act once per round of an encounter. You still may only issue one command per round."
+  },
+  "Walking Encyclopedia": {
+    "category": "Researcher",
+    "prerequisites": "Level 1",
+    "effect": "You've already memorized it all. Every aspect of the Pokédex is lodged away in your head. You may look through the Pokédex books as much as you'd like without having used a Pokédex on a Pokémon."
+  },
+  "Game Plan": {
+    "category": "Researcher",
+    "prerequisites": "Level 2",
+    "effect": "By sharing various plans with teammates to employ while researching in the field, you're ready to initiate strategies with various signals. 3/day as an action, move yourself, all allied trainers, and allied Pokémon within 30 ft of you, X multiplied by 5 ft, where X is your Special Attack or Special Defense modifier. There must be understood consent from any allied Pokémon's trainer unless they are unconscious. Unconscious or afflicted allied trainers and Pokémon cannot be moved by Game Plan.",
+    "frequency": "3/day"
+  },
+  "Repel Crafting": {
+    "category": "Researcher",
+    "prerequisites": "Level 4",
+    "effect": "Advanced study of chemistry and an expansive knowledge of Pokémon has enabled you to create concoctions repulsive to unfriendly Pokémon. After one hour of work, you can create a Repel. Name the concoction whatever you'd like out of whatever ingredients you'd like. The concoction loses its potency after 24 hours and becomes a useless solution of liquid. Home Made Repel: Wild Pokémon find the smell repulsive for 30 mins after applied, but may ignore it to protect something precious to them. The concoction loses its effects after 24 hours."
+  },
+  "Critical Advice": {
+    "category": "Researcher",
+    "prerequisites": "Level 5",
+    "effect": "By noticing and pointing out a weakness in a foe's defenses, you help to refocus your group's efforts to take down a threat. 3/day, once per turn as a free action, choose any target. Whenever you, an allied Trainer, or an allied Pokémon attacks a target you chose with the Critical Advice feature, their attacks are critical hits on naturally rolled 18-20 during accuracy check for the remainder of combat.",
+    "frequency": "3/day"
+  },
+  "Demoralize": {
+    "category": "Researcher",
+    "prerequisites": "Level 6",
+    "effect": "Your highbrow banter is particularly harsh and can really ruin your foe's concentration. 3/day as an action you can use Demoralize. Until your next turn, any attacks made against yourself, allied trainers, or allied Pokémon have -2 during accuracy check.",
+    "frequency": "3/day"
+  },
+  "Fighting Read": {
+    "category": "Researcher",
+    "prerequisites": "Level 8",
+    "effect": "A quick study of a Pokémon's behaviors can give away much more about itself than their trainer may want it to. 3/day, as an action, the Pokémon you target with your Fighting Read feature within 25ft has any secrets revealed. You learn the target's exact move list, current HP, held items, and any unusual things about its typing, or stats.",
+    "frequency": "3/day"
+  },
+  "Investigative Ingenuity": {
+    "category": "Researcher",
+    "prerequisites": "Level 9",
+    "effect": "Intuitive observation skills have served well in combat, but with little focus, you've applied your abilities to all occasions. While using your Investigate or Perception skills, you roll twice and use the better result."
+  },
+  "Tactical Strike": {
+    "category": "Researcher",
+    "prerequisites": "Level 10",
+    "effect": "Careful timing during the rhythm of battle can save others and turn the tide of battle in your favor. By practicing more signals, your friends can work with you to win in more situations. 3/day, as an action, you may issue a command to an allied Pokémon who has acted during this round of combat. The command you issue must be to use an At-Will frequency move they know. The Pokémon may not use that At-Will move during their next turn. There must be understood consent from the Pokémon's trainer unless they are unconscious.",
+    "frequency": "3/day"
+  },
+  "Walking Doctorate": {
+    "category": "Researcher",
+    "prerequisites": "Level 12",
+    "effect": "Knowledge of the world comes easy and nothing stops your constant intellectual growth. By looking at a Pokémon, you can tell if it has any unusual characteristics that would not be found in a Pokédex book (such as different typing, significantly altered stats, etc.). You also can instantly identify any item, regardless of origin, and know its intended use though you might not be able to efficiently use it as intended. You can also identify any special talents of a trainer just by looking at them (what advanced classes they might have)."
+  },
+  "Poké Linguist": {
+    "category": "Researcher",
+    "prerequisites": "Level 13",
+    "effect": "It doesn't come easy, but with careful study and practice you learn to mimic and vocalize various Pokémon languages. By spending a total of thirty hours studying any species of Pokémon, you can speak to and understand that species of Pokémon in its tongue and all with all of its evolutions or pre-evolutions related to that Pokémon. You can only study one Pokémon language at a time."
+  },
+  "Strategic Sabotage": {
+    "category": "Researcher",
+    "prerequisites": "Level 14",
+    "effect": "Your careful placement and deliberate means of intimidation can set up perfect moments for your entire party. Once per day, as an action, move yourself, all trainers, and Pokémon within 45 ft of you, X multiplied by 5 ft, where X is your Special Attack or Special Defense modifier. Unconscious or afflicted allied trainers and Pokémon cannot be moved by Strategic Sabotage. Strategic Sabotage may be used as the first action of a round of combat regardless of your Speed.",
+    "frequency": "1/day"
+  },
+  "Grand Strategist": {
+    "category": "Researcher",
+    "prerequisites": "Level 15",
+    "effect": "Obsessive studying and long nights figuring out the optimal means of tactical deployment has molded you into a master strategist. Whenever yourself, an allied trainer, or allied Pokémon within 30ft of you uses an action or attacks, they may move 10ft afterwards. Whenever you issue a command to a Pokémon, the Pokémon gets +2 during its accuracy check. Whenever you use an item on an adjacent ally, using the item is a free action once per turn. Finally, whenever you return a Pokémon to its Poké Ball and send out another Pokémon, it may act last during that round of combat instead of waiting for the next round of combat if you haven't issued a command yet during that round of combat."
+  },
+  "Adventuring Historian": {
+    "category": "Archeologist",
+    "prerequisites": "Level 1",
+    "effect": "You've studied geological history obsessively and know everything there is to know about ancient history and exploring underground. Whenever making a History skill check or any skill check related to digging downwards, exploring underground, or exploring ruins, roll twice and use the better result."
+  },
+  "Quick Dig": {
+    "category": "Archeologist",
+    "prerequisites": "Level 1",
+    "effect": "Digging and investigating downwards is the best way to find out more about the world's past and you're a master excavator. Using any shovel, over the course of ten minutes, you dig a 5ft cubed hole in the ground. If anything is revealed in the space you dig up, you uncover it without damaging it. You need breaks to excavate this quickly and without damaging potential specimens. You can spend 3 mins concealing any dug holes so it looks like regular ground unless spotted with the Investigate or Perception skills. You can't use Quick Dig for more than twenty minutes at a time without a 10 min break and can't use Quick Dig for more than 3 hours per day."
+  },
+  "Stone Finder": {
+    "category": "Archeologist",
+    "prerequisites": "Level 2",
+    "effect": "Subterranean rock patterns are obvious to you, a studied geologist. Using your genius, you know where to find evolutionary stones or various other treasures! After spending at most one hour using Quick Dig per day, you find an evolutionary stone, weather rock, elemental plate, valuable stone, or on very rare occasions, mega stone or z-crystal. Roll 1d100, subtracting your Special Attack or Special Defense modifier from the result and your GM will reveal what you've found."
+  },
+  "Superb Spelunker": {
+    "category": "Archeologist",
+    "prerequisites": "Level 3",
+    "effect": "You have an intuitive and almost magical sense of direction underground. You cannot get lost underground or in any ruins. When discerning direction of where you'd like to go within an unexplored area, you know what direction to go if you know what specific rooms or items you're looking for. You also will always find any traps, natural or otherwise, while exploring underground or ruins."
+  },
+  "Fossil Finder": {
+    "category": "Archeologist",
+    "prerequisites": "Level 4",
+    "effect": "Finding subterranean tells of preserved specimens below ground has become natural to you, a studied geologist. Using your ingenuity, you know where to find fossils! After spending at most one hour using Quick Dig per day, you find a piece of a preserved Pokémon fossil which you can immediately identify. Roll 1d100, subtracting your Special Attack or Special Defense modifier from the result and your GM will reveal the species of the fossil you've found. The fossil will likely reflect the space you've excavated in; a water Pokémon near the ocean, a grass Pokémon in a forest, a rock or fire type near a volcano. If you're lucky you'll find an ancient fossil or fossils that might not reflect the Pokémon found locally in modern times."
+  },
+  "Fossil Resurrection": {
+    "category": "Archeologist",
+    "prerequisites": "Level 6",
+    "effect": "You've studied for a long time and finally constructed your very own portable fossil reanimator. Once per day you may use your fossil reanimator for three hours to create an egg from any fossil that will hatch a Pokémon of the matching species. Your reanimator machine needs weekly maintenance and will break into disrepair without you. If you lose or break your reanimator, it takes four hours for you to repair it. You may not use the same fossil sample more than once to create an egg. You may only use your portable fossil reanimator once per day, regardless of the feature you are using.",
+    "frequency": "1/day"
+  },
+  "Sand Trap": {
+    "category": "Archeologist",
+    "prerequisites": "Level 7",
+    "effect": "You're able to rig your excavated holes with a simple trap that could potentially protect you from threats. 3/day, after spending 3 mins near one of your holes you've made with Quick Dig, you rig it to use the move Sand Tomb on anything that steps over the hole. Use your Special Attack or Special Defense modifier while rolling Sand Tomb's accuracy check. The hole is concealed and looks like regular ground unless spotted with the Investigate or Perception skills. Sand Tomb — Pit Fall Ground Attack: 3/day 1d4. On hit, the target is bound in place for 1d4 rounds. For each round the target is bound, it takes 1d4 damage on its turns.",
+    "frequency": "3/day"
+  },
+  "Stone Energizer": {
+    "category": "Archeologist",
+    "prerequisites": "Level 8",
+    "effect": "Using your reanimator to infuse its energies into stones yields fascinating results. Once per day, you may use your fossil reanimator for one hour to give an expended evolutionary stone back its ability to evolve a Pokémon. You may even change it into any other evolutionary stone (Dawn Stone, Dusk Stone, Fire Stone, Ice Stone, Leaf Stone, Moon Stone, Shiny Stone, Sun Stone, Thunder Stone, or Water Stone). You may only use your portable fossil reanimator once per day, regardless of the feature you are using.",
+    "frequency": "1/day"
+  },
+  "Cave In": {
+    "category": "Archeologist",
+    "prerequisites": "Level 10",
+    "effect": "You've set your excavated holes with a dangerous trap that is clearly meant to cause harm. Once per day, after spending 5 mins near one of your holes you've made with Quick Dig, you rig it to use the move Rock Slide on anything that steps over the hole. Use your Special Attack or Special Defense modifier while rolling Rock Slide's accuracy check. The hole is concealed and looks like regular ground unless spotted with the Investigate or Perception skills. Rock Slide — Pit Fall Rock Attack: 1/day 5d12. Rock Slide has -2 during Accuracy Check. On hit, if you got 14 or higher on Accuracy Check, the target is Stunned.",
+    "frequency": "1/day"
+  },
+  "Stone Master": {
+    "category": "Archeologist",
+    "prerequisites": "Level 11",
+    "effect": "Using your intuition and by simply feeling the earth, you know where to find rare, lost, treasures. After spending at most one hour using Quick Dig per day, you locate a valuable stone, a mega stone, or z-crystal. Roll 1d100, subtracting your Special Attack or Special Defense modifier from the result and your GM will reveal what you've found."
+  },
+  "Stone Polishing": {
+    "category": "Archeologist",
+    "prerequisites": "Level 12",
+    "effect": "Now, you're able to create radioactive evolution stones that spontaneously evolve any Pokémon. Once per day, you may use your fossil reanimator for six hours to turn an ordinary stone into a Radioactive Evolutionary Stone. Radioactive Evolutionary Stones can be used to evolve any Pokémon instantly, but only maintain their ability for 1 hour. You may only use your portable fossil reanimator once per day, regardless of the feature you are using.",
+    "frequency": "1/day"
+  },
+  "Lovable Atrocities": {
+    "category": "Archeologist",
+    "prerequisites": "Level 13",
+    "effect": "Others may call you insane, but you hold the power of history in your hands! Once per week, you can use any two fossils simultaneously with your portable fossil reanimator. The resulting Pokémon egg will hatch a Pokémon that will not be able to evolve but will have aspects of both fossil's Pokémon combined (the Pokémon who hatches can be based on any stage in the evolutionary families of each combined fossil, not just the base form — for example Machoke and Alakazam). Its types will be one type from each of the fossil's species. Each of its stats should be an average of the two fossil's species stats. Its passives and moves should be a combination of the basic available passives and moves from each fossil's species. All other information about the Pokémon and its appearance is up to you. You may only use your portable fossil reanimator once per day, regardless of the feature you are using."
+  },
+  "Capture Point": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 1",
+    "effect": "Your specialized knowledge of how to use Poké Balls gives you an edge while tossing one at wild Pokémon. Whenever you throw a Poké Ball, subtract your Special Attack or Special Defense modifier from the capture roll."
+  },
+  "Apricorn Ball": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 1",
+    "effect": "Basic smithing knowledge and practice has yielded excellent results — hand made Poké Balls made by you. After 30 mins of work with your Poké Ball smith kit, change any apricorn into a Basic Ball. Basic Ball: Add 5 to your capture roll."
+  },
+  "Poké Ball Repair": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 2",
+    "effect": "Using spare parts from multiple broken Poké Balls means you can recycle Poké Balls for more uses! After 30 mins of work with your Poké Ball smith kit, you can turn two broken Poké Balls into a Basic Ball, or if the broken Poké Balls are the same type of ball, you turn them into one undamaged version of the same Poké Ball."
+  },
+  "Poké Ball Improvements": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 3",
+    "effect": "Continued work yields better results and your spare time quickly improves every Poké Ball you have laying around. After 1 hour of work with your Poké Ball smith kit, change any Basic Ball into a Great Ball, or a Great Ball into an Ultra Ball. Great Ball: This Poké Ball does not modify your capture roll. Ultra Ball: Subtract 5 from your capture roll."
+  },
+  "Type Mod": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 4",
+    "effect": "Study, focus, and some great ideas has helped you to invent new ways to capture Pokémon with your home crafted Poké Balls. After 1 hour of work with your Poké Ball smith kit, change any Great Ball or Ultra Ball into a Net Ball, Earth Ball, Haunt Ball, Solid Ball, Heat Ball, Mystic Ball, Air Ball, Mold Ball, or Fine Ball. The properties of these unique balls are identical to the Net Ball, but instead of affecting Bug and Water types like the Net Ball, these Balls correspond to the following types: Earth Ball, Grass and Ground; Haunt Ball, Dark and Ghost; Solid Ball, Rock and Steel; Heat Ball, Electric and Fire; Mystic Ball, Dragon and Psychic; Air Ball, Flying and Ice; Mold Ball, Poison and Fighting; Fine Ball, Normal and Fairy. Net Ball: Subtract 15 from your capture roll when used against a Bug or Water type Pokémon."
+  },
+  "Time Mod": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 6",
+    "effect": "Some tweaking on your Poké Ball's rumble motors have enabled you to create some more advanced Poké Balls. After 1 hour of work with your Poké Ball smith kit, change any Great Ball or Ultra Ball into a Day Ball, Dusk Ball, Quick Ball, Repeat Ball or Timer Ball. Day Ball: Subtract 7 from your capture roll if it's day time (sunlight). Dusk Ball: Subtract 7 from your capture roll if it's night time (no sunlight). Quick Ball: Subtract 20 from your capture roll if thrown during your first action during combat. Repeat Ball: Subtract 10 from your capture roll if you've already thrown a Poké Ball at the target this encounter. Timer Ball: Subtract 10 from your capture roll if the encounter has lasted at least one minute; subtract 25 from your capture roll if the encounter has lasted at least two minutes instead."
+  },
+  "Multiball": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 7",
+    "effect": "Quick moves and a furious need for capture splits your focus in two ways. 3/day, as an action, you may throw two Poké Balls at two different targets.",
+    "frequency": "3/day"
+  },
+  "Environment Mod": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 8",
+    "effect": "The study of the earth's climates and landscapes have led you to invent more new ways to capture Pokémon with your home crafted Poké Balls. After 1 hour of work with your Poké Ball smith kit, change any Great Ball or Ultra Ball into an Arctic Ball, Mountain Ball, Desert Ball, Grassland Ball, Rainforest Ball, Forest Ball, Tundra Ball, Taiga Ball, Marsh Ball, Beach Ball, Freshwater Ball, Urban Ball or Cave Ball. Environment Ball (Name varies): Subtract 12 from your capture roll if within a matching environment."
+  },
+  "False Swipe": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 10",
+    "effect": "By training your Pokémon carefully, they have become much better at readying Pokémon for your capture. 1/day when issuing a command to one of your Pokémon who you've owned for at least a week, you may add this effect to a move they are using: 'This attack cannot be used to knock out a target. Instead, the target will still have 1 HP no matter how much damage it would have dealt.'",
+    "frequency": "1/day"
+  },
+  "Advanced Design": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 11",
+    "effect": "You've invented, created, and designed many Poké Balls so naturally any store-bought balls are easy to replicate. After 1 hour of work with your Poké Ball smith kit, change any Poké Ball into any of your Type Mod balls, Time Mod balls, Environment Mod balls, or a Premier Ball, Fast Ball, Friend Ball, Heal Ball, Heavy Ball, Level Ball, Love Ball, Luxury Ball, Moon Ball, Nest Ball, Cherish Ball, Dream Ball, Park Ball, Safari Ball, or Sport Ball. Cherish Ball, Friend Ball, Luxury Ball, Premier Ball: Subtract 5 from your capture roll; captured Pokémon are more easily befriended. Fast Ball: Subtracts 8 from your capture roll on a Pokémon that acts before you during each round. Heal Ball: This Poké Ball does not modify your capture roll; captured Pokémon are healed 20 hit points. Heavy Ball: Subtract 15 from your capture roll if the Pokémon is Heavy or Superweight. Level Ball, Nest Ball: Subtract 10 from your capture roll if the Pokémon can evolve, but is not evolved. Love Ball: Subtract 10 from your capture roll if the target is the opposite sex of your only active Pokémon. Moon Ball: Subtract 10 from your capture roll if the Pokémon can evolve with an evolution stone. Dream Ball: Subtract 10 from your capture roll if the target is afflicted. Park Ball, Safari Ball, Sport Ball: Subtract 20 from your capture roll against domesticated wild Pokémon."
+  },
+  "Save Ball": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 12",
+    "effect": "With gentle modification and substantial care put into this special modification, you've created a Poké Ball that can capture an unconscious wild Pokémon without harming its psyche. Once per week, after 10 hours of work with your Poké Ball smith kit, combine a total of 5 of your crafted Great Balls or modified Poké Balls into one Save Ball. Save Ball: Subtract 10 from your capture roll against an unconscious Pokémon. The Save Ball will not negatively affect the captured Pokémon's loyalty."
+  },
+  "Master Mod": {
+    "category": "Ball Smith",
+    "prerequisites": "Level 13",
+    "effect": "All of your work has led to this design, the absolute strongest Poké Ball that you can make. Once per week, after 10 hours of work with your Poké Ball smith kit, combine a total of 10 of your crafted Great Balls or modified Poké Balls into one Master Ball. Master Ball: Subtract 100 from your capture roll. The Master Ball can and will often fail when used against legendary or mythical Pokémon."
+  },
+  "Camera Flash": {
+    "category": "Photographer",
+    "prerequisites": "Level 1",
+    "effect": "At the right angle, your camera can be used for more than pictures. Once per turn, whenever you use your action to take a picture with your camera, you may also use the move Flash. Flash — Ranged(10ft) Normal Effect: At-Will. On hit, the target's Accuracy Checks are -1 during their next turn.",
+    "frequency": "At-Will"
+  },
+  "Pester Ball A": {
+    "category": "Photographer",
+    "prerequisites": "Level 1",
+    "effect": "In learning about Poké photography, you studied the mechanics of the pester balls that were used for setting up the perfect pictures. You can make the simplest ones. 3/day, you can spend 30 mins to build a Pester Ball A. If thrown, use the move Supersonic. Your pester balls lose their charges and need to be rebuilt if they are not used within 72 hours. Supersonic — Ranged(10ft) Normal Effect: At-Will. Supersonic has -8 during Accuracy Check. On hit, the target is Confused.",
+    "frequency": "3/day"
+  },
+  "Rapid Shot": {
+    "category": "Photographer",
+    "prerequisites": "Level 2",
+    "effect": "With a steady, but nimble, shutter finger you can quickly take a masterful shot in stressful situations. When you take a picture as an action with your camera, you can take three pictures of different targets during your turn. Also, you may take a picture of anything during another trainer's action or a Pokémon's action as a free action if you have taken less than 3 pictures so far that round. You may combine any other Photographer features with this action if those actions require taking a picture."
+  },
+  "Pester Ball B": {
+    "category": "Photographer",
+    "prerequisites": "Level 3",
+    "effect": "The next pester ball you learned to recreate is a bit more dangerous, but could be useful in a pinch. 3/day, you can spend 30 mins to build a Pester Ball B. If thrown, use the move Taunt. Your pester balls lose their charges and need to be rebuilt if they are not used within 72 hours. Taunt — Ranged(20ft) Dark Effect: 3/day. On hit, the target may only use attacks that target you or your allies for 1 min.",
+    "frequency": "3/day"
+  },
+  "Quick Study": {
+    "category": "Photographer",
+    "prerequisites": "Level 4",
+    "effect": "After shooting an attack on your camera, you quickly supply your Pokémon with ready advice against a repeat attack. Whenever you take a picture of a foe's attack during combat, for the remainder of combat your foes have -1 during accuracy check when using the same attack against you or any allies within 30ft of you."
+  },
+  "Close Examination": {
+    "category": "Photographer",
+    "prerequisites": "Level 6",
+    "effect": "Your quick study gives away more than a foe's strength, it exposes their weaknesses. Whenever you take a picture of a foe during combat, for the remainder of combat treat that foe as if it has been exposed by the moves Foresight and Miracle Eye. In addition, once per combat, you may treat a photographed foe as if your Pokémon has used Laser Focus against the photographed foe. Foresight — Self Normal Effect: At-Will. You can hit Ghost-types with Normal and Fighting type moves as if they are not immune to those types of attacks for two mins. Laser Focus — Ranged(30ft) Normal Effect: 3/day. On hit, your next attack against the same target will be a Critical Hit. You still need to make an Accuracy Check. Miracle Eye — Self Psychic Effect: 3/day. You can hit Dark-types with Psychic type moves as if they are not immune to that type of attacks for two mins."
+  },
+  "Pester Ball C": {
+    "category": "Photographer",
+    "prerequisites": "Level 7",
+    "effect": "The next pester ball you throw provides cover as you maneuver the field of combat. 3/day, you can spend 30 mins to build a Pester Ball C. If thrown, use the move Smoke Screen. Your pester balls lose their charges and need to be rebuilt if they are not used within 72 hours. Smoke Screen — Ranged(10ft) Normal Effect: 3/day. Place up to 25 contiguous ft of Smoke Screen Wall. Smoke Screen Wall has no thickness, is 12 ft tall and has the following ability: Attacks that target through or within the wall have -2 during Accuracy Check. This Wall disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Capture Shot": {
+    "category": "Photographer",
+    "prerequisites": "Level 8",
+    "effect": "Your subjects are more easily captured after a couple of quick shots and some quick studying on the best way to approach and capture a Pokémon. Whenever you throw a Poké Ball at a Pokémon that you've taken at least 5 pictures of, subtract both your Special Attack and Special Defense from your capture rolls against that Pokémon."
+  },
+  "Photo Tutor": {
+    "category": "Photographer",
+    "prerequisites": "Level 10",
+    "effect": "After spending enough time studying your photography and how different Pokémon work, you practice teaching your Pokémon. Once per day, after spending six hours working with one of your loyal Pokémon, you may teach that Pokémon a move you've captured on camera. Moves taught with the Photo Tutor feature must still fit the Pokémon's learnable moves description.",
+    "frequency": "1/day"
+  },
+  "Pester Ball D": {
+    "category": "Photographer",
+    "prerequisites": "Level 11",
+    "effect": "Building pester balls for special effects during photography has led you to create your very own offensive pester balls. 3/day, you can spend 30 mins to build a Pester Ball D. If thrown, use the move Ember, Powder Snow, or Thunder Shock. Your pester balls lose their charges and need to be rebuilt if they are not used within 72 hours. Ember — Ranged(10ft) Fire Special Attack: At-Will 1d12. On hit, if you got 18 or higher on Accuracy Check, the target is Burned. Powder Snow — Ranged(5ft burst) Ice Special Attack: At-Will 1d12. On hit, if you got 19 or higher on Accuracy Check, the target is Frozen. Thunder Shock — Ranged(20ft) Electric Special Attack: At-Will 1d12. On hit, if you got 18 or higher on Accuracy Check, the target is Paralyzed.",
+    "frequency": "3/day"
+  },
+  "Photographic Analysis": {
+    "category": "Photographer",
+    "prerequisites": "Level 12",
+    "effect": "A careful study of a photographed foe gives your Pokémon expert advice to completely destroy your enemies. 3/day, when you take a picture of a foe during combat, the next attack one of your Pokémon makes against any photographed foe automatically hits, and deals +1d20 damage if it is a damaging move.",
+    "frequency": "3/day"
+  },
+  "Pester Master Ball": {
+    "category": "Photographer",
+    "prerequisites": "Level 13",
+    "effect": "You are a mechanical wizard and you've mastered all sorts of technical tricks to make your pester balls work in harmony with your photography while also working over time in battle. It only takes you ten minutes to make pester balls with your Photographer features and may make them as many times as you'd like per day. You may throw one pester ball per turn as a free action. Your pester balls last for 144 hours, then lose their charges. When making your pester balls, you may combine the effects of two of Pester Balls A, B, C, or D."
+  },
+  "Potion Maker": {
+    "category": "Scientist",
+    "prerequisites": "Level 1",
+    "effect": "Potions aren't intuitive, but study and practice has led you to be able to brew your own potions. 3/day, after spending 30 mins with your portable chem set, you brew a Potion. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Potion: Heals a Pokémon 10 hit points.",
+    "frequency": "3/day"
+  },
+  "Repel Master": {
+    "category": "Scientist",
+    "prerequisites": "Level 1",
+    "effect": "Through trial and error, you've developed your own spray repulsive to wild Pokémon. 3/day, after spending 30 mins with your portable chem set, you brew a Super Repel. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Super Repel: Wild Pokémon find the smell repulsive for three hours after applied, but may ignore it to protect something precious to them. The concoction loses its effects after 48 hours.",
+    "frequency": "3/day"
+  },
+  "Remedy Brewing": {
+    "category": "Scientist",
+    "prerequisites": "Level 2",
+    "effect": "Antidotes and relaxants among others are basic brews for a chemist, but require your practice and time. 3/day, after spending 30 mins with your portable chem set, roll 1d6. On a result of 1, reroll; on a result of 2, you brew an Antidote; on a result of 3, you brew a Paralyze Heal; on a result of 4, you brew an Awakening; on a result of 5, you brew a Burn Heal; on a result of 6, you brew an Ice Heal. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Antidote: Cures a Pokémon or human of Poisoning or Toxification. Paralyze Heal: Cures a Pokémon or human of Paralysis. Awakening: Cures a Pokémon or human of being unnaturally Asleep. Burn Heal: Cures a Pokémon or human of Burns. Ice Heal: Cures a Pokémon or human of Freezing.",
+    "frequency": "3/day"
+  },
+  "Ether Maker": {
+    "category": "Scientist",
+    "prerequisites": "Level 3",
+    "effect": "While experimenting with your chemist's set, you've created an energy spray that reinvigorates your Pokémon. 3/day, after spending 1 hour with your portable chem set, you create an Ether. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Ether: A Pokémon's strength is partially restored and can again use one of its 1/day or 3/day frequency moves as if it has taken an extended rest.",
+    "frequency": "3/day"
+  },
+  "Performance Enhancers": {
+    "category": "Scientist",
+    "prerequisites": "Level 4",
+    "effect": "Your experiments with different solutions have led you to inventing potions that work much like those sold in Poké Marts. 3/day, after spending 30 mins of work with your portable chem set, roll 1d6. On a result of 1, you brew an X Attack; on a result of 2, you brew an X Defend; on a result of 3, you brew an X Special; on a result of 4, you brew an X Sp. Def; on a result of 5, you brew an X Speed; on a result of 6, you brew an X Accuracy. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. X Attack: Increases a Pokémon's Attack by 1 for 2 mins; this effect can stack up to three times. X Defend: Increases a Pokémon's Defense by 1 for 2 mins. X Special: Increases a Pokémon's Special Attack by 1 for 2 mins; this effect can stack up to three times. X Sp. Def: Increases a Pokémon's Special Defense by 1 for 2 mins. X Speed: Increases a Pokémon's Speed by 1 for 2 mins; this effect can stack up to three times. X Accuracy: Increases a Pokémon's accuracy check by 1 for 1 min; this effect can stack up to three times.",
+    "frequency": "3/day"
+  },
+  "Remedy Solver": {
+    "category": "Scientist",
+    "prerequisites": "Level 6",
+    "effect": "No ailment is able to resist your intellect, your solution fixes anything. Once per day, after spending 1 hour with your portable chem set, you create a Full Heal. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Full Heal: Cures a Pokémon or human of all afflictions.",
+    "frequency": "1/day"
+  },
+  "Elixir Mixer": {
+    "category": "Scientist",
+    "prerequisites": "Level 7",
+    "effect": "Powerful energy drinks filled with various spirits and vitamins empower your Pokémon to release their inner strength time and time again. Once per day, after spending 1 hour with your portable chem set, you create an Elixir. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Elixir: A Pokémon's strength is restored and can again use 1/day and 3/day frequency moves as if it has taken an extended rest.",
+    "frequency": "1/day"
+  },
+  "Revival Mixer": {
+    "category": "Scientist",
+    "prerequisites": "Level 8",
+    "effect": "Not the easiest to make, but a required mix to have in a chemist's mind. Through trial and error, you've developed a revival pill to rival those in stores. Once per day, after spending 1 hour with your portable chem set, you create a Revive. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Revive: Restore an unconscious Pokémon to half of its max HP.",
+    "frequency": "1/day"
+  },
+  "Mint Maker": {
+    "category": "Scientist",
+    "prerequisites": "Level 10",
+    "effect": "Behavior altering medicines are rare and it's difficult to manipulate their specific effects, but you make them anyway. Once per week, after spending 4 hours with your portable chem set, choose if your mint will change a nature positively or negatively then roll 1d6. On a result of 1, reroll; on a result of 2, the mint will affect Attack; on a result of 3, the mint will affect Defense; on a result of 4, the mint will affect Special Attack; on a result of 5, the mint will affect Special Defense; on a result of 6, the mint will affect Speed. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects after 48 hours. Made Mint: When consumed by a Pokémon, this mint will change a stat to be positively or negatively affected for the Pokémon. Change the Pokémon's nature to match the new positive or negatively affected stat, adjusting the other stat that is no longer tied to nature. You cannot neutralize a nature with Made Mint, instead they must always affect different stats."
+  },
+  "Vitamin Maker": {
+    "category": "Scientist",
+    "prerequisites": "Level 11",
+    "effect": "The ultimate work of a chemist, the permanently-empowering vitamin, is a secret kept with every scientist who develops their own formula. Once per day, after spending 4 hours with your portable chem set, roll 1d6. On a result of 1, you brew an HP Up; on a result of 2, you brew a Protein; on a result of 3, you brew an Iron; on a result of 4, you brew a Calcium; on a result of 5, you brew a Zinc; on a result of 6, you brew a Carbos. Call the concoction whatever you'd like, made out of whatever ingredients you'd like. The concoction loses its effects if it is not used within 48 hours (once used it is permanent). HP Up: When used on a Pokémon, its Hit Points are permanently increased by 4; any vitamins used on a Pokémon after the second have no effect. Protein: When used on a Pokémon, its Attack is permanently increased by 1; any vitamins used on a Pokémon after the second have no effect. Iron: When used on a Pokémon, its Defense is permanently increased by 1; any vitamins used on a Pokémon after the second have no effect. Calcium: When used on a Pokémon, its Special Attack is permanently increased by 1; any vitamins used on a Pokémon after the second have no effect. Zinc: When used on a Pokémon, its Special Defense is permanently increased by 1; any vitamins used on a Pokémon after the second have no effect. Carbos: When used on a Pokémon, its Speed is permanently increased by 1; any vitamins used on a Pokémon after the second have no effect.",
+    "frequency": "1/day"
+  },
+  "No Expiration Date": {
+    "category": "Scientist",
+    "prerequisites": "Level 12",
+    "effect": "Refining your efforts and minimizing waste you've maximized the preservatives in your concoctions. Your concoctions made with Scientist features last for X years, where X is your Special Attack or Special Defense modifier."
+  },
+  "Master Chemist": {
+    "category": "Scientist",
+    "prerequisites": "Level 13",
+    "effect": "You've solved every solution and brewed every beverage and as long as you've got the time, you'll never stop working on your medicines. Your Scientist features can be used as often as you'd like, ignoring any daily frequency limitations. You may brew two identical things at a time with Scientist features. All brews take half the time to produce with Scientist features. Anytime you'd produce something with a Scientist feature at random, instead choose what you produce."
+  },
+  "Close Watch": {
+    "category": "Watcher",
+    "prerequisites": "Level 1",
+    "effect": "Your careful curiosity and love of watching Pokémon has given you the ability to wander through wild Pokémon without disturbing them. You may approach and pass by wild Pokémon without alerting them to your presence as long as you stay 30 feet away from the wild. If you announce your presence, the Pokémon you approach is not instantly provoked but may be startled. You may attempt to befriend the wild if you don't provoke it."
+  },
+  "Quick Draw": {
+    "category": "Watcher",
+    "prerequisites": "Level 1",
+    "effect": "You've practiced drawing for years and years, but after mastering your ability to draw quickly and accurately, you're officially a Watcher. You are a master sketch artist. It takes you less than a minute to sketch anything you see. You can flesh out a sketch over thirty minutes to add more detail. After an hour of work, you can draw anything you've seen in the last 24 hours with amazing detail."
+  },
+  "Discriminating Gaze": {
+    "category": "Watcher",
+    "prerequisites": "Level 2",
+    "effect": "While it may be obvious to some that a Pokémon is unlike others in its species, you have a knack for knowing what it is that sets it apart. 3/day, as an action target a Pokémon within 25ft. You learn anything unusual about its typing, stats, or known moves.",
+    "frequency": "3/day"
+  },
+  "Silent Study": {
+    "category": "Watcher",
+    "prerequisites": "Level 3",
+    "effect": "While approaching wilds, you've gotten good at moving around and through spaces without attracting much attention. When making Stealth skill checks, roll twice and use the better result. In addition, you may use your Close Watch feature to approach wilds without alerting them while getting as close as 10 feet from the wilds."
+  },
+  "Calming Vibe": {
+    "category": "Watcher",
+    "prerequisites": "Level 4",
+    "effect": "The watcher carries an aura about them that lets Pokémon know that they have no ill intent, and it helps quell any tense situation. When making Pokémon Handling skill checks, roll three times and use the best result."
+  },
+  "Species Spotter": {
+    "category": "Watcher",
+    "prerequisites": "Level 6",
+    "effect": "Amazing effort and research about a specific Pokémon species has led you to become an expert when it comes to finding that species in the wild. By spending a total of thirty hours studying any species of Pokémon, you're able to find it in any environment that actually contains that species of Pokémon or any family members of that species within half an hour of looking. You would immediately know whether or not that species or any of its family members are in any wild area you are exploring and where the nearest location that would have them in relation to wherever you currently are. You can only study one Pokémon species this way at a time."
+  },
+  "Applied Psychology": {
+    "category": "Watcher",
+    "prerequisites": "Level 7",
+    "effect": "Watching Pokémon and studying behaviors have led you to understand humans as well. When making Insight skill checks, roll twice and use the better result. In addition, if you've talked to anyone for more than two minutes, you can tell if they are lying to you."
+  },
+  "Watchful Tactician": {
+    "category": "Watcher",
+    "prerequisites": "Level 8",
+    "effect": "Careful study is usual for a researcher, but watchers take careful planning and tactical execution to a whole new level. Whenever you use the Demoralize, Fighting Read, or Game Plan Researcher features, you may use them as a free action once per turn."
+  },
+  "Micro Expressionist": {
+    "category": "Watcher",
+    "prerequisites": "Level 10",
+    "effect": "Communication with others seems so natural after studying many of your friends and Pokémon. You may nonverbally communicate complete sentences with allied trainers, who you've traveled with for at least a week, and they will understand you and you will understand them. You also can understand any needs or messages your Pokémon may be trying to communicate to you."
+  },
+  "Soothing Schemer": {
+    "category": "Watcher",
+    "prerequisites": "Level 11",
+    "effect": "You have a magical way with others and have an aura about you that constantly influences others to your side. When making Bluff, Diplomacy, or Insight skill checks, roll three times and use the best result."
+  },
+  "Sketch Tutoring": {
+    "category": "Watcher",
+    "prerequisites": "Level 12",
+    "effect": "It's not intuitive, but your studying has paid off to observe different things about what make Pokémon able to do what they do. Once per day, after spending six hours working with one of your loyal Pokémon, you may teach that Pokémon a move that a Pokémon you've thoroughly sketched (1 hour) knew. Moves taught with the Sketch Tutoring feature must still fit the Pokémon's learnable moves description.",
+    "frequency": "1/day"
+  },
+  "Shiny Finder": {
+    "category": "Watcher",
+    "prerequisites": "Level 13",
+    "effect": "While observing wilds you've learned how to track down the rarest wilds out there — shiny Pokémon. Once per week, after spending six hours studying in the wilds, you locate a shiny wild Pokémon. If you announce your presence, the Pokémon you approach is not instantly provoked but may be startled. You may attempt to befriend the wild if you don't provoke it."
+  }
+}

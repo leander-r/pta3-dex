@@ -1,0 +1,409 @@
+{
+  "Martial Form": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 1",
+    "effect": "You have trained and perfected a martial art, ready to take on the wild world of Pokémon with your bare hands. You may choose two of the following attacks and use them: Arm Thrust, Karate Chop, Power-Up Punch, and Rapid Spin. At level 5, you may choose another attack to have access to. At level 10, you have access to all four of these moves. You may not use more than eight different Martial Artist and/or Martial Artist advanced class moves per day. Arm Thrust - Melee Fighting Attack: At-Will 1d4. Arm Thrust has -2 during Accuracy Check. Arm Thrust is a Scatter attack. Up to 5 attacks. Karate Chop - Melee Fighting Attack: At-Will 2d6. On hit, if you got 18 or higher on Accuracy Check, Karate Chop is a critical hit. Power-Up Punch - Melee Fighting Attack: At-Will 2d6. On hit, your Attack is +1 for 10 mins. Rapid Spin - Melee Normal Attack: At-Will 1d8. Destroy any Hazards or Coats, and free bound allies within 5 ft. You may target Hazards, Coats, or bound allies with Rapid Spin without needing to roll Accuracy Check or damage."
+  },
+  "Peak Physique": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 1",
+    "effect": "Your body is masterfully trained into the physical form you need to perfectly maintain balance, focus, and power while fighting. Whenever you are targeted with an attack that uses the Attack stat, your Defense is doubled during the attacker's accuracy check (Do not double temporary or conditional modifiers)."
+  },
+  "Foresight": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 2",
+    "effect": "By focusing your inner aura, you can strike the immaterial. You can use the move Foresight. Foresight - Self Normal Effect: At-Will. You can hit Ghost-types with Normal and Fighting type moves as if they are not immune to those types of attacks for two mins.",
+    "frequency": "At-Will"
+  },
+  "No Retreat": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 4",
+    "effect": "When you decide to defeat an enemy, you put it all on the line. 3/day you may use No Retreat. No Retreat - Self Fighting Effect: 3/day. As a free action, as long as you can see a foe, you cannot move away from them until you are knocked out. Your Attack, Special Attack, Defense, Special Defense, and Speed are each raised +1 for 10 mins.",
+    "frequency": "3/day"
+  },
+  "Enduring Focus": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 5",
+    "effect": "You're not going down without one more chance to keep fighting. 1/day if you would be knocked out, instead you are at 1 hit point.",
+    "frequency": "1/day"
+  },
+  "Weapons Master": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 6",
+    "effect": "Your training has allowed you to masterfully incorporate weaponry into your fighting style. If you are holding a weapon, you may use Branch Poke, Stone Smash, or Steel Strike if your weapon is made of wood, stone, or metal respectively. When obtaining a weapon, pick one of these moves to associate with that weapon. You may carry multiple weapons within reason and change between weapons as a free action during your turn. Branch Poke - Melee Grass Attack: At-Will 2d6. Stone Smash - Melee Rock Attack: At-Will 2d6. Steel Strike - Melee Steel Attack: At-Will 2d6."
+  },
+  "Martial Prowess": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 8",
+    "effect": "Through intense meditation, your strikes can do more than ever before. You may now use the moves Laser Focus 3/day and Lock-on 1/day. Laser Focus - Ranged(30ft) Normal Effect: 3/day. On hit, your next attack against the same target will be a Critical Hit. You still need to make an Accuracy Check. Lock-On - Ranged(40ft) Normal Effect: 1/day. Lock-On can't miss. Your next attack against the same target will not miss.",
+    "frequency": "3/day"
+  },
+  "Flow Like Water": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 9",
+    "effect": "By flowing with blows and controlling the impacts you take, you minimize the damage you take. If you would take more than 10 damage, subtract your Attack or Defense stat from the damage you would take."
+  },
+  "Pin": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 10",
+    "effect": "Get them in a hold and keep them there. 3/day you can use the move Block. As long as you are not making attacks or moving while the target is bound to you, it cannot move. You may target Large sized targets with Block. Block - Melee Normal Effect: 3/day. On hit, the target is bound to you for 1d6 rounds.",
+    "frequency": "3/day"
+  },
+  "Reckless Assault": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 12",
+    "effect": "Over the top attacks can seriously injure your quarry, or even yourself. You can use the attacks Jump Kick 3/day or Take Down 3/day. Jump Kick - Melee Fighting Attack: 3/day 3d10. Jump Kick has -2 during Accuracy Check. If you miss, you lose HP equal to half of your Max HP. Take Down - Melee Normal Attack: 3/day 3d10. On hit, you lose HP equal to 1/4th of the damage you deal.",
+    "frequency": "3/day"
+  },
+  "Shake it Off": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 13",
+    "effect": "You have faced many weary fights, but now you're able to shake off the debilitating effects of battle. Your stats cannot be lowered by the effects of an opponent's attack, passive, or features."
+  },
+  "Haymaker": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 14",
+    "effect": "You put it all on the line and expose yourself to a brutal counter attack in the hopes that this one move ends it. 1/day you may use Close Combat. Martial Master does not let you ignore Haymaker's frequency. Close Combat - Melee Fighting Attack: 1/day 5d12. On hit, your Defense and Special Defense are -2 for 10 mins.",
+    "frequency": "1/day"
+  },
+  "Martial Master": {
+    "category": "Martial Artist",
+    "prerequisites": "Level 15",
+    "effect": "You have perfected your martial combat and are prepared to face any foe, no matter the odds. You may use any Martial Artist or Martial Artist advanced class non-Reaction moves at-will. You are not limited to the number of different Martial Artist and/or Martial Artist advanced class moves that you may use per day. Whenever you hit with a Martial Artist attack, add three times your relevant modifier to your damage."
+  },
+  "Aura Force": {
+    "category": "Aura Master",
+    "prerequisites": "Level 1",
+    "effect": "Your aura is made of the martial energy within you. Whenever you use an attack that uses the Special Attack stat, you may instead use your Attack stat and its modifiers against the target's Defense instead. In addition, you may not use more than eight different Martial Artist and/or Martial Artist advanced class moves per day."
+  },
+  "Vacuum Wave": {
+    "category": "Aura Master",
+    "prerequisites": "Level 1",
+    "effect": "Releasing your aura in the form of a strike is the first way to apply your aura abilities in an offense way. You can now use the move Vacuum Wave. Vacuum Wave - Ranged(15ft) Fighting Special Attack: At-Will 2d6. Vacuum Wave has Priority.",
+    "frequency": "At-Will"
+  },
+  "Defensive Aura": {
+    "category": "Aura Master",
+    "prerequisites": "Level 2",
+    "effect": "Your energy reflects elemental harm, reducing the damage you take from certain attacks. When you gain Defensive Aura, choose one of the following types: Electric, Fairy, Fire, Grass, Ice, or Water. You resist the chosen type when taking damage. You may meditate for eight hours to change which type you are resisting with Defensive Aura."
+  },
+  "Aura Reader": {
+    "category": "Aura Master",
+    "prerequisites": "Level 3",
+    "effect": "Aura is described as the essence of every living creature. It covers everyone and projects a color when focusing on finding someone's aura. The shade of the color varies from very tinted to very darkened. If the color of the Aura is tinted, the target has little negative intentions. If the color of the Aura is very blackened, the target has many malicious intentions. However, people are still able to conceal their bad intent even without meaning to, but whenever you make an Insight check, you may add +5 to your roll."
+  },
+  "Aura Guard": {
+    "category": "Aura Master",
+    "prerequisites": "Level 4",
+    "effect": "You extend your aura into a solid unbreakable wall of energy, if only for a second. 1/day you may use Protect. Martial Master does not let you ignore Aura Guard's frequency. Protect - Self Normal Effect: 1/day. Protect is used as a Reaction. When you would be hit by a move, use Protect to instead ignore the damage and any effects of the attack.",
+    "frequency": "1/day"
+  },
+  "Aura Gift": {
+    "category": "Aura Master",
+    "prerequisites": "Level 6",
+    "effect": "You've practiced manipulating the life energy associated with your aura and can transfer it to those in need. 3/day you may spend up to 15 of your HP to restore twice the amount of HP to an adjacent non-Aura Master. If you target an Aura Master, they recover 1 HP for every 1 HP you spend. Any HP spent with Aura Gift is recovered completely after an eight hour of rest.",
+    "frequency": "3/day"
+  },
+  "Aura Sphere": {
+    "category": "Aura Master",
+    "prerequisites": "Level 7",
+    "effect": "Letting your aura guide your strike, you release a powerful orb of energy that finds your target without fail. 1/day you may use Aura Sphere. Martial Master does not let you ignore Aura Sphere's frequency. Aura Sphere - Ranged(30ft) Fighting Special Attack: 1/day 3d12. You can't miss targets with less than 20 Special Defense.",
+    "frequency": "1/day"
+  },
+  "Elemental Fists": {
+    "category": "Aura Master",
+    "prerequisites": "Level 8",
+    "effect": "Sending your aura to your fists, you charge them with different elemental forces. 3/day you may use either Fire Punch, Ice Punch, or Thunder Punch. Whichever Elemental Fist attack you use, you may still only use the feature 3/day. Fire Punch - Melee Fire Attack: 3/day 3d8. On hit, if you got 17 or higher on Accuracy Check, the target is Burned. Ice Punch - Melee Ice Attack: 3/day 3d8. On hit, if you got 17 or higher on Accuracy Check, the target is Frozen. Thunder Punch - Melee Electric Attack: 3/day 3d8. On hit, if you got 17 or higher on Accuracy Check, the target is Paralyzed.",
+    "frequency": "3/day"
+  },
+  "Aura Sight": {
+    "category": "Aura Master",
+    "prerequisites": "Level 10",
+    "effect": "While focusing, you can see the outline of auras without letting light or even walls interfere with your detection. You can see the aura of living things through walls and in the dark. You can also ignore the auras of other living things that you are not seeking. To look for a specific aura, it must be one you've seen before. During an investigation skill check, add +10 to your roll if you are seeking a living thing."
+  },
+  "Drain Punch": {
+    "category": "Aura Master",
+    "prerequisites": "Level 11",
+    "effect": "During a strike, you absorb your foe's aura and take some of their life force. 3/day you may use Drain Punch. If you use Drain Punch more than 3 times per day, all uses after the third lose its effect. Drain Punch - Melee Fighting Attack: 3/day 2d8. On hit, you regain HP equal to half of the damage dealt.",
+    "frequency": "3/day"
+  },
+  "Elemental Force": {
+    "category": "Aura Master",
+    "prerequisites": "Level 12",
+    "effect": "As your aura grows, so does the way you can influence your elemental power. 1/day you can use either Blaze Kick, Flash Kick, or Frost Kick. Martial Master does not let you ignore Elemental Force's frequency. In addition, 3/day you may use a melee attack as a 15ft ranged attack. Blaze Kick - Melee Fire Attack: 1/day 3d12. On hit, if you got 16 or higher on Accuracy Check, the target is Burned. Flash Kick - Melee Electric Attack: 1/day 3d12. On hit, if you got 16 or higher on Accuracy Check, the target is Paralyzed. Frost Kick - Melee Ice Attack: 1/day 3d12. On hit, if you got 16 or higher on Accuracy Check, the target is Frozen.",
+    "frequency": "1/day"
+  },
+  "Aura Guardian": {
+    "category": "Aura Master",
+    "prerequisites": "Level 13",
+    "effect": "Your protective aura extends to all of your nearby allies. Apply your Defensive Aura resistances to allies adjacent to you. In addition, choose a total of three types in Defensive Aura to resist. You resist each of the chosen types when taking damage. You may meditate for one hour to change which types you are resisting with Defensive Aura."
+  },
+  "Devious Display": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 1",
+    "effect": "Your swash is the stuff of underhanded and dishonorable fighters yet you take every advantage of everything you can in battle with a smile. When attacking a foe who is facing away from you, add +2 to your accuracy check. In addition, you may not use more than eight different Martial Artist and/or Martial Artist advanced class moves per day."
+  },
+  "Diss": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 1",
+    "effect": "Battle chatter and backhanded compliments can devastate the psyche of your foes. 3/day you can use either Flatter, Swagger, or Taunt. You may still only use Swagger or Flatter according to their frequencies. Flatter - Ranged(10ft) Normal Effect: 1/day. On hit, the target is Confused and the target's Special Attack is +4 until they are no longer Confused. Swagger - Ranged(10ft) Normal Effect: 1/day. On hit, the target is Confused and the target's Attack is +4 until they are no longer Confused. Taunt - Ranged(20ft) Dark Effect: 3/day. On hit, the target may only use attacks that target you or your allies for 1 min.",
+    "frequency": "3/day"
+  },
+  "Pocket Sand": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 2",
+    "effect": "You've worked a blinding technique into every punch you throw, it's just a good idea. 3/day, once per round, you may use the move Sand Attack as a free action. You may also use the move Sand Attack as a regular action. Sand Attack - Ranged(10ft) Ground Effect: At-Will. On hit, the target's Accuracy Checks are -1 during their next turn.",
+    "frequency": "3/day"
+  },
+  "Krookodile Tears": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 3",
+    "effect": "Oh no! My ankle! Whaa... Gotcha! 3/day, when targeting a foe who hit you with an attack during their last action, you may add +3 to your accuracy check and your attack's damage.",
+    "frequency": "3/day"
+  },
+  "Wire Wrapping": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 4",
+    "effect": "It's not the most practical thing, but it looks really cool! You know how to effectively wrap barbed wire around your weapons used with Weapons Master. Whenever you use an attack with Weapons Master, deal an additional 1d6 damage. If you are not using Weapons Master, or do not have it, you may add 1d6 to any damage you deal with a melee attack, but then take the same amount of 1d6 damage yourself as you've wrapped the barbed wire around your fists/feet/body."
+  },
+  "Face!": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 6",
+    "effect": "You slam your head against the head of your target. Hopefully they're not made of stone. You may use the move Headbutt. Headbutt - Melee Normal Attack: At-Will 2d8. On hit, if you got 18 or higher on Accuracy Check, the target is Stunned.",
+    "frequency": "At-Will"
+  },
+  "Psyche!": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 7",
+    "effect": "Just when they think they've got you, bam! 1/day you can use Sucker Punch. Martial Master does not let you ignore Psyche's frequency. Sucker Punch - Melee Dark Attack: 1/day 3d8. Sucker Punch is used as a Reaction. When you are a target of a melee move, use Sucker Punch to attack the attacker before the enemy rolls their Accuracy Check against you. You must still roll an accuracy check for Sucker Punch.",
+    "frequency": "1/day"
+  },
+  "Tax": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 8",
+    "effect": "Sometimes being polite and pickpocketing something doesn't work, so just take it by force. 3/day you may use the move Thief. If targeting a trainer, you may steal anything you can see on their person that isn't strapped onto them that wouldn't take more than a second to remove (no backpacks, glasses / watch / single shoe is okay). Martial Master does not let you ignore Thief's frequency. Thief - Melee Dark Attack: 3/day 3d8. On hit, steals the target's held item, if any.",
+    "frequency": "3/day"
+  },
+  "Grit Your Teeth": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 10",
+    "effect": "It's expected that your grandeur will attract attention from jealous combatants, so you get used to it after a while. Whenever you are hit by a critical hit, treat the attack as a normal hit. In addition, you cannot be moved by the effect of a foe's attack, passive, or feature."
+  },
+  "Dark Master": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 11",
+    "effect": "You might be a dirty fighter, but you're still a masterful fighter who thinks they deserve some respect. Whenever using a Martial Artist or Martial Artist advanced class attack, you can make the type of the attack Fighting-type. In addition, you deal an additional 4 damage with your Dark-type attacks."
+  },
+  "You'll Pay for That!": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 12",
+    "effect": "How dare someone hit you when they are so close? 3/day you can use the move Payback. Payback - Melee Dark Attack: 3/day 3d8. If you were attacked by the target this round, use 3d12 for damage instead.",
+    "frequency": "3/day"
+  },
+  "Mob Mentality": {
+    "category": "Dirty Fighter",
+    "prerequisites": "Level 13",
+    "effect": "You've abandoned any semblance of honor to perfect your fighting style and follow a simple rule; when in doubt, pile on and mess them up. Whenever you attack a target that was attacked by an allied Pokémon or trainer in the same round, treat your attack as extremely-effective on hit."
+  },
+  "First Lessons": {
+    "category": "Mentor",
+    "prerequisites": "Level 1",
+    "effect": "Your mastery is a gift worth sharing and your guidance is valued. You can use the moves Coaching or Helping Hand. Coaching - Melee Fighting Effect: 3/day. Target ally has +2 Attack and +2 Defense for 2 mins. Helping Hand - Melee Normal Effect: 3/day. Target ally's next attack during this round will deal +1d20 damage.",
+    "frequency": "3/day"
+  },
+  "Many Forms": {
+    "category": "Mentor",
+    "prerequisites": "Level 1",
+    "effect": "Not all attacks need your full force of your power, sometimes you hold back. Whenever you use an attack, you may treat the attack as Normal-type. In addition, your attacks deal +1 damage for each adjacent ally when using a Normal-type attack. In addition, you may not use more than eight different Martial Artist and/or Martial Artist advanced class moves per day."
+  },
+  "Second Form": {
+    "category": "Mentor",
+    "prerequisites": "Level 2",
+    "effect": "You teach allies and with practice they can defend themselves in a fight. Any allied trainers that spend at least four hours a week training with you can treat a Normal-type trainer attack as Fighting-type attack 3/day. 3/day you may also treat a Normal-type trainer attack as Fighting-type attack.",
+    "frequency": "3/day"
+  },
+  "Form in Sync": {
+    "category": "Mentor",
+    "prerequisites": "Level 3",
+    "effect": "Your Pokémon train with you often and you each continue to grow. Any of your Pokémon who you spend at least four hours a week training with have +1 to their Attack stat while adjacent to you in battle. In addition, your Attack stat is +1 while any of those Pokémon are adjacent to you in battle."
+  },
+  "Martial Tutor": {
+    "category": "Mentor",
+    "prerequisites": "Level 4",
+    "effect": "Through mastery of forms and the patience of a teacher, they can learn. Once per day, after spending six hours with one of your Pokémon, you may teach one of your Pokémon any move you can use because of your Martial Artist features or Martial Artist advanced class features. Moves taught with the Martial Tutor feature must still fit the Pokémon's learnable moves description.",
+    "frequency": "1/day"
+  },
+  "Battle Cry": {
+    "category": "Mentor",
+    "prerequisites": "Level 6",
+    "effect": "With a deep breath and a loud battle cry forwards, you rally your team. 1/day, as an action, you shout a battle cry to energize your allies. All allied trainers and Pokémon within 30ft score critical hits on rolls of 18-20 until they score a critical hit this encounter.",
+    "frequency": "1/day"
+  },
+  "Form of Falling": {
+    "category": "Mentor",
+    "prerequisites": "Level 7",
+    "effect": "Your Pokémon train with you often and you each continue to grow. Any of your Pokémon who you spend at least four hours a week training with treat the first critical hit they receive during each encounter as a regular hit."
+  },
+  "Self-Defense": {
+    "category": "Mentor",
+    "prerequisites": "Level 8",
+    "effect": "To protect themselves, you spend time teaching allies to defend themselves. Allied trainers who spend at least four hours a week training with you have +2 Defense when targeted by melee Attack moves."
+  },
+  "Let Loose": {
+    "category": "Mentor",
+    "prerequisites": "Level 10",
+    "effect": "When the enemy poses a greater threat than usual, let loose. 3/day you can use the move Slam. Slam - Melee Normal Attack: 3/day 3d10. Slam has -2 during Accuracy Check.",
+    "frequency": "3/day"
+  },
+  "Mentor's Poise": {
+    "category": "Mentor",
+    "prerequisites": "Level 11",
+    "effect": "Years of practice and the love of your martial arts; you are respected. When making Diplomacy, or Perform skill checks, roll three times and use the best result."
+  },
+  "Master Tutor": {
+    "category": "Mentor",
+    "prerequisites": "Level 12",
+    "effect": "In training your skills have become easy to teach and so you do teach. After spending six hours with a Pokémon, you may teach a Pokémon any move you can use because of your Martial Artist features or Martial Artist advanced class features. You can tutor multiple Pokémon at the same time. Moves taught with the Master Tutor feature must still fit the Pokémon's proficiencies."
+  },
+  "Old Master": {
+    "category": "Mentor",
+    "prerequisites": "Level 13",
+    "effect": "Your expertise has been imparted to your friends, perfecting their forms. Any allied trainers or your Pokémon that spend at least four hours a week training with you deal +2 damage with any of their melee attacks; allied trainer's Pokémon must train with you for eight hours. Any allied trainers or your Pokémon that spend at least eight hours a week training with you deal +5 damage with any of their melee attacks; allied trainer's Pokémon must train with you for sixteen hours."
+  },
+  "Ninjutsu": {
+    "category": "Ninja",
+    "prerequisites": "Level 1",
+    "effect": "Your training enables you to fight on your toes, move around nimbly, and cleverly conceal things. Whenever you make an Acrobatics, Sleight of Hand, or Stealth check you may add your Attack or Defense modifiers instead of your Speed modifier to your results. In addition, you may not use more than eight different Martial Artist and/or Martial Artist advanced class moves per day."
+  },
+  "Distraction Techniques": {
+    "category": "Ninja",
+    "prerequisites": "Level 1",
+    "effect": "Every day you spend a couple minutes putting together some flashy tricks that you can use while fighting. 3/day, once per round, you may use the move Flash or Smoke Screen as a free action. You may also use the move Flash as a regular action or the move Smokescreen 3/day as a regular action. Flash - Ranged(10ft) Normal Effect: At-Will. On hit, the target's Accuracy Checks are -1 during their next turn. Smoke Screen - Ranged(10ft) Normal Effect: 3/day. Place up to 25 contiguous ft of Smoke Screen Wall. Smoke Screen Wall has no thickness, is 12 ft tall and has the following ability: Attacks that target through or within the wall have -2 during Accuracy Check. This Wall disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Alacrity": {
+    "category": "Ninja",
+    "prerequisites": "Level 2",
+    "effect": "Light on your feet, your fist meets the face of your foes faster. Add your Attack or Defense modifier multiplied by 5ft to your movement speed per turn."
+  },
+  "Poisoned Needle": {
+    "category": "Ninja",
+    "prerequisites": "Level 3",
+    "effect": "You developed a poison out of various plants and waste you find while traveling and employ it with a concealed needle. You may use the move Poison Sting. Poison Sting - Melee Poison Attack: At-Will 1d4. On hit, if you got 15 or higher on Accuracy Check, the target is Poisoned.",
+    "frequency": "At-Will"
+  },
+  "Caltrops": {
+    "category": "Ninja",
+    "prerequisites": "Level 4",
+    "effect": "Concealing homemade caltrops on your person to deploy during battle gives you the tactical advantage you need to secure victory. 3/day you may use the move Spikes or Toxic Spikes. Spikes - Ranged(20ft burst) Ground Effect: 3/day. Place the Spikes Hazard in the area surrounding you. Spikes Hazard has the following ability: When a foe moves through Spikes Hazard during their turn and are on the ground, they lose 1/6th of their Max HP. This Hazard disappears after 2 mins. Toxic Spikes - Ranged(20ft burst) Poison Effect: 3/day. Place the Toxic Spikes Hazard in the area surrounding you. Toxic Spikes Hazard has the following ability: When a foe moves through Toxic Spikes Hazard during their turn and are on the ground, they are Poisoned. If the Toxic Spikes Hazard has multiple layers, it will Toxify foes instead of Poisoning them instead. This Hazard disappears after 2 mins.",
+    "frequency": "3/day"
+  },
+  "Vanish": {
+    "category": "Ninja",
+    "prerequisites": "Level 6",
+    "effect": "Camouflage comes naturally to a shadowy martial artist. When making Stealth skill checks, roll three times and use the best result."
+  },
+  "Powder Bomb": {
+    "category": "Ninja",
+    "prerequisites": "Level 7",
+    "effect": "Combining your smoke bomb chemistry with your venoms in a powder form creates a deadly weapon. 3/day you may use the move Powder Bomb. Martial Master does not let you ignore Powder Bomb's frequency. Powder Bomb - Ranged(20ft, 10ft blast) Poison Effect: 3/day. On hit, any targets are Poisoned.",
+    "frequency": "3/day"
+  },
+  "Antidotes Master": {
+    "category": "Ninja",
+    "prerequisites": "Level 8",
+    "effect": "Your expertise concerning venoms and poisons have allowed you to put together simple but perishable cure-alls. 3/day, as an action you may cure an adjacent target of Poison or Toxin.",
+    "frequency": "3/day"
+  },
+  "Poison Jab": {
+    "category": "Ninja",
+    "prerequisites": "Level 10",
+    "effect": "You've adapted your poison to knuckle claws to devastate your foes. 3/day you may use the move Poison Jab. Martial Master does not let you ignore Poison Jab's frequency. Poison Jab - Melee Poison Attack: 3/day 3d8. On hit, if you got 14 or higher on Accuracy Check, the target is Poisoned.",
+    "frequency": "3/day"
+  },
+  "Sleep Dust": {
+    "category": "Ninja",
+    "prerequisites": "Level 11",
+    "effect": "While not deadly, you've developed a new powder that helps in your subterfuge. 3/day you may use the move Sleep Dust. Martial Master does not let you ignore Sleep Dust's frequency. Sleep Dust - Melee Grass Effect: 3/day. On hit, the target is put to Sleep.",
+    "frequency": "3/day"
+  },
+  "Dark Poisoner": {
+    "category": "Ninja",
+    "prerequisites": "Level 12",
+    "effect": "You've mastered your concoctions and can easily apply your venom to completely devastate your foes. Whenever you use an attack that can Poison a target, it always Toxifies the target on hit instead."
+  },
+  "Shadow Clone Technique": {
+    "category": "Ninja",
+    "prerequisites": "Level 13",
+    "effect": "Like the wind, you rapidly move to create after images to confuse your foes. 1/day you may use the move Double Team. Martial Master does not let you ignore Shadow Clone Technique's frequency. Double Team - Self Normal Effect: 1/day. You create 3 copies of yourself. You may attack from any copy and copies may inhabit spaces up to 25 ft away from each other, though none can be more than 25 ft from any other copies or the original. If a copy is hit, it disappears and you take 1/4th of the damage it would have taken. If your copy is hit by a non-damaging attack the copy is dismissed and you are unaffected by the attack. If you are hit, all copies disappear.",
+    "frequency": "1/day"
+  },
+  "Limber": {
+    "category": "Yogi",
+    "prerequisites": "Level 1",
+    "effect": "Your body is loose and flexible yet your muscle is still like steel, firm and strong. You are immune to Paralysis and being Stunned."
+  },
+  "Yogic Knowledge": {
+    "category": "Yogi",
+    "prerequisites": "Level 1",
+    "effect": "With daily meditation, martial physical studies, and yoga, your aptitudes supplement other areas of expertise. Whenever you make a Medicine check you may add your Attack or Defense modifiers instead of your Special Attack modifier to your results, or whenever you make an Acrobatics check you may add your Attack or Defense modifiers instead of your Speed modifier to your results. In addition, you may not use more than eight different Martial Artist and/or Martial Artist advanced class moves per day."
+  },
+  "Acupressure": {
+    "category": "Yogi",
+    "prerequisites": "Level 2",
+    "effect": "Knowledge of how to unlock pressure points and the force to do so helps you to temporarily empower your allies. 3/day you may use Acupressure. Acupressure - Melee Normal Effect: 3/day. Target an ally or yourself. The target's Attack, Special Attack, Defense, Special Defense, or Speed is raised +2 for five mins.",
+    "frequency": "3/day"
+  },
+  "Relaxation Therapy": {
+    "category": "Yogi",
+    "prerequisites": "Level 3",
+    "effect": "You practice your yoga with your Pokémon and impart your flexibility to their form in battle. Any of your Pokémon who you spend at least four hours a week training with are not Stunned during combat the first time they would be Stunned each encounter."
+  },
+  "Smelling Salts": {
+    "category": "Yogi",
+    "prerequisites": "Level 4",
+    "effect": "While not a literal application of helpful medicine, your rapid strikes can unblock nerves and you can make it hurt, if you'd like. 3/day you may use the move Smelling Salt. Martial Master does not let you ignore Smelling Salt's frequency. Smelling Salts - Melee Normal Attack: 3/day 3d8. If Smelling Salts is used against a Paralyzed target, Smelling Salts deals 5d8 for damage instead, then cures the target of Paralysis. If you choose not to roll damage while using Smelling Salt, you do not need to roll an Accuracy Check.",
+    "frequency": "3/day"
+  },
+  "Healing Session": {
+    "category": "Yogi",
+    "prerequisites": "Level 6",
+    "effect": "Your martial knowledge of the body helps you to reopen damaged paths and make your allies well again. 3/day, you can spend 10 minutes with a human to heal them 15 HP.",
+    "frequency": "3/day"
+  },
+  "Pressure Points": {
+    "category": "Yogi",
+    "prerequisites": "Level 7",
+    "effect": "The nerve pathways for Pokémon mostly follow the same lines as humans even across different species and you can adapt your knowledge to your attacks. 3/day you may add the following effect to a successful attack: \"On hit, the target is stunned unless they've already been stunned this round.\"",
+    "frequency": "3/day"
+  },
+  "Nerve Strike": {
+    "category": "Yogi",
+    "prerequisites": "Level 8",
+    "effect": "Continued strikes can disable a foe's ability to put up a fight as you continue your precision assault. 3/day you may add the following effect to a successful attack: \"On hit, if the target was stunned during this or the last round, for 1 minute, the attack last used by the target may not be used again.\"",
+    "frequency": "3/day"
+  },
+  "Paralyzing Barrage": {
+    "category": "Yogi",
+    "prerequisites": "Level 10",
+    "effect": "Rapidly assaulting and blocking the pressure points of a foe can completely paralyze them. You may use the move Arm Thrust. If you hit the same target three times with a single use of Arm Thrust, they are Paralyzed. Arm Thrust - Melee Fighting Attack: At-Will 1d4. Arm Thrust has -2 during Accuracy Check. Arm Thrust is a Scatter attack. Up to 5 attacks.",
+    "frequency": "At-Will"
+  },
+  "Life Energy Palm": {
+    "category": "Yogi",
+    "prerequisites": "Level 11",
+    "effect": "You quickly rub your hands together and place your hands on a friend. 3/day you may give an adjacent trainer 25 temporary hit points which last for 10 mins.",
+    "frequency": "3/day"
+  },
+  "Mental Fortitude": {
+    "category": "Yogi",
+    "prerequisites": "Level 12",
+    "effect": "Your daily, deep meditation has brought you to an elevated mental state. Whenever you make a Concentration or Insight skill check you roll twice and use the higher result."
+  },
+  "Soothing Strikes": {
+    "category": "Yogi",
+    "prerequisites": "Level 13",
+    "effect": "Your expertise can reorganize the mind, temporarily block deadly blood flow, disable pain, or reinvigorate a shut off body. As an action, you may use the move Curative Barrage. Curative Barrage - Melee Normal Effect: At-Will. Curative Barrage cannot miss an ally. If Curative Barrage was used against the same human target during your last action as well, the human target is cured of Sleep, a Burn, Confusion, Paralysis, Poisoning or Toxification.",
+    "frequency": "At-Will"
+  }
+}
