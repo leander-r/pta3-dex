@@ -266,8 +266,7 @@ const TrainerClasses = () => {
             </h3>
             {!collapsed && <>
             <p className="section-description" style={{ fontSize: '12px' }}>
-                Classes unlock features and skills. Lv1-2: 1 class | Lv3-6: 2 | Lv7-10: 3 | Lv11+: 4.
-                {currentClasses.length >= 1 && ' Additional classes cost 1 feat point.'}
+                Classes unlock features and skill talents. Lv 1: 1 class | Lv 3: 2 | Lv 7: 3 | Lv 11: 4.
             </p>
 
             {/* Current Classes */}

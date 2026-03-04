@@ -7,11 +7,13 @@ const HELP_CONTENT = {
         title: 'Trainer Stats',
         body: () => (
             <>
-                <p>Stats determine your trainer's capabilities. Each stat has a <strong>modifier</strong> that affects skill rolls.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Creation Points</h4>
-                <p>At character creation you receive <strong>30 points</strong> to distribute across your 6 stats. Each stat has a <strong>minimum of 6</strong> and a <strong>maximum of 14</strong> during creation. You must spend all creation points before you can level up.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Level Points</h4>
-                <p>Each time you level up you gain <strong>1 stat point</strong> with no per-stat cap. These are tracked separately from creation points.</p>
+                <p>Trainers have <strong>5 stats</strong> (ATK, DEF, SATK, SDEF, SPD) on a <strong>1–10 scale</strong>. Each stat has a <strong>modifier = ⌊stat ÷ 2⌋</strong> used in skill rolls and accuracy checks. HP is separate and fixed at 20 base.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Creation Point-Buy (25 pts)</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li>Stat 1 = 1 pt &nbsp;|&nbsp; Stat 2 = 2 pts &nbsp;|&nbsp; Stat 3 = 3 pts</li>
+                    <li>Stat 4 = 6 pts &nbsp;|&nbsp; Stat 5 = 8 pts &nbsp;|&nbsp; Stat 6 = 11 pts</li>
+                    <li>Maximum of <strong>6</strong> in any stat at creation</li>
+                </ul>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Undo</h4>
                 <p>The <strong>↩ Undo</strong> button restores the last stat change so you can experiment freely before committing.</p>
             </>
@@ -21,16 +23,16 @@ const HELP_CONTENT = {
         title: 'Trainer Classes',
         body: () => (
             <>
-                <p>Classes define your trainer's playstyle and unlock unique <strong>features</strong> and <strong>skills</strong>.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>How Many Classes?</h4>
+                <p>Classes define your trainer's playstyle and unlock unique <strong>features</strong> and <strong>skill talents</strong>.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Class Slots</h4>
                 <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
-                    <li><strong>Lv 1–4:</strong> 1 class</li>
-                    <li><strong>Lv 5–11:</strong> 2 classes</li>
-                    <li><strong>Lv 12–23:</strong> 3 classes</li>
-                    <li><strong>Lv 24+:</strong> 4 classes</li>
+                    <li><strong>Lv 1:</strong> 1st class</li>
+                    <li><strong>Lv 3:</strong> 2nd class</li>
+                    <li><strong>Lv 7:</strong> 3rd class</li>
+                    <li><strong>Lv 11:</strong> 4th class</li>
                 </ul>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Base vs Advanced</h4>
-                <p>Your <strong>first class</strong> is a Base class — it grants <strong>3 skill ranks</strong> and +2 feat points. Additional classes are Advanced — each grants <strong>1 skill rank</strong> and costs 1 feat point.</p>
+                <p>Your <strong>first class</strong> must be one of the 7 Base classes. Additional slots unlock Advanced classes. Each class provides a <strong>skill pool</strong> — you gain talents in skills from that pool (max 2 talents per skill).</p>
             </>
         )
     },
@@ -38,13 +40,9 @@ const HELP_CONTENT = {
         title: 'Move Slots',
         body: () => (
             <>
-                <p>Each Pokémon has <strong>two independent pools</strong> of move slots:</p>
-                <ul style={{ paddingLeft: '18px', margin: '10px 0', lineHeight: '1.8' }}>
-                    <li><strong>4 Natural slots</strong> — moves learned by leveling up</li>
-                    <li><strong>4 Taught slots</strong> — moves from TMs, Tutors, Egg moves, or custom sources</li>
-                </ul>
-                <p>The pools are completely separate. Forgetting a Natural move <em>never</em> affects Taught moves and vice versa. This lets your Pokémon keep a full kit of both level-up and taught moves simultaneously.</p>
-                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Tip: When all 4 slots in a pool are full, you'll be prompted to replace an existing move.</p>
+                <p>Each Pokémon can know up to <strong>6 moves</strong> in a single pool — there is no distinction between Natural and Taught moves.</p>
+                <p style={{ margin: '10px 0' }}>Moves come directly from the species' Pokédex entry. Frequencies are <strong>At-Will</strong>, <strong>3/day</strong>, or <strong>1/day</strong>.</p>
+                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Tip: When all 6 slots are full, you'll be prompted to replace an existing move before learning a new one.</p>
             </>
         )
     },
@@ -53,14 +51,14 @@ const HELP_CONTENT = {
         body: () => (
             <>
                 <p>Combat Stages track temporary <strong>stat buffs and debuffs</strong> applied by moves during battle.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Stage Multipliers</h4>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Flat Stage Bonus</h4>
                 <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
-                    <li><strong>+1 stage</strong> = stat × 1.25 (25% increase)</li>
-                    <li><strong>−1 stage</strong> = stat × 0.90 (10% decrease)</li>
-                    <li>Stages stack: +3 = ×1.75, −3 = ×0.73</li>
+                    <li><strong>+1 stage</strong> = +2 flat to the stat</li>
+                    <li><strong>−1 stage</strong> = −2 flat to the stat</li>
+                    <li>Example: ATK 8 at +3 stages → effective ATK 14</li>
                 </ul>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Limits & Reset</h4>
-                <p>Stages range from <strong>−6 to +6</strong>. They reset when the Pokémon switches out or the battle ends. Use the Reset button to clear all stages at once.</p>
+                <p>Stages range from <strong>−6 to +6</strong> (stat change: −12 to +12). They reset when the Pokémon switches out or the battle ends. Use the Reset button to clear all stages at once.</p>
             </>
         )
     },
@@ -95,16 +93,16 @@ const HELP_CONTENT = {
         title: 'Trainer Skills',
         body: () => (
             <>
-                <p>Skills represent your trainer's proficiency in various areas. Each skill is linked to one of your six stats.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Skill Ranks</h4>
+                <p>There are <strong>18 skills</strong>, each linked to one of the 5 trainer stats. Skill checks are <strong>1d20 + ⌊stat ÷ 2⌋ + talent bonus</strong>.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Talent Bonus</h4>
                 <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
-                    <li><strong>Rank 0:</strong> untrained — roll only the stat modifier</li>
-                    <li><strong>Rank 1:</strong> trained — +2 + Stat Modifier</li>
-                    <li><strong>Rank 2:</strong> expert — +4 + (2 × Stat Modifier)</li>
+                    <li><strong>0 talents:</strong> no bonus</li>
+                    <li><strong>1 talent:</strong> +2</li>
+                    <li><strong>2 talents:</strong> +5</li>
                 </ul>
-                <p>Click a skill to cycle through ranks (0 → 1 → 2 → 0). HP-linked skills cap at <strong>Rank 1</strong>.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Skill Ranks from Classes</h4>
-                <p>Base classes grant <strong>3 skill ranks</strong>; Advanced classes grant <strong>1 skill rank</strong>. Ranks from classes are automatically applied when you add or change a class.</p>
+                <p>Click a skill to cycle talents (0 → 1 → 2 → 0). <strong>Concentration</strong> and <strong>Constitution</strong> are passive — they are invoked by the GM, not rolled manually. Max 2 talents per skill.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Gaining Talents</h4>
+                <p>Talents come from your class skill pools. Each class grants access to a set of skills; choosing a class lets you apply talents to those skills.</p>
             </>
         )
     },
@@ -112,29 +110,27 @@ const HELP_CONTENT = {
         title: 'Pokémon Stats',
         body: () => (
             <>
-                <p>Each Pokémon stat has two components that add together to form the <strong>total stat</strong> used in battle.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Base Stat</h4>
-                <p>Set by the species (Pokédex entry). This cannot be changed and represents the Pokémon's natural potential.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Added Stat (+)</h4>
-                <p>Points you invest from level-ups. Use the <strong>+</strong> and <strong>−</strong> buttons in each stat box to allocate your available <em>Stat Points</em>. The green number shows how many points have been added.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Stat Points</h4>
-                <p>Your Pokémon gains <strong>stat points when it levels up</strong>. Unspent points are shown at the top of this tab. You can freely reallocate points as long as the Pokémon still has enough added stats to cover what you remove.</p>
+                <p>Pokémon have <strong>6 stats</strong> (HP, ATK, DEF, SATK, SDEF, SPD). All stats are <strong>fixed by the species</strong> Pokédex entry — there are no level-up stat points to allocate.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Nature Modifier</h4>
+                <p>A Pokémon's nature raises one stat by <strong>+1</strong> and lowers another by <strong>−1</strong>. The five neutral natures (Hardy, Docile, Serious, Bashful, Quirky) have no effect.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>HP</h4>
+                <p>Max HP is the species HP stat after the nature modifier. It does <em>not</em> scale with level.</p>
             </>
         )
     },
     'pokemon-skills': {
-        title: 'Pokémon Skills',
+        title: 'Pokémon Capabilities',
         body: () => (
             <>
-                <p>Pokémon Skills represent your Pokémon's natural physical capabilities outside of battle. They are fixed by the species and cannot be changed.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Common Skills</h4>
+                <p>Pokémon <strong>capabilities</strong> are named traits that describe what a Pokémon can do outside of battle. They are fixed by species and cannot be changed.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Examples</h4>
                 <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
-                    <li><strong>Overland:</strong> base movement speed on land (meters per move action)</li>
-                    <li><strong>Swim:</strong> movement speed while swimming</li>
-                    <li><strong>Jump:</strong> vertical jump height in meters</li>
-                    <li><strong>Power:</strong> how many Combat Stages of weight the Pokémon can lift or push</li>
+                    <li><strong>Sprouter</strong> — can grow plants through cracks in surfaces</li>
+                    <li><strong>Sinker</strong> — can sink to the bottom of bodies of water</li>
+                    <li><strong>Firestarter</strong> — can ignite flammable materials at will</li>
+                    <li><strong>Threaded</strong> — can weave or spin thread-like substances</li>
                 </ul>
-                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Some species have additional skills like Burrow, Sky, Levitate, or Stealth. Click a skill chip to see its full description.</p>
+                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Speed (in feet per round) is listed separately on the species entry.</p>
             </>
         )
     },

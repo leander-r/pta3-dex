@@ -4,26 +4,8 @@
 // Dice roller state and functions for PTA combat
 
 import { useState, useCallback } from 'react';
-import { calculateSTAB, getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
+import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, parseCritThreshold, applyCombatStage } from '../utils/dataUtils.js';
 import { GAME_DATA } from '../data/configs.js';
-
-/**
- * Parse dice notation (e.g., "2d6+5", "3d12+14")
- * @param {string} diceStr - Dice notation string
- * @returns {Object} - { count, sides, bonus }
- */
-const parseDice = (diceStr) => {
-    if (!diceStr) return { count: 0, sides: 0, bonus: 0 };
-
-    const match = diceStr.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
-    if (!match) return { count: 0, sides: 0, bonus: 0 };
-
-    return {
-        count: parseInt(match[1]) || 0,
-        sides: parseInt(match[2]) || 0,
-        bonus: parseInt(match[3]) || 0
-    };
-};
 
 /**
  * Roll dice
@@ -105,22 +87,18 @@ export const useDiceRoller = (sendToDiscord = null) => {
         const statKey = isPhysical ? 'atk' : 'satk';
         const baseStat = actualStats[statKey] || 0;
 
-        // Apply combat stages
+        // Apply combat stages (PTA3: flat +2 per stage)
         const stages = state.combatStages[statKey] || 0;
-        let statMod = baseStat;
-        if (stages > 0) {
-            statMod = Math.floor(baseStat * (1 + stages * 0.25));
-        } else if (stages < 0) {
-            statMod = Math.ceil(baseStat * (1 - Math.abs(stages) * 0.10));
-        }
+        const statMod = applyCombatStage(baseStat, stages);
 
-        // Roll accuracy (d20)
+        // Roll accuracy (1d20); check move-specific crit threshold
         const accRoll = Math.floor(Math.random() * 20) + 1;
-        const isCrit = accRoll === 20;
+        const critThreshold = parseCritThreshold(move.effect || move.description);
+        const isCrit = accRoll >= critThreshold;
 
         // Parse damage dice
         const diceData = parseDice(move.damage);
-        if (diceData.count === 0) {
+        if (diceData.count === 0 && diceData.flat === 0) {
             // Status move
             const result = {
                 type: 'pokemon',
@@ -140,19 +118,28 @@ export const useDiceRoller = (sendToDiscord = null) => {
             return result;
         }
 
-        // Roll damage dice (double on crit)
-        const diceCount = isCrit ? diceData.count * 2 : diceData.count;
-        const rolls = rollDice(diceCount, diceData.sides);
-        const diceTotal = rolls.reduce((sum, r) => sum + r, 0);
+        let rolls, diceTotal, total, stabBonus = 0, diceLabel;
 
-        // Calculate STAB
-        let stabBonus = 0;
-        if (applyStab && pokemon.types && pokemon.types.includes(move.type)) {
-            stabBonus = calculateSTAB();
+        if (diceData.flat > 0) {
+            // Flat damage move (e.g. Dragon Rage): fixed value, no bonuses
+            rolls = [diceData.flat];
+            diceTotal = diceData.flat;
+            total = diceData.flat;
+            diceLabel = `${diceData.flat} (fixed)`;
+        } else {
+            const diceCount = diceData.count;
+            // PTA3: critical hit = all dice at max value (not double dice)
+            rolls = isCrit
+                ? Array(diceCount).fill(diceData.sides)
+                : rollDice(diceCount, diceData.sides);
+            diceTotal = rolls.reduce((sum, r) => sum + r, 0);
+
+            if (applyStab && pokemon.types && pokemon.types.includes(move.type)) {
+                stabBonus = calculateSTAB();
+            }
+            total = diceTotal + diceData.bonus + statMod + stabBonus;
+            diceLabel = `${diceCount}d${diceData.sides}${diceData.bonus ? '+' + diceData.bonus : ''}`;
         }
-
-        // Total damage
-        const total = diceTotal + diceData.bonus + statMod + stabBonus;
 
         const result = {
             type: 'pokemon',
@@ -160,10 +147,10 @@ export const useDiceRoller = (sendToDiscord = null) => {
             move: move.name,
             moveType: move.type,
             category: move.category,
-            dice: `${diceCount}d${diceData.sides}+${diceData.bonus}`,
+            dice: diceLabel,
             rolls,
             diceTotal,
-            statBonus: statMod,
+            statBonus: diceData.flat > 0 ? 0 : statMod,
             stabBonus,
             accRoll,
             isCrit,

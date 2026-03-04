@@ -472,7 +472,7 @@ const BattleTab = () => {
                                 <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                                     <label
                                         style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                                        title="Same Type Attack Bonus - extra damage when using moves that match the Pokémon's type. Scales with level."
+                                        title="Same Type Attack Bonus (STAB): Fixed +4 damage when using a move matching the Pokémon's type."
                                     >
                                         <input type="checkbox" checked={applyStab} onChange={(e) => setApplyStab(e.target.checked)} />
                                         <span style={{ fontSize: '13px' }}>Apply STAB</span>
