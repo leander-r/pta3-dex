@@ -91,14 +91,22 @@ export const calculatePokemonHP = (pokemon) => {
  * Parse dice notation string (e.g., "2d6+5", "3d12+14", "1d20")
  */
 export const parseDice = (diceStr) => {
-    if (!diceStr) return { count: 0, sides: 0, bonus: 0 };
-    const match = diceStr.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
-    if (!match) return { count: 0, sides: 0, bonus: 0 };
-    return {
-        count: parseInt(match[1]) || 0,
-        sides: parseInt(match[2]) || 0,
-        bonus: parseInt(match[3]) || 0
-    };
+    if (!diceStr) return { count: 0, sides: 0, bonus: 0, flat: 0 };
+    const diceMatch = diceStr.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
+    if (diceMatch) {
+        return {
+            count: parseInt(diceMatch[1]) || 0,
+            sides: parseInt(diceMatch[2]) || 0,
+            bonus: parseInt(diceMatch[3]) || 0,
+            flat: 0,
+        };
+    }
+    // Flat damage (e.g. Dragon Rage "25" — fixed damage, no dice)
+    const flatMatch = diceStr.match(/^(\d+)$/);
+    if (flatMatch) {
+        return { count: 0, sides: 0, bonus: 0, flat: parseInt(flatMatch[1]) || 0 };
+    }
+    return { count: 0, sides: 0, bonus: 0, flat: 0 };
 };
 
 /**
@@ -106,8 +114,13 @@ export const parseDice = (diceStr) => {
  * Returns the lowest roll that counts as a crit (default 20).
  */
 export const parseCritThreshold = (description = '') => {
-    const match = (description || '').match(/Critical Hit on (\d+)[-–]20/i);
-    return match ? parseInt(match[1]) : 20;
+    const text = description || '';
+    // PTA3 format: "if you got 18 or higher on Accuracy Check"
+    const pta3 = text.match(/(\d+)\s+or\s+higher\s+on\s+Accuracy\s+Check/i);
+    if (pta3) return parseInt(pta3[1]);
+    // Legacy format: "Critical Hit on 18-20"
+    const legacy = text.match(/Critical Hit on (\d+)[-–]20/i);
+    return legacy ? parseInt(legacy[1]) : 20;
 };
 
 /**

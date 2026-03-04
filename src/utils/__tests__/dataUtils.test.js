@@ -43,19 +43,23 @@ describe('formatNumber', () => {
 
 describe('parseDice', () => {
     it('parses 2d6+5', () => {
-        expect(parseDice('2d6+5')).toEqual({ count: 2, sides: 6, bonus: 5 });
+        expect(parseDice('2d6+5')).toEqual({ count: 2, sides: 6, bonus: 5, flat: 0 });
     });
 
     it('parses 1d20 with no bonus', () => {
-        expect(parseDice('1d20')).toEqual({ count: 1, sides: 20, bonus: 0 });
+        expect(parseDice('1d20')).toEqual({ count: 1, sides: 20, bonus: 0, flat: 0 });
     });
 
     it('returns zeros for empty input', () => {
-        expect(parseDice('')).toEqual({ count: 0, sides: 0, bonus: 0 });
+        expect(parseDice('')).toEqual({ count: 0, sides: 0, bonus: 0, flat: 0 });
     });
 
     it('returns zeros for null input', () => {
-        expect(parseDice(null)).toEqual({ count: 0, sides: 0, bonus: 0 });
+        expect(parseDice(null)).toEqual({ count: 0, sides: 0, bonus: 0, flat: 0 });
+    });
+
+    it('parses flat damage number', () => {
+        expect(parseDice('25')).toEqual({ count: 0, sides: 0, bonus: 0, flat: 25 });
     });
 });
 

@@ -79,16 +79,7 @@ export const usePokemon = (setTrainer, trainer) => {
         const updateFn = (prev) => prev.map(p => {
             if (p.id !== id) return p;
 
-            let finalUpdates = { ...updates };
-
-            if (updates.level !== undefined) {
-                const newLevel = updates.level;
-                if (newLevel > (p.highestLevelReached || p.level)) {
-                    finalUpdates.highestLevelReached = newLevel;
-                }
-            }
-
-            return { ...p, ...finalUpdates };
+            return { ...p, ...updates };
         });
 
         if (inParty) {
@@ -170,7 +161,6 @@ export const usePokemon = (setTrainer, trainer) => {
         if (!pokemon?.species) return { canEvolve: [], canDevolve: null };
 
         const species = pokemon.species;
-        const level = pokemon.level || 1;
         const regionalForm = pokemon.regionalForm || null;
 
         const evolutionData = EVOLUTION_CHAINS[species];
@@ -192,8 +182,8 @@ export const usePokemon = (setTrainer, trainer) => {
 
                 switch (evo.method) {
                     case 'level':
-                        canEvolveNow = level >= evo.requirement;
-                        reason = canEvolveNow ? '' : `Needs Level ${evo.requirement}`;
+                        canEvolveNow = true;
+                        reason = `Level ${evo.requirement}+ (story-based)`;
                         break;
                     case 'stone':
                         needsItem = evo.requirement;
@@ -282,7 +272,7 @@ export const usePokemon = (setTrainer, trainer) => {
 
         const actualStats = getActualStats(pokemon);
         const maxHP = calculatePokemonHP(pokemon);
-        const stabBonus = calculateSTAB(pokemon.level || 1);
+        const stabBonus = calculateSTAB();
 
         return {
             actualStats,

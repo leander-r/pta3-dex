@@ -201,7 +201,7 @@ const BattleTab = () => {
         const defaultAC = parseACFromFrequency(selectedMove.frequency || selectedMove.freq);
         const moveAC = acOverride !== '' ? parseInt(acOverride) || defaultAC : defaultAC;
         const accModifier = combatStages.acc || 0;
-        const critThreshold = parseCritThreshold(selectedMove.description);
+        const critThreshold = parseCritThreshold(selectedMove.effect || selectedMove.description);
         const accRoll = Math.floor(Math.random() * 20) + 1;
         const modifiedAccRoll = accRoll + accModifier;
         const isCrit = accRoll >= critThreshold;
@@ -230,30 +230,37 @@ const BattleTab = () => {
             diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey], bonus: statBonus, base: baseStatVal, boosted: statMod } : null,
         ].filter(Boolean);
 
-        if (diceData.count === 0) {
+        if (diceData.count === 0 && diceData.flat === 0) {
             addToHistory(buildPokemonRollEntry({ ...commonFields, isStatus: true, relevantStages }));
             return;
         }
 
         let rolls = [], diceTotal = 0, stabBonus = 0, total = 0, diceCount = 0;
         if (isHit) {
-            diceCount = diceData.count;
-            // PTA3: critical hit = all dice at max value (not double dice)
-            rolls = isCrit
-                ? Array(diceCount).fill(diceData.sides)
-                : rollDice(diceCount, diceData.sides);
-            diceTotal = rolls.reduce((sum, r) => sum + r, 0);
-            if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
-                stabBonus = calculateSTAB();
+            if (diceData.flat > 0) {
+                // Flat damage move (e.g. Dragon Rage): fixed value, no dice, no added bonuses
+                rolls = [diceData.flat];
+                diceTotal = diceData.flat;
+                total = diceData.flat;
+            } else {
+                diceCount = diceData.count;
+                // PTA3: critical hit = all dice at max value (not double dice)
+                rolls = isCrit
+                    ? Array(diceCount).fill(diceData.sides)
+                    : rollDice(diceCount, diceData.sides);
+                diceTotal = rolls.reduce((sum, r) => sum + r, 0);
+                if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
+                    stabBonus = calculateSTAB();
+                }
+                total = diceTotal + diceData.bonus + statMod + stabBonus;
             }
-            total = diceTotal + diceData.bonus + statMod + stabBonus;
         }
 
         addToHistory(buildPokemonRollEntry({
             ...commonFields,
-            dice: isHit ? `${diceCount}d${diceData.sides}` : null,
+            dice: isHit ? (diceData.flat > 0 ? `${diceData.flat} (fixed)` : `${diceCount}d${diceData.sides}`) : null,
             diceBonus: diceData.bonus,
-            rolls, diceTotal, statBonus: statMod, stabBonus, total, relevantStages
+            rolls, diceTotal, statBonus: diceData.flat > 0 ? 0 : statMod, stabBonus, total, relevantStages
         }));
     };
 

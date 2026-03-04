@@ -48,7 +48,7 @@ const TYPE_LINE_RE = new RegExp(
 
 const RANGE_PAT   = '(?:Melee|Self|(?:Ranged|Area|Burst|Cone|Line|Aura|Hazard|Swarm|Field)(?:\\([^)]+\\))?)';
 const FREQ_PAT    = 'At-Will|3\\/day|1\\/day';
-const DAMAGE_PAT  = '(?:[0-9]+d[0-9]+(?:[+\\-][0-9]+)?)?';
+const DAMAGE_PAT  = '(?:[0-9]+d[0-9]+(?:[+\\-][0-9]+)?|[0-9]+)?';
 // Single \s (not \s+) between words prevents double-space PDF artifacts
 // (e.g. "Gholdengo  Splash" from two consecutive newlines) from being
 // matched as a multi-word move name.
@@ -199,22 +199,60 @@ function parseMoves(block) {
     const accuracyMods = parseAccuracyMods(block);
     const section = block.slice(movesIdx).replace(/\n/g, ' ');
 
-    const moves = [];
+    // Collect all valid matches first so we can compute inter-match effect text
     MOVE_RE.lastIndex = 0;
-    let match;
-    while ((match = MOVE_RE.exec(section)) !== null) {
-        const rawName  = match[1].trim();
-        const name     = cleanMoveName(rawName);
+    const validMatches = [];
+    let m;
+    while ((m = MOVE_RE.exec(section)) !== null) {
+        const rawName = m[1].trim();
+        const name = cleanMoveName(rawName);
+        if (LORE_WORDS.has(name)) continue;
+        if (name.length < 2) continue;
+        validMatches.push({ m, name });
+    }
+
+    const moves = [];
+    for (let i = 0; i < validMatches.length; i++) {
+        const { m: match, name } = validMatches[i];
         const range    = match[2].trim();
         const type     = match[3].trim();
         const category = match[4].trim();
         const frequency = match[5].trim();
         const damage   = match[6] ? match[6].trim() : null;
 
-        if (LORE_WORDS.has(name)) continue;
-        if (name.length < 2) continue;
+        // Effect text: everything between end of this match and start of next,
+        // but clipped at any boundary that marks the end of move-effect text.
+        const matchEnd   = match.index + match[0].length;
+        const nextStart  = i + 1 < validMatches.length
+            ? validMatches[i + 1].m.index
+            : section.length;
+        let effectSlice = section.slice(matchEnd, nextStart);
+        // Clip at a blank-line boundary (PDF paragraphs: \n\n → two spaces after flattening).
+        // Move effects are single-line; lore paragraphs follow after a blank line.
+        const doubleSpaceBoundary = effectSlice.search(/  /);
+        if (doubleSpaceBoundary !== -1) effectSlice = effectSlice.slice(0, doubleSpaceBoundary);
+        // Clip at section headers (Biology:, Evolution:, Proficiencies:, Skills:, Passives:)
+        const sectionBoundary = effectSlice.search(
+            /\b(?:Biology|Evolution|Proficiencies|Skills|Passives)\s*:/i
+        );
+        if (sectionBoundary !== -1) effectSlice = effectSlice.slice(0, sectionBoundary);
+        // Clip at a Pokémon type line: "TypeName - Adj (Size), Adj (Weight)"
+        // These appear when the block includes the start of the next species entry.
+        const typeBoundary = effectSlice.search(
+            /\s(?:Normal|Fire|Water|Grass|Electric|Ice|Fighting|Poison|Ground|Flying|Psychic|Bug|Rock|Ghost|Dragon|Dark|Steel|Fairy)(?:\s*\/\s*(?:Normal|Fire|Water|Grass|Electric|Ice|Fighting|Poison|Ground|Flying|Psychic|Bug|Rock|Ghost|Dragon|Dark|Steel|Fairy))*\s+-\s+\w+\s+\(Size\)/
+        );
+        if (typeBoundary !== -1) effectSlice = effectSlice.slice(0, typeBoundary);
+        // Clip at a page number followed by prose (pdftotext page-break artifact): " 22 Word"
+        const pageNumBoundary = effectSlice.search(/\s\d{2,3}\s+[A-Z][a-z]/);
+        if (pageNumBoundary !== -1) effectSlice = effectSlice.slice(0, pageNumBoundary);
+        const effectRaw  = effectSlice
+            .replace(/\s{2,}/g, ' ')
+            .trim()
+            .replace(/^\.?\s*/, '')   // strip leading period/space
+            .trim();
+        const effect = effectRaw || null;
 
-        moves.push({ name, range, type, category, frequency, damage: damage || null });
+        moves.push({ name, range, type, category, frequency, damage: damage || null, effect });
     }
 
     return { moves, accuracyMods };
