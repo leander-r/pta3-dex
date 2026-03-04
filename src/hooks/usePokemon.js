@@ -183,7 +183,6 @@ export const usePokemon = (setTrainer, trainer) => {
                 switch (evo.method) {
                     case 'level':
                         canEvolveNow = true;
-                        reason = `Level ${evo.requirement}+ (story-based)`;
                         break;
                     case 'stone':
                         needsItem = evo.requirement;

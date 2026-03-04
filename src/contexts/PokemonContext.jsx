@@ -353,7 +353,6 @@ export const PokemonProvider = ({ children }) => {
                 switch (evo.method) {
                     case 'level':
                         canEvolveNow = true;
-                        reason = `Level ${evo.requirement}+ (story-based)`;
                         break;
                     case 'stone':
                         needsItem = evo.requirement;
