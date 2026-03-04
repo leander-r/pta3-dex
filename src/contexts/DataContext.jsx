@@ -289,7 +289,7 @@ export const DataProvider = ({ children }) => {
             message: 'This will replace your current data with the snapshot taken before your last save. Any changes since then will be lost. Continue?',
             danger: true,
             confirmLabel: 'Restore',
-            onConfirm: async () => {
+            onConfirm: () => {
                 try {
                     const backup = localStorage.getItem('pta3-auto-backup');
                     if (!backup) {

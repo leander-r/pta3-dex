@@ -65,15 +65,12 @@ const ClearCacheButton = () => {
                         message: 'Clear cached Pokédex and game data, then reload from the server?\n\nYour trainer data will be saved before refreshing.\n\nThis is useful if the data has been updated online or if you are experiencing issues with moves, abilities, or Pokémon not appearing correctly.',
                         confirmLabel: 'Clear & Reload',
                         danger: true,
-                        onConfirm: async () => {
+                        onConfirm: () => {
                             try {
-                                await new Promise(resolve => setTimeout(resolve, 1200));
                                 indexedDB.deleteDatabase('PTAPokedex');
                                 indexedDB.deleteDatabase(DATA_CONFIG.dbName);
-                                window.location.reload();
-                            } catch (e) {
-                                window.location.reload();
-                            }
+                            } catch {}
+                            window.location.reload();
                         }
                     });
                 }}

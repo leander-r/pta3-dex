@@ -237,13 +237,12 @@ const CardExportModal = () => {
                 title: 'Export Failed',
                 message: 'Image export failed. Would you like to copy the card data as text instead?',
                 confirmLabel: 'Copy Text',
-                onConfirm: async () => {
-                    try {
-                        await navigator.clipboard.writeText(cardText);
+                onConfirm: () => {
+                    navigator.clipboard.writeText(cardText).then(() => {
                         toast.success('Card data copied to clipboard!');
-                    } catch {
+                    }).catch(() => {
                         toast.error('Export failed. Try taking a screenshot manually (Print Screen key).');
-                    }
+                    });
                 }
             });
         }
