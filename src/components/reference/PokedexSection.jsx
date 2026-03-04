@@ -103,6 +103,7 @@ const SpeciesDetail = ({ species }) => {
         size,
         weight,
         speedFt,
+        accuracyMods,
     } = species;
 
     // New PTA3 format: skills is a string array; old format: object
@@ -149,7 +150,16 @@ const SpeciesDetail = ({ species }) => {
             {/* Passives (PTA3) */}
             {hasPassives && (
                 <DetailSection>
-                    <SectionLabel>Passives</SectionLabel>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        <SectionLabel>Passives</SectionLabel>
+                        {isPTA3 && accuracyMods && (
+                            <div style={{ display: 'flex', gap: '8px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                                {accuracyMods.atk != null && <span title="Attack accuracy bonus">ATK +{accuracyMods.atk}</span>}
+                                {accuracyMods.satk != null && <span title="Special Attack accuracy bonus">SATK +{accuracyMods.satk}</span>}
+                                {accuracyMods.eff != null && <span title="Effect accuracy bonus">EFF +{accuracyMods.eff}</span>}
+                            </div>
+                        )}
+                    </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                         {passives.map((p, i) => <Chip key={i} label={p} accent />)}
                     </div>
@@ -213,6 +223,8 @@ const SpeciesDetail = ({ species }) => {
                                     {!isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)', width: '36px' }}>Lv</th>}
                                     <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Move</th>
                                     <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Type</th>
+                                    {isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Cat.</th>}
+                                    {isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Range</th>}
                                     {isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Freq</th>}
                                     {isPTA3 && <th style={{ padding: '5px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 700, borderBottom: '1px solid var(--border-light)' }}>Dmg</th>}
                                 </tr>
@@ -234,6 +246,16 @@ const SpeciesDetail = ({ species }) => {
                                         <td style={{ padding: '5px 8px' }}>
                                             {move.type && <TypeChip type={move.type} />}
                                         </td>
+                                        {isPTA3 && (
+                                            <td style={{ padding: '5px 8px', color: 'var(--text-muted)', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                                                {move.category || '—'}
+                                            </td>
+                                        )}
+                                        {isPTA3 && (
+                                            <td style={{ padding: '5px 8px', color: 'var(--text-muted)', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                                                {move.range || '—'}
+                                            </td>
+                                        )}
                                         {isPTA3 && (
                                             <td style={{ padding: '5px 8px', color: 'var(--text-muted)', fontSize: '11px', whiteSpace: 'nowrap' }}>
                                                 {move.frequency || '—'}

@@ -98,7 +98,7 @@ const PokemonCard = ({
     const actualStats = useMemo(() => getActualStats(pokemon), [pokemon]);
     const maxHP = useMemo(() => calculatePokemonHP(pokemon), [pokemon]);
     const currentHP = maxHP - (pokemon.currentDamage || 0);
-    const stabBonus = useMemo(() => calculateSTAB(pokemon.level || 1), [pokemon.level]);
+    const stabBonus = useMemo(() => calculateSTAB(), []);
 
     const primaryType = pokemon.types?.[0] || 'Normal';
     const secondaryType = pokemon.types?.[1] || null;
@@ -350,9 +350,8 @@ const PokemonCard = ({
 
         const initialAbilities = availableAbilities.length > 0 ? [availableAbilities[0].name] : [];
 
-        // Auto-add starting moves (level 0 and 1) as natural moves
+        // Auto-add starting moves (PTA3: all moves available, no level gate)
         const startingMoves = levelUpMoves
-            .filter(m => m.level <= 1)
             .slice(0, MAX_TOTAL_MOVES)
             .map(m => {
                 const moveData = GAME_DATA?.moves?.[m.move];
@@ -459,7 +458,6 @@ const PokemonCard = ({
                             {pokemon.species && pokemon.species !== pokemon.name && (
                                 <span className="text-muted" style={{ fontSize: '13px' }}>({pokemon.species})</span>
                             )}
-                            <span className="text-muted" style={{ fontSize: '13px' }}>Lv.{pokemon.level || 1}</span>
                         </div>
 
                         <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -551,12 +549,14 @@ const PokemonCard = ({
 
                         {/* Expandable Section Buttons */}
                         <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
-                            {/* Abilities Button */}
+                            {/* Passives Button */}
                             {(() => {
-                                const abilities = (pokemon.abilities && pokemon.abilities.length > 0)
-                                    ? pokemon.abilities
-                                    : (pokemon.ability ? [pokemon.ability] : []);
-                                return abilities.length > 0 && (
+                                const passives = (pokemon.passives && pokemon.passives.length > 0)
+                                    ? pokemon.passives
+                                    : (pokemon.abilities && pokemon.abilities.length > 0)
+                                        ? pokemon.abilities
+                                        : (pokemon.ability ? [pokemon.ability] : []);
+                                return passives.length > 0 && (
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -576,7 +576,7 @@ const PokemonCard = ({
                                             gap: '4px'
                                         }}
                                     >
-                                        <span>✨</span> Abilities ({abilities.length})
+                                        <span>✨</span> Passives ({passives.length})
                                     </button>
                                 );
                             })()}
@@ -630,11 +630,13 @@ const PokemonCard = ({
                             )}
                         </div>
 
-                        {/* Expanded Abilities */}
+                        {/* Expanded Passives */}
                         {expandedSection === 'abilities' && (() => {
-                            const abilities = (pokemon.abilities && pokemon.abilities.length > 0)
-                                ? pokemon.abilities
-                                : (pokemon.ability ? [pokemon.ability] : []);
+                            const abilities = (pokemon.passives && pokemon.passives.length > 0)
+                                ? pokemon.passives
+                                : (pokemon.abilities && pokemon.abilities.length > 0)
+                                    ? pokemon.abilities
+                                    : (pokemon.ability ? [pokemon.ability] : []);
                             return (
                                 <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap', padding: '8px', background: 'var(--collapsed-abilities-bg)', borderRadius: '8px' }}>
                                     {abilities.map((abilityName, idx) => (
@@ -822,7 +824,6 @@ const PokemonCard = ({
                                 fontWeight: 'bold',
                             }}
                         />
-                        <span style={{ opacity: 0.8, whiteSpace: 'nowrap' }}>Lv.{pokemon.level}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                         <button
@@ -1357,70 +1358,8 @@ const PokemonCard = ({
                             </div>
                         </div>
 
-                        {/* Level, EXP & Nature */}
+                        {/* Nature & Gender */}
                         <div className="pokemon-info-grid">
-                            <div>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Level</label>
-                                <input
-                                    type="number"
-                                    value={pokemon.level || 1}
-                                    onChange={(e) => updatePokemon({ level: parseInt(e.target.value) || 1 })}
-                                    min="1"
-                                    max="100"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                />
-                            </div>
-                            <div>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
-                                    Experience
-                                    <span style={{ fontWeight: 'normal', fontSize: '11px', color: '#666', marginLeft: '4px' }}>
-                                        (auto-levels)
-                                    </span>
-                                </label>
-                                <div style={{ display: 'flex', gap: '4px' }}>
-                                    <input
-                                        type="number"
-                                        value={pokemon.exp || 0}
-                                        onChange={(e) => updatePokemon({ exp: parseInt(e.target.value) || 0 })}
-                                        min="0"
-                                        style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                    />
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                        <button
-                                            onClick={() => updatePokemon({ exp: (pokemon.exp || 0) + 100 })}
-                                            style={{
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                border: '1px solid #4caf50',
-                                                background: '#4caf50',
-                                                color: 'white',
-                                                cursor: 'pointer',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold'
-                                            }}
-                                            title="Add 100 EXP"
-                                        >
-                                            +100
-                                        </button>
-                                        <button
-                                            onClick={() => updatePokemon({ exp: Math.max(0, (pokemon.exp || 0) - 100) })}
-                                            style={{
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                border: '1px solid #f44336',
-                                                background: '#f44336',
-                                                color: 'white',
-                                                cursor: 'pointer',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold'
-                                            }}
-                                            title="Remove 100 EXP"
-                                        >
-                                            -100
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
                             <div>
                                 <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Nature</label>
                                 <select
@@ -1433,27 +1372,25 @@ const PokemonCard = ({
                                     ))}
                                 </select>
                             </div>
+                            <div>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Gender</label>
+                                <select
+                                    value={pokemon.gender || ''}
+                                    onChange={(e) => updatePokemon({ gender: e.target.value })}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                >
+                                    <option value="">Unknown</option>
+                                    <option value="male">Male ♂</option>
+                                    <option value="female">Female ♀</option>
+                                    <option value="genderless">Genderless ⚪</option>
+                                </select>
+                            </div>
                         </div>
 
-                        {/* Gender */}
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Gender</label>
-                            <select
-                                value={pokemon.gender || ''}
-                                onChange={(e) => updatePokemon({ gender: e.target.value })}
-                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                            >
-                                <option value="">Unknown</option>
-                                <option value="male">Male ♂</option>
-                                <option value="female">Female ♀</option>
-                                <option value="genderless">Genderless</option>
-                            </select>
-                        </div>
-
-                        {/* Abilities Section - Up to 3 */}
+                        {/* Passives/Abilities Section - Up to 3 */}
                         <div style={{ marginBottom: '15px' }}>
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                                <span>Abilities</span>
+                                <span>Passives</span>
                                 <span className="text-muted" style={{ fontWeight: 'normal' }}>
                                     {(pokemon.abilities || []).length}/3 selected
                                 </span>

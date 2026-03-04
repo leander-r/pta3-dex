@@ -148,7 +148,7 @@ export const useDiceRoller = (sendToDiscord = null) => {
         // Calculate STAB
         let stabBonus = 0;
         if (applyStab && pokemon.types && pokemon.types.includes(move.type)) {
-            stabBonus = calculateSTAB(pokemon.level || 1);
+            stabBonus = calculateSTAB();
         }
 
         // Total damage
@@ -211,35 +211,35 @@ export const useDiceRoller = (sendToDiscord = null) => {
         if (!skillData) return null;
 
         const statKey = skillData.stat?.toLowerCase();
-        const baseStat = trainer.stats?.[statKey] || 6;
+        const baseStat = trainer.stats?.[statKey] || 3;
 
-        // Calculate stat modifier first (needed for skill bonus)
-        const modifier = baseStat - 10;
+        // PTA3: modifier = ⌊stat / 2⌋
+        const modifier = Math.floor(baseStat / 2);
 
-        // Check skill rank (handles both object and legacy array format)
+        // Check talent level (handles both object and legacy array format)
         const skills = trainer.skills || {};
         const skillRank = Array.isArray(skills)
             ? (skills.includes(skillName) ? 1 : 0)
             : (skills[skillName] || 0);
         const hasSkill = skillRank > 0;
-        // Rank 1: +2 + modifier, Rank 2: +4 + (2×modifier)
-        const skillBonus = skillRank > 0 ? (skillRank * 2) + (skillRank * modifier) : 0;
+        // PTA3: 0 talents = +0, 1 talent = +2, 2 talents = +5
+        const talentBonus = skillRank === 2 ? 5 : skillRank === 1 ? 2 : 0;
 
-        // Roll 2d6
-        const rolls = rollDice(2, 6);
-        const rollTotal = rolls.reduce((sum, r) => sum + r, 0);
-        const total = rollTotal + modifier + skillBonus;
+        // PTA3: Roll 1d20
+        const rolls = rollDice(1, 20);
+        const rollTotal = rolls[0];
+        const total = rollTotal + modifier + talentBonus;
 
         const result = {
             type: 'trainer_skill',
             skill: skillName,
             skillStat: skillData.stat,
-            dice: '2d6',
+            dice: '1d20',
             rolls,
             baseStat,
             modifier,
             hasSkill,
-            bonus: skillBonus,
+            bonus: talentBonus,
             total,
             timestamp: Date.now()
         };

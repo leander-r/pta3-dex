@@ -176,8 +176,8 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                     <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{roll.skill} ({roll.skillStat})</div>
                                     <div style={{ fontSize: '12px' }}>
                                         <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{roll.total}</span>
-                                        <span> | [{roll.rolls?.join(', ')}] {roll.modifier >= 0 ? '+' : ''}{roll.modifier} stat</span>
-                                        {roll.hasSkill && <span> +2 trained</span>}
+                                        <span> | 1d20 [{roll.rolls?.join(', ')}] +{roll.modifier} stat</span>
+                                        {roll.hasSkill && roll.bonus > 0 && <span> +{roll.bonus} talent</span>}
                                     </div>
                                 </>
                             )}

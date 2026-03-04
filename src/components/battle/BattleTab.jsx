@@ -241,7 +241,7 @@ const BattleTab = () => {
             rolls = rollDice(diceCount, diceData.sides);
             diceTotal = rolls.reduce((sum, r) => sum + r, 0);
             if (applyStab && selectedPokemon.types?.includes(selectedMove.type)) {
-                stabBonus = calculateSTAB(selectedPokemon.level || 1);
+                stabBonus = calculateSTAB();
             }
             total = diceTotal + diceData.bonus + statMod + stabBonus;
         }
@@ -260,23 +260,24 @@ const BattleTab = () => {
         if (!skillData) return;
 
         const statKey = skillData.stat?.toLowerCase();
-        const baseStat = trainer.stats?.[statKey] || 6;
-        const modifier = baseStat - 10;
+        const baseStat = trainer.stats?.[statKey] || 3;
+        const modifier = Math.floor(baseStat / 2);
 
         const skills = trainer.skills || {};
         const skillRank = Array.isArray(skills)
             ? (skills.includes(selectedSkill) ? 1 : 0)
             : (skills[selectedSkill] || 0);
         const hasSkill = skillRank > 0;
-        const skillBonus = skillRank > 0 ? (skillRank * 2) + (skillRank * modifier) : 0;
+        // PTA3: 0 talents = +0, 1 talent = +2, 2 talents = +5
+        const talentBonus = skillRank === 2 ? 5 : skillRank === 1 ? 2 : 0;
 
-        const rolls = rollDice(2, 6);
-        const rollTotal = rolls.reduce((sum, r) => sum + r, 0);
-        const total = rollTotal + modifier + skillBonus;
+        const rolls = rollDice(1, 20);
+        const rollTotal = rolls[0];
+        const total = rollTotal + modifier + talentBonus;
 
         const trainerMaxHP = calculateMaxHP();
         const trainerCurrentHP = Math.max(0, trainerMaxHP - (trainer.currentDamage || 0));
-        addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '2d6', rolls, baseStat, modifier, hasSkill, bonus: skillBonus, total, trainerCurrentHP, trainerMaxHP, timestamp: Date.now() });
+        addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '1d20', rolls, baseStat, modifier, hasSkill, bonus: talentBonus, total, trainerCurrentHP, trainerMaxHP, timestamp: Date.now() });
     };
 
     const rollCustomDice = () => {
@@ -369,7 +370,7 @@ const BattleTab = () => {
                                         const hp = getPokemonHP(poke);
                                         return (
                                             <option key={poke.id} value={poke.id}>
-                                                {poke.name || poke.species} (Lv.{poke.level}) - HP: {hp.current}/{hp.max}
+                                                {poke.name || poke.species} — HP: {hp.current}/{hp.max}
                                             </option>
                                         );
                                     })}
@@ -468,9 +469,9 @@ const BattleTab = () => {
                                     </label>
                                     <span
                                         style={{ fontSize: '12px', color: 'var(--text-secondary)' }}
-                                        title="Same Type Attack Bonus (STAB): +2 at Lv.1-10, +4 at Lv.11-20, +6 at Lv.21-40, +8 at Lv.41-60, +10 at Lv.61+"
+                                        title="Same Type Attack Bonus (STAB): Fixed +4 damage when using a move matching the Pokémon's type."
                                     >
-                                        (+{calculateSTAB(selectedPokemon.level || 1)} for matching type)
+                                        (+{calculateSTAB()} for matching type)
                                     </span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override move AC (higher = harder to hit)">
                                         <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea' }}>AC Override:</label>
@@ -516,17 +517,16 @@ const BattleTab = () => {
                                 <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>
                                     {trainer.name || 'Trainer'} - Level {trainer.level || 1}
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
                                     {[
-                                        { key: 'hp',   label: 'HP',   color: '#e53935' },
                                         { key: 'atk',  label: 'ATK',  color: '#ff5722' },
                                         { key: 'def',  label: 'DEF',  color: '#2196f3' },
                                         { key: 'satk', label: 'SATK', color: '#9c27b0' },
                                         { key: 'sdef', label: 'SDEF', color: '#ff9800' },
                                         { key: 'spd',  label: 'SPD',  color: '#00bcd4' },
                                     ].map(stat => {
-                                        const value = trainer.stats?.[stat.key] || 10;
-                                        const mod = value >= 10 ? Math.floor((value - 10) / 2) : -(10 - value);
+                                        const value = trainer.stats?.[stat.key] || 3;
+                                        const mod = Math.floor(value / 2);
                                         return (
                                             <div key={stat.key} className="trainer-stat-mini-box" style={{ textAlign: 'center', padding: '4px', borderRadius: '4px' }}>
                                                 <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
@@ -585,18 +585,19 @@ const BattleTab = () => {
                             {selectedSkill && GAME_DATA.skills?.[selectedSkill] && (() => {
                                 const skillData = GAME_DATA.skills[selectedSkill];
                                 const statKey = skillData.stat?.toLowerCase();
-                                const baseStat = trainer.stats?.[statKey] || 10;
-                                const modifier = baseStat >= 10 ? Math.floor((baseStat - 10) / 2) : -(10 - baseStat);
+                                const baseStat = trainer.stats?.[statKey] || 3;
+                                const modifier = Math.floor(baseStat / 2);
                                 const skills = trainer.skills || {};
                                 const skillRank = Array.isArray(skills) ? (skills.includes(selectedSkill) ? 1 : 0) : (skills[selectedSkill] || 0);
                                 const hasTrained = skillRank > 0;
-                                const trainedBonus = skillRank > 0 ? (skillRank * 2) + (skillRank * modifier) : 0;
+                                // PTA3: 0 talents = +0, 1 talent = +2, 2 talents = +5
+                                const talentBonus = skillRank === 2 ? 5 : skillRank === 1 ? 2 : 0;
                                 return (
                                     <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
                                         <div><strong>{selectedSkill}</strong> ({skillData.stat})</div>
-                                        <div style={{ marginTop: '4px' }} title="Roll 2d6 + stat modifier. Trained skills add a bonus: Rank 1 = +2 + modifier, Rank 2 = +4 + (2× modifier)">
-                                            Roll: 2d6 {modifier >= 0 ? '+' : ''}{modifier} (stat)
-                                            {hasTrained && <span style={{ color: '#4caf50' }} title={`Rank ${skillRank} trained skill bonus`}> +{trainedBonus} (rank {skillRank})</span>}
+                                        <div style={{ marginTop: '4px' }} title="Roll 1d20 + stat modifier. Talent bonus: 1 talent = +2, 2 talents = +5">
+                                            Roll: 1d20 +{modifier} (stat)
+                                            {hasTrained && <span style={{ color: '#4caf50' }} title={`${skillRank} talent(s)`}> +{talentBonus} (talent)</span>}
                                         </div>
                                         <div className="text-muted" style={{ marginTop: '2px' }}>{skillData.description}</div>
                                     </div>
