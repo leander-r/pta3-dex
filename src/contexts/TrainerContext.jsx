@@ -13,6 +13,7 @@ import {
     CREATION_STAT_POINTS,
     MAX_PARTY_SIZE,
     MAX_TRAINER_LEVEL,
+    MAX_FEATURE_DROPS,
     CLASS_2_MIN_LEVEL,
     CLASS_3_MIN_LEVEL,
     CLASS_4_MIN_LEVEL,
@@ -66,14 +67,18 @@ function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
  * Returns feature names from allFeatures that belong to className
  * and have a "Level X" prerequisite exactly matching newClassLevel,
  * and are not already in ownedSet.
+ * Secondary base classes never receive their Level 15 feature.
  */
-function getNewFeaturesForClass(className, newClassLevel, ownedSet, allFeatures) {
+function getNewFeaturesForClass(className, newClassLevel, ownedSet, allFeatures, secondaryBaseClasses = []) {
+    const isSecondary = secondaryBaseClasses.includes(className);
     return Object.entries(allFeatures)
         .filter(([name, data]) => {
             if (data.category !== className) return false;
             if (ownedSet.has(name)) return false;
             const m = (data.prerequisites || '').match(/^Level (\d+)$/i);
-            return m && parseInt(m[1]) === newClassLevel;
+            if (!m || parseInt(m[1]) !== newClassLevel) return false;
+            if (isSecondary && parseInt(m[1]) === 15) return false;
+            return true;
         })
         .map(([name]) => name);
 }
@@ -96,6 +101,10 @@ export const TrainerProvider = ({ children }) => {
     // Multi-Trainer Management (owned here; DataProvider populates after loading saved data)
     const [trainers, setTrainers] = useState([{ ...DEFAULT_TRAINER, id: Date.now() }]);
     const [activeTrainerId, setActiveTrainerId] = useState(null);
+
+    // Feature drop: set when auto-granted features can optionally be swapped for +1 stat
+    // { features: string[], dropsRemaining: number }
+    const [pendingFeatureDrop, setPendingFeatureDrop] = useState(null);
 
     // Stat allocation undo — one-level snapshot
     const [lastStatSnapshot, setLastStatSnapshot] = useState(null);
@@ -333,11 +342,12 @@ export const TrainerProvider = ({ children }) => {
 
         // Auto-grant features unlocked at the new class level for each class
         const allFeatures = liveGameData?.features || {};
+        const secondaryBaseClasses = trainer.secondaryBaseClasses || [];
         const ownedSet = new Set((trainer.features || []).map(f => typeof f === 'object' ? f.name : f));
         const autoFeatures = [];
         Object.entries(trainer.classLevels || {}).forEach(([cls, clvl]) => {
             const newClsLevel = clvl + 1;
-            getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures).forEach(f => {
+            getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures, secondaryBaseClasses).forEach(f => {
                 autoFeatures.push(f);
                 ownedSet.add(f);
             });
@@ -354,6 +364,14 @@ export const TrainerProvider = ({ children }) => {
                 ? [...(prev.features || []), ...autoFeatures]
                 : (prev.features || [])
         }));
+
+        // Offer feature drop if features were granted and drops are available
+        if (autoFeatures.length > 0 && (trainer.featureDropsUsed || 0) < MAX_FEATURE_DROPS) {
+            setPendingFeatureDrop({
+                features: autoFeatures,
+                dropsRemaining: MAX_FEATURE_DROPS - (trainer.featureDropsUsed || 0)
+            });
+        }
 
         const notifications = isMilestone ? ['+2 stat points', 'Class slot unlocked! Roll HP bonus (d4)'] : [];
         if (notifications.length === 0) notifications.push('Level up!');
@@ -385,54 +403,60 @@ export const TrainerProvider = ({ children }) => {
         if (!amount || amount <= 0) return;
 
         const allFeatures = liveGameData?.features || {};
+        const newHonors = (trainer.honors || 0) + amount;
+        const oldLevel = trainer.level || 1;
 
-        setTrainer(prev => {
-            const newHonors = (prev.honors || 0) + amount;
-            const oldLevel = prev.level || 1;
+        // Find the highest level the new honors qualify for
+        let newLevel = oldLevel;
+        for (let lvl = oldLevel + 1; lvl <= MAX_TRAINER_LEVEL; lvl++) {
+            if (newHonors >= (HONOR_THRESHOLDS[lvl] ?? Infinity)) {
+                newLevel = lvl;
+            } else break;
+        }
 
-            // Find the highest level the new honors qualify for
-            let newLevel = oldLevel;
-            for (let lvl = oldLevel + 1; lvl <= MAX_TRAINER_LEVEL; lvl++) {
-                if (newHonors >= (HONOR_THRESHOLDS[lvl] ?? Infinity)) {
-                    newLevel = lvl;
-                } else break;
+        if (newLevel === oldLevel) {
+            setTrainer(prev => ({ ...prev, honors: newHonors }));
+            return;
+        }
+
+        // Apply all effects for each level gained
+        let levelStatPoints = trainer.levelStatPoints || 0;
+        let hpRolls = [...(trainer.hpRolls || [])];
+        const classLevels = { ...(trainer.classLevels || {}) };
+        const secondaryBaseClasses = trainer.secondaryBaseClasses || [];
+        const ownedSet = new Set((trainer.features || []).map(f => typeof f === 'object' ? f.name : f));
+        const autoFeatures = [];
+
+        for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
+            if (HP_MILESTONE_LEVELS.includes(lvl)) {
+                levelStatPoints += 2;
+                hpRolls.push(Math.ceil(Math.random() * 4));
             }
-
-            if (newLevel === oldLevel) {
-                return { ...prev, honors: newHonors };
-            }
-
-            // Apply all effects for each level gained
-            let levelStatPoints = prev.levelStatPoints || 0;
-            let hpRolls = [...(prev.hpRolls || [])];
-            const classLevels = { ...(prev.classLevels || {}) };
-            const ownedSet = new Set((prev.features || []).map(f => typeof f === 'object' ? f.name : f));
-            const autoFeatures = [];
-
-            for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
-                if (HP_MILESTONE_LEVELS.includes(lvl)) {
-                    levelStatPoints += 2;
-                    hpRolls.push(Math.ceil(Math.random() * 4));
-                }
-                Object.keys(classLevels).forEach(cls => {
-                    const newClsLevel = (classLevels[cls] ?? 0) + 1;
-                    classLevels[cls] = newClsLevel;
-                    getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures).forEach(f => {
-                        autoFeatures.push(f);
-                        ownedSet.add(f);
-                    });
+            Object.keys(classLevels).forEach(cls => {
+                const newClsLevel = (classLevels[cls] ?? 0) + 1;
+                classLevels[cls] = newClsLevel;
+                getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures, secondaryBaseClasses).forEach(f => {
+                    autoFeatures.push(f);
+                    ownedSet.add(f);
                 });
-            }
+            });
+        }
 
-            const features = autoFeatures.length > 0
-                ? [...(prev.features || []), ...autoFeatures]
-                : (prev.features || []);
+        const features = autoFeatures.length > 0
+            ? [...(trainer.features || []), ...autoFeatures]
+            : (trainer.features || []);
 
-            return { ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels, features };
-        });
+        setTrainer(prev => ({ ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels, features }));
+
+        if (autoFeatures.length > 0 && (trainer.featureDropsUsed || 0) < MAX_FEATURE_DROPS) {
+            setPendingFeatureDrop({
+                features: autoFeatures,
+                dropsRemaining: MAX_FEATURE_DROPS - (trainer.featureDropsUsed || 0)
+            });
+        }
 
         // Notification is shown by BulkExpModal after calling this
-    }, [setTrainer, liveGameData]);
+    }, [trainer, setTrainer, liveGameData]);
 
     // Level down the trainer (PTA3)
     const levelDownTrainer = useCallback(() => {
@@ -613,6 +637,29 @@ export const TrainerProvider = ({ children }) => {
         });
     }, [setParty, setReserve]);
 
+    // Drop a feature gained on level-up, gaining +1 to a chosen stat instead
+    const dropFeatureForStat = useCallback((featureName, stat) => {
+        if (!pendingFeatureDrop) return;
+        if ((trainer.featureDropsUsed || 0) >= MAX_FEATURE_DROPS) return;
+        const currentVal = trainer.stats[stat] || 1;
+        if (currentVal >= 10) {
+            toast.warning('That stat is already at 10!');
+            return;
+        }
+        setTrainer(prev => ({
+            ...prev,
+            features: (prev.features || []).filter(f => (typeof f === 'object' ? f.name : f) !== featureName),
+            stats: { ...prev.stats, [stat]: (prev.stats[stat] || 1) + 1 },
+            featureDropsUsed: (prev.featureDropsUsed || 0) + 1
+        }));
+        setPendingFeatureDrop(null);
+        toast.success(`Dropped "${featureName}" → +1 ${stat.toUpperCase()}`);
+    }, [pendingFeatureDrop, trainer, setTrainer]);
+
+    const dismissFeatureDrop = useCallback(() => {
+        setPendingFeatureDrop(null);
+    }, []);
+
     const value = {
         // Trainer State
         trainers,
@@ -647,6 +694,9 @@ export const TrainerProvider = ({ children }) => {
         awardHonors,
         respecTrainer,
         rollMilestoneHP,
+        pendingFeatureDrop,
+        dropFeatureForStat,
+        dismissFeatureDrop,
 
         // Pokemon Movement
         moveToParty,

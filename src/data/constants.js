@@ -27,8 +27,10 @@ export const DEFAULT_TRAINER = {
     hpRolls: [],           // 1d4 results added at levels 3, 7, 11
     statPoints: 25,        // Character creation points (point-buy budget)
     levelStatPoints: 0,    // Level-up stat points (no cap)
-    classLevels: {},       // Per-class level tracker: { 'Ace Trainer': 3, 'Stat Ace': 1 }
-    skills: {},            // Skills with talents: { 'Athletics': 1, 'Stealth': 2 }
+    classLevels: {},           // Per-class level tracker: { 'Ace Trainer': 3, 'Stat Ace': 1 }
+    secondaryBaseClasses: [],  // Base classes taken as 2nd/3rd slot (1 talent, no Lv15 feature)
+    featureDropsUsed: 0,       // How many features have been dropped for +1 stat (max 4)
+    skills: {},                // Skills with talents: { 'Athletics': 1, 'Stealth': 2 }
     features: [],
     notes: '',
     badges: [],
@@ -106,6 +108,11 @@ export const MOVE_SOURCES = {
     EGG: 'egg',
     CUSTOM: 'custom'
 };
+
+/**
+ * Maximum feature drops (swap a gained feature for +1 stat) per trainer career
+ */
+export const MAX_FEATURE_DROPS = 4;
 
 /**
  * Maximum party size

@@ -33,11 +33,17 @@ const STAT_LABELS = {
  */
 const TrainerFeatures = () => {
     const { showDetail, setShowCustomFeatureModal } = useModal();
-    const { trainer, setTrainer } = useTrainerContext();
+    const { trainer, setTrainer, pendingFeatureDrop, dropFeatureForStat, dismissFeatureDrop } = useTrainerContext();
     const { GAME_DATA } = useGameData();
     const { showHelp } = useUI();
     const [collapsed, setCollapsed] = useState(true);
     const [showUpcoming, setShowUpcoming] = useState(false);
+    const [dropTarget, setDropTarget] = useState(null); // feature name selected to drop
+
+    // Auto-expand when a feature drop is pending so the player sees the panel
+    React.useEffect(() => {
+        if (pendingFeatureDrop) { setCollapsed(false); setDropTarget(null); }
+    }, [pendingFeatureDrop]);
 
     const currentFeatures = trainer.features || [];
     const trainerClasses = trainer.classes || [];
@@ -124,6 +130,84 @@ const TrainerFeatures = () => {
                 <p className="section-description" style={{ fontSize: '12px' }}>
                     Features are automatically granted and removed as your classes level up or down.
                 </p>
+
+                {/* Feature Drop Panel — shown after level-up when drops are available */}
+                {pendingFeatureDrop && (
+                    <div style={{
+                        marginBottom: '14px', padding: '12px',
+                        background: 'linear-gradient(135deg, #fff3e0, #ffe0b2)',
+                        border: '2px solid #f57c00', borderRadius: '8px'
+                    }}>
+                        <div style={{ fontWeight: '700', fontSize: '13px', color: '#e65100', marginBottom: '6px' }}>
+                            🔄 Feature Drop Available ({pendingFeatureDrop.dropsRemaining} remaining)
+                        </div>
+                        <p style={{ fontSize: '12px', margin: '0 0 8px 0', color: '#5d4037' }}>
+                            You may drop one newly gained feature in exchange for +1 to a trainer stat.
+                            Max 4 drops per career. This is optional — dismiss to keep all features.
+                        </p>
+                        {!dropTarget ? (
+                            <>
+                                <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
+                                    Select a feature to drop:
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                                    {pendingFeatureDrop.features.map(name => (
+                                        <button
+                                            key={name}
+                                            onClick={() => setDropTarget(name)}
+                                            style={{
+                                                padding: '5px 10px', borderRadius: '6px', fontSize: '12px',
+                                                background: '#f57c00', color: 'white', border: 'none',
+                                                cursor: 'pointer', fontWeight: '600'
+                                            }}
+                                        >{name}</button>
+                                    ))}
+                                </div>
+                                <button
+                                    onClick={dismissFeatureDrop}
+                                    style={{
+                                        fontSize: '12px', background: 'none', border: '1px solid #bcaaa4',
+                                        borderRadius: '6px', padding: '5px 12px', cursor: 'pointer',
+                                        color: '#795548'
+                                    }}
+                                >Keep all features</button>
+                            </>
+                        ) : (
+                            <>
+                                <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
+                                    Drop <strong>{dropTarget}</strong> — choose stat to boost (+1):
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                                    {Object.entries(STAT_LABELS).map(([stat, label]) => {
+                                        const val = trainer.stats[stat] || 1;
+                                        const atCap = val >= 10;
+                                        return (
+                                            <button
+                                                key={stat}
+                                                onClick={() => { if (!atCap) { dropFeatureForStat(dropTarget, stat); setDropTarget(null); } }}
+                                                disabled={atCap}
+                                                style={{
+                                                    padding: '5px 10px', borderRadius: '6px', fontSize: '12px',
+                                                    background: atCap ? '#ddd' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                                    color: atCap ? '#999' : 'white', border: 'none',
+                                                    cursor: atCap ? 'not-allowed' : 'pointer', fontWeight: '600'
+                                                }}
+                                            >{label} ({val}→{Math.min(val + 1, 10)})</button>
+                                        );
+                                    })}
+                                </div>
+                                <button
+                                    onClick={() => setDropTarget(null)}
+                                    style={{
+                                        fontSize: '12px', background: 'none', border: '1px solid #bcaaa4',
+                                        borderRadius: '6px', padding: '5px 12px', cursor: 'pointer',
+                                        color: '#795548'
+                                    }}
+                                >← Back</button>
+                            </>
+                        )}
+                    </div>
+                )}
 
                 {/* Current Features */}
                 {currentFeatures.length === 0 ? (

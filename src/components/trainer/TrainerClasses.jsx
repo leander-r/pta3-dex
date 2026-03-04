@@ -34,10 +34,20 @@ const TrainerClasses = () => {
         return classData.skillPool;
     };
 
-    // How many skills a class grants (base = 2, advanced = 1)
+    // Determine if a class being added is a secondary base class
+    // (trainer already has a base class → 1 talent only, no Level 15)
+    const isSecondaryBaseClass = (className) => {
+        const classData = GAME_DATA.trainerClasses?.[className];
+        if (classData?.type !== 'base') return false;
+        const existingBaseClasses = currentClasses.filter(c => GAME_DATA.trainerClasses?.[c]?.type === 'base');
+        return existingBaseClasses.length > 0;
+    };
+
+    // How many skills a class grants (base = 2, advanced = 1; secondary base = 1)
     const getSkillCount = (className) => {
         const classData = GAME_DATA.trainerClasses?.[className];
-        return classData?.type === 'base' ? 2 : 1;
+        if (classData?.type !== 'base') return 1;
+        return isSecondaryBaseClass(className) ? 1 : 2;
     };
 
     const getSkillRank = (skillName) => {
@@ -114,7 +124,8 @@ const TrainerClasses = () => {
                 }),
                 skills: updatedSkills,
                 classSkills: newClassSkills,
-                classLevels: newClassLevels
+                classLevels: newClassLevels,
+                secondaryBaseClasses: (prev.secondaryBaseClasses || []).filter(c => c !== cls)
             };
         });
     };
@@ -147,7 +158,9 @@ const TrainerClasses = () => {
     const handleConfirmClass = () => {
         if (!pendingClass) return;
 
-        // Auto-grant Level 1 features
+        const isSecondary = isSecondaryBaseClass(pendingClass);
+
+        // Auto-grant Level 1 features (secondary base classes still get Level 1 features)
         const level1Features = getLevel1Features(pendingClass);
         const existingFeatureNames = new Set(
             (trainer.features || []).map(f => typeof f === 'object' ? f.name : f)
@@ -180,7 +193,10 @@ const TrainerClasses = () => {
                 classLevels: {
                     ...(prev.classLevels || {}),
                     [pendingClass]: trainer.level
-                }
+                },
+                secondaryBaseClasses: isSecondary
+                    ? [...(prev.secondaryBaseClasses || []), pendingClass]
+                    : (prev.secondaryBaseClasses || [])
             };
         });
 
@@ -295,6 +311,11 @@ const TrainerClasses = () => {
                         <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginTop: '4px' }}>
                             1 talent = +2 bonus | 2 talents = +5 bonus | Passive skills cap at 1 talent.
                         </span>
+                        {isSecondaryBaseClass(pendingClass) && (
+                            <span style={{ color: '#e65100', fontSize: '11px', display: 'block', marginTop: '4px', fontWeight: '600' }}>
+                                ⚠ Secondary base class: 1 talent only, and the Level 15 feature is not available.
+                            </span>
+                        )}
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
                         {getClassSkillPool(pendingClass).map(skillName => {
