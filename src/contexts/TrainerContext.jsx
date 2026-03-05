@@ -26,40 +26,37 @@ import { useUI } from './UIContext.jsx';
 import { useModal } from './ModalContext.jsx';
 
 // ── Pure helper ─────────────────────────────────────────────
-// PTA3 point-buy: stat cost is cumulative from 1 to value (see POINT_BUY_COSTS).
-// Returns { creationDelta, levelDelta } (negative = spend, positive = refund).
-// Returns null when the move is impossible (not enough points).
+// PTA3 point-buy: cumulative creation cost from 1 to value.
+// Only used for the character-creation pool; level-up uses flat 1-per-+1.
 function getCumulativeCost(value) {
     return POINT_BUY_COSTS[Math.min(value, 6)] || (value > 6 ? POINT_BUY_COSTS[6] + (value - 6) : 0);
 }
 
+// Returns { creationDelta, levelDelta } (negative = spend, positive = refund).
+// Returns null when the move is impossible (not enough points).
+//
+// Creation points use the point-buy cost table (spending 3→4 costs 3 pts, etc.).
+// Level points (granted at milestone levels 3/7/11) are always flat: 1 pt = +1 stat.
 function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
-    const oldCost = getCumulativeCost(oldValue);
-    const newCost = getCumulativeCost(newValue);
-    const delta = newCost - oldCost;
-
-    if (delta > 0) {
-        // Spending points
+    if (newValue > oldValue) {
+        // Spending: try creation-point-buy first (only within creation cap)
         if (newValue <= CREATION_STAT_CAP) {
-            // Still within creation cap — use creation points first
-            if (creationPoints >= delta) {
-                return { creationDelta: -delta, levelDelta: 0 };
+            const creationCost = getCumulativeCost(newValue) - getCumulativeCost(oldValue);
+            if (creationPoints >= creationCost) {
+                return { creationDelta: -creationCost, levelDelta: 0 };
             }
-            // Not enough creation points — drain creation then level points
-            const remaining = delta - creationPoints;
-            if (remaining > levelPoints) return null;
-            return { creationDelta: -creationPoints, levelDelta: -remaining };
-        } else {
-            // Above cap — use level points only
-            if (delta > levelPoints) return null;
-            return { creationDelta: 0, levelDelta: -delta };
         }
+        // Level-up path: flat 1 level point per +1 (PTA3 rule: "increase by 1")
+        const flatCost = newValue - oldValue;
+        if (flatCost > levelPoints) return null;
+        return { creationDelta: 0, levelDelta: -flatCost };
     } else {
-        // Refunding points
-        const refund = Math.abs(delta);
-        return oldValue <= CREATION_STAT_CAP
-            ? { creationDelta: refund, levelDelta: 0 }
-            : { creationDelta: 0, levelDelta: refund };
+        // Refunding (stat reduced via − button)
+        if (oldValue <= CREATION_STAT_CAP) {
+            const creationRefund = getCumulativeCost(oldValue) - getCumulativeCost(newValue);
+            return { creationDelta: creationRefund, levelDelta: 0 };
+        }
+        return { creationDelta: 0, levelDelta: oldValue - newValue };
     }
 }
 
