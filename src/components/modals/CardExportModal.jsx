@@ -40,13 +40,11 @@ const CARD_TOKENS = {
     },
     frequencyMap: {
         'At-Will': 'AW',
+        '3/day': '3/D',
+        '1/day': '1/D',
+        // Legacy fallbacks for migrated data
         'EOT': 'EOT',
-        'Scene': 'SC',
-        'Scene x2': 'SC×2',
-        'Scene x3': 'SC×3',
-        'Daily': 'DY',
-        'Daily x2': 'DY×2',
-        'Daily x3': 'DY×3'
+        'Daily': 'DY'
     }
 };
 

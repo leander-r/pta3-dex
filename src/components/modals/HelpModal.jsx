@@ -79,13 +79,13 @@ const HELP_CONTENT = {
         title: 'Trainer Features',
         body: () => (
             <>
-                <p>Features are special abilities that customize your trainer's playstyle. Most cost <strong>1 feat point</strong> to acquire.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Feat Points</h4>
-                <p>You earn feat points by leveling up and through certain class choices. <strong>Base classes</strong> grant +2 feat points; <strong>Advanced classes</strong> each cost 1 feat point. Unspent points carry over.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Free Features</h4>
-                <p>Features listed under <em>General (Free)</em> cost <strong>0 feat points</strong>. Base class features are highlighted in green and are automatically granted — they do not cost extra points.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Removing Features</h4>
-                <p>Click a feature chip and choose <em>Remove</em> to refund the feat point. Class base features cannot be removed while that class is still active.</p>
+                <p>Features are special abilities granted automatically when your class level advances. There are no feat points — features are simply unlocked at each class level milestone.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Auto-Granted Features</h4>
+                <p>Every time your trainer levels up, each class also advances one level and automatically grants any features tied to that class level. You don't need to pick or buy them.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Feature Drop</h4>
+                <p>When a new feature is granted, you may optionally <strong>drop</strong> it in exchange for <strong>+1 to any stat</strong>. You can do this up to <strong>4 times</strong> total across your career. If you keep all features, the prompt disappears.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Level 15 Capstone</h4>
+                <p>Only your <strong>first base class</strong> ever grants its Level 15 capstone feature. All other classes (advanced or secondary base) do not receive a Level 15 feature.</p>
             </>
         )
     },

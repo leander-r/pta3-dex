@@ -117,10 +117,8 @@ const MovesSection = () => {
                     >
                         <option value="">All Frequencies</option>
                         <option value="At-Will">At-Will</option>
-                        <option value="EOT">EOT</option>
-                        <option value="Battle">Battle</option>
-                        <option value="Center">Center</option>
-                        <option value="Daily">Daily</option>
+                        <option value="3/day">3/day</option>
+                        <option value="1/day">1/day</option>
                     </select>
 
                     <select

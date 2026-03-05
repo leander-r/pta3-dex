@@ -14,13 +14,7 @@ const TYPE_LIST = [
     'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'
 ];
 
-const FREQUENCY_OPTIONS = [
-    'At-Will', 'At-Will - 2', 'At-Will - 3',
-    'EOT', 'EOT - 2',
-    'Battle', 'Battle - 2',
-    'Center', 'Center - 2',
-    'Daily'
-];
+const FREQUENCY_OPTIONS = ['At-Will', '3/day', '1/day'];
 
 /**
  * CustomMoveModal - Modal for creating custom Pokemon moves
@@ -55,26 +49,14 @@ const CustomMoveModal = () => {
             return;
         }
 
-        // Check move limits
-        const source = customMove.source === 'taught' ? 'taught' : 'natural';
-        const naturalMoves = targetPoke.moves.filter(m => m.source === 'natural').length;
-        const taughtMoves = targetPoke.moves.filter(m => m.source === 'taught').length;
-
-        if (source === 'natural' && naturalMoves >= 4) {
-            toast.warning('This Pokemon already has 4 Natural moves.');
-            return;
-        }
-        if (source === 'taught' && taughtMoves >= 4) {
-            toast.warning('This Pokemon already has 4 Taught moves.');
-            return;
-        }
-        if (targetPoke.moves.length >= 8) {
-            toast.warning('This Pokemon already has 8 moves.');
+        // PTA3: 6-move total cap, no natural/taught distinction
+        if (targetPoke.moves.length >= 6) {
+            toast.warning('This Pokémon already knows 6 moves. Remove one first.');
             return;
         }
 
         updatePokemon(customMoveForPokemon, {
-            moves: [...targetPoke.moves, { ...customMove, source }]
+            moves: [...targetPoke.moves, { ...customMove }]
         });
 
         setShowCustomMoveModal(false);
@@ -185,29 +167,16 @@ const CustomMoveModal = () => {
                         </div>
                     </div>
 
-                    <div className="grid-responsive-2 gap-sm">
-                        <div className="form-group">
-                            <label>Frequency</label>
-                            <select
-                                value={customMove.frequency}
-                                onChange={(e) => setCustomMove(prev => ({ ...prev, frequency: e.target.value }))}
-                            >
-                                {FREQUENCY_OPTIONS.map(freq => (
-                                    <option key={freq} value={freq}>{freq}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Move Source</label>
-                            <select
-                                value={customMove.source}
-                                onChange={(e) => setCustomMove(prev => ({ ...prev, source: e.target.value }))}
-                            >
-                                <option value="natural">Natural / Level-Up</option>
-                                <option value="taught">Taught / TM / Tutor</option>
-                            </select>
-                        </div>
+                    <div className="form-group">
+                        <label>Frequency</label>
+                        <select
+                            value={customMove.frequency}
+                            onChange={(e) => setCustomMove(prev => ({ ...prev, frequency: e.target.value }))}
+                        >
+                            {FREQUENCY_OPTIONS.map(freq => (
+                                <option key={freq} value={freq}>{freq}</option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="grid-responsive-2 gap-sm">
