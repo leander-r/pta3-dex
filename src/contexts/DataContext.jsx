@@ -7,6 +7,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
 import { migrateSaveData, cleanupLegacyFeatures } from '../utils/dataMigration.js';
+import { gameDataLoadPromise } from '../data/gameDataLoader.js';
 import { buildEmbed } from '../utils/discordEmbeds.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
@@ -262,7 +263,9 @@ export const DataProvider = ({ children }) => {
                     } catch {}
                 }
 
-                // Step 3: Strip old-PTA feature strings that have no PTA3 equivalent
+                // Step 3: Strip old-PTA feature strings that have no PTA3 equivalent.
+                // Wait for game data so GAME_DATA.features is populated before cleaning.
+                await gameDataLoadPromise.catch(() => {});
                 const { data: cleanedData, cleaned: wasFeaturesCleaned } = cleanupLegacyFeatures(migratedData, GAME_DATA?.features || {});
                 if (wasFeaturesCleaned) {
                     migratedData = cleanedData;
