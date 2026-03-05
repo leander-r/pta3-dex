@@ -513,6 +513,8 @@ const PokemonSkillDetails = ({ data, name }) => {
             case 'speed': return '#2196f3';
             case 'basic': return '#9c27b0';
             case 'legendary': return '#ff9800';
+            case 'canonical': return '#4caf50';
+            case 'species-specific': return '#ff9800';
             default: return '#4caf50';
         }
     };
@@ -522,6 +524,8 @@ const PokemonSkillDetails = ({ data, name }) => {
             case 'speed': return '🏃 Speed Skill';
             case 'basic': return '📊 Basic Skill';
             case 'legendary': return '⭐ Legendary Skill';
+            case 'canonical': return '🐾 Pokemon Skill';
+            case 'species-specific': return '⭐ Species Skill';
             default: return '✨ Capability';
         }
     };
@@ -647,6 +651,24 @@ const PokemonSkillDetails = ({ data, name }) => {
             <InfoBox label="Description" icon="📖" variant="default">
                 {data?.description || 'No description available.'}
             </InfoBox>
+
+            {data?.gainedFrom?.length > 0 && (
+                <InfoBox label="Gained From" icon="📚" variant="blue">
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {data.gainedFrom.map((move, i) => (
+                            <span key={i} style={{ padding: '2px 8px', background: '#e3f2fd', borderRadius: '10px', fontSize: '12px', color: '#1565c0', border: '1px solid #90caf9' }}>
+                                {move}
+                            </span>
+                        ))}
+                    </div>
+                </InfoBox>
+            )}
+
+            {data?.species?.length > 0 && (
+                <InfoBox label="Species" icon="🌟" variant="purple">
+                    {data.species.join(', ')}
+                </InfoBox>
+            )}
         </div>
     );
 };
