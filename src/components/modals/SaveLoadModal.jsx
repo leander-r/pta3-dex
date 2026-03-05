@@ -320,7 +320,7 @@ const SaveLoadModal = () => {
     useEffect(() => {
         if (!showSaveLoadModal) return;
         try {
-            const raw = localStorage.getItem('pta-auto-backup');
+            const raw = localStorage.getItem('pta3-auto-backup');
             setAutoSave(raw ? JSON.parse(raw) : null);
         } catch {
             setAutoSave(null);

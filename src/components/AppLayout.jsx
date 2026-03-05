@@ -7,7 +7,7 @@
 import React, { lazy, Suspense, useState, useEffect } from 'react';
 
 // Data & Configs
-import { DATA_CONFIG, GAME_DATA } from '../data/configs.js';
+import { DATA_CONFIG, POKEDEX_CONFIG, GAME_DATA } from '../data/configs.js';
 
 // Tab Components — lazily loaded so each tab's JS is only parsed on first visit
 import { TrainerTab } from './trainer'; // default tab: keep eager so no flash on load
@@ -67,7 +67,7 @@ const ClearCacheButton = () => {
                         danger: true,
                         onConfirm: () => {
                             try {
-                                indexedDB.deleteDatabase('PTAPokedex');
+                                indexedDB.deleteDatabase(POKEDEX_CONFIG.dbName);
                                 indexedDB.deleteDatabase(DATA_CONFIG.dbName);
                             } catch {}
                             window.location.reload();
