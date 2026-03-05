@@ -159,8 +159,17 @@ const TrainerStats = () => {
                                         }}>{val}</span>
                                         <button
                                             onClick={() => updateTrainerStat(stat.key, val + 1)}
-                                            disabled={val >= 10}
-                                            style={btnStyle(val >= 10)}
+                                            disabled={val >= 10 || (
+                                                (trainer.levelStatAllocations || []).includes(stat.key) &&
+                                                (trainer.levelStatPoints || 0) > 0 &&
+                                                (trainer.statPoints || 0) === 0
+                                            )}
+                                            style={btnStyle(val >= 10 || (
+                                                (trainer.levelStatAllocations || []).includes(stat.key) &&
+                                                (trainer.levelStatPoints || 0) > 0 &&
+                                                (trainer.statPoints || 0) === 0
+                                            ))}
+                                            title={(trainer.levelStatAllocations || []).includes(stat.key) && (trainer.levelStatPoints || 0) > 0 ? 'Already raised this level-up — choose a different stat' : undefined}
                                             aria-label={`Increase ${stat.label}`}
                                         >+</button>
                                     </div>

@@ -27,6 +27,7 @@ export const DEFAULT_TRAINER = {
     hpRolls: [],           // 1d4 results added at levels 3, 7, 11
     statPoints: 25,        // Character creation points (point-buy budget)
     levelStatPoints: 0,    // Level-up stat points (no cap)
+    levelStatAllocations: [],  // Stats already raised with level points in current batch (enforces "two different stats" rule)
     classLevels: {},           // Per-class level tracker: { 'Ace Trainer': 3, 'Stat Ace': 1 }
     primaryBaseClass: '',      // First base class ever taken — only one to receive Level 15 feature
     secondaryBaseClasses: [],  // Base classes taken as 2nd/3rd slot (1 talent, no Lv15 feature)

@@ -263,18 +263,36 @@ export const TrainerProvider = ({ children }) => {
         const allocation = allocateStatPoints(oldValue, newValue, trainer.statPoints || 0, levelPoints);
         if (!allocation) return;
 
+        const allocations = trainer.levelStatAllocations || [];
+
+        // PTA3 rule: at each milestone, the two increases must go to different stats
+        if (allocation.levelDelta < 0 && allocations.includes(stat)) {
+            toast.warning('You already used a level point on this stat. Choose a different stat.');
+            return;
+        }
+
         // Capture snapshot before applying change (enables one-level undo)
         setLastStatSnapshot({
             stats: { ...trainer.stats },
             statPoints: trainer.statPoints,
-            levelStatPoints: trainer.levelStatPoints || 0
+            levelStatPoints: trainer.levelStatPoints || 0,
+            levelStatAllocations: allocations
         });
+
+        // Track which stats were raised with level points
+        let newAllocations = allocations;
+        if (allocation.levelDelta < 0) {
+            newAllocations = [...allocations, stat];
+        } else if (allocation.levelDelta > 0) {
+            newAllocations = allocations.filter(s => s !== stat);
+        }
 
         setTrainer(prev => ({
             ...prev,
             stats: { ...prev.stats, [stat]: newValue },
             statPoints: (prev.statPoints || 0) + allocation.creationDelta,
-            levelStatPoints: (prev.levelStatPoints || 0) + allocation.levelDelta
+            levelStatPoints: (prev.levelStatPoints || 0) + allocation.levelDelta,
+            levelStatAllocations: newAllocations
         }));
     }, [trainer, setTrainer, setLastStatSnapshot]);
 
@@ -284,7 +302,8 @@ export const TrainerProvider = ({ children }) => {
             ...prev,
             stats: lastStatSnapshot.stats,
             statPoints: lastStatSnapshot.statPoints,
-            levelStatPoints: lastStatSnapshot.levelStatPoints
+            levelStatPoints: lastStatSnapshot.levelStatPoints,
+            levelStatAllocations: lastStatSnapshot.levelStatAllocations || []
         }));
         setLastStatSnapshot(null);
     }, [lastStatSnapshot, setTrainer]);
@@ -353,6 +372,7 @@ export const TrainerProvider = ({ children }) => {
             ...prev,
             level: newLevel,
             levelStatPoints: (prev.levelStatPoints || 0) + (isMilestone ? 2 : 0),
+            levelStatAllocations: isMilestone ? [] : (prev.levelStatAllocations || []),
             classLevels: Object.fromEntries(
                 Object.entries(prev.classLevels || {}).map(([k, v]) => [k, v + 1])
             ),
@@ -442,7 +462,7 @@ export const TrainerProvider = ({ children }) => {
             ? [...(trainer.features || []), ...autoFeatures]
             : (trainer.features || []);
 
-        setTrainer(prev => ({ ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels, features }));
+        setTrainer(prev => ({ ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels, features, levelStatAllocations: [] }));
 
         if (autoFeatures.length > 0 && (trainer.featureDropsUsed || 0) < MAX_FEATURE_DROPS) {
             setPendingFeatureDrop({
@@ -536,6 +556,7 @@ export const TrainerProvider = ({ children }) => {
                             honors: 0,
                             statPoints: DEFAULT_TRAINER.statPoints,
                             levelStatPoints: 0,
+                            levelStatAllocations: [],
                             classLevels: {},
                             classes: [],
                             primaryBaseClass: '',
