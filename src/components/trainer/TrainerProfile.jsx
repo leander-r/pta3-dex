@@ -17,9 +17,10 @@ const TrainerProfile = () => {
         levelUpTrainer,
         levelDownTrainer,
         respecTrainer,
-        calculateMaxHP
+        calculateMaxHP,
+        awardHonors
     } = useTrainerContext();
-    const { showConfirm, setShowBulkExpModal } = useModal();
+    const { showConfirm } = useModal();
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
@@ -279,18 +280,6 @@ const TrainerProfile = () => {
                 </div>
             )}
 
-            {/* Award Honors button */}
-            {!isLevel0 && (
-                <button
-                    onClick={() => setShowBulkExpModal(true)}
-                    className="btn btn-purple"
-                    style={{ width: '100%', marginTop: '10px', padding: '8px', fontSize: '13px' }}
-                    title="Award Honors from Gym Badges, Ribbons, and story milestones"
-                >
-                    🎖 Award Honors
-                </button>
-            )}
-
             {/* Quick Stats — 3 boxes */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '14px' }}>
                 <div
@@ -305,7 +294,20 @@ const TrainerProfile = () => {
                     title="Honors earned (gym badges, ribbons, etc.) — determines trainer level"
                 >
                     <div style={{ fontSize: '12px', color: '#e8941c', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🎖 Honors</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f5a623', lineHeight: 1.2 }}>{trainer.honors || 0}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '2px' }}>
+                        <button
+                            onClick={() => setTrainer(prev => ({ ...prev, honors: Math.max(0, (prev.honors || 0) - 1) }))}
+                            disabled={!trainer.honors}
+                            aria-label="Remove honor"
+                            style={{ width: '22px', height: '22px', border: '1.5px solid #f5a62399', borderRadius: '4px', background: trainer.honors ? '#f5a62322' : 'transparent', color: trainer.honors ? '#f5a623' : 'var(--text-muted)', cursor: trainer.honors ? 'pointer' : 'not-allowed', fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1 }}
+                        >−</button>
+                        <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f5a623', lineHeight: 1, minWidth: '24px' }}>{trainer.honors || 0}</div>
+                        <button
+                            onClick={() => awardHonors(1)}
+                            aria-label="Add honor"
+                            style={{ width: '22px', height: '22px', border: '1.5px solid #f5a62399', borderRadius: '4px', background: '#f5a62322', color: '#f5a623', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1 }}
+                        >+</button>
+                    </div>
                 </div>
                 <div
                     style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #667eea25 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #667eea55', borderTop: '3px solid #667eea', cursor: 'pointer' }}
