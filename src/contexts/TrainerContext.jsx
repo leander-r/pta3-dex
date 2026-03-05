@@ -653,7 +653,13 @@ export const TrainerProvider = ({ children }) => {
             stats: { ...prev.stats, [stat]: (prev.stats[stat] || 1) + 1 },
             featureDropsUsed: (prev.featureDropsUsed || 0) + 1
         }));
-        setPendingFeatureDrop(null);
+        const remainingFeatures = pendingFeatureDrop.features.filter(f => f !== featureName);
+        const newDropsRemaining = pendingFeatureDrop.dropsRemaining - 1;
+        if (newDropsRemaining > 0 && remainingFeatures.length > 0) {
+            setPendingFeatureDrop({ features: remainingFeatures, dropsRemaining: newDropsRemaining });
+        } else {
+            setPendingFeatureDrop(null);
+        }
         toast.success(`Dropped "${featureName}" → +1 ${stat.toUpperCase()}`);
     }, [pendingFeatureDrop, trainer, setTrainer]);
 

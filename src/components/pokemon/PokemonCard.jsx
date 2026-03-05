@@ -2082,7 +2082,7 @@ const PokemonCard = ({
                                     </span>
                                 </div>
                                 <div style={{ fontSize: '11px', color: '#888', marginBottom: '10px', fontStyle: 'italic' }}>
-                                    Search below, then click <span style={{ background: '#4caf50', color: 'white', padding: '1px 4px', borderRadius: '3px', fontWeight: 'bold', fontStyle: 'normal' }}>N</span> to add as Natural or <span style={{ background: '#2196f3', color: 'white', padding: '1px 4px', borderRadius: '3px', fontWeight: 'bold', fontStyle: 'normal' }}>T</span> to add as Taught
+                                    Search below, then click <span style={{ background: '#4caf50', color: 'white', padding: '1px 4px', borderRadius: '3px', fontWeight: 'bold', fontStyle: 'normal' }}>+</span> to add a move
                                 </div>
 
                                 {/* Search Input */}
@@ -2224,7 +2224,7 @@ const PokemonCard = ({
                                                             fontWeight: 'bold'
                                                         }}>{data.category?.charAt(0) || '?'}</span>
                                                         <button
-                                                            onClick={() => addMoveWithSource(name, data, 'natural')}
+                                                            onClick={() => addMoveWithSource(name, data, 'species')}
                                                             style={{
                                                                 padding: '2px 6px',
                                                                 background: (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES ? '#ff9800' : '#4caf50',
@@ -2235,25 +2235,9 @@ const PokemonCard = ({
                                                                 fontWeight: 'bold',
                                                                 cursor: 'pointer'
                                                             }}
-                                                            title={(pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES ? "Replace a move (at limit)" : "Add as Natural move"}
+                                                            title={(pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES ? "Replace a move (at limit)" : "Add move"}
                                                         >
-                                                            N
-                                                        </button>
-                                                        <button
-                                                            onClick={() => addMoveWithSource(name, data, 'taught')}
-                                                            style={{
-                                                                padding: '2px 6px',
-                                                                background: (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES ? '#ff9800' : '#2196f3',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '4px',
-                                                                fontSize: '10px',
-                                                                fontWeight: 'bold',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            title={(pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES ? "Replace a move (at limit)" : "Add as Taught move"}
-                                                        >
-                                                            T
+                                                            +
                                                         </button>
                                                         <button
                                                             onClick={(e) => {

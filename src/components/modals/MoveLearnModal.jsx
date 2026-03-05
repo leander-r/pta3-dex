@@ -16,10 +16,9 @@ import { useModal, useGameData, usePokemonContext } from '../../contexts/index.j
  * {
  *   pokemonId: string,
  *   pokemonName: string,
- *   newMove: { move: string, type: string, level?: number, source?: 'natural'|'taught', ...moveData },
+ *   newMove: { move: string, type: string, level?: number, ...moveData },
  *   currentMoves: array,
  *   inParty: boolean,
- *   source: 'natural'|'taught' (optional, defaults to newMove.source or 'natural')
  * }
  */
 const MoveLearnModal = () => {
@@ -35,10 +34,6 @@ const MoveLearnModal = () => {
     const { modalRef } = useModalKeyboard(showMoveLearnModal && !!moveLearnData, handleClose);
 
     if (!showMoveLearnModal || !moveLearnData) return null;
-
-    // Determine the source type (natural or taught)
-    const moveSource = moveLearnData.source || moveLearnData.newMove?.source || 'natural';
-    const isNatural = moveSource === 'natural';
 
     const handleForgetMove = (index) => {
         learnMove(
@@ -57,13 +52,13 @@ const MoveLearnModal = () => {
         <div className="modal-overlay" onClick={handleClose} role="presentation">
             <div
                 ref={modalRef}
-                className={`modal move-learn-modal ${isNatural ? 'natural' : 'taught'}`}
+                className="modal move-learn-modal"
                 onClick={e => e.stopPropagation()}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="move-learn-modal-title"
             >
-                <div className={`modal-header move-learn-header ${isNatural ? 'natural' : 'taught'}`}>
+                <div className="modal-header move-learn-header">
                     <h3 id="move-learn-modal-title">🎉 New Move Available!</h3>
                 </div>
 
@@ -96,7 +91,7 @@ const MoveLearnModal = () => {
                         </div>
                     </div>
 
-                    <div className={`move-learn-warning ${isNatural ? 'natural' : 'taught'}`}>
+                    <div className="move-learn-warning">
                         <strong>⚠️ {moveLearnData.pokemonName} already knows 6 moves!</strong>
                         <div className="move-learn-warning-text">
                             Tap a move to view details. Choose a move to forget, or skip learning.
