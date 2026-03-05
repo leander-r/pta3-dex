@@ -290,7 +290,7 @@ const TrainerFeatures = () => {
                             }}
                         >
                             <span style={{ display: 'inline-block', transform: showUpcoming ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.15s', fontSize: '10px' }}>▶</span>
-                            Upcoming at next trainer level ({upcomingFeatures.length})
+                            Unlocks at Level {(trainer.level || 0) + 1} ({upcomingFeatures.length} feature{upcomingFeatures.length !== 1 ? 's' : ''})
                         </button>
                         {showUpcoming && (
                             <div style={{ marginTop: '6px', padding: '8px', background: 'var(--bg-secondary)', borderRadius: '6px' }}>
