@@ -231,6 +231,11 @@ const TrainerClasses = () => {
                     title="About trainer classes"
                 >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {currentClasses.length < maxClasses && (
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#ff9800', background: '#ff980018', border: '1px solid #ff980060', borderRadius: '10px', padding: '1px 7px' }}>
+                            {maxClasses - currentClasses.length} slot{maxClasses - currentClasses.length !== 1 ? 's' : ''} open
+                        </span>
+                    )}
                     <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
                         {currentClasses.length === 0 ? 'No class yet' : `${currentClasses.length}/${maxClasses} classes`}
                     </span>
