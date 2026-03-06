@@ -350,6 +350,18 @@ export const TrainerProvider = ({ children }) => {
                 toast.warning(`Need ${needed} more honor${needed !== 1 ? 's' : ''} to reach level ${newLevel} (requires ${required} total).`);
                 return;
             }
+
+            // Block if the trainer has an unfilled class slot at the current level
+            const unlockedSlots =
+                trainer.level >= CLASS_4_MIN_LEVEL ? 4 :
+                trainer.level >= CLASS_3_MIN_LEVEL ? 3 :
+                trainer.level >= CLASS_2_MIN_LEVEL ? 2 : 1;
+            const filledSlots = (trainer.classes || []).length;
+            if (filledSlots < unlockedSlots) {
+                const missing = unlockedSlots - filledSlots;
+                toast.warning(`Pick your ${missing === 1 ? 'new Trainer Class' : `${missing} new Trainer Classes`} before leveling up.`);
+                return;
+            }
         }
 
         // PTA3: stat increases only at milestone levels 3, 7, 11 (+1 to two different stats = 2 points)
@@ -429,6 +441,25 @@ export const TrainerProvider = ({ children }) => {
                 newLevel = lvl;
             } else break;
         }
+
+        if (newLevel === oldLevel) {
+            setTrainer(prev => ({ ...prev, honors: newHonors }));
+            return;
+        }
+
+        // Cap at the first level where the trainer would have an unfilled class slot
+        const filledSlots = (trainer.classes || []).length;
+        const getUnlockedSlots = lvl =>
+            lvl >= CLASS_4_MIN_LEVEL ? 4 : lvl >= CLASS_3_MIN_LEVEL ? 3 : lvl >= CLASS_2_MIN_LEVEL ? 2 : 1;
+        let cappedLevel = oldLevel;
+        for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
+            if (filledSlots < getUnlockedSlots(lvl - 1)) break;
+            cappedLevel = lvl;
+        }
+        if (cappedLevel !== newLevel) {
+            toast.warning(`Honors saved. Pick your new Trainer Class${getUnlockedSlots(cappedLevel) - filledSlots > 1 ? 'es' : ''} before leveling past ${cappedLevel}.`);
+        }
+        newLevel = cappedLevel;
 
         if (newLevel === oldLevel) {
             setTrainer(prev => ({ ...prev, honors: newHonors }));
