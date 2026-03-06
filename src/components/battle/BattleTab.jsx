@@ -242,10 +242,11 @@ const BattleTab = () => {
         setTeraBlastUsesLeft(prev => prev - 1);
     };
 
-    // Base HP from Pokémon data (ignores Dynamax override for initial calc)
+    // Base HP from Pokémon data, including mega stat boosts (ignores Dynamax override)
     const getPokemonBaseHP = (poke) => {
         if (!poke) return { current: 0, max: 0 };
-        const max = calculatePokemonHP(poke);
+        // Use getStatsWithMega so mega HP boosts (e.g. Zygarde Complete +11) are reflected
+        const max = getStatsWithMega(poke).hp;
         return { current: Math.max(0, max - (poke.currentDamage || 0)), max };
     };
 
@@ -585,6 +586,7 @@ const BattleTab = () => {
                                             onMegaRevert={handleMegaRevert}
                                             label={BATTLE_FORM_CHANGES[selectedPokemon?.species] ? 'Form Change' : 'Mega Evolution'}
                                             isFormChange={!!BATTLE_FORM_CHANGES[selectedPokemon?.species]}
+                                            disabled={anyMechanicActive && !megaEvolved}
                                         />
                                         <ZMovePanel
                                             selectedPokemon={selectedPokemon}

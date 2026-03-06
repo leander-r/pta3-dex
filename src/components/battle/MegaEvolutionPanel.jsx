@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMegaForm, onMegaEvolve, onMegaRevert, label = 'Mega Evolution', isFormChange = false }) => {
+const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMegaForm, onMegaEvolve, onMegaRevert, label = 'Mega Evolution', isFormChange = false, disabled = false }) => {
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
@@ -15,7 +15,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
 
     return (
         <>
-            <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+            <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                         <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'white' }}>{label}</span>
