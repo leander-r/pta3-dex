@@ -51,6 +51,7 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'weezing (heavy pollution)':    'weezing-galar',
     'corsola (dead seas)':          'corsola-galar',
     'darumaka (icy mountain)':      'darumaka-galar',
+    'darmanitan zen mode':          'darmanitan-zen',
     'darmanitan (icy mountain)':    'darmanitan-galar',
     'darmanitan (icy mountain) zen mode': 'darmanitan-galar-zen',
     'mr. mime (icy mountain)':      'mrmime-galar',
