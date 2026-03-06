@@ -125,6 +125,8 @@ export const loadGameDataFromGitHub = async () => {
         if (data.moves) GAME_DATA.moves = data.moves;
         if (data.abilities) GAME_DATA.abilities = data.abilities;
         if (data.items) GAME_DATA.items = data.items;
+        if (data.uniqueZMoves) GAME_DATA.uniqueZMoves = data.uniqueZMoves;
+        if (data.gigantamaxForms) GAME_DATA.gigantamaxForms = data.gigantamaxForms;
         // pokemonExpChart removed in PTA3 (honor-based leveling)
         
         GAME_DATA._loaded = true;
