@@ -77,9 +77,9 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'zoroark (icy mountain)':       'zoroark-hisui',
     // ── Paldean forms ─────────────────────────────────────────────────────────
     'wooper (high ground)':         'wooper-paldea',
-    'tauros (combative)':           'tauros-paldea',
-    'tauros (blaze breed)':         'tauros-paldea-blaze',
-    'tauros (aqua breed)':          'tauros-paldea-aqua',
+    'tauros (combative)':           'tauros-paldeacombat',
+    'tauros (blaze breed)':         'tauros-paldeablaze',
+    'tauros (aqua breed)':          'tauros-paldeaaqua',
     // ── Names that slug incorrectly (hyphen inserted where Showdown has none) ─
     'mr. mime':                     'mrmime',
     'mr. rime':                     'mrrime',
