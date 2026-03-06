@@ -8,7 +8,7 @@ import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyComb
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData, useUI } from '../../contexts/index.js';
 import { MAX_ROLL_HISTORY } from '../../data/constants.js';
-import { getPokemonSprite, getPokemonDisplayImage, getMegaSprite } from '../../utils/pokemonSprite.js';
+import { getPokemonSprite, getPokemonDisplayImage, getMegaSprite, getGigantamaxSprite } from '../../utils/pokemonSprite.js';
 import TypeMatchupDisplay from './TypeMatchupDisplay.jsx';
 import StatusConditionUI from './StatusConditionUI.jsx';
 import MegaEvolutionPanel from './MegaEvolutionPanel.jsx';
@@ -51,12 +51,14 @@ const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''),
 
 
 // Collect live battle context to attach to roll entries
-const battleContext = (pokemon, hp, megaEvolved, currentMegaForm) => ({
+const battleContext = (pokemon, hp, megaEvolved, currentMegaForm, isDynamaxed, canGigantamax) => ({
     attackerCurrentHP: hp.current,
     attackerMaxHP: hp.max,
     pokemonSpriteUrl: megaEvolved && currentMegaForm
         ? getMegaSprite(pokemon, currentMegaForm)
-        : getPokemonSprite(pokemon),
+        : isDynamaxed && canGigantamax
+            ? getGigantamaxSprite(pokemon)
+            : getPokemonSprite(pokemon),
     activeStatuses: Object.entries(pokemon.statusConditions || {}).filter(([, v]) => v).map(([k]) => k),
     megaEvolved,
     megaFormName: megaEvolved && currentMegaForm ? currentMegaForm.name : null,
@@ -301,7 +303,8 @@ const BattleTab = () => {
         const acWasOverridden = acOverride !== '';
 
         const hp = getPokemonHP(selectedPokemon);
-        const ctx = battleContext(selectedPokemon, hp, megaEvolved, currentMegaForm);
+        const canGigantamax = !!(GAME_DATA.gigantamaxForms?.[selectedPokemon.species]);
+        const ctx = battleContext(selectedPokemon, hp, megaEvolved, currentMegaForm, isDynamaxed, canGigantamax);
         const typeColor = hexToDiscordColor(getTypeColor(selectedMove.type));
 
         const commonFields = {
@@ -481,9 +484,12 @@ const BattleTab = () => {
 
                             {/* Pokemon Sprite */}
                             {selectedPokemon && (() => {
+                                const isGmax = isDynamaxed && !!(GAME_DATA.gigantamaxForms?.[selectedPokemon.species]);
                                 const img = megaEvolved && currentMegaForm
                                     ? getMegaSprite(selectedPokemon, currentMegaForm)
-                                    : getPokemonDisplayImage(selectedPokemon);
+                                    : isGmax
+                                        ? getGigantamaxSprite(selectedPokemon)
+                                        : getPokemonDisplayImage(selectedPokemon);
                                 if (!img) return null;
                                 return (
                                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>

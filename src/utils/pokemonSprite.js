@@ -160,6 +160,12 @@ export const getMegaSprite = (pokemon, megaForm) => {
     return `https://play.pokemonshowdown.com/sprites/gen5/${base}-${formSlug}.png`;
 };
 
+export const getGigantamaxSprite = (pokemon) => {
+    const base = speciesSlug(pokemon?.species);
+    if (!base) return getPokemonSprite(pokemon);
+    return `https://play.pokemonshowdown.com/sprites/gen5/${base}-gmax.png`;
+};
+
 // Returns the effective display image: custom upload first, then auto sprite.
 export const getPokemonDisplayImage = (pokemon) =>
     pokemon?.avatar || getPokemonSprite(pokemon) || null;
