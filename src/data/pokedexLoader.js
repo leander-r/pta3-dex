@@ -69,15 +69,24 @@ export const saveToPokedexDB = async (key, value) => {
  * Normalize a single Pokédex entry to the app's expected shape.
  * Handles both old format (baseStats, levelUpMoves) and new PTA3 format
  * (stats, moves, skills as string array, passives).
+ * @param {object} entry - Raw Pokédex entry
+ * @param {number} [index] - Array index (used to assign a sequential id if missing)
  */
-export const normalizePokedexEntry = (entry) => {
+export const normalizePokedexEntry = (entry, index) => {
     if (!entry || typeof entry !== 'object') return entry;
 
-    // Already in old format — nothing to do
-    if (entry.baseStats) return entry;
+    // Already in old format — nothing to do beyond id
+    if (entry.baseStats) {
+        return entry.id != null ? entry : { ...entry, id: (index ?? 0) + 1 };
+    }
 
     // New PTA3 format detected (has `stats` but no `baseStats`)
     const normalized = { ...entry };
+
+    // Assign sequential id if missing
+    if (normalized.id == null) {
+        normalized.id = (index ?? 0) + 1;
+    }
 
     // stats → baseStats (for backward compat with PokemonContext / PokedexSection)
     if (entry.stats) {
