@@ -85,6 +85,7 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'mr. rime':                     'mrrime',
     'mime jr.':                     'mimejr',
     'porygon 2':                    'porygon2',
+    'porygon-z':                    'porygonz',
     'nidoran♀':                     'nidoranf',
     'nidoran♂':                     'nidoranm',
     'jangmo-o':                     'jangmoo',
