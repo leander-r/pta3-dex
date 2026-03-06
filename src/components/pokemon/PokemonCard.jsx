@@ -653,7 +653,7 @@ const PokemonCard = ({
                                                 e.stopPropagation();
                                                 if (showDetail) {
                                                     const abilityData = GAME_DATA?.abilities?.[abilityName];
-                                                    if (abilityData) showDetail('ability', abilityName, abilityData);
+                                                    showDetail('ability', abilityName, abilityData || null);
                                                 }
                                             }}
                                             style={{
