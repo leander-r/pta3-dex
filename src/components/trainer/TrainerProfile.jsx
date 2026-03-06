@@ -3,8 +3,9 @@
 // ============================================================
 
 import React from 'react';
-import { useTrainerContext, useModal } from '../../contexts/index.js';
+import { useTrainerContext, useModal, useUI } from '../../contexts/index.js';
 import { CREATION_STAT_POINTS, HONOR_THRESHOLDS, MAX_TRAINER_LEVEL } from '../../data/constants.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 /**
  * TrainerProfile - Trainer profile management
@@ -21,6 +22,7 @@ const TrainerProfile = () => {
         awardHonors
     } = useTrainerContext();
     const { showConfirm } = useModal();
+    const { showHelp } = useUI();
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
@@ -291,9 +293,17 @@ const TrainerProfile = () => {
                 </div>
                 <div
                     style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #f5a62325 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #f5a62355', borderTop: '3px solid #f5a623' }}
-                    title="Honors earned (gym badges, ribbons, etc.) — determines trainer level"
+                    title="Honors represent your reputation. Earn them from Gym Badges, Contest Ribbons, and story milestones — they determine when you can level up. Separate from badge count."
                 >
-                    <div style={{ fontSize: '12px', color: '#e8941c', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🎖 Honors</div>
+                    <div style={{ fontSize: '12px', color: '#e8941c', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        🎖 Honors
+                        <button
+                            onClick={(e) => { e.stopPropagation(); showHelp('honors'); }}
+                            style={{ ...HELP_BTN_STYLE, padding: '0 3px', height: '14px', width: '14px', fontSize: '9px', lineHeight: '14px', minWidth: 0 }}
+                            aria-label="Help: Honors & Leveling"
+                            title="About Honors and leveling"
+                        >?</button>
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '2px' }}>
                         <button
                             onClick={() => setTrainer(prev => ({ ...prev, honors: Math.max(0, (prev.honors || 0) - 1) }))}
@@ -311,7 +321,7 @@ const TrainerProfile = () => {
                 </div>
                 <div
                     style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #667eea25 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #667eea55', borderTop: '3px solid #667eea', cursor: 'pointer' }}
-                    title="Gym Badges earned — click to jump to list"
+                    title="Gym Badges earned (cosmetic tracking). Each badge typically earns 1 Honor — award Honors separately. Click to jump to badge list."
                     onClick={() => document.getElementById('trainer-badges-section')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
                 >
                     <div style={{ fontSize: '12px', color: '#667eea', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🏅 Badges</div>

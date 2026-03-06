@@ -67,11 +67,11 @@ export const exportPokemonText = (poke) => {
     const abilities = [poke.ability, poke.ability2, poke.ability3].filter(a => a);
     text += `**Abilities:** ${abilities.length > 0 ? abilities.join(', ') : 'None'}\n`;
     
-    // Build skills list
+    // Build capabilities list
     const skills = (poke.pokemonSkills || []);
     if (skills.length > 0) {
         const skillsStr = skills.map(s => s.value ? `${s.name} ${s.value}` : s.name).join(', ');
-        text += `**Skills:** ${skillsStr}\n`;
+        text += `**Capabilities:** ${skillsStr}\n`;
     }
     text += `\n`;
     
@@ -500,12 +500,23 @@ const validateMove = (move) => {
         category = category || 'Physical';
     }
 
+    // Normalize frequency to PTA3 values
+    const rawFreq = sanitizeString(move.frequency || '', 30);
+    let frequency = rawFreq;
+    if (rawFreq && !['At-Will', '3/day', '1/day'].includes(rawFreq)) {
+        // Map legacy strings to PTA3
+        if (/at.will/i.test(rawFreq)) frequency = 'At-Will';
+        else if (/battle.+2|2.+battle|3.+day/i.test(rawFreq)) frequency = '3/day';
+        else if (/battle.+1|1.+battle|1.+day/i.test(rawFreq)) frequency = '1/day';
+        // else keep as-is (homebrew frequency)
+    }
+
     return {
         name: sanitizeString(move.name || 'Unknown Move', 50),
         type: sanitizeType(move.type), // Allows homebrew types
         category,
         damage: sanitizeString(move.damage || '', 30),
-        frequency: sanitizeString(move.frequency || '', 30),
+        frequency,
         range: sanitizeString(move.range || '', 50),
         effect: sanitizeString(move.effect || '', 500),
         description: sanitizeString(move.description || '', 1000), // Allow move descriptions

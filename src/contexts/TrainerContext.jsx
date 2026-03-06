@@ -310,13 +310,19 @@ export const TrainerProvider = ({ children }) => {
 
     // Roll a milestone HP bonus (1d4) — called when trainer reaches Lv 3, 7, or 11
     const rollMilestoneHP = useCallback(() => {
+        const currentRolls = trainer.hpRolls || [];
+        const milestonesReached = HP_MILESTONE_LEVELS.filter(l => l <= trainer.level).length;
+        if (currentRolls.length >= milestonesReached) {
+            toast.warning('No HP milestone rolls pending!');
+            return;
+        }
         const roll = Math.ceil(Math.random() * 4);
         setTrainer(prev => ({
             ...prev,
             hpRolls: [...(prev.hpRolls || []), roll]
         }));
         toast.success(`HP milestone roll: +${roll} HP!`);
-    }, [setTrainer]);
+    }, [trainer, setTrainer]);
 
     // Level up the trainer (PTA3: honor-based leveling)
     // Requires enough honors for the next level (checked here and in TrainerProfile).
@@ -518,6 +524,7 @@ export const TrainerProvider = ({ children }) => {
                             statPoints: DEFAULT_TRAINER.statPoints,
                             levelStatPoints: 0,
                             levelStatAllocations: [],
+                            statHistory: [],
                             classLevels: {},
                             classes: [],
                             primaryBaseClass: '',

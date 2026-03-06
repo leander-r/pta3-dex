@@ -14,6 +14,8 @@ const HELP_CONTENT = {
                     <li>Stat 4 = 6 pts &nbsp;|&nbsp; Stat 5 = 8 pts &nbsp;|&nbsp; Stat 6 = 11 pts</li>
                     <li>Maximum of <strong>6</strong> in any stat at creation</li>
                 </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Milestone Stat Points</h4>
+                <p>At levels <strong>3, 7, and 11</strong> you gain <strong>2 stat points</strong> to spend immediately. Each of those 2 points <strong>must go to a different stat</strong> — you cannot put both into the same stat at once.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Undo</h4>
                 <p>The <strong>↩ Undo</strong> button restores the last stat change so you can experiment freely before committing.</p>
             </>
@@ -131,6 +133,30 @@ const HELP_CONTENT = {
                     <li><strong>Threaded</strong> — can weave or spin thread-like substances</li>
                 </ul>
                 <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Speed (in feet per round) is listed separately on the species entry.</p>
+            </>
+        )
+    },
+    'honors': {
+        title: 'Honors & Leveling',
+        body: () => (
+            <>
+                <p><strong>Honors</strong> represent your trainer's reputation and accomplishments. They determine when you can level up — <em>they are not the same as Badges</em>.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Sources of Honors</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Gym Badges</strong> — each badge typically earns 1 Honor</li>
+                    <li><strong>Contest Ribbons</strong> — each ribbon typically earns 1 Honor</li>
+                    <li><strong>Story Milestones</strong> — GM-awarded at major events</li>
+                </ul>
+                <p>Badges are tracked separately as trophies. Earning a badge does <em>not</em> automatically add an Honor — the GM awards them explicitly.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Leveling Up</h4>
+                <p>Once you have enough Honors for the next level, click the <strong>+</strong> button next to your level. Leveling up does <em>not</em> happen automatically when you earn honors.</p>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li>Levels 1–2: free (character creation)</li>
+                    <li>Each level beyond that requires a set number of Honors</li>
+                    <li>Maximum trainer level: <strong>15</strong></li>
+                </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Class Slots</h4>
+                <p>New class slots unlock at levels <strong>3, 7, and 11</strong>. At level 11, you may take a second Base class instead of an Advanced class (grants 1 talent, no Level 15 feature).</p>
             </>
         )
     },

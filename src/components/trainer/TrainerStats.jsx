@@ -49,8 +49,16 @@ const TrainerStats = () => {
                     title="About stat allocation"
                 >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }} title="Creation points used during character creation (point-buy). Level points gained by leveling up.">
+                    <span
+                        style={{
+                            fontSize: '12px',
+                            fontWeight: (trainer.levelStatPoints || 0) > 0 ? 'bold' : 'normal',
+                            color: (trainer.levelStatPoints || 0) > 0 ? '#e65100' : 'var(--text-muted)'
+                        }}
+                        title="Creation points used during character creation (point-buy). Level points gained by leveling up."
+                    >
                         Creation: {trainer.statPoints ?? 0} | Level: {trainer.levelStatPoints || 0}
+                        {(trainer.levelStatPoints || 0) > 0 && ' ⬆'}
                     </span>
                     <button
                         onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}

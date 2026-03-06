@@ -173,7 +173,7 @@ const TrainerSkills = () => {
                                                     fontSize: '12px',
                                                     transition: 'all 0.2s ease'
                                                 }}
-                                                title={`${skill.description}\n\nRoll: 1d20 + ${Math.floor(statValue / 2)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}\n\nClick to cycle talents (${talents}/${maxTalents})`}
+                                                title={`${skill.description}\n\nRoll: 1d20 + ${Math.floor(statValue / 2)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}${isPassive ? '\n\nPassive — invoked by the GM, not rolled. Capped at 1 talent.' : ''}\n\nClick to cycle talents (${talents}/${maxTalents})`}
                                             >
                                                 {/* Talent indicator */}
                                                 <span style={{ display: 'flex', gap: '2px', minWidth: isPassive ? '17px' : '30px' }}>

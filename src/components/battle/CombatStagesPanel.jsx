@@ -8,8 +8,8 @@ const STATS = [
     { key: 'satk', label: 'SATK', color: '#9c27b0', desc: 'Special Attack - affects Special move damage' },
     { key: 'sdef', label: 'SDEF', color: '#ff9800', desc: 'Special Defense - reduces Special damage taken' },
     { key: 'spd',  label: 'SPD',  color: '#00bcd4', desc: 'Speed - determines turn order in battle' },
-    { key: 'acc',  label: 'ACC',  color: '#4caf50', desc: 'Accuracy - adds/subtracts from hit roll (1d20)' },
-    { key: 'eva',  label: 'EVA',  color: '#607d8b', desc: 'Evasion - subtracts from opponent hit rolls' },
+    { key: 'acc',  label: 'ACC',  color: '#4caf50', desc: 'Accuracy — no base stat. Each stage directly adds ±1 to your attack rolls (1d20). Shown as a flat modifier.' },
+    { key: 'eva',  label: 'EVA',  color: '#607d8b', desc: 'Evasion — no base stat. Each stage directly subtracts ±1 from opponent attack rolls against you. Shown as a flat modifier.' },
 ];
 
 // PTA3: flat +2 per stage (applies to both positive and negative)
@@ -75,9 +75,10 @@ const CombatStagesPanel = ({ selectedPokemon, combatStages, getStatsWithMega, up
                                 <div key={stat.key} className="combat-stat-box" style={{ textAlign: 'center', padding: '6px', borderRadius: '4px' }} title={stat.desc}>
                                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
                                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                        {isModOnly ? '±' : baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>
-                                            {isModOnly ? (stages >= 0 ? '+' : '') + stages : modifiedStat}
-                                        </strong>
+                                        {isModOnly
+                                            ? <span title="Flat roll modifier — no base stat">mod: <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>{(stages >= 0 ? '+' : '') + stages}</strong></span>
+                                            : <>{baseStat} → <strong style={{ color: stages !== 0 ? (stages > 0 ? '#4caf50' : '#f44336') : 'var(--text-primary)' }}>{modifiedStat}</strong></>
+                                        }
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
                                         <button
