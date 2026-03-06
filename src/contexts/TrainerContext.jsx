@@ -374,6 +374,12 @@ export const TrainerProvider = ({ children }) => {
             level: newLevel,
             levelStatPoints: (prev.levelStatPoints || 0) + (isMilestone ? 2 : 0),
             levelStatAllocations: isMilestone ? [] : (prev.levelStatAllocations || []),
+            // Snapshot pre-level state so level-down can revert stats exactly
+            statHistory: [...(prev.statHistory || []), {
+                stats: { ...prev.stats },
+                levelStatPoints: prev.levelStatPoints || 0,
+                levelStatAllocations: [...(prev.levelStatAllocations || [])]
+            }],
             classLevels: Object.fromEntries(
                 Object.entries(prev.classLevels || {}).map(([k, v]) => [k, v + 1])
             ),
@@ -444,9 +450,14 @@ export const TrainerProvider = ({ children }) => {
         const hpRolls = [...(trainer.hpRolls || [])];
         if (wasMilestone && hpRolls.length > 0) hpRolls.pop();
 
-        // PTA3: stat points are only granted at milestone levels — only refund at milestones
-        const wasMilestoneLevel = HP_MILESTONE_LEVELS.includes(trainer.level);
-        const newLevelStatPoints = Math.max(0, (trainer.levelStatPoints || 0) + (wasMilestoneLevel ? 2 : 0));
+        // Pop the stat snapshot saved when this level was reached and restore from it
+        const statHistory = [...(trainer.statHistory || [])];
+        const snapshot = statHistory.pop() || null;
+        const restoredStats = snapshot ? snapshot.stats : trainer.stats;
+        const restoredLevelStatPoints = snapshot
+            ? snapshot.levelStatPoints
+            : Math.max(0, (trainer.levelStatPoints || 0) + (wasMilestone ? 2 : 0));
+        const restoredLevelStatAllocations = snapshot ? snapshot.levelStatAllocations : [];
 
         // Remove features that were granted at the class level being lost
         const allFeatures = liveGameData?.features || {};
@@ -462,7 +473,10 @@ export const TrainerProvider = ({ children }) => {
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
-            levelStatPoints: newLevelStatPoints,
+            stats: restoredStats,
+            levelStatPoints: restoredLevelStatPoints,
+            levelStatAllocations: restoredLevelStatAllocations,
+            statHistory,
             hpRolls,
             classLevels: Object.fromEntries(
                 Object.entries(prev.classLevels || {}).map(([k, v]) => [k, Math.max(1, v - 1)])
