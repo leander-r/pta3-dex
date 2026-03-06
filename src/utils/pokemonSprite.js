@@ -80,6 +80,11 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'tauros (combative)':           'tauros-paldea',
     'tauros (blaze breed)':         'tauros-paldea-blaze',
     'tauros (aqua breed)':          'tauros-paldea-aqua',
+    // ── Names that slug incorrectly (hyphen inserted where Showdown has none) ─
+    'mr. mime':                     'mrmime',
+    'mr. rime':                     'mrrime',
+    'mime jr.':                     'mimejr',
+    'porygon 2':                    'porygon2',
     // ── Alternate forms ───────────────────────────────────────────────────────
     'wormadam (plant cloak)':       'wormadam',
     'wormadam (sandy cloak)':       'wormadam-sandy',
