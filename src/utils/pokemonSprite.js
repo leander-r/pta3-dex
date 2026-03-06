@@ -85,6 +85,9 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'mr. rime':                     'mrrime',
     'mime jr.':                     'mimejr',
     'porygon 2':                    'porygon2',
+    'jangmo-o':                     'jangmoo',
+    'hakamo-o':                     'hakamoo',
+    'kommo-o':                      'kommoo',
     // ── Alternate forms ───────────────────────────────────────────────────────
     'wormadam (plant cloak)':       'wormadam',
     'wormadam (sandy cloak)':       'wormadam-sandy',
