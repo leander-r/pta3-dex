@@ -234,11 +234,12 @@ export let GAME_DATA = {
         'Intimidate': 'Trigger - Hourly. Lower all adjacent foes Attack 1 Combat Stage when entering encounter.'
     },
 
-    // Minimal items
+    // Minimal fallback items — full item database is loaded from pta-game-data.min.json
     items: {
-        'Potion':    { type: 'healing', effect: 'Heals 2d12+10 HP', price: 200 },
-        'Poke Ball': { type: 'ball',    effect: '+0 modifier', price: 200, modifier: 0 },
-        'Great Ball': { type: 'ball',   effect: '-10 modifier', price: 600, modifier: -10 }
+        'Potion':     { type: 'healing', effect: 'Heals 10 HP', price: 25 },
+        'Poke Ball':  { type: 'ball',    effect: '+5 to capture roll (standard ball)', price: 100, modifier: 5 },
+        'Great Ball': { type: 'ball',    effect: '+0 to capture roll', price: 600, modifier: 0 },
+        'Ultra Ball': { type: 'ball',    effect: '-5 from capture roll', price: 1000, modifier: -5 }
     }
 };
 

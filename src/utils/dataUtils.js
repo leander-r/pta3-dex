@@ -125,13 +125,19 @@ export const parseCritThreshold = (description = '') => {
 
 /**
  * Parse an item's effect string for an HP heal formula.
- * Handles dice notation ("2d6+3 HP", "2d6 + 3 HP") and fractions ("1/2 Max HP").
- * Returns { type: 'dice', formula } | { type: 'fraction', num, denom } | { type: 'none' }
+ * Handles dice ("2d6+3 HP"), full restore ("Restores full HP"), fractions ("1/2 Max HP"),
+ * and flat values ("Heals 10 HP", "Recovers 25 HP").
+ * Returns { type: 'dice', formula } | { type: 'full' } | { type: 'fraction', num, denom }
+ *       | { type: 'flat', amount } | { type: 'none' }
  */
 export const parseHealFormula = (effectStr = '') => {
     const diceMatch = effectStr.match(/(\d+d\d+(?:\s*[+]\s*\d+)?)\s*HP/i);
     if (diceMatch) return { type: 'dice', formula: diceMatch[1].replace(/\s+/g, '') };
+    const fullMatch = effectStr.match(/restores?\s+(?:full|max)\s+(?:max\s+)?HP/i);
+    if (fullMatch) return { type: 'full' };
     const fracMatch = effectStr.match(/(\d+)\/(\d+)\s*Max\s*HP/i);
     if (fracMatch) return { type: 'fraction', num: parseInt(fracMatch[1]), denom: parseInt(fracMatch[2]) };
+    const flatMatch = effectStr.match(/(?:heals?|recovers?)\s+(\d+)\s*HP/i);
+    if (flatMatch) return { type: 'flat', amount: parseInt(flatMatch[1]) };
     return { type: 'none' };
 };

@@ -17,9 +17,15 @@ const rollHealFormula = (formula, maxHP) => {
         const total = rolls.reduce((a, b) => a + b, 0) + bonus;
         return { amount: total, desc: `${formula.formula}: [${rolls.join(', ')}]${bonus > 0 ? `+${bonus}` : ''} = ${total}` };
     }
+    if (formula.type === 'full') {
+        return { amount: maxHP, desc: `full restore (${maxHP} HP)` };
+    }
     if (formula.type === 'fraction') {
         const amount = Math.floor(maxHP * formula.num / formula.denom);
         return { amount, desc: `${formula.num}/${formula.denom} of ${maxHP} = ${amount} HP` };
+    }
+    if (formula.type === 'flat') {
+        return { amount: formula.amount, desc: `${formula.amount} HP` };
     }
     return { amount: 0, desc: '' };
 };
