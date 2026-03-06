@@ -219,7 +219,7 @@ const TypeChartSection = () => {
 
                     {/* 4x — Super Weak (dual-type only) */}
                     <EffectivenessTier
-                        label="Super Weak (4x damage)"
+                        label="Super Weak (+2 dice)"
                         icon="💀"
                         types={matchup.superWeak}
                         bgColor="var(--roll-miss-bg, #ffebee)"
@@ -229,7 +229,7 @@ const TypeChartSection = () => {
 
                     {/* 2x — Weak */}
                     <EffectivenessTier
-                        label="Weak To (2x damage)"
+                        label="Weak To (+1 die)"
                         icon="⚠️"
                         types={matchup.weak}
                         bgColor="var(--roll-miss-bg, #fff3e0)"
@@ -257,7 +257,7 @@ const TypeChartSection = () => {
                                 }}
                             >
                                 <span>➖</span>
-                                <span>Neutral (1x) — {matchup.neutral.length} types</span>
+                                <span>Neutral — {matchup.neutral.length} types</span>
                                 <span style={{ marginLeft: 'auto', fontSize: '10px' }}>
                                     {showNeutral ? '▲ Hide' : '▼ Show'}
                                 </span>
@@ -282,7 +282,7 @@ const TypeChartSection = () => {
 
                     {/* 0.5x — Resists */}
                     <EffectivenessTier
-                        label="Resists (0.5x damage)"
+                        label="Resists (−1 die)"
                         icon="🛡️"
                         types={matchup.resist}
                         bgColor="var(--roll-hit-bg, #e8f5e9)"
@@ -292,7 +292,7 @@ const TypeChartSection = () => {
 
                     {/* 0.25x — Super Resists (dual-type only) */}
                     <EffectivenessTier
-                        label="Super Resists (0.25x damage)"
+                        label="Super Resists (−2 dice)"
                         icon="🏰"
                         types={matchup.superResist}
                         bgColor="#e0f2f1"
@@ -302,7 +302,7 @@ const TypeChartSection = () => {
 
                     {/* 0x — Immune */}
                     <EffectivenessTier
-                        label="Immune To (0x damage)"
+                        label="Immune (no damage)"
                         icon="✨"
                         types={matchup.immune}
                         bgColor="#e3f2fd"
@@ -403,9 +403,9 @@ const TypeChartSection = () => {
                         <thead>
                             <tr style={{ background: 'var(--bg-light)' }}>
                                 <th style={{ padding: '10px', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', textAlign: 'left', minWidth: '80px' }}>Type</th>
-                                <th style={{ padding: '10px', border: '1px solid var(--border-medium)', color: '#c62828', textAlign: 'left' }}>Weak To (2x)</th>
-                                <th style={{ padding: '10px', border: '1px solid var(--border-medium)', color: '#2e7d32', textAlign: 'left' }}>Resists (0.5x)</th>
-                                <th style={{ padding: '10px', border: '1px solid var(--border-medium)', color: '#1565c0', textAlign: 'left' }}>Immune (0x)</th>
+                                <th style={{ padding: '10px', border: '1px solid var(--border-medium)', color: '#c62828', textAlign: 'left' }}>Weak To (+1 die)</th>
+                                <th style={{ padding: '10px', border: '1px solid var(--border-medium)', color: '#2e7d32', textAlign: 'left' }}>Resists (−1 die)</th>
+                                <th style={{ padding: '10px', border: '1px solid var(--border-medium)', color: '#1565c0', textAlign: 'left' }}>Immune</th>
                             </tr>
                         </thead>
                         <tbody>

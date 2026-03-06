@@ -20,28 +20,26 @@ const TYPE_LIST = [
 const DEFAULT_SPECIES = {
     species: '',
     types: ['Normal'],
-    baseStats: { hp: 5, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 },
+    baseStats: { hp: 35, atk: 8, def: 8, satk: 8, sdef: 8, spd: 8 },
     abilities: { basic: [], adv: [], high: [] },
     levelUpMoves: [],
     eggMoves: [],
     tutorMoves: [],
-    skills: { overland: 3, swim: 1, jump: 1, power: 1, sky: 0, burrow: 0, surface: 0, levitate: 0, teleporter: 0, intelligence: 3 },
+    skills: [],
     evolvesTo: [],
     evolvesFrom: null,
     isCustom: true
 };
 
-const SKILL_FIELDS = [
-    { key: 'overland', label: 'Overland', max: 10, color: '#4caf50' },
-    { key: 'swim', label: 'Swim', max: 10, color: '#2196f3' },
-    { key: 'jump', label: 'Jump', max: 10, color: '#ff9800' },
-    { key: 'power', label: 'Power', max: 10, color: '#f44336' },
-    { key: 'sky', label: 'Sky', max: 10, color: '#90caf9' },
-    { key: 'burrow', label: 'Burrow', max: 10, color: '#795548' },
-    { key: 'surface', label: 'Surface', max: 10, color: '#00bcd4' },
-    { key: 'levitate', label: 'Levitate', max: 10, color: '#9c27b0' },
-    { key: 'teleporter', label: 'Teleporter', max: 10, color: '#e91e63' },
-    { key: 'intelligence', label: 'Intelligence', max: 6, color: '#673ab7' }
+const KNOWN_CAPABILITIES = [
+    'Alluring', 'Amorphous', 'Beached', 'Burrow', 'Chilled', 'Climber',
+    'Firestarter', 'Flight', 'Flopper', 'Fountain', 'Genetic Relation',
+    'Gilled', 'Glow', 'Groundshaper', 'Guster', 'Heater', 'Hover',
+    'Impenetrable', 'Inflatable', 'Intelligence', 'Invisibility', 'Magnetic',
+    'Mind Lock', 'Mindslaver', 'Modular', 'Phasing', 'Power of the Land',
+    'Reach', 'Repulsive', 'Shrinkable', 'Sinker', 'Sprouter', 'Stealth',
+    'Strength', 'Swimmer', 'Telepath', 'Telekinetic', 'Threaded', 'Tough Cookie',
+    'Tracker', 'Wired', 'Zapper'
 ];
 
 const EVOLUTION_METHODS = [
@@ -83,6 +81,10 @@ const CustomSpeciesModal = () => {
     const [moveFilter, setMoveFilter] = useState({ search: '', type: '', category: '' });
     const [showMovePicker, setShowMovePicker] = useState(false);
     const [pendingMoveLevel, setPendingMoveLevel] = useState(1);
+
+    // Capability editor state
+    const [capabilitySearch, setCapabilitySearch] = useState('');
+    const [customCapabilityInput, setCustomCapabilityInput] = useState('');
 
     // Get total counts for display
     const totalAbilities = Object.keys(GAME_DATA.abilities || {}).length;
@@ -131,7 +133,7 @@ const CustomSpeciesModal = () => {
                         high: speciesData.abilities?.high || []
                     },
                     levelUpMoves: speciesData.levelUpMoves || [],
-                    skills: { ...DEFAULT_SPECIES.skills, ...(speciesData.skills || {}) },
+                    skills: Array.isArray(speciesData.skills) ? speciesData.skills : [],
                     evolvesTo: speciesData.evolvesTo || [],
                     evolvesFrom: speciesData.evolvesFrom || null
                 });
@@ -217,22 +219,24 @@ const CustomSpeciesModal = () => {
                 high: speciesData.abilities?.high || []
             },
             levelUpMoves: speciesData.levelUpMoves || [],
-            skills: { ...DEFAULT_SPECIES.skills, ...(speciesData.skills || {}) },
+            skills: Array.isArray(speciesData.skills) ? speciesData.skills : [],
             evolvesTo: speciesData.evolvesTo || [],
             evolvesFrom: speciesData.evolvesFrom || null
         });
         setEditingIndex(index);
     };
 
-    // Skills helpers
-    const updateSkill = (skillKey, value) => {
-        const numValue = parseInt(value, 10) || 0;
-        const skillInfo = SKILL_FIELDS.find(s => s.key === skillKey);
-        const maxVal = skillInfo?.max || 10;
-        setSpecies(prev => ({
-            ...prev,
-            skills: { ...prev.skills, [skillKey]: Math.max(0, Math.min(maxVal, numValue)) }
-        }));
+    // Capability helpers
+    const addCapability = (name) => {
+        const trimmed = name.trim();
+        if (!trimmed) return;
+        const currentSkills = Array.isArray(species.skills) ? species.skills : [];
+        if (currentSkills.includes(trimmed)) return;
+        setSpecies(prev => ({ ...prev, skills: [...currentSkills, trimmed] }));
+    };
+    const removeCapability = (idx) => {
+        const currentSkills = Array.isArray(species.skills) ? species.skills : [];
+        setSpecies(prev => ({ ...prev, skills: currentSkills.filter((_, i) => i !== idx) }));
     };
 
     // Evolution helpers
@@ -541,7 +545,7 @@ const CustomSpeciesModal = () => {
                     <div className="form-group">
                         <label>Level-Up Moveset</label>
                         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                            Moves this species learns naturally as it levels up. Set the level at which each move is learned (Lv.0 or Lv.1 = known at capture).
+                            Moves available in this species' level-up moveset. Set the level at which each move is learned (Lv.0 or Lv.1 = known at capture).
                         </div>
 
                         {/* Selected moves */}
@@ -643,45 +647,100 @@ const CustomSpeciesModal = () => {
                         )}
                     </div>
 
-                    {/* Pokemon Skills */}
+                    {/* Capabilities */}
                     <div className="form-group">
-                        <label>Movement & Capabilities</label>
+                        <label>Capabilities</label>
                         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                            How this species moves and interacts with the environment. Higher values = faster/better at that movement type.
+                            PTA3 capabilities this species has (e.g. Swimmer, Gilled, Flight). Sourced from the Pokédex entry.
                         </div>
                         <div style={{ padding: '12px', background: 'var(--bg-secondary, #f5f5f5)', borderRadius: '8px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
-                                {SKILL_FIELDS.map(skill => (
-                                    <div key={skill.key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{
-                                            fontSize: '11px',
-                                            fontWeight: 'bold',
-                                            color: skill.color,
-                                            minWidth: '70px'
-                                        }}>
-                                            {skill.label}
-                                        </span>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            max={skill.max}
-                                            value={species.skills?.[skill.key] || 0}
-                                            onChange={(e) => updateSkill(skill.key, e.target.value)}
+                            {/* Current capability chips */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px', minHeight: '28px' }}>
+                                {(Array.isArray(species.skills) ? species.skills : []).map((cap, i) => (
+                                    <span key={i} style={{
+                                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                        padding: '3px 8px', borderRadius: '12px',
+                                        background: 'var(--accent-primary, #4caf50)', color: 'white',
+                                        fontSize: '11px', fontWeight: 'bold'
+                                    }}>
+                                        {cap}
+                                        <button
+                                            onClick={() => removeCapability(i)}
                                             style={{
-                                                width: '50px',
-                                                padding: '4px',
-                                                borderRadius: '4px',
-                                                border: `2px solid ${skill.color}`,
-                                                textAlign: 'center',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold'
+                                                background: 'none', border: 'none', cursor: 'pointer',
+                                                color: 'white', fontSize: '13px', lineHeight: 1,
+                                                padding: '0 2px', opacity: 0.8
                                             }}
-                                        />
-                                    </div>
+                                            title="Remove"
+                                        >×</button>
+                                    </span>
                                 ))}
+                                {(Array.isArray(species.skills) ? species.skills : []).length === 0 && (
+                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>No capabilities added yet.</span>
+                                )}
                             </div>
-                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                                Movement skills (0-10), Intelligence (0-6). Set to 0 if not applicable.
+                            {/* Known capabilities picker */}
+                            <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Filter capabilities…"
+                                    value={capabilitySearch}
+                                    onChange={e => setCapabilitySearch(e.target.value)}
+                                    style={{ flex: 1, padding: '5px 8px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '10px' }}>
+                                {KNOWN_CAPABILITIES
+                                    .filter(c => !capabilitySearch || c.toLowerCase().includes(capabilitySearch.toLowerCase()))
+                                    .map(cap => {
+                                        const currentSkills = Array.isArray(species.skills) ? species.skills : [];
+                                        const already = currentSkills.includes(cap);
+                                        return (
+                                            <button
+                                                key={cap}
+                                                onClick={() => addCapability(cap)}
+                                                disabled={already}
+                                                style={{
+                                                    padding: '2px 8px', borderRadius: '10px', fontSize: '11px',
+                                                    border: '1px solid var(--border-medium)',
+                                                    background: already ? 'var(--bg-secondary)' : 'var(--bg-primary)',
+                                                    color: already ? 'var(--text-muted)' : 'var(--text-primary)',
+                                                    cursor: already ? 'default' : 'pointer',
+                                                    opacity: already ? 0.5 : 1
+                                                }}
+                                            >
+                                                {cap}
+                                            </button>
+                                        );
+                                    })
+                                }
+                            </div>
+                            {/* Custom capability input */}
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Add custom capability…"
+                                    value={customCapabilityInput}
+                                    onChange={e => setCustomCapabilityInput(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter' && customCapabilityInput.trim()) {
+                                            addCapability(customCapabilityInput);
+                                            setCustomCapabilityInput('');
+                                        }
+                                    }}
+                                    style={{ flex: 1, padding: '5px 8px', borderRadius: '4px', border: '1px solid var(--border-medium)', fontSize: '12px' }}
+                                />
+                                <button
+                                    onClick={() => { addCapability(customCapabilityInput); setCustomCapabilityInput(''); }}
+                                    disabled={!customCapabilityInput.trim()}
+                                    style={{
+                                        padding: '5px 12px', borderRadius: '4px', fontSize: '12px',
+                                        border: 'none', background: 'var(--accent-primary, #4caf50)',
+                                        color: 'white', cursor: 'pointer'
+                                    }}
+                                >
+                                    Add
+                                </button>
                             </div>
                         </div>
                     </div>

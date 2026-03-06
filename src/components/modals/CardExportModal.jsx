@@ -41,10 +41,7 @@ const CARD_TOKENS = {
     frequencyMap: {
         'At-Will': 'AW',
         '3/day': '3/D',
-        '1/day': '1/D',
-        // Legacy fallbacks for migrated data
-        'EOT': 'EOT',
-        'Daily': 'DY'
+        '1/day': '1/D'
     }
 };
 
@@ -175,9 +172,6 @@ const getNatureIndicator = (nature, statKey) => {
 const getFrequencyAbbr = (frequency) => {
     if (!frequency) return '';
     if (CARD_TOKENS.frequencyMap[frequency]) return CARD_TOKENS.frequencyMap[frequency];
-    // Handle "Battle - X" pattern
-    const battleMatch = frequency.match(/^Battle\s*[-–]\s*(\d+)$/i);
-    if (battleMatch) return `B-${battleMatch[1]}`;
     // Handle "Center" or other
     if (frequency.toLowerCase() === 'center') return 'CTR';
     return frequency.length > 4 ? frequency.substring(0, 3) : frequency;

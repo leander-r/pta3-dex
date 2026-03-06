@@ -44,11 +44,11 @@ const TypeMatchupDisplay = ({ selectedPokemon, megaEvolved, currentMegaForm }) =
                     {activeTypes.map(t => <TypeChip key={t} type={t} />)}
                 </div>
             </div>
-            <Row heading="×4 (+2 dice)" headingColor="#c62828" items={eff.superWeak}   label=" ×4" />
-            <Row heading="×2 (+1 die)" headingColor="#f44336" items={eff.weak} />
-            <Row heading="½ (−1 die)"  headingColor="#388e3c" items={eff.resist} />
-            <Row heading="¼ (−2 dice)" headingColor="#1b5e20" items={eff.superResist} label=" ×¼" />
-            <Row heading="Immune"      headingColor="#555"    items={eff.immune}      label=" ×0" />
+            <Row heading="+2 dice" headingColor="#c62828" items={eff.superWeak} />
+            <Row heading="+1 die"  headingColor="#f44336" items={eff.weak} />
+            <Row heading="−1 die"  headingColor="#388e3c" items={eff.resist} />
+            <Row heading="−2 dice" headingColor="#1b5e20" items={eff.superResist} />
+            <Row heading="Immune"  headingColor="#555"    items={eff.immune} />
         </div>
     );
 };
