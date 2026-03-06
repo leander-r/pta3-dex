@@ -15,9 +15,89 @@ export const speciesSlug = (species) =>
         .replace(/♀/g, '-f')
         .replace(/♂/g, '-m')
         .replace(/[.'\u2019%]/g, '')      // remove periods, apostrophes, and % (e.g. Zygarde-10%)
+        .replace(/\s*\([^)]*\)/g, '')     // strip parenthetical suffixes (e.g. "Raichu (Island)" → "raichu")
         .replace(/[:\s]+/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
+
+// Maps PTA3 parenthetical species names (lowercase) to exact Pokémon Showdown sprite slugs.
+// Required because the same suffix can map to different regional forms depending on species
+// (e.g. "(Iron-rich)" = Alolan for Geodude, Hisuian for Sliggoo, Galarian for Stunfisk).
+const PTA3_SPECIES_SLUG_OVERRIDES = {
+    // ── Alolan forms ──────────────────────────────────────────────────────────
+    'raichu (island)':              'raichu-alola',
+    'rattata (island)':             'rattata-alola',
+    'raticate (island)':            'raticate-alola',
+    'exeggutor (island)':           'exeggutor-alola',
+    'marowak (volcanic)':           'marowak-alola',
+    'diglett (volcanic)':           'diglett-alola',
+    'dugtrio (volcanic)':           'dugtrio-alola',
+    'meowth (tropical climate)':    'meowth-alola',
+    'persian (tropical climate)':   'persian-alola',
+    'geodude (iron-rich)':          'geodude-alola',
+    'graveler (iron-rich)':         'graveler-alola',
+    'golem (iron-rich)':            'golem-alola',
+    'grimer (oil polluted)':        'grimer-alola',
+    'muk (oil polluted)':           'muk-alola',
+    'sandshrew (icy mountain)':     'sandshrew-alola',
+    'sandslash (icy mountain)':     'sandslash-alola',
+    'vulpix (icy mountain)':        'vulpix-alola',
+    'ninetales (icy mountain)':     'ninetales-alola',
+    // ── Galarian forms ────────────────────────────────────────────────────────
+    'zigzagoon (urban)':            'zigzagoon-galar',
+    'linoone (urban)':              'linoone-galar',
+    'meowth (cold climate)':        'meowth-galar',
+    "farfetch'd (massive leeks)":   'farfetchd-galar',
+    'weezing (heavy pollution)':    'weezing-galar',
+    'corsola (dead seas)':          'corsola-galar',
+    'darumaka (icy mountain)':      'darumaka-galar',
+    'darmanitan (icy mountain)':    'darmanitan-galar',
+    'darmanitan (icy mountain) zen mode': 'darmanitan-galar-zen',
+    'mr. mime (icy mountain)':      'mrmime-galar',
+    'yamask (stone ruins)':         'yamask-galar',
+    'stunfisk (iron-rich)':         'stunfisk-galar',
+    'ponyta (forest glade)':        'ponyta-galar',
+    'slowpoke (spice diet)':        'slowpoke-galar',
+    'slowbro (spice diet)':         'slowbro-galar',
+    'slowking (spice diet)':        'slowking-galar',
+    // ── Hisuian forms ─────────────────────────────────────────────────────────
+    'qwilfish (dark waters)':       'qwilfish-hisui',
+    'sneasel (badlands)':           'sneasel-hisui',
+    'growlithe (ancient)':          'growlithe-hisui',
+    'arcanine (ancient)':           'arcanine-hisui',
+    'voltorb (antique)':            'voltorb-hisui',
+    'electrode (antique)':          'electrode-hisui',
+    'lilligant (high mountain)':    'lilligant-hisui',
+    'braviary (tundra)':            'braviary-hisui',
+    'sliggoo (iron-rich)':          'sliggoo-hisui',
+    'goodra (iron-rich)':           'goodra-hisui',
+    'avalugg (mountainous)':        'avalugg-hisui',
+    'zorua (icy mountain)':         'zorua-hisui',
+    'zoroark (icy mountain)':       'zoroark-hisui',
+    // ── Paldean forms ─────────────────────────────────────────────────────────
+    'wooper (high ground)':         'wooper-paldea',
+    'tauros (combative)':           'tauros-paldea',
+    'tauros (blaze breed)':         'tauros-paldea-blaze',
+    'tauros (aqua breed)':          'tauros-paldea-aqua',
+    // ── Alternate forms ───────────────────────────────────────────────────────
+    'wormadam (plant cloak)':       'wormadam',
+    'wormadam (sandy cloak)':       'wormadam-sandy',
+    'wormadam (trash cloak)':       'wormadam-trash',
+    'lycanroc (day)':               'lycanroc',
+    'lycanroc (night)':             'lycanroc-midnight',
+    'lycanroc (dusk)':              'lycanroc-dusk',
+    'aegislash (shield)':           'aegislash-shield',
+    'aegislash (sword)':            'aegislash-blade',
+    'wishiwashi (single form)':     'wishiwashi',
+    'wishiwashi (school form)':     'wishiwashi-school',
+    'palafin (zero)':               'palafin',
+    'palafin (hero)':               'palafin-hero',
+    'gimmighoul (chest)':           'gimmighoul',
+    'gimmighoul (roaming)':         'gimmighoul-roaming',
+    'pumpkaboo (small)':            'pumpkaboo-small',
+    'gourgeist (small)':            'gourgeist-small',
+    'ursaluna (blood moon)':        'ursaluna-bloodmoon',
+};
 
 // Maps PTA regional/alternate form names to Pokémon Showdown sprite suffixes.
 const REGIONAL_FORM_SUFFIXES = {
@@ -34,7 +114,14 @@ const REGIONAL_FORM_SUFFIXES = {
 // Returns the auto-generated sprite URL for a Pokémon, or null if no species is set.
 // Handles regional forms by appending the appropriate Showdown suffix.
 export const getPokemonSprite = (pokemon) => {
-    const slug = speciesSlug(pokemon?.species);
+    const species = pokemon?.species || '';
+    if (!species) return null;
+    // Check per-species override table first (handles parenthetical PTA3 names)
+    const override = PTA3_SPECIES_SLUG_OVERRIDES[species.toLowerCase()];
+    if (override) {
+        return `https://play.pokemonshowdown.com/sprites/gen5/${override}.png`;
+    }
+    const slug = speciesSlug(species);
     if (!slug) return null;
     const formSuffix = REGIONAL_FORM_SUFFIXES[(pokemon?.regionalForm || '').toLowerCase()];
     const fullSlug = formSuffix ? `${slug}-${formSuffix}` : slug;
