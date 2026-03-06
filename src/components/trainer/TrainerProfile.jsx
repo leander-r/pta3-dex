@@ -284,7 +284,7 @@ const TrainerProfile = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '14px' }}>
                 <div
                     style={{ textAlign: 'center', padding: '10px 6px', background: 'linear-gradient(180deg, #e5393525 0%, transparent 70%)', borderRadius: '8px', border: '1px solid #e5393955', borderTop: '3px solid #e53935' }}
-                    title="Max HP = (HP stat × 4) + (Level × 4)"
+                    title="Max HP: 20 base + 1d4 rolled at levels 3, 7, and 11"
                 >
                     <div style={{ fontSize: '12px', color: '#e53935', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Max HP</div>
                     <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e53935', lineHeight: 1.2 }}>{calculateMaxHP()}</div>

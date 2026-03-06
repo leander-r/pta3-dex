@@ -258,35 +258,6 @@ export const useDiceRoller = (sendToDiscord = null) => {
     }, [addToHistory, sendToDiscord]);
 
     /**
-     * Roll Pokemon skill check
-     * @param {Object} pokemon - Pokemon object
-     * @param {string} skillName - Skill name
-     * @param {number} skillValue - Skill value/dice
-     * @returns {Object} - Roll result
-     */
-    const rollPokemonSkill = useCallback((pokemon, skillName, skillValue) => {
-        if (!pokemon || !skillName) return null;
-
-        const dice = `${skillValue}d6`;
-        const rolls = rollDice(skillValue, 6);
-        const total = rolls.reduce((sum, r) => sum + r, 0);
-
-        const result = {
-            type: 'pokemonSkill',
-            pokemon: pokemon.name || pokemon.species,
-            skill: skillName,
-            dice,
-            rolls,
-            total,
-            timestamp: Date.now()
-        };
-
-        addToHistory(result);
-        if (sendToDiscord) sendToDiscord(result, pokemon.name);
-        return result;
-    }, [addToHistory, sendToDiscord]);
-
-    /**
      * Roll custom dice
      * @param {string} diceNotation - Dice notation (e.g., "2d6+5")
      * @returns {Object} - Roll result
@@ -324,7 +295,6 @@ export const useDiceRoller = (sendToDiscord = null) => {
         rollAccuracy,
         rollTrainerSkill,
         rollTrainerD20,
-        rollPokemonSkill,
         rollCustom
     };
 };

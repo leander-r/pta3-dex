@@ -1,11 +1,9 @@
 import React from 'react';
 import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 
-const parseACFromFrequency = (freq) => {
-    if (!freq) return 2;
-    const match = freq.match(/[-–]\s*(\d+)/);
-    return match ? parseInt(match[1]) : 2;
-};
+// PTA3: accuracy is checked against the target's stat value (DEF/SDEF/SPD), not a fixed AC.
+const accTargetLabel = (category) =>
+    category === 'Physical' ? 'vs DEF' : category === 'Status' ? 'vs SPD' : 'vs SDEF';
 
 const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail, gameData }) => {
     if (!selectedPokemon) return null;
@@ -44,8 +42,8 @@ const MoveSelector = ({ selectedPokemon, selectedMove, onSelectMove, showDetail,
                             <div style={{ fontWeight: 'bold' }}>{move.name}</div>
                             <div style={{ fontSize: '12px', opacity: 0.8 }}>
                                 {move.type} | {move.category || gameData?.moves?.[move.name]?.category || '—'} | {move.damage || gameData?.moves?.[move.name]?.damage || 'Status'} |{' '}
-                                <span title="Accuracy Class - Roll 1d20, need to meet or beat this number to hit. Natural 20 always hits and crits.">
-                                    AC {parseACFromFrequency(move.frequency || move.freq)}
+                                <span title="PTA3: Roll 1d20 + accuracy bonus against the target's stat value.">
+                                    {accTargetLabel(move.category || gameData?.moves?.[move.name]?.category)}
                                 </span>
                             </div>
                         </button>

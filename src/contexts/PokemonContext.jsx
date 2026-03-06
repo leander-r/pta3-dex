@@ -91,6 +91,7 @@ const buildSpeciesUpdateFields = (speciesData, regionalForm) => {
             availableEggMoves: formData?.eggMoves || speciesData.eggMoves || [],
             availableTutorMoves: formData?.tutorMoves || speciesData.tutorMoves || [],
             pokemonSkills: buildPokemonSkills(speciesData.skills),
+            accuracyMods: formData?.accuracyMods || speciesData.accuracyMods || null,
         }
     };
 };

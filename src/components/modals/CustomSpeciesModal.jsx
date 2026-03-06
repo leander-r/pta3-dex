@@ -462,7 +462,7 @@ const CustomSpeciesModal = () => {
                     <div className="form-group">
                         <label>Base Stats</label>
                         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                            PTA base stat values (typically 1-15). These determine the species' natural strengths and are added to when leveling up.
+                            PTA3 stat values. HP is usually 20–50+; combat stats (ATK/DEF/SATK/SDEF/SPD) typically 1–15. Stats are fixed — they do not increase with level.
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                             {Object.entries(species.baseStats).map(([stat, value]) => (

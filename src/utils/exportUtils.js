@@ -397,12 +397,11 @@ const IMPORT_LIMITS = {
     MAX_STRING_LENGTH: 200, // Max length for name, species, etc.
     MAX_NOTES_LENGTH: 2000, // Max length for notes field
     MAX_AVATAR_LENGTH: 50 * 1024, // 50KB max for avatar data URL
-    MAX_MOVES: 8, // Max moves a Pokemon can have
+    MAX_MOVES: 6, // Max moves a Pokemon can have (PTA3: 6-move cap)
     MAX_ABILITIES: 5, // Max abilities
     MAX_SKILLS: 20, // Max Pokemon skills
 
     MAX_STAT: 50, // Max base stat value
-    MAX_ADDED_STAT: 100, // Max added stat points per stat
 };
 
 /**
@@ -501,12 +500,6 @@ const validateMove = (move) => {
         category = category || 'Physical';
     }
 
-    // For source, prefer standard values but allow homebrew
-    let source = sanitizeString(move.source || '', 20);
-    if (!['natural', 'taught', 'tm', 'egg'].includes(source)) {
-        source = source || 'taught';
-    }
-
     return {
         name: sanitizeString(move.name || 'Unknown Move', 50),
         type: sanitizeType(move.type), // Allows homebrew types
@@ -516,7 +509,6 @@ const validateMove = (move) => {
         range: sanitizeString(move.range || '', 50),
         effect: sanitizeString(move.effect || '', 500),
         description: sanitizeString(move.description || '', 1000), // Allow move descriptions
-        source
     };
 };
 

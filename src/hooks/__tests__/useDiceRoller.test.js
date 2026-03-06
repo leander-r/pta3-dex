@@ -110,40 +110,6 @@ describe('useDiceRoller', () => {
         });
     });
 
-    // ── rollPokemonSkill ─────────────────────────────────────
-    describe('rollPokemonSkill', () => {
-        it('returns correct shape with rolls.length === skillValue', () => {
-            const { result } = renderHook(() => useDiceRoller());
-            const pokemon = { name: 'Bulbasaur' };
-
-            let roll;
-            act(() => {
-                roll = result.current.rollPokemonSkill(pokemon, 'Overland', 4);
-            });
-
-            expect(roll).toMatchObject({
-                type: 'pokemonSkill',
-                pokemon: 'Bulbasaur',
-                skill: 'Overland',
-                dice: '4d6',
-                rolls: expect.any(Array),
-                total: expect.any(Number),
-            });
-            expect(roll.rolls).toHaveLength(4);
-        });
-
-        it('returns null for missing pokemon argument', () => {
-            const { result } = renderHook(() => useDiceRoller());
-
-            let roll;
-            act(() => {
-                roll = result.current.rollPokemonSkill(null, 'Overland', 4);
-            });
-
-            expect(roll).toBeNull();
-        });
-    });
-
     // ── setCombatStage / resetCombatStages ───────────────────
     describe('setCombatStage / resetCombatStages', () => {
         it('updates a specific combat stage', () => {

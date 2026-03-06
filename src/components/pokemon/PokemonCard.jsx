@@ -234,7 +234,7 @@ const PokemonCard = ({
         return moves.slice(0, 100);
     }, [moveSearch, moveTypeFilter, moveCategoryFilter, GAME_DATA]);
 
-    // Helper function to add a move with specified source (natural/taught)
+    // Helper function to add a move to the pool
     const addMoveWithSource = (moveName, moveData, source) => {
         // Check if already knows move
         const alreadyKnows = pokemon.moves?.some(m =>

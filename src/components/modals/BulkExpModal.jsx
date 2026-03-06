@@ -25,19 +25,19 @@ const getLevelForHonors = (honors) => {
 };
 
 const BulkHonorsModal = () => {
-    const { showBulkExpModal, setShowBulkExpModal } = useModal();
+    const { showBulkHonorsModal, setShowBulkHonorsModal } = useModal();
     const { trainer, awardHonors } = useTrainerContext();
 
     const [honorAmount, setHonorAmount] = useState(1);
     const [lastResult, setLastResult] = useState(null);
 
     const handleClose = () => {
-        setShowBulkExpModal(false);
+        setShowBulkHonorsModal(false);
         setHonorAmount(1);
         setLastResult(null);
     };
 
-    const { modalRef } = useModalKeyboard(showBulkExpModal, handleClose);
+    const { modalRef } = useModalKeyboard(showBulkHonorsModal, handleClose);
 
     const currentHonors = trainer?.honors || 0;
     const currentLevel  = trainer?.level  || 1;
@@ -62,7 +62,7 @@ const BulkHonorsModal = () => {
         setHonorAmount(1);
     };
 
-    if (!showBulkExpModal) return null;
+    if (!showBulkHonorsModal) return null;
 
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">

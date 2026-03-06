@@ -97,7 +97,7 @@ export const ModalProvider = ({ children }) => {
     const [selectedCardPokemon, setSelectedCardPokemon] = useState(null);
 
     // Bulk EXP Modal
-    const [showBulkExpModal, setShowBulkExpModal] = useState(false);
+    const [showBulkHonorsModal, setShowBulkHonorsModal] = useState(false);
 
     // Comparison Modal
     const [showComparisonModal, setShowComparisonModal] = useState(false);
@@ -199,8 +199,8 @@ export const ModalProvider = ({ children }) => {
         setSelectedCardPokemon,
 
         // Bulk EXP Modal
-        showBulkExpModal,
-        setShowBulkExpModal,
+        showBulkHonorsModal,
+        setShowBulkHonorsModal,
 
         // Comparison Modal
         showComparisonModal,

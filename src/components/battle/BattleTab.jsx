@@ -43,13 +43,6 @@ const BATTLE_FORM_CHANGES = {
     ],
 };
 
-// Parse the AC number from a move frequency string, e.g. "EOT – 2" → 2
-const parseACFromFrequency = (freq) => {
-    if (!freq) return 2;
-    const match = freq.match(/[-–]\s*(\d+)/);
-    return match ? parseInt(match[1]) : 2;
-};
-
 // Convert a CSS hex color string to a Discord integer color
 const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''), 16);
 
@@ -194,18 +187,25 @@ const BattleTab = () => {
         if (!selectedPokemon || !selectedMove) return;
 
         const actualStats = getStatsWithMega(selectedPokemon);
-        const isPhysical = selectedMove.category === 'Physical';
-        const statKey = isPhysical ? 'atk' : 'satk';
+        const category = selectedMove.category; // 'Physical', 'Special', 'Status'
+        const isPhysical = category === 'Physical';
+        const statKey = isPhysical ? 'atk' : 'satk'; // stat used for damage
+        // PTA3: Physical → ATK accuracy mod vs DEF; Special → SATK mod vs SDEF; Status → EFF mod vs SPD
+        const accModKey = isPhysical ? 'atk' : category === 'Status' ? 'eff' : 'satk';
         const statMod = applyCombatStage(actualStats[statKey] || 0, combatStages[statKey] || 0);
 
-        const defaultAC = parseACFromFrequency(selectedMove.frequency || selectedMove.freq);
-        const moveAC = acOverride !== '' ? parseInt(acOverride) || defaultAC : defaultAC;
-        const accModifier = combatStages.acc || 0;
+        // PTA3: accuracy = 1d20 + acc combat stages + Pokémon's accuracy bonus (from Pokédex)
+        const accStageMod = combatStages.acc || 0;
+        const pokemonAccBonus = selectedPokemon.accuracyMods?.[accModKey] || 0;
+        const accModifier = accStageMod + pokemonAccBonus; // total acc bonus shown in roll
+
+        // Target stat value (DEF/SDEF/SPD) entered via override field; null = GM call (always hit)
+        const moveAC = acOverride !== '' ? (parseInt(acOverride) || null) : null;
         const critThreshold = parseCritThreshold(selectedMove.effect || selectedMove.description);
         const accRoll = Math.floor(Math.random() * 20) + 1;
         const modifiedAccRoll = accRoll + accModifier;
         const isCrit = accRoll >= critThreshold;
-        const isHit = isCrit || modifiedAccRoll >= moveAC;
+        const isHit = isCrit || moveAC === null || modifiedAccRoll >= moveAC;
         const acWasOverridden = acOverride !== '';
 
         const hp = getPokemonHP(selectedPokemon);
@@ -483,19 +483,33 @@ const BattleTab = () => {
                                     >
                                         (+{calculateSTAB()} for matching type)
                                     </span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Override move AC (higher = harder to hit)">
-                                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea' }}>AC Override:</label>
+                                    {selectedMove && selectedPokemon?.accuracyMods && (() => {
+                                        const k = selectedMove.category === 'Physical' ? 'atk' : selectedMove.category === 'Status' ? 'eff' : 'satk';
+                                        const bonus = selectedPokemon.accuracyMods[k];
+                                        return bonus != null ? (
+                                            <span
+                                                style={{ fontSize: '12px', color: 'var(--text-secondary)' }}
+                                                title={`This Pokémon's accuracy bonus for ${selectedMove.category} moves (from its Pokédex entry). Added to the 1d20 accuracy roll.`}
+                                            >
+                                                Acc: +{bonus}
+                                            </span>
+                                        ) : null;
+                                    })()}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }} title="Enter the target's relevant stat value (DEF/SDEF/SPD). Leave blank and GM decides hit/miss.">
+                                        <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea' }}>
+                                            {selectedMove?.category === 'Physical' ? 'vs DEF:' : selectedMove?.category === 'Status' ? 'vs SPD:' : 'vs SDEF:'}
+                                        </label>
                                         <input
                                             type="number"
                                             min="1"
-                                            max="20"
+                                            max="10"
                                             value={acOverride}
                                             onChange={(e) => setAcOverride(e.target.value)}
-                                            placeholder={selectedMove ? String(parseACFromFrequency(selectedMove.frequency || selectedMove.freq)) : '-'}
+                                            placeholder="—"
                                             style={{ width: '50px', padding: '4px 8px', borderRadius: '4px', border: acOverride !== '' ? '2px solid #667eea' : '1px solid var(--border-medium)', fontSize: '13px', textAlign: 'center', background: acOverride !== '' ? 'var(--input-bg-hover)' : 'var(--input-bg)' }}
                                         />
                                         {acOverride !== '' && (
-                                            <button onClick={() => setAcOverride('')} style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }} title="Clear AC override" aria-label="Clear AC override">✕</button>
+                                            <button onClick={() => setAcOverride('')} style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }} title="Clear target stat" aria-label="Clear target stat">✕</button>
                                         )}
                                     </div>
                                 </div>

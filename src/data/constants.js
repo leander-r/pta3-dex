@@ -162,18 +162,6 @@ export const MAX_TRAINER_IMPORT_BYTES = 5 * 1024 * 1024;
 export const MAX_POKEMON_IMPORT_BYTES = 100 * 1024;
 
 /**
- * @deprecated PTA3 does not distinguish natural vs taught moves.
- * Use MAX_TOTAL_MOVES instead.
- */
-export const MAX_NATURAL_MOVES = 6;
-
-/**
- * @deprecated PTA3 does not distinguish natural vs taught moves.
- * Use MAX_TOTAL_MOVES instead.
- */
-export const MAX_TAUGHT_MOVES = 6;
-
-/**
  * Maximum total moves a Pokemon can have (PTA3: 6 total, no natural/taught distinction)
  */
 export const MAX_TOTAL_MOVES = 6;
@@ -182,18 +170,6 @@ export const MAX_TOTAL_MOVES = 6;
  * Maximum number of roll entries kept in battle roll history
  */
 export const MAX_ROLL_HISTORY = 50;
-
-/**
- * @deprecated PTA3 uses flat combat stages (+2 per stage), not multipliers.
- * Retained only for save-data migration detection.
- */
-export const COMBAT_STAGE_POSITIVE_MULTIPLIER = 0.25;
-
-/**
- * @deprecated PTA3 uses flat combat stages (+2 per stage), not multipliers.
- * Retained only for save-data migration detection.
- */
-export const COMBAT_STAGE_NEGATIVE_MULTIPLIER = 0.10;
 
 /**
  * Flat stat added per combat stage (PTA3: +2 per stage, applies to both + and -)

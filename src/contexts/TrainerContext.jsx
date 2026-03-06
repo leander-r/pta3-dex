@@ -472,7 +472,7 @@ export const TrainerProvider = ({ children }) => {
             });
         }
 
-        // Notification is shown by BulkExpModal after calling this
+        // Notification is shown by the Honors modal after calling this
     }, [trainer, setTrainer, liveGameData]);
 
     // Level down the trainer (PTA3)

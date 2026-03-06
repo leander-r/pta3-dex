@@ -10,7 +10,7 @@ import TypeChartSection from './TypeChartSection.jsx';
 import NaturesSection from './NaturesSection.jsx';
 import MovesSection from './MovesSection.jsx';
 import AbilitiesSection from './AbilitiesSection.jsx';
-import ExpChartSection from './ExpChartSection.jsx';
+import HonorThresholdsSection from './ExpChartSection.jsx';
 import GameRulesSection from './GameRulesSection.jsx';
 import PokedexSection from './PokedexSection.jsx';
 
@@ -28,7 +28,7 @@ const ReferenceTab = () => {
         { id: 'moves', label: 'Moves Database' },
         { id: 'abilities', label: 'Abilities' },
         { id: 'rules', label: 'Game Rules' },
-        { id: 'exp', label: 'EXP Chart' }
+        { id: 'honors', label: 'Level Chart' }
     ];
 
     return (
@@ -55,7 +55,7 @@ const ReferenceTab = () => {
             {activeSection === 'moves' && <MovesSection />}
             {activeSection === 'abilities' && <AbilitiesSection />}
             {activeSection === 'rules' && <GameRulesSection />}
-            {activeSection === 'exp' && <ExpChartSection />}
+            {activeSection === 'honors' && <HonorThresholdsSection />}
         </div>
     );
 };
