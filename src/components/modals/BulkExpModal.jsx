@@ -8,21 +8,7 @@ import React, { useState } from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useModal } from '../../contexts/index.js';
 import { useTrainerContext } from '../../contexts/TrainerContext.jsx';
-import toast from '../../utils/toast.js';
 import { HONOR_THRESHOLDS, MAX_TRAINER_LEVEL } from '../../data/constants.js';
-
-const getLevelForHonors = (honors) => {
-    const levels = Object.keys(HONOR_THRESHOLDS).map(Number).sort((a, b) => a - b);
-    let level = levels[0] ?? 1;
-    for (const lvl of levels) {
-        if (honors >= HONOR_THRESHOLDS[lvl]) {
-            level = lvl;
-        } else {
-            break;
-        }
-    }
-    return Math.min(level, MAX_TRAINER_LEVEL);
-};
 
 const BulkHonorsModal = () => {
     const { showBulkHonorsModal, setShowBulkHonorsModal } = useModal();
@@ -42,8 +28,6 @@ const BulkHonorsModal = () => {
     const currentHonors = trainer?.honors || 0;
     const currentLevel  = trainer?.level  || 1;
     const newHonors     = currentHonors + honorAmount;
-    const newLevel      = getLevelForHonors(newHonors);
-    const levelsGained  = newLevel - currentLevel;
 
     const nextLevel = Math.min(currentLevel + 1, MAX_TRAINER_LEVEL);
     const honorsForNext = HONOR_THRESHOLDS[nextLevel] ?? HONOR_THRESHOLDS[MAX_TRAINER_LEVEL] ?? 0;
@@ -52,13 +36,7 @@ const BulkHonorsModal = () => {
     const handleAwardHonors = () => {
         if (honorAmount <= 0) return;
         awardHonors(honorAmount);
-        setLastResult({ honorAmount, newHonors, levelsGained, newLevel });
-        if (levelsGained > 0) {
-            const milestones = [3, 7, 11].filter(m => m > currentLevel && m <= newLevel);
-            const parts = [`Reached Level ${newLevel}!`];
-            if (milestones.length > 0) parts.push(`+2 stat points & HP roll at level${milestones.length > 1 ? 's' : ''} ${milestones.join(', ')}`);
-            toast.success(parts.join(' — '));
-        }
+        setLastResult({ honorAmount, newHonors });
         setHonorAmount(1);
     };
 
@@ -153,16 +131,10 @@ const BulkHonorsModal = () => {
                     {honorAmount > 0 && (
                         <div style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' }}>
                             <div style={{ fontWeight: '600', marginBottom: '8px' }}>Preview:</div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Honors</span>
                                 <span>{currentHonors} → <strong>{newHonors}</strong></span>
                             </div>
-                            {levelsGained > 0 && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#4caf50', fontWeight: '600' }}>
-                                    <span>Level threshold</span>
-                                    <span>Lv {currentLevel} → Lv {newLevel} (+{levelsGained})</span>
-                                </div>
-                            )}
                         </div>
                     )}
 
@@ -171,11 +143,6 @@ const BulkHonorsModal = () => {
                         <div style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', border: '1px solid #a5d6a7' }}>
                             <div style={{ fontWeight: '600', color: '#2e7d32', marginBottom: '6px' }}>Honors Awarded!</div>
                             <div>+{lastResult.honorAmount} Honor{lastResult.honorAmount !== 1 ? 's' : ''} — total now {lastResult.newHonors}</div>
-                            {lastResult.levelsGained > 0 && (
-                                <div style={{ color: '#2e7d32', marginTop: '4px', fontWeight: '600' }}>
-                                    Leveled up to {lastResult.newLevel}! Check Stats for any pending HP rolls.
-                                </div>
-                            )}
                         </div>
                     )}
 

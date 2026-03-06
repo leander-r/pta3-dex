@@ -412,68 +412,14 @@ export const TrainerProvider = ({ children }) => {
     }, [trainer, setTrainer, showLevelUpNotification, rollMilestoneHP, liveGameData]);
 
     /**
-     * Award honors and auto-apply all resulting level-ups in one atomic state update.
-     * Milestone HP rolls are applied automatically (random 1d4 each).
-     * Called by the Honor Award modal.
+     * Award honors only — does NOT auto-level.
+     * The trainer must level up manually via the Level Up button in Trainer Stats.
      */
     const awardHonors = useCallback((amount) => {
         if (!amount || amount <= 0) return;
-
-        const allFeatures = liveGameData?.features || {};
         const newHonors = (trainer.honors || 0) + amount;
-        const oldLevel = trainer.level || 1;
-
-        // Find the highest level the new honors qualify for
-        let newLevel = oldLevel;
-        for (let lvl = oldLevel + 1; lvl <= MAX_TRAINER_LEVEL; lvl++) {
-            if (newHonors >= (HONOR_THRESHOLDS[lvl] ?? Infinity)) {
-                newLevel = lvl;
-            } else break;
-        }
-
-        if (newLevel === oldLevel) {
-            setTrainer(prev => ({ ...prev, honors: newHonors }));
-            return;
-        }
-
-        // Apply all effects for each level gained
-        let levelStatPoints = trainer.levelStatPoints || 0;
-        let hpRolls = [...(trainer.hpRolls || [])];
-        const classLevels = { ...(trainer.classLevels || {}) };
-        const primaryBaseClass = trainer.primaryBaseClass || (trainer.classes || [])[0] || '';
-        const ownedSet = new Set((trainer.features || []).map(f => typeof f === 'object' ? f.name : f));
-        const autoFeatures = [];
-
-        for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
-            if (HP_MILESTONE_LEVELS.includes(lvl)) {
-                levelStatPoints += 2;
-                hpRolls.push(Math.ceil(Math.random() * 4));
-            }
-            Object.keys(classLevels).forEach(cls => {
-                const newClsLevel = (classLevels[cls] ?? 0) + 1;
-                classLevels[cls] = newClsLevel;
-                getNewFeaturesForClass(cls, newClsLevel, ownedSet, allFeatures, primaryBaseClass).forEach(f => {
-                    autoFeatures.push(f);
-                    ownedSet.add(f);
-                });
-            });
-        }
-
-        const features = autoFeatures.length > 0
-            ? [...(trainer.features || []), ...autoFeatures]
-            : (trainer.features || []);
-
-        setTrainer(prev => ({ ...prev, honors: newHonors, level: newLevel, levelStatPoints, hpRolls, classLevels, features, levelStatAllocations: [] }));
-
-        if (autoFeatures.length > 0 && (trainer.featureDropsUsed || 0) < MAX_FEATURE_DROPS) {
-            setPendingFeatureDrop({
-                features: autoFeatures,
-                dropsRemaining: MAX_FEATURE_DROPS - (trainer.featureDropsUsed || 0)
-            });
-        }
-
-        // Notification is shown by the Honors modal after calling this
-    }, [trainer, setTrainer, liveGameData]);
+        setTrainer(prev => ({ ...prev, honors: newHonors }));
+    }, [trainer, setTrainer]);
 
     // Level down the trainer (PTA3)
     const levelDownTrainer = useCallback(() => {
