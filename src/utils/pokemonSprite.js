@@ -98,7 +98,7 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'lycanroc (day)':               'lycanroc',
     'lycanroc (night)':             'lycanroc-midnight',
     'lycanroc (dusk)':              'lycanroc-dusk',
-    'aegislash (shield)':           'aegislash-shield',
+    'aegislash (shield)':           'aegislash',
     'aegislash (sword)':            'aegislash-blade',
     'wishiwashi (single form)':     'wishiwashi',
     'wishiwashi (school form)':     'wishiwashi-school',
