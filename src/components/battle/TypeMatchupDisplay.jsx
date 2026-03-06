@@ -24,20 +24,24 @@ const Row = ({ heading, headingColor, items, label }) => items.length === 0 ? nu
     </div>
 );
 
-const TypeMatchupDisplay = ({ selectedPokemon, megaEvolved, currentMegaForm }) => {
+const TypeMatchupDisplay = ({ selectedPokemon, megaEvolved, currentMegaForm, activeTypes: activeTypesProp }) => {
     if (!selectedPokemon || !(selectedPokemon.types || []).length) return null;
 
-    const activeTypes = megaEvolved && currentMegaForm?.types?.length > 0
-        ? currentMegaForm.types
-        : (selectedPokemon.types || []);
+    const activeTypes = activeTypesProp
+        || (megaEvolved && currentMegaForm?.types?.length > 0 ? currentMegaForm.types : (selectedPokemon.types || []));
     const eff = getCombinedTypeEffectiveness(activeTypes);
+
+    const isMega = !activeTypesProp && megaEvolved && currentMegaForm?.types?.length > 0;
+    const isTera = !!activeTypesProp && activeTypesProp !== selectedPokemon.types;
 
     return (
         <div style={{ marginBottom: '12px', padding: '10px', borderRadius: '8px', background: 'var(--bg-secondary, #f5f5f5)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
-                    Type Matchup{megaEvolved && currentMegaForm?.types?.length > 0 && (
+                    Type Matchup{isMega && (
                         <span style={{ fontWeight: 'normal', marginLeft: '4px', color: 'var(--text-muted)' }}>(Mega)</span>
+                    )}{isTera && (
+                        <span style={{ fontWeight: 'normal', marginLeft: '4px', color: '#c78600' }}>(Tera)</span>
                     )}
                 </span>
                 <div style={{ display: 'flex', gap: '4px' }}>

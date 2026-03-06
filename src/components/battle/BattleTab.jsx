@@ -12,6 +12,9 @@ import { getPokemonSprite, getPokemonDisplayImage, getMegaSprite } from '../../u
 import TypeMatchupDisplay from './TypeMatchupDisplay.jsx';
 import StatusConditionUI from './StatusConditionUI.jsx';
 import MegaEvolutionPanel from './MegaEvolutionPanel.jsx';
+import ZMovePanel from './ZMovePanel.jsx';
+import DynamaxPanel from './DynamaxPanel.jsx';
+import TerastallizationPanel from './TerastallizationPanel.jsx';
 import HPTracker from './HPTracker.jsx';
 import CombatStagesPanel from './CombatStagesPanel.jsx';
 import MoveSelector from './MoveSelector.jsx';
@@ -105,6 +108,13 @@ const BattleTab = () => {
     const [acOverride, setAcOverride] = useState('');
     const [megaEvolved, setMegaEvolved] = useState(false);
     const [currentMegaForm, setCurrentMegaForm] = useState(null);
+    const [zMoveUsed, setZMoveUsed] = useState(false);
+    const [isDynamaxed, setIsDynamaxed] = useState(false);
+    const [gMaxMoveUsed, setGMaxMoveUsed] = useState(false);
+    const [isTerastallized, setIsTerastallized] = useState(false);
+    const [teraBlastUsesLeft, setTeraBlastUsesLeft] = useState(3);
+    const [preDynamaxMaxHp, setPreDynamaxMaxHp] = useState(null);
+    const [pokemonHP, setPokemonHP] = useState(null); // override for Dynamax HP scaling
 
     const selectedPokemon = useMemo(() => party.find(p => p.id === selectedPokemonId) || null, [party, selectedPokemonId]);
 
@@ -142,13 +152,19 @@ const BattleTab = () => {
         setMegaEvolved(false);
         setCurrentMegaForm(null);
         setAcOverride('');
+        setZMoveUsed(false);
+        setIsDynamaxed(false);
+        setGMaxMoveUsed(false);
+        setIsTerastallized(false);
+        setTeraBlastUsesLeft(3);
+        setPreDynamaxMaxHp(null);
+        setPokemonHP(null);
     }, [selectedPokemonId]);
 
-    // Apply mega stat boosts to actual stats
+    // Apply mega stat boosts and Tera def/sdef bonus to actual stats
     const getStatsWithMega = useCallback((pokemon) => {
         const baseStats = getActualStats(pokemon);
-        if (!megaEvolved || !currentMegaForm?.statBoosts) return baseStats;
-        return {
+        const afterMega = (!megaEvolved || !currentMegaForm?.statBoosts) ? baseStats : {
             hp:   baseStats.hp   + (currentMegaForm.statBoosts.hp   || 0),
             atk:  baseStats.atk  + (currentMegaForm.statBoosts.atk  || 0),
             def:  baseStats.def  + (currentMegaForm.statBoosts.def  || 0),
@@ -156,16 +172,91 @@ const BattleTab = () => {
             sdef: baseStats.sdef + (currentMegaForm.statBoosts.sdef || 0),
             spd:  baseStats.spd  + (currentMegaForm.statBoosts.spd  || 0),
         };
-    }, [megaEvolved, currentMegaForm]);
+        if (!isTerastallized) return afterMega;
+        return { ...afterMega, def: afterMega.def + 3, sdef: afterMega.sdef + 3 };
+    }, [megaEvolved, currentMegaForm, isTerastallized]);
 
     const handleMegaEvolve = (megaForm) => { setCurrentMegaForm(megaForm); setMegaEvolved(true); };
     const handleMegaRevert = () => { setMegaEvolved(false); setCurrentMegaForm(null); };
 
-    const getPokemonHP = (poke) => {
+    const handleDynamax = () => {
+        if (!selectedPokemon) return;
+        const base = getPokemonBaseHP(selectedPokemon);
+        const newMax = base.max * 5;
+        setPreDynamaxMaxHp(base.max);
+        setPokemonHP({ current: newMax, max: newMax });
+        setIsDynamaxed(true);
+    };
+
+    const handleDynamaxRevert = () => {
+        const base = preDynamaxMaxHp;
+        setPokemonHP(prev => {
+            const current = prev ? Math.min(prev.current, base) : base;
+            return { current, max: base };
+        });
+        setIsDynamaxed(false);
+        setGMaxMoveUsed(false);
+        setPreDynamaxMaxHp(null);
+    };
+
+    const handleTerastallize = () => setIsTerastallized(true);
+    const handleTeraRevert = () => setIsTerastallized(false);
+
+    // Roll a special mechanic move (Z-Move, G-Max, Tera Blast) into roll history
+    const rollSpecialMove = ({ moveName, moveType, category, damage, effect }) => {
+        if (!selectedPokemon) return;
+        const diceData = parseDice(damage);
+        if (diceData.count === 0) return;
+        const rolls = rollDice(diceData.count, diceData.sides);
+        const total = rolls.reduce((s, r) => s + r, 0) + diceData.bonus;
+        const hp = getActivePokemonHP(selectedPokemon);
+        addToHistory(buildPokemonRollEntry({
+            pokemon: selectedPokemon.name || selectedPokemon.species,
+            move: moveName, moveType, category,
+            accRoll: 20, accModifier: 0, modifiedAccRoll: 20, moveAC: null, acWasOverridden: false,
+            isHit: true, isCrit: false, isStatus: false,
+            dice: `${diceData.count}d${diceData.sides}`,
+            rolls, diceTotal: total, statBonus: 0, stabBonus: 0, total,
+            typeColor: 0,
+            attackerCurrentHP: hp.current, attackerMaxHP: hp.max,
+            pokemonSpriteUrl: getPokemonSprite(selectedPokemon),
+            activeStatuses: [],
+            megaEvolved: false, megaFormName: null,
+            ...(effect ? { specialEffect: effect } : {}),
+        }));
+    };
+
+    const handleZMoveRoll = (zMove) => {
+        rollSpecialMove({ moveName: zMove.name, moveType: zMove.type, category: zMove.category, damage: zMove.damage, effect: zMove.effect });
+        setZMoveUsed(true);
+    };
+
+    const handleGMaxRoll = (gMaxMove) => {
+        rollSpecialMove({ moveName: gMaxMove.name, moveType: gMaxMove.type, category: 'Special', damage: gMaxMove.damage, effect: gMaxMove.effect });
+        setGMaxMoveUsed(true);
+    };
+
+    const handleTeraBlastRoll = () => {
+        if (teraBlastUsesLeft <= 0 || !selectedPokemon) return;
+        rollSpecialMove({ moveName: 'Tera Blast', moveType: selectedPokemon.teraType || 'Normal', category: 'Special', damage: '3d12', effect: '' });
+        setTeraBlastUsesLeft(prev => prev - 1);
+    };
+
+    // Base HP from Pokémon data (ignores Dynamax override for initial calc)
+    const getPokemonBaseHP = (poke) => {
         if (!poke) return { current: 0, max: 0 };
         const max = calculatePokemonHP(poke);
         return { current: Math.max(0, max - (poke.currentDamage || 0)), max };
     };
+
+    // Active HP: use Dynamax override if present, else base
+    const getActivePokemonHP = (poke) => {
+        if (!poke) return { current: 0, max: 0 };
+        if (pokemonHP && poke.id === selectedPokemonId) return pokemonHP;
+        return getPokemonBaseHP(poke);
+    };
+
+    const getPokemonHP = (poke) => getActivePokemonHP(poke);
 
     const updateCombatStage = (stat, delta) => {
         setCombatStages(prev => ({ ...prev, [stat]: Math.max(-6, Math.min(6, (prev[stat] || 0) + delta)) }));
@@ -431,32 +522,100 @@ const BattleTab = () => {
                             {/* Pokemon HP Tracker */}
                             {selectedPokemon && (() => {
                                 const hp = getPokemonHP(selectedPokemon);
+                                // During Dynamax, track HP locally (scaled ×5); otherwise persist to Pokémon data
+                                const handleDamage = (val) => {
+                                    if (isDynamaxed) {
+                                        setPokemonHP(prev => ({ ...prev, current: Math.max(0, (prev?.current ?? hp.current) - val) }));
+                                    } else {
+                                        updatePokemon(selectedPokemon.id, { currentDamage: Math.min(hp.max, (selectedPokemon.currentDamage || 0) + val) });
+                                    }
+                                };
+                                const handleHeal = (val) => {
+                                    if (isDynamaxed) {
+                                        setPokemonHP(prev => ({ ...prev, current: Math.min(prev?.max ?? hp.max, (prev?.current ?? hp.current) + val) }));
+                                    } else {
+                                        updatePokemon(selectedPokemon.id, { currentDamage: Math.max(0, (selectedPokemon.currentDamage || 0) - val) });
+                                    }
+                                };
+                                const handleFull = () => {
+                                    if (isDynamaxed) {
+                                        setPokemonHP(prev => ({ ...prev, current: prev?.max ?? hp.max }));
+                                    } else {
+                                        updatePokemon(selectedPokemon.id, { currentDamage: 0 });
+                                    }
+                                };
                                 return (
                                     <HPTracker
-                                        label="HP"
+                                        label={isDynamaxed ? 'HP (Dynamax)' : 'HP'}
                                         currentHP={hp.current}
                                         maxHP={hp.max}
-                                        onDamage={(val) => updatePokemon(selectedPokemon.id, { currentDamage: Math.min(hp.max, (selectedPokemon.currentDamage || 0) + val) })}
-                                        onHeal={(val) => updatePokemon(selectedPokemon.id, { currentDamage: Math.max(0, (selectedPokemon.currentDamage || 0) - val) })}
-                                        onFull={() => updatePokemon(selectedPokemon.id, { currentDamage: 0 })}
+                                        onDamage={handleDamage}
+                                        onHeal={handleHeal}
+                                        onFull={handleFull}
                                     />
                                 );
                             })()}
 
-                            <TypeMatchupDisplay selectedPokemon={selectedPokemon} megaEvolved={megaEvolved} currentMegaForm={currentMegaForm} />
+                            {(() => {
+                                const activeTypes = isTerastallized && selectedPokemon?.teraType
+                                    ? [selectedPokemon.teraType]
+                                    : (megaEvolved && currentMegaForm?.types?.length ? currentMegaForm.types : selectedPokemon?.types);
+                                return (
+                                    <TypeMatchupDisplay
+                                        selectedPokemon={selectedPokemon}
+                                        megaEvolved={megaEvolved}
+                                        currentMegaForm={currentMegaForm}
+                                        activeTypes={isTerastallized && selectedPokemon?.teraType ? activeTypes : undefined}
+                                    />
+                                );
+                            })()}
 
                             <StatusConditionUI selectedPokemon={selectedPokemon} updatePokemon={updatePokemon} />
 
-                            <MegaEvolutionPanel
-                                selectedPokemon={selectedPokemon}
-                                megaForms={megaForms}
-                                megaEvolved={megaEvolved}
-                                currentMegaForm={currentMegaForm}
-                                onMegaEvolve={handleMegaEvolve}
-                                onMegaRevert={handleMegaRevert}
-                                label={BATTLE_FORM_CHANGES[selectedPokemon?.species] ? 'Form Change' : 'Mega Evolution'}
-                                isFormChange={!!BATTLE_FORM_CHANGES[selectedPokemon?.species]}
-                            />
+                            {(() => {
+                                const anyMechanicActive = megaEvolved || isDynamaxed || isTerastallized;
+                                return (
+                                    <>
+                                        <MegaEvolutionPanel
+                                            selectedPokemon={selectedPokemon}
+                                            megaForms={megaForms}
+                                            megaEvolved={megaEvolved}
+                                            currentMegaForm={currentMegaForm}
+                                            onMegaEvolve={handleMegaEvolve}
+                                            onMegaRevert={handleMegaRevert}
+                                            label={BATTLE_FORM_CHANGES[selectedPokemon?.species] ? 'Form Change' : 'Mega Evolution'}
+                                            isFormChange={!!BATTLE_FORM_CHANGES[selectedPokemon?.species]}
+                                        />
+                                        <ZMovePanel
+                                            selectedPokemon={selectedPokemon}
+                                            gameData={GAME_DATA}
+                                            zMoveUsed={zMoveUsed}
+                                            onZMoveRoll={handleZMoveRoll}
+                                            onReset={() => setZMoveUsed(false)}
+                                            disabled={anyMechanicActive}
+                                        />
+                                        <DynamaxPanel
+                                            selectedPokemon={selectedPokemon}
+                                            gameData={GAME_DATA}
+                                            isDynamaxed={isDynamaxed}
+                                            gMaxMoveUsed={gMaxMoveUsed}
+                                            onActivate={handleDynamax}
+                                            onRevert={handleDynamaxRevert}
+                                            onGMaxRoll={handleGMaxRoll}
+                                            disabled={anyMechanicActive && !isDynamaxed}
+                                        />
+                                        <TerastallizationPanel
+                                            selectedPokemon={selectedPokemon}
+                                            isTerastallized={isTerastallized}
+                                            teraBlastUsesLeft={teraBlastUsesLeft}
+                                            onActivate={handleTerastallize}
+                                            onRevert={handleTeraRevert}
+                                            onTeraBlastRoll={handleTeraBlastRoll}
+                                            disabled={anyMechanicActive && !isTerastallized}
+                                        />
+                                    </>
+                                );
+                            })()}
 
                             <CombatStagesPanel
                                 selectedPokemon={selectedPokemon}

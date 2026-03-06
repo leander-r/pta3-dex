@@ -1394,6 +1394,21 @@ const PokemonCard = ({
                             </div>
                         </div>
 
+                        {/* Tera Type */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Tera Type</label>
+                            <select
+                                value={pokemon.teraType || ''}
+                                onChange={(e) => updatePokemon({ teraType: e.target.value })}
+                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                            >
+                                <option value="">None</option>
+                                {['Normal','Fire','Water','Electric','Grass','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'].map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         {/* Species Passives — up to 3, sourced from Pokédex pool */}
                         {(() => {
                             const speciesEntry = pokedex?.find(p => p.species === pokemon.species);

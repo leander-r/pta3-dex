@@ -160,6 +160,58 @@ const HELP_CONTENT = {
             </>
         )
     },
+    'z-moves': {
+        title: 'Z-Moves',
+        body: () => (
+            <>
+                <p>Z-Moves are powerful once-per-battle attacks that require a <strong>Z-Crystal</strong> matching the move's type. The Pokémon must be holding the crystal and know at least one move of that type.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Mechanics</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li>Deal <strong>8d12</strong> base damage (10d12 for certain species-specific Z-Moves)</li>
+                    <li>Can only be used <strong>once per battle</strong> — the button greys out after use</li>
+                    <li>Replaces the triggering move for that action</li>
+                    <li>Automatically hits — no accuracy roll</li>
+                </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Species-Specific Z-Moves</h4>
+                <p>Certain species (Pikachu, Snorlax, Decidueye, etc.) have unique Z-Moves that appear as a separate section in the Z-Move panel. These often have different ranges or special effects in addition to damage.</p>
+            </>
+        )
+    },
+    'dynamax': {
+        title: 'Dynamax & Gigantamax',
+        body: () => (
+            <>
+                <p>Dynamax requires a <strong>Power Spot</strong> (Gym, den, or similar) and Pokémon loyalty ≥2. Gigantamax additionally requires loyalty ≥3 and the species to be Gigantamax-capable.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Dynamax Effects</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>HP ×5</strong> — HP scales up on activation and clamps back on revert</li>
+                    <li><strong>Movement</strong> reduced to 10ft per turn</li>
+                    <li>All moves become <strong>Max Moves</strong> (80ft range, 30ft blast, 4d12, secondary terrain/stat effect)</li>
+                    <li>Duration: <strong>1 minute</strong> (≈10 rounds); reverts automatically</li>
+                </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Gigantamax</h4>
+                <p>Replaces the generic Max Move for that type with a species-specific <strong>G-Max Move</strong> (unique damage and effect). The G-Max roll button is one-use per Dynamax session.</p>
+            </>
+        )
+    },
+    'terastallization': {
+        title: 'Terastallization',
+        body: () => (
+            <>
+                <p>Terastallization replaces a Pokémon's typing with its <strong>Tera Type</strong> for the duration of the battle. Set the Tera Type on the Pokémon card before battle.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Effects While Terastallized</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li>Type changes to Tera Type — type matchups recalculate accordingly</li>
+                    <li><strong>DEF +3</strong> and <strong>SDEF +3</strong> (shown as combat stage bonuses)</li>
+                    <li><strong>Tera Aura</strong>: all Tera-type moves used nearby get STAB</li>
+                </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Tera Crown</h4>
+                <p>While Terastallized, the Pokémon gains a special skill and an <strong>At-Will move</strong> tied to its Tera Type (e.g., Fire Tera Crown grants <em>Firestarter</em> + <em>Emberish</em>).</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Tera Blast</h4>
+                <p>A Tera-type Ranged (40ft) attack dealing <strong>3d12</strong> damage using the higher of ATK or SATK. Usable <strong>3 times per battle</strong>.</p>
+            </>
+        )
+    },
     'hp-tracking': {
         title: 'HP Tracking',
         body: () => (

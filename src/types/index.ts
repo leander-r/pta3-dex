@@ -41,6 +41,7 @@ export interface Pokemon {
   moves: Move[];
   notes: string;
   loyalty: number;
+  teraType?: string;
 }
 
 export interface Trainer {

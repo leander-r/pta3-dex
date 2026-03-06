@@ -67,7 +67,8 @@ export const DEFAULT_POKEMON = {
     skills: [],   // Array of capability/skill strings e.g. ["Sprouter", "Threaded"]
     notes: '',
     loyalty: 2,
-    heldItem: ''
+    heldItem: '',
+    teraType: ''  // Tera Type: stored permanently on Pokémon (like nature/ability)
 };
 
 /**
@@ -236,3 +237,77 @@ export const AUTOSAVE_DEBOUNCE_MS = 1000;
  * Auto-save interval (ms) — periodic save regardless of debounce
  */
 export const AUTOSAVE_INTERVAL_MS = 2 * 60 * 1000;
+
+/**
+ * Z-Move table — keyed by type, each dealing 8d12 damage once per battle.
+ */
+export const Z_MOVE_TABLE = {
+    Normal:   { name: 'Breakneck Blitz',       range: 'Melee (25ft burst)',        damage: '8d12', category: 'Physical' },
+    Fighting: { name: 'All-Out Pummeling',      range: 'Melee (25ft burst)',        damage: '8d12', category: 'Physical' },
+    Flying:   { name: 'Supersonic Skystrike',   range: 'Melee (25ft burst)',        damage: '8d12', category: 'Physical' },
+    Poison:   { name: 'Acid Downpour',          range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Physical' },
+    Ground:   { name: 'Tectonic Rage',          range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Physical' },
+    Rock:     { name: 'Continental Crush',      range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Physical' },
+    Bug:      { name: 'Savage Spin Out',        range: 'Melee (25ft burst)',        damage: '8d12', category: 'Physical' },
+    Ghost:    { name: 'Never-Ending Nightmare', range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Special'  },
+    Steel:    { name: 'Corkscrew Crash',        range: 'Melee (25ft burst)',        damage: '8d12', category: 'Physical' },
+    Fire:     { name: 'Inferno Overdrive',      range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Special'  },
+    Water:    { name: 'Hydro Vortex',           range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Special'  },
+    Grass:    { name: 'Bloom Doom',             range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Special'  },
+    Electric: { name: 'Gigavolt Havoc',         range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Special'  },
+    Psychic:  { name: 'Shattered Psyche',       range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Special'  },
+    Ice:      { name: 'Subzero Slammer',        range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Special'  },
+    Dragon:   { name: 'Devastating Drake',      range: 'Melee (25ft burst)',        damage: '8d12', category: 'Special'  },
+    Dark:     { name: 'Black Hole Eclipse',     range: 'Ranged (60ft, 20ft blast)', damage: '8d12', category: 'Physical' },
+    Fairy:    { name: 'Twinkle Tackle',         range: 'Melee (25ft burst)',        damage: '8d12', category: 'Special'  },
+};
+
+/**
+ * Max Move table — keyed by type, used during Dynamax.
+ * All Max Moves: Ranged 80ft 30ft blast, At-Will, 4d12. Secondary effect differs per type.
+ */
+export const MAX_MOVE_TABLE = {
+    Bug:      { name: 'Max Flutterby',  effect: 'All targets SAtk −1 for 2 mins. Trainer cannot act next round.' },
+    Dark:     { name: 'Max Darkness',   effect: 'All targets SDef −1 for 2 mins. Trainer cannot act next round.' },
+    Dragon:   { name: 'Max Wyrmwind',   effect: 'All targets Atk −1 for 2 mins. Trainer cannot act next round.' },
+    Electric: { name: 'Max Lightning',  effect: 'Creates Electrified Terrain (60ft, 2 mins). Prevents Sleep.' },
+    Fairy:    { name: 'Max Starfall',   effect: 'Creates Misty Terrain (60ft, 2 mins). Dragon resisted, no afflictions.' },
+    Fighting: { name: 'Max Knuckle',    effect: 'All allies within 60ft get Atk +1 for 2 mins.' },
+    Fire:     { name: 'Max Flare',      effect: 'Creates Sunny Weather (60ft, 2 mins). Fire +8 dmg, Water −8 dmg.' },
+    Flying:   { name: 'Max Airstream',  effect: 'All allies within 60ft get Spd +1 for 2 mins.' },
+    Ghost:    { name: 'Max Phantasm',   effect: 'All targets Def −1 for 2 mins.' },
+    Grass:    { name: 'Max Overgrowth', effect: 'Creates Grassy Terrain (60ft, 2 mins). Allies recover 1d12 HP after acting.' },
+    Ground:   { name: 'Max Quake',      effect: 'All allies within 60ft get SDef +1 for 2 mins.' },
+    Ice:      { name: 'Max Hailstorm',  effect: 'Creates Hailing Weather (60ft, 2 mins). All take 2d4 dmg/turn except Ice.' },
+    Normal:   { name: 'Max Strike',     effect: 'All targets Spd −1 for 2 mins.' },
+    Poison:   { name: 'Max Ooze',       effect: 'All allies within 60ft get SAtk +1 for 2 mins.' },
+    Psychic:  { name: 'Max Mindstorm',  effect: 'Creates Psychic Terrain (60ft, 2 mins). No Priority/Reaction moves.' },
+    Rock:     { name: 'Max Rockfall',   effect: 'Creates Sandstorm (60ft, 2 mins). All take 2d4 dmg/turn except Rock/Ground/Steel.' },
+    Steel:    { name: 'Max Steelspike', effect: 'All allies within 60ft get Def +1 for 2 mins.' },
+    Water:    { name: 'Max Geyser',     effect: 'Creates Raining Weather (60ft, 2 mins). Water +8 dmg, Fire −8 dmg.' },
+};
+
+/**
+ * Tera Crown table — keyed by type.
+ * Each entry grants a skill and an At-Will move when Terastallized.
+ */
+export const TERA_CROWN_TABLE = {
+    Bug:      { skill: 'Threaded',     move: 'Struggling Bug',  range: 'Ranged (20ft)', damage: '2d6',  category: 'Special'  },
+    Dark:     { skill: 'Stealth',      move: 'Brutal Hit',      range: 'Melee',         damage: '2d6',  category: 'Physical' },
+    Dragon:   { skill: 'Guster',       move: 'Twisting Gust',   range: 'Ranged (20ft)', damage: '1d12', category: 'Special'  },
+    Electric: { skill: 'Zapper',       move: 'Thunder Spark',   range: 'Ranged (20ft)', damage: '1d12', category: 'Special'  },
+    Fairy:    { skill: 'Alluring',     move: 'Fairy Wind',      range: 'Ranged (20ft)', damage: '1d12', category: 'Special'  },
+    Fighting: { skill: 'Strength',     move: 'Karate Slap',     range: 'Melee',         damage: '2d6',  category: 'Physical' },
+    Fire:     { skill: 'Firestarter',  move: 'Emberish',        range: 'Ranged (20ft)', damage: '1d12', category: 'Special'  },
+    Flying:   { skill: 'Flight',       move: 'Air Dart',        range: 'Ranged (10ft)', damage: '2d6',  category: 'Physical' },
+    Ghost:    { skill: 'Invisibility', move: 'Spook',           range: 'Melee',         damage: '2d6',  category: 'Physical' },
+    Grass:    { skill: 'Sprouter',     move: 'Leafage',         range: 'Ranged (20ft)', damage: '1d12', category: 'Special'  },
+    Ground:   { skill: 'Burrow',       move: 'Mud Throw',       range: 'Ranged (20ft)', damage: '2d6',  category: 'Special'  },
+    Ice:      { skill: 'Freezer',      move: 'Icy Breeze',      range: 'Ranged (20ft)', damage: '2d6',  category: 'Special'  },
+    Normal:   { skill: 'Climber',      move: 'Tackle',          range: 'Melee',         damage: '2d6',  category: 'Physical' },
+    Poison:   { skill: 'Repulsive',    move: 'Clearing Smog',   range: 'Ranged (20ft)', damage: '1d12', category: 'Special'  },
+    Psychic:  { skill: 'Telekinetic',  move: 'Confusioning',    range: 'Ranged (20ft)', damage: '1d12', category: 'Special'  },
+    Rock:     { skill: 'Groundshaper', move: 'Rock Throw',      range: 'Ranged (20ft)', damage: '2d6',  category: 'Physical' },
+    Steel:    { skill: 'Magnetic',     move: 'Metal Cut',       range: 'Melee',         damage: '2d6',  category: 'Physical' },
+    Water:    { skill: 'Fountain',     move: 'Water Gun',       range: 'Ranged (20ft)', damage: '2d6',  category: 'Special'  },
+};

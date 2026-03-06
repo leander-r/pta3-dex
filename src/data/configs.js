@@ -216,6 +216,12 @@ export let GAME_DATA = {
     // Minimal features
     features: {},
 
+    // Species-specific Z-Moves (full data in pta-game-data.min.json)
+    uniqueZMoves: {},
+
+    // Gigantamax-capable species and their G-Max moves (full data in pta-game-data.min.json)
+    gigantamaxForms: {},
+
     // Minimal moves (updated frequency strings for PTA3)
     moves: {
         'Tackle':       { type: 'Normal',   damage: '2d6+8',   frequency: 'At-Will', category: 'Physical', range: 'Melee',      effect: '1 Target, Dash', description: 'Basic physical attack' },
