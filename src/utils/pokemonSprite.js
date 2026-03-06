@@ -53,7 +53,7 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'darumaka (icy mountain)':      'darumaka-galar',
     'darmanitan zen mode':          'darmanitan-zen',
     'darmanitan (icy mountain)':    'darmanitan-galar',
-    'darmanitan (icy mountain) zen mode': 'darmanitan-galar-zen',
+    'darmanitan (icy mountain) zen mode': 'darmanitan-galarzen',
     'mr. mime (icy mountain)':      'mrmime-galar',
     'yamask (stone ruins)':         'yamask-galar',
     'stunfisk (iron-rich)':         'stunfisk-galar',
