@@ -240,6 +240,10 @@ const BattleTab = () => {
         setGMaxMoveUsed(true);
     };
 
+    const handleMaxMoveRoll = (maxMove) => {
+        rollSpecialMove({ moveName: maxMove.name, moveType: maxMove.type, category: 'Special', damage: '4d12', effect: maxMove.effect });
+    };
+
     const handleTeraBlastRoll = () => {
         if (teraBlastUsesLeft <= 0 || !selectedPokemon) return;
         rollSpecialMove({ moveName: 'Tera Blast', moveType: selectedPokemon.teraType || 'Normal', category: 'Special', damage: '3d12', effect: '' });
@@ -626,6 +630,7 @@ const BattleTab = () => {
                                             onActivate={handleDynamax}
                                             onRevert={handleDynamaxRevert}
                                             onGMaxRoll={handleGMaxRoll}
+                                            onMaxMoveRoll={handleMaxMoveRoll}
                                             disabled={anyMechanicActive && !isDynamaxed}
                                         />
                                         <TerastallizationPanel

@@ -1,14 +1,33 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { MAX_MOVE_TABLE } from '../../data/constants.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 
-const DynamaxPanel = ({ selectedPokemon, gameData, isDynamaxed, gMaxMoveUsed, onActivate, onRevert, onGMaxRoll, disabled }) => {
-    const [showMaxMoves, setShowMaxMoves] = useState(false);
+const DynamaxPanel = ({ selectedPokemon, gameData, isDynamaxed, gMaxMoveUsed, onActivate, onRevert, onGMaxRoll, onMaxMoveRoll, disabled }) => {
 
     const gMaxData = useMemo(() => {
         if (!selectedPokemon?.species || !gameData?.gigantamaxForms) return null;
         return gameData.gigantamaxForms[selectedPokemon.species] || null;
     }, [selectedPokemon, gameData]);
+
+    // Derive Max Moves from the Pokémon's current move list.
+    // Attack moves (Physical/Special) → typed Max Move; Status moves → Max Guard.
+    const derivedMaxMoves = useMemo(() => {
+        if (!selectedPokemon?.moves?.length) return [];
+        const attackTypes = new Set();
+        let hasStatusMove = false;
+        selectedPokemon.moves.forEach(m => {
+            if ((m.category === 'Physical' || m.category === 'Special') && m.type && MAX_MOVE_TABLE[m.type]) {
+                attackTypes.add(m.type);
+            } else if (m.category === 'Status') {
+                hasStatusMove = true;
+            }
+        });
+        const moves = [...attackTypes].map(type => ({ ...MAX_MOVE_TABLE[type], type, isGuard: false }));
+        if (hasStatusMove) {
+            moves.push({ name: 'Max Guard', type: 'Normal', isGuard: true, damage: null, effect: 'Blocks all damage and effects targeting the user until the start of its next turn.' });
+        }
+        return moves;
+    }, [selectedPokemon]);
 
     const canGigantamax = !!gMaxData;
     const label = canGigantamax ? 'Gigantamax' : 'Dynamax';
@@ -53,7 +72,7 @@ const DynamaxPanel = ({ selectedPokemon, gameData, isDynamaxed, gMaxMoveUsed, on
 
             {isDynamaxed && (
                 <div style={{ marginTop: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.9)' }}>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
                         <span>HP ×5 (active)</span>
                         <span>Movement: 10ft/turn</span>
                         <span>Duration: 1 min (10 turns)</span>
@@ -67,12 +86,10 @@ const DynamaxPanel = ({ selectedPokemon, gameData, isDynamaxed, gMaxMoveUsed, on
                                 <span style={{ padding: '1px 6px', borderRadius: '8px', background: getTypeColor(gMaxData.gMaxMove.type), fontSize: '10px' }}>
                                     {gMaxData.gMaxMove.type}
                                 </span>
-                            </div>
-                            <div style={{ opacity: 0.85 }}>
-                                Ranged (80ft, 30ft blast) — {gMaxData.gMaxMove.damage}
+                                <span style={{ fontSize: '10px', opacity: 0.75 }}>Ranged (80ft, 30ft blast)</span>
                             </div>
                             {gMaxData.gMaxMove.effect && (
-                                <div style={{ opacity: 0.75, marginTop: '2px' }}>{gMaxData.gMaxMove.effect}</div>
+                                <div style={{ opacity: 0.75, marginTop: '2px', fontSize: '11px' }}>{gMaxData.gMaxMove.effect}</div>
                             )}
                             <button
                                 onClick={() => !gMaxMoveUsed && onGMaxRoll(gMaxData.gMaxMove)}
@@ -89,24 +106,47 @@ const DynamaxPanel = ({ selectedPokemon, gameData, isDynamaxed, gMaxMoveUsed, on
                         </div>
                     )}
 
-                    {/* Max Move reference */}
-                    <button
-                        onClick={() => setShowMaxMoves(v => !v)}
-                        style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', width: '100%' }}
-                    >
-                        {showMaxMoves ? '▲ Hide Max Moves' : '▼ Show Max Moves Reference'}
-                    </button>
-
-                    {showMaxMoves && (
-                        <div style={{ marginTop: '6px', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', padding: '8px', maxHeight: '200px', overflowY: 'auto' }}>
-                            <div style={{ fontSize: '11px', opacity: 0.75, marginBottom: '4px' }}>All Max Moves: Ranged (80ft, 30ft blast) — At-Will — 4d12</div>
-                            {Object.entries(MAX_MOVE_TABLE).map(([type, mv]) => (
-                                <div key={type} style={{ marginBottom: '5px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '5px' }}>
-                                    <span style={{ fontWeight: 'bold' }}>{mv.name}</span>
-                                    <span style={{ marginLeft: '6px', padding: '1px 5px', borderRadius: '6px', background: getTypeColor(type), fontSize: '10px' }}>{type}</span>
-                                    <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '1px' }}>{mv.effect}</div>
+                    {/* Derived Max Moves from the Pokémon's move list */}
+                    {derivedMaxMoves.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '2px' }}>
+                                Max Moves — derived from {selectedPokemon.name || selectedPokemon.species}'s moves:
+                            </div>
+                            {derivedMaxMoves.map((mv) => (
+                                <div
+                                    key={mv.name}
+                                    style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '6px', padding: '7px 8px' }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                                        <span style={{ fontWeight: 'bold', fontSize: '12px' }}>{mv.name}</span>
+                                        <span style={{ padding: '1px 6px', borderRadius: '8px', background: getTypeColor(mv.type), fontSize: '10px' }}>
+                                            {mv.type}
+                                        </span>
+                                        {!mv.isGuard && (
+                                            <span style={{ fontSize: '10px', opacity: 0.7, marginLeft: 'auto' }}>Ranged (80ft, 30ft blast)</span>
+                                        )}
+                                    </div>
+                                    {mv.effect && (
+                                        <div style={{ fontSize: '11px', opacity: 0.75 }}>{mv.effect}</div>
+                                    )}
+                                    {!mv.isGuard && (
+                                        <button
+                                            onClick={() => onMaxMoveRoll(mv)}
+                                            style={{
+                                                marginTop: '6px', width: '100%', padding: '5px', borderRadius: '5px', border: 'none',
+                                                background: 'rgba(255,255,255,0.85)', color: '#7b1fa2',
+                                                fontWeight: 'bold', fontSize: '12px', cursor: 'pointer'
+                                            }}
+                                        >
+                                            Roll 4d12
+                                        </button>
+                                    )}
                                 </div>
                             ))}
+                        </div>
+                    ) : (
+                        <div style={{ fontSize: '11px', opacity: 0.7, fontStyle: 'italic' }}>
+                            No moves known — add moves in the Pokémon tab to unlock Max Moves.
                         </div>
                     )}
                 </div>
