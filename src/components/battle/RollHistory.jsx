@@ -193,7 +193,7 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                         <span style={{ fontWeight: 'bold' }}>Acc Roll: </span>
                                         <span style={{ fontWeight: 'bold', color: roll.isCrit ? '#ff6f00' : (roll.isHit ? '#2e7d32' : '#c62828') }}>
                                             {roll.accRoll}
-                                            {roll.accModifier !== 0 && <span className="text-muted"> +{roll.accModifier} = {roll.modifiedAccRoll}</span>}
+                                            {roll.accModifier !== 0 && <span className="text-muted">{roll.accModifier > 0 ? '+' : ''}{roll.accModifier}={roll.modifiedAccRoll}</span>}
                                         </span>
                                         <span style={{ color: 'var(--text-secondary)' }}>
                                             {roll.moveAC != null ? ` vs DEF ${roll.moveAC}` : ' (no target set)'}

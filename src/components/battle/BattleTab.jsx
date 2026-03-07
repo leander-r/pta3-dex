@@ -92,7 +92,7 @@ const BattleTab = () => {
     const { trainer, setTrainer, party, calculateMaxHP } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const { sendToDiscord, inventory, setInventory } = useData();
-    const { showHelp } = useUI();
+    const { showHelp, setActiveTab } = useUI();
 
     const [mode, setMode] = useState('pokemon');
     const [selectedMove, setSelectedMove] = useState(null);
@@ -1090,7 +1090,8 @@ const BattleTab = () => {
                                     <>
                                         {equippedWeapons.length === 0 ? (
                                             <div style={{ padding: '12px', borderRadius: '6px', background: 'var(--bg-secondary)', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                                                No weapons equipped. Equip a Wood Staff, Stone Fist, or Steel Blade from the Inventory or Equipment panel. Requires the <strong>Weapons Master</strong> feature (Martial Artist Lv 6).
+                                                No weapons equipped. Requires the <strong>Weapons Master</strong> feature (Martial Artist Lv 6).{' '}
+                                                <button onClick={() => setActiveTab('inventory')} style={{ background: 'none', border: 'none', color: 'var(--color-purple, #667eea)', cursor: 'pointer', padding: 0, fontSize: '13px', textDecoration: 'underline' }}>Go to Inventory →</button>
                                             </div>
                                         ) : (
                                             <>

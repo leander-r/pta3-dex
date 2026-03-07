@@ -33,7 +33,6 @@ export interface Pokemon {
   species: string;
   gender: string;
   avatar: string;
-  level: number;
   types: string[];
   nature: string;
   ability: string;

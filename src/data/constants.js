@@ -104,17 +104,6 @@ export const POKEMON_VIEW = {
 };
 
 /**
- * Move sources
- */
-export const MOVE_SOURCES = {
-    NATURAL: 'natural',
-    TM: 'tm',
-    TUTOR: 'tutor',
-    EGG: 'egg',
-    CUSTOM: 'custom'
-};
-
-/**
  * Maximum feature drops (swap a gained feature for +1 stat) per trainer career
  */
 export const MAX_FEATURE_DROPS = 4;
@@ -128,11 +117,6 @@ export const MAX_PARTY_SIZE = 6;
  * Maximum trainer level (PTA3: honor-based leveling, max 15)
  */
 export const MAX_TRAINER_LEVEL = 15;
-
-/**
- * Maximum Pokemon level
- */
-export const MAX_POKEMON_LEVEL = 100;
 
 /**
  * Base stat value for new trainers (PTA3: 1-10 scale)

@@ -97,19 +97,6 @@ export const GameDataProvider = ({ children }) => {
         return speciesData?.levelUpMoves || [];
     }, [pokedex, customSpecies]);
 
-    // Get moves for level range
-    const getMovesForLevelRange = useCallback((pokemon, fromLevel, toLevel) => {
-        const levelUpMoves = typeof pokemon === 'object'
-            ? getLevelUpMovesForPokemon(pokemon)
-            : getLevelUpMovesForSpecies(pokemon);
-
-        if (fromLevel < toLevel) {
-            return levelUpMoves.filter(m => m.level > fromLevel && m.level <= toLevel);
-        } else {
-            return levelUpMoves.filter(m => m.level > toLevel && m.level <= fromLevel);
-        }
-    }, [getLevelUpMovesForPokemon, getLevelUpMovesForSpecies]);
-
     const value = {
         // Pokedex
         pokedex,
@@ -129,8 +116,7 @@ export const GameDataProvider = ({ children }) => {
 
         // Move helpers
         getLevelUpMovesForPokemon,
-        getLevelUpMovesForSpecies,
-        getMovesForLevelRange
+        getLevelUpMovesForSpecies
     };
 
     return (

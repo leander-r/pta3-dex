@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useCallback, useEffect, useRef } from 'react';
 import { GAME_DATA } from '../data/configs.js';
-import { MAX_PARTY_SIZE, MAX_TOTAL_MOVES, MAX_POKEMON_LEVEL } from '../data/constants.js';
+import { MAX_PARTY_SIZE, MAX_TOTAL_MOVES } from '../data/constants.js';
 import { EVOLUTION_CHAINS } from '../data/evolutionChains.js';
 import { getActualStats, calculatePokemonHP, calculateSTAB as calcSTAB } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
@@ -117,7 +117,7 @@ const resolveAbilityUpdates = (currentPoke, newAbilities) => {
 // PTA3: No stat allocation helpers needed — stats are fixed from Pokédex
 
 export const PokemonProvider = ({ children }) => {
-    const { pokedex, getMovesForLevelRange, customSpecies } = useGameData();
+    const { pokedex, customSpecies } = useGameData();
     const { showLevelUpNotification,
             pokemonView, setPokemonView,
             editingPokemon, setEditingPokemon } = useUI();

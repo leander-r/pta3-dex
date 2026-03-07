@@ -5,7 +5,7 @@
 // daily bonus tracking.
 
 import React, { useState, useMemo } from 'react';
-import { useTrainerContext } from '../../contexts/index.js';
+import { useTrainerContext, useModal } from '../../contexts/index.js';
 import { useGameData } from '../../contexts/GameDataContext.jsx';
 
 const TYPE_COLORS = {
@@ -47,6 +47,7 @@ const ARMOR_CHIP = {
 const TrainerEquipment = () => {
     const { trainer, equipItem, unequipItem, markBonusUsed, resetDailyBonus } = useTrainerContext();
     const { GAME_DATA } = useGameData();
+    const { showDetail } = useModal();
     const [collapsed, setCollapsed] = useState(false);
     const [quickEquipValue, setQuickEquipValue] = useState('');
 
@@ -152,7 +153,11 @@ const TrainerEquipment = () => {
                                             return (
                                                 <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.08)', marginBottom: '4px', flexWrap: 'wrap' }}>
                                                     <TypeBadge type={groupType} />
-                                                    <span style={{ flex: 1, fontSize: '13px', color: 'white', fontWeight: 'bold', minWidth: '100px' }} title={data?.effect || ''}>
+                                                    <span
+                                                        style={{ flex: 1, fontSize: '13px', color: 'white', fontWeight: 'bold', minWidth: '100px', cursor: 'pointer', textDecoration: 'underline dotted rgba(255,255,255,0.5)' }}
+                                                        onClick={() => showDetail('item', name, { ...data, type: groupType })}
+                                                        title="View item details"
+                                                    >
                                                         {name}
                                                     </span>
                                                     {armorChip && (
@@ -207,6 +212,15 @@ const TrainerEquipment = () => {
                                     );
                                 })}
                             </select>
+                            {quickEquipValue && (
+                                <button
+                                    onClick={() => showDetail('item', quickEquipValue, { ...allItems[quickEquipValue], type: allItems[quickEquipValue]?.type })}
+                                    title="View item details"
+                                    style={{ padding: '6px 10px', background: 'rgba(255,255,255,0.12)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                                >
+                                    ⓘ
+                                </button>
+                            )}
                             <button
                                 onClick={handleQuickEquip}
                                 disabled={!quickEquipValue}

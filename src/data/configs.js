@@ -45,12 +45,6 @@ export let GAME_DATA = {
     _signature: { v: '3.0', a: 'leander_rsr', t: Date.now() },
     _loaded: false,
 
-    // Honor thresholds for trainer leveling (PTA3)
-    honorThresholds: {
-        1: 0, 2: 1, 3: 2, 4: 3, 5: 5, 6: 7, 7: 9, 8: 12, 9: 15, 10: 18,
-        11: 22, 12: 26, 13: 30, 14: 35, 15: 40
-    },
-
     // All 25 natures (PTA3: ±1 modifier)
     // Flavor: atk=Spicy, def=Sour, satk=Dry, sdef=Bitter, spd=Sweet
     natures: {

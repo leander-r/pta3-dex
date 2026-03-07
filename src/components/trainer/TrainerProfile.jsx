@@ -281,6 +281,11 @@ const TrainerProfile = () => {
                     }
                 </div>
             )}
+            {atMaxLevel && (
+                <div style={{ marginTop: '6px', fontSize: '11px', textAlign: 'center', color: '#9c27b0', fontWeight: '600' }}>
+                    ★ Maximum level reached (15)
+                </div>
+            )}
 
             {/* Quick Stats — 3 boxes */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '14px' }}>
