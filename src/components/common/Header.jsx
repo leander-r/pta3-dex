@@ -213,7 +213,7 @@ const Header = () => {
                     <line x1="2" y1="12" x2="8" y2="12" stroke="white" strokeWidth="2.5"/>
                     <line x1="16" y1="12" x2="22" y2="12" stroke="white" strokeWidth="2.5"/>
                 </svg>
-                {!isSmallMobile && <span>PTA Dex</span>}
+                {!isSmallMobile && <span>PTA3 Dex</span>}
             </h1>
 
             {/* Right Section */}

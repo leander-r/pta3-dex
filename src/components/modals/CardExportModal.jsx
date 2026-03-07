@@ -604,7 +604,7 @@ const TrainerCard = ({ trainer, pokemon }) => (
             position: 'relative',
             zIndex: 1
         }}>
-            PTA Dex • Trainer Card
+            PTA3 Dex • Trainer Card
         </div>
     </div>
 );
@@ -1344,7 +1344,7 @@ const PokemonCard = ({ poke }) => {
                 position: 'relative',
                 zIndex: 1
             }}>
-                PTA Dex • Pokémon Card
+                PTA3 Dex • Pokémon Card
             </div>
         </div>
     );

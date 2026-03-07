@@ -68,7 +68,7 @@ const HELP_CONTENT = {
         title: 'Save & Export',
         body: () => (
             <>
-                <p>PTA Dex offers two ways to preserve your data:</p>
+                <p>PTA3 Dex offers two ways to preserve your data:</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Save Slots (browser snapshots)</h4>
                 <p>Three named slots stored in your browser. Fast to create and restore — ideal for <strong>mid-session checkpoints</strong>. Note: these are browser-only and will be lost if you clear site data.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Export JSON (portable file)</h4>
