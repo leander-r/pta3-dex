@@ -7,13 +7,11 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData, useUI } from '../../contexts/index.js';
-import { MAX_ROLL_HISTORY, MAX_MOVE_TABLE } from '../../data/constants.js';
+import { MAX_ROLL_HISTORY, MAX_MOVE_TABLE, Z_MOVE_TABLE, TERA_CROWN_TABLE } from '../../data/constants.js';
 import { getPokemonSprite, getPokemonDisplayImage, getMegaSprite, getGigantamaxSprite } from '../../utils/pokemonSprite.js';
 import TypeMatchupDisplay from './TypeMatchupDisplay.jsx';
 import StatusConditionUI from './StatusConditionUI.jsx';
 import MegaEvolutionPanel from './MegaEvolutionPanel.jsx';
-import ZMovePanel from './ZMovePanel.jsx';
-import TerastallizationPanel from './TerastallizationPanel.jsx';
 import HPTracker from './HPTracker.jsx';
 import CombatStagesPanel from './CombatStagesPanel.jsx';
 import MoveSelector from './MoveSelector.jsx';
@@ -110,6 +108,7 @@ const BattleTab = () => {
     const [megaEvolved, setMegaEvolved] = useState(false);
     const [currentMegaForm, setCurrentMegaForm] = useState(null);
     const [zMoveUsed, setZMoveUsed] = useState(false);
+    const [zMoveActive, setZMoveActive] = useState(false);
     const [isDynamaxed, setIsDynamaxed] = useState(false);
     const [gMaxMoveUsed, setGMaxMoveUsed] = useState(false);
     const [isTerastallized, setIsTerastallized] = useState(false);
@@ -156,6 +155,7 @@ const BattleTab = () => {
         setCurrentMegaForm(null);
         setAcOverride('');
         setZMoveUsed(false);
+        setZMoveActive(false);
         setIsDynamaxed(false);
         setGMaxMoveUsed(false);
         setIsTerastallized(false);
@@ -186,35 +186,79 @@ const BattleTab = () => {
 
     const canGigantamax = !!gMaxData;
 
-    // When Dynamaxed, each attack move becomes the typed Max Move; status moves become Max Guard.
-    // Deduplicated: multiple moves of the same type → one Max Move entry.
-    // G-Max move is prepended when the species can Gigantamax.
+    const hasZMoves = useMemo(() => {
+        if (!selectedPokemon) return false;
+        return selectedPokemon.moves?.some(m => Z_MOVE_TABLE[m.type]) || !!(GAME_DATA.uniqueZMoves?.[selectedPokemon.species]);
+    }, [selectedPokemon]);
+
+    // Transform the move list based on the active battle mode.
     const displayedMoves = useMemo(() => {
         if (!selectedPokemon?.moves?.length) return selectedPokemon?.moves || [];
-        if (!isDynamaxed) return selectedPokemon.moves;
-        const seen = new Set();
-        const maxMoves = selectedPokemon.moves.reduce((acc, m) => {
-            let maxMove;
-            if (m.category === 'Status') {
-                maxMove = { name: 'Max Guard', type: 'Normal', category: 'Status', damage: null, frequency: 'At-Will', range: 'Self', isMaxMove: true, isMaxGuard: true, effect: 'Blocks all damage and effects targeting the user until the start of its next turn.' };
-            } else {
-                const entry = MAX_MOVE_TABLE[m.type];
-                maxMove = entry
-                    ? { name: entry.name, type: m.type, category: m.category, damage: '4d12', frequency: 'At-Will', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isMaxGuard: false, effect: entry.effect }
-                    : m;
-            }
-            if (!seen.has(maxMove.name)) { seen.add(maxMove.name); acc.push(maxMove); }
-            return acc;
-        }, []);
-        if (gMaxData?.gMaxMove) {
-            const gm = gMaxData.gMaxMove;
-            maxMoves.unshift({ name: gm.name, type: gm.type, category: 'Special', damage: gm.damage, frequency: '1/battle', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isGMaxMove: true, isMaxGuard: false, effect: gm.effect });
-        }
-        return maxMoves;
-    }, [selectedPokemon, isDynamaxed, gMaxData]);
 
-    const handleMegaEvolve = (megaForm) => { setCurrentMegaForm(megaForm); setMegaEvolved(true); };
-    const handleMegaRevert = () => { setMegaEvolved(false); setCurrentMegaForm(null); };
+        // ── Dynamax / Gigantamax ────────────────────────────────────────────
+        if (isDynamaxed) {
+            const seen = new Set();
+            const maxMoves = selectedPokemon.moves.reduce((acc, m) => {
+                let maxMove;
+                if (m.category === 'Status') {
+                    maxMove = { name: 'Max Guard', type: 'Normal', category: 'Status', damage: null, frequency: 'At-Will', range: 'Self', isMaxMove: true, isMaxGuard: true, effect: 'Blocks all damage and effects targeting the user until the start of its next turn.' };
+                } else {
+                    const entry = MAX_MOVE_TABLE[m.type];
+                    maxMove = entry
+                        ? { name: entry.name, type: m.type, category: m.category, damage: '4d12', frequency: 'At-Will', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isMaxGuard: false, effect: entry.effect }
+                        : m;
+                }
+                if (!seen.has(maxMove.name)) { seen.add(maxMove.name); acc.push(maxMove); }
+                return acc;
+            }, []);
+            if (gMaxData?.gMaxMove) {
+                const gm = gMaxData.gMaxMove;
+                maxMoves.unshift({ name: gm.name, type: gm.type, category: 'Special', damage: gm.damage, frequency: '1/battle', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isGMaxMove: true, isMaxGuard: false, effect: gm.effect });
+            }
+            return maxMoves;
+        }
+
+        // ── Z-Move mode ─────────────────────────────────────────────────────
+        if (zMoveActive) {
+            const seen = new Set();
+            const result = [];
+            const uniqueZ = GAME_DATA.uniqueZMoves?.[selectedPokemon.species];
+            if (uniqueZ) {
+                result.push({ name: uniqueZ.name, type: uniqueZ.type, category: uniqueZ.category, damage: uniqueZ.damage, range: uniqueZ.range, frequency: '1/day', isZMove: true, isUniqueZ: true, effect: uniqueZ.effect || '' });
+                seen.add(uniqueZ.name);
+            }
+            selectedPokemon.moves.forEach(m => {
+                if (m.category === 'Status') return;
+                const zMove = Z_MOVE_TABLE[m.type];
+                if (zMove && !seen.has(zMove.name)) {
+                    seen.add(zMove.name);
+                    result.push({ name: zMove.name, type: m.type, category: m.category, damage: zMove.damage, range: zMove.range, frequency: '1/day', isZMove: true, isUniqueZ: false, effect: '' });
+                }
+            });
+            return result;
+        }
+
+        // ── Terastallized ───────────────────────────────────────────────────
+        if (isTerastallized && selectedPokemon.teraType) {
+            const crown = TERA_CROWN_TABLE[selectedPokemon.teraType];
+            const prepended = [
+                { name: 'Tera Blast', type: selectedPokemon.teraType, category: 'Special', damage: '3d12', range: 'Ranged (40ft beam, 10ft blast)', frequency: '3/day', isTeraMove: true, isTeraBlast: true, effect: 'Uses higher of ATK or SATK.' },
+            ];
+            if (crown) {
+                prepended.push({ name: crown.move, type: selectedPokemon.teraType, category: crown.category, damage: crown.damage, range: crown.range, frequency: 'At-Will', isTeraMove: true, isTeraCrown: true, effect: '' });
+            }
+            return [...prepended, ...selectedPokemon.moves];
+        }
+
+        return selectedPokemon.moves;
+    }, [selectedPokemon, isDynamaxed, gMaxData, zMoveActive, isTerastallized, teraBlastUsesLeft]);
+
+    const handleMegaEvolve = (megaForm) => { setCurrentMegaForm(megaForm); setMegaEvolved(true); setZMoveActive(false); setSelectedMove(null); };
+    const handleMegaRevert = () => { setMegaEvolved(false); setCurrentMegaForm(null); setSelectedMove(null); };
+
+    const handleZMoveActivate = () => { setZMoveActive(true); setSelectedMove(null); };
+    const handleZMoveDeactivate = () => { setZMoveActive(false); setSelectedMove(null); };
+    const handleZMoveReset = () => { setZMoveUsed(false); };
 
     const handleDynamax = () => {
         if (!selectedPokemon) return;
@@ -319,6 +363,26 @@ const BattleTab = () => {
 
     const rollPokemonMove = () => {
         if (!selectedPokemon || !selectedMove) return;
+
+        // Z-Moves — always hit, 8d12 (or species-specific damage), one-time use
+        if (selectedMove.isZMove) {
+            if (zMoveUsed) return;
+            handleZMoveRoll(selectedMove);
+            return;
+        }
+
+        // Tera Blast — always hit, 3d12, 3/day
+        if (selectedMove.isTeraBlast) {
+            if (teraBlastUsesLeft <= 0) return;
+            handleTeraBlastRoll();
+            return;
+        }
+
+        // Tera Crown At-Will move — treated like a normal At-Will (no accuracy roll needed)
+        if (selectedMove.isTeraCrown) {
+            rollSpecialMove({ moveName: selectedMove.name, moveType: selectedMove.type, category: selectedMove.category, damage: selectedMove.damage, effect: selectedMove.effect });
+            return;
+        }
 
         // Max Moves bypass the normal accuracy/stat roll — always hit, flat 4d12
         if (selectedMove.isMaxMove) {
@@ -672,23 +736,6 @@ const BattleTab = () => {
                                             isFormChange={!!BATTLE_FORM_CHANGES[selectedPokemon?.species]}
                                             disabled={anyMechanicActive && !megaEvolved}
                                         />
-                                        <ZMovePanel
-                                            selectedPokemon={selectedPokemon}
-                                            gameData={GAME_DATA}
-                                            zMoveUsed={zMoveUsed}
-                                            onZMoveRoll={handleZMoveRoll}
-                                            onReset={() => setZMoveUsed(false)}
-                                            disabled={anyMechanicActive}
-                                        />
-                                        <TerastallizationPanel
-                                            selectedPokemon={selectedPokemon}
-                                            isTerastallized={isTerastallized}
-                                            teraBlastUsesLeft={teraBlastUsesLeft}
-                                            onActivate={handleTerastallize}
-                                            onRevert={handleTeraRevert}
-                                            onTeraBlastRoll={handleTeraBlastRoll}
-                                            disabled={anyMechanicActive && !isTerastallized}
-                                        />
                                     </>
                                 );
                             })()}
@@ -763,16 +810,55 @@ const BattleTab = () => {
                                 onDynamaxActivate={handleDynamax}
                                 onDynamaxRevert={handleDynamaxRevert}
                                 dynamaxDisabled={anyMechanicActive && !isDynamaxed}
+                                zMoveActive={zMoveActive}
+                                zMoveUsed={zMoveUsed}
+                                hasZMoves={hasZMoves}
+                                onZMoveActivate={handleZMoveActivate}
+                                onZMoveDeactivate={handleZMoveDeactivate}
+                                onZMoveReset={handleZMoveReset}
+                                zMoveDisabled={anyMechanicActive}
+                                isTerastallized={isTerastallized}
+                                teraType={selectedPokemon?.teraType || ''}
+                                teraBlastUsesLeft={teraBlastUsesLeft}
+                                onTeraActivate={handleTerastallize}
+                                onTeraRevert={handleTeraRevert}
+                                teraDisabled={anyMechanicActive && !isTerastallized}
                             />
 
                             {/* Roll Button */}
-                            <button
-                                onClick={rollPokemonMove}
-                                disabled={!selectedPokemon || !selectedMove || (selectedMove?.isGMaxMove && gMaxMoveUsed)}
-                                style={{ width: '100%', padding: '15px', background: (selectedPokemon && selectedMove && !(selectedMove?.isGMaxMove && gMaxMoveUsed)) ? (selectedMove?.isGMaxMove ? 'linear-gradient(135deg, #b8860b, #ffd700)' : isDynamaxed ? 'linear-gradient(135deg, #4a0080, #9b27af)' : 'linear-gradient(135deg, #667eea, #764ba2)') : '#ccc', color: (selectedPokemon && selectedMove && !(selectedMove?.isGMaxMove && gMaxMoveUsed)) ? (selectedMove?.isGMaxMove ? '#1a1a00' : 'white') : '#555', border: 'none', borderRadius: '8px', cursor: (selectedPokemon && selectedMove && !(selectedMove?.isGMaxMove && gMaxMoveUsed)) ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
-                            >
-                                {selectedMove?.isMaxGuard ? 'Log Max Guard' : selectedMove?.isGMaxMove ? `Roll G-Max! (${selectedMove.damage})` : selectedMove?.isMaxMove ? 'Roll Max Move! (4d12)' : 'Roll Attack!'}
-                            </button>
+                            {(() => {
+                                const m = selectedMove;
+                                const isDisabled = !selectedPokemon || !m
+                                    || (m?.isGMaxMove && gMaxMoveUsed)
+                                    || (m?.isZMove && zMoveUsed)
+                                    || (m?.isTeraBlast && teraBlastUsesLeft <= 0);
+                                const bg = !selectedPokemon || !m ? '#ccc'
+                                    : m.isGMaxMove ? (gMaxMoveUsed ? '#ccc' : 'linear-gradient(135deg, #b8860b, #ffd700)')
+                                    : m.isZMove ? (zMoveUsed ? '#ccc' : 'linear-gradient(135deg, #c62828, #e53935)')
+                                    : m.isTeraMove ? (m.isTeraBlast && teraBlastUsesLeft <= 0 ? '#ccc' : `linear-gradient(135deg, ${getTypeColor(selectedPokemon?.teraType || 'Normal')}, ${getTypeColor(selectedPokemon?.teraType || 'Normal')}cc)`)
+                                    : isDynamaxed ? 'linear-gradient(135deg, #4a0080, #9b27af)'
+                                    : 'linear-gradient(135deg, #667eea, #764ba2)';
+                                const fg = !selectedPokemon || !m ? '#555'
+                                    : m.isGMaxMove ? (gMaxMoveUsed ? '#555' : '#1a1a00')
+                                    : 'white';
+                                const label = !m ? 'Roll Attack!'
+                                    : m.isMaxGuard ? 'Log Max Guard'
+                                    : m.isGMaxMove ? `Roll G-Max! (${m.damage})`
+                                    : m.isMaxMove ? 'Roll Max Move! (4d12)'
+                                    : m.isZMove ? `Roll Z-Move! (${m.damage})`
+                                    : m.isTeraBlast ? `Roll Tera Blast! (3d12) — ${teraBlastUsesLeft}/3`
+                                    : m.isTeraCrown ? `Roll ${m.name}! (${m.damage})`
+                                    : 'Roll Attack!';
+                                return (
+                                    <button
+                                        onClick={rollPokemonMove}
+                                        disabled={isDisabled}
+                                        style={{ width: '100%', padding: '15px', background: isDisabled ? '#ccc' : bg, color: isDisabled ? '#555' : fg, border: 'none', borderRadius: '8px', cursor: isDisabled ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+                                    >
+                                        {label}
+                                    </button>
+                                );
+                            })()}
                         </div>
                     )}
 
