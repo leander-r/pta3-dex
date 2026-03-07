@@ -804,6 +804,7 @@ const BattleTab = () => {
                                 selectedMove={selectedMove}
                                 onSelectMove={setSelectedMove}
                                 showDetail={showDetail}
+                                showHelp={showHelp}
                                 gameData={GAME_DATA}
                                 isDynamaxed={isDynamaxed}
                                 canGigantamax={canGigantamax}

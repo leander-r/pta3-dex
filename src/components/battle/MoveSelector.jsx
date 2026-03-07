@@ -5,8 +5,20 @@ import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 const accTargetLabel = (category) =>
     category === 'Physical' ? 'vs DEF' : category === 'Status' ? 'vs SPD' : 'vs SDEF';
 
+const HelpBtn = ({ onClick, color = 'rgba(255,255,255,0.6)', hoverTitle }) => (
+    <button
+        onClick={onClick}
+        title={hoverTitle}
+        style={{
+            background: 'none', border: `1px solid ${color}`, borderRadius: '50%',
+            width: '16px', height: '16px', fontSize: '10px', fontWeight: 'bold',
+            color, cursor: 'pointer', padding: 0, lineHeight: '14px', flexShrink: 0,
+        }}
+    >?</button>
+);
+
 const MoveSelector = ({
-    selectedPokemon, moves, selectedMove, onSelectMove, showDetail, gameData,
+    selectedPokemon, moves, selectedMove, onSelectMove, showDetail, showHelp, gameData,
     // Dynamax
     isDynamaxed, canGigantamax, gMaxMoveUsed,
     onDynamaxActivate, onDynamaxRevert, dynamaxDisabled,
@@ -40,10 +52,11 @@ const MoveSelector = ({
                     background: 'linear-gradient(135deg, #4a0080, #9b27af)',
                     boxShadow: '0 0 8px #9b27af55'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white', letterSpacing: '0.5px' }}>
                             {canGigantamax ? 'GIGANTAMAX' : 'DYNAMAX'} ACTIVE
                         </span>
+                        {showHelp && <HelpBtn onClick={() => showHelp('dynamax')} hoverTitle="Dynamax rules" />}
                         <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', display: 'flex', gap: '8px' }}>
                             <span>HP ×5</span><span>·</span><span>10ft/turn</span><span>·</span><span>1 min</span>
                         </span>
@@ -68,10 +81,11 @@ const MoveSelector = ({
                     background: 'linear-gradient(135deg, #b71c1c, #e53935)',
                     boxShadow: '0 0 8px #e5393555'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white', letterSpacing: '0.5px' }}>
                             Z-MOVE READY
                         </span>
+                        {showHelp && <HelpBtn onClick={() => showHelp('z-moves')} hoverTitle="Z-Move rules" />}
                         <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', display: 'flex', gap: '8px' }}>
                             <span>8d12 dmg</span><span>·</span><span>Always hits</span><span>·</span>
                             <span style={{ color: zMoveUsed ? '#ffcdd2' : 'rgba(255,255,255,0.75)' }}>
@@ -113,10 +127,11 @@ const MoveSelector = ({
                     background: `linear-gradient(135deg, ${teraColor}dd, ${teraColor})`,
                     boxShadow: `0 0 8px ${teraColor}55`
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '12px', fontWeight: 'bold', color: teraTextColor, letterSpacing: '0.5px' }}>
                             TERASTALLIZED
                         </span>
+                        {showHelp && <HelpBtn onClick={() => showHelp('terastallization')} color={`${teraTextColor}99`} hoverTitle="Terastallization rules" />}
                         <span style={{
                             fontSize: '11px', padding: '1px 8px', borderRadius: '10px',
                             background: 'rgba(255,255,255,0.25)', color: teraTextColor, fontWeight: 'bold'
@@ -144,40 +159,46 @@ const MoveSelector = ({
             {!activeMode && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
                     <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Select Move</label>
-                    <div style={{ display: 'flex', gap: '4px' }}>
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                         {hasZMoves && (
-                            <button
-                                onClick={onZMoveActivate}
-                                disabled={zMoveDisabled}
-                                style={{
-                                    padding: '3px 8px', fontSize: '12px', fontWeight: 'bold',
-                                    background: zMoveDisabled ? 'var(--bg-light, #eee)' : 'linear-gradient(135deg, #b71c1c, #e53935)',
-                                    color: zMoveDisabled ? 'var(--text-muted)' : 'white',
-                                    border: 'none', borderRadius: '5px',
-                                    cursor: zMoveDisabled ? 'not-allowed' : 'pointer',
-                                    opacity: zMoveDisabled ? 0.5 : 1
-                                }}
-                                title={zMoveDisabled ? 'Another mechanic is active' : 'Use a Z-Move (1/day, 8d12)'}
-                            >
-                                Z-Move!
-                            </button>
+                            <>
+                                <button
+                                    onClick={onZMoveActivate}
+                                    disabled={zMoveDisabled}
+                                    style={{
+                                        padding: '3px 8px', fontSize: '12px', fontWeight: 'bold',
+                                        background: zMoveDisabled ? 'var(--bg-light, #eee)' : 'linear-gradient(135deg, #b71c1c, #e53935)',
+                                        color: zMoveDisabled ? 'var(--text-muted)' : 'white',
+                                        border: 'none', borderRadius: '5px',
+                                        cursor: zMoveDisabled ? 'not-allowed' : 'pointer',
+                                        opacity: zMoveDisabled ? 0.5 : 1
+                                    }}
+                                    title={zMoveDisabled ? 'Another mechanic is active' : 'Use a Z-Move (1/day, 8d12)'}
+                                >
+                                    Z-Move!
+                                </button>
+                                {showHelp && <button onClick={() => showHelp('z-moves')} title="Z-Move rules" style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', fontWeight: 'bold', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, lineHeight: '14px', flexShrink: 0 }}>?</button>}
+                            </>
                         )}
                         {hasTeraType && (
-                            <button
-                                onClick={onTeraActivate}
-                                disabled={teraDisabled}
-                                style={{
-                                    padding: '3px 8px', fontSize: '12px', fontWeight: 'bold',
-                                    background: teraDisabled ? 'var(--bg-light, #eee)' : `linear-gradient(135deg, ${teraColor}cc, ${teraColor})`,
-                                    color: teraDisabled ? 'var(--text-muted)' : teraTextColor,
-                                    border: 'none', borderRadius: '5px',
-                                    cursor: teraDisabled ? 'not-allowed' : 'pointer',
-                                    opacity: teraDisabled ? 0.5 : 1
-                                }}
-                                title={teraDisabled ? 'Another mechanic is active' : `Terastallize into ${teraType} type`}
-                            >
-                                Tera!
-                            </button>
+                            <>
+                                <button
+                                    onClick={onTeraActivate}
+                                    disabled={teraDisabled}
+                                    style={{
+                                        padding: '3px 8px', fontSize: '12px', fontWeight: 'bold',
+                                        background: teraDisabled ? 'var(--bg-light, #eee)' : `linear-gradient(135deg, ${teraColor}cc, ${teraColor})`,
+                                        color: teraDisabled ? 'var(--text-muted)' : teraTextColor,
+                                        border: 'none', borderRadius: '5px',
+                                        cursor: teraDisabled ? 'not-allowed' : 'pointer',
+                                        opacity: teraDisabled ? 0.5 : 1
+                                    }}
+                                    title={teraDisabled ? 'Another mechanic is active' : `Terastallize into ${teraType} type`}
+                                >
+                                    Tera!
+                                </button>
+                                {showHelp && <button onClick={() => showHelp('terastallization')} title="Terastallization rules" style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', fontWeight: 'bold', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, lineHeight: '14px', flexShrink: 0 }}>?</button>}
+                            </>
                         )}
                         <button
                             onClick={onDynamaxActivate}
@@ -194,6 +215,7 @@ const MoveSelector = ({
                         >
                             {dynamaxLabel}!
                         </button>
+                        {showHelp && <button onClick={() => showHelp('dynamax')} title="Dynamax / Gigantamax rules" style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', fontWeight: 'bold', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, lineHeight: '14px', flexShrink: 0 }}>?</button>}
                     </div>
                 </div>
             )}

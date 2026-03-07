@@ -36,3 +36,6 @@ playwright-report/
 
 # Reference material (large source PDFs and raw text)
 reference material/
+
+# Claude Code local settings
+.claude/
