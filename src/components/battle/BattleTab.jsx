@@ -7,7 +7,7 @@ import { getTypeColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData, useUI } from '../../contexts/index.js';
-import { MAX_ROLL_HISTORY } from '../../data/constants.js';
+import { MAX_ROLL_HISTORY, MAX_MOVE_TABLE } from '../../data/constants.js';
 import { getPokemonSprite, getPokemonDisplayImage, getMegaSprite, getGigantamaxSprite } from '../../utils/pokemonSprite.js';
 import TypeMatchupDisplay from './TypeMatchupDisplay.jsx';
 import StatusConditionUI from './StatusConditionUI.jsx';
@@ -178,11 +178,28 @@ const BattleTab = () => {
         return { ...afterMega, def: afterMega.def + 3, sdef: afterMega.sdef + 3 };
     }, [megaEvolved, currentMegaForm, isTerastallized]);
 
+    // When Dynamaxed, each attack move becomes the typed Max Move; status moves become Max Guard.
+    const displayedMoves = useMemo(() => {
+        if (!selectedPokemon?.moves?.length) return selectedPokemon?.moves || [];
+        if (!isDynamaxed) return selectedPokemon.moves;
+        return selectedPokemon.moves.map(m => {
+            if (m.category === 'Status') {
+                return { name: 'Max Guard', type: 'Normal', category: 'Status', damage: null, frequency: 'At-Will', range: 'Self', isMaxMove: true, isMaxGuard: true, effect: 'Blocks all damage and effects targeting the user until the start of its next turn.' };
+            }
+            const maxMove = MAX_MOVE_TABLE[m.type];
+            if (maxMove) {
+                return { name: maxMove.name, type: m.type, category: m.category, damage: '4d12', frequency: 'At-Will', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isMaxGuard: false, effect: maxMove.effect };
+            }
+            return m;
+        });
+    }, [selectedPokemon, isDynamaxed]);
+
     const handleMegaEvolve = (megaForm) => { setCurrentMegaForm(megaForm); setMegaEvolved(true); };
     const handleMegaRevert = () => { setMegaEvolved(false); setCurrentMegaForm(null); };
 
     const handleDynamax = () => {
         if (!selectedPokemon) return;
+        setSelectedMove(null);
         const base = getPokemonBaseHP(selectedPokemon);
         const newMax = base.max * 5;
         setPreDynamaxMaxHp(base.max);
@@ -201,6 +218,7 @@ const BattleTab = () => {
         setIsDynamaxed(false);
         setGMaxMoveUsed(false);
         setPreDynamaxMaxHp(null);
+        setSelectedMove(null);
     };
 
     const handleTerastallize = () => setIsTerastallized(true);
@@ -240,9 +258,6 @@ const BattleTab = () => {
         setGMaxMoveUsed(true);
     };
 
-    const handleMaxMoveRoll = (maxMove) => {
-        rollSpecialMove({ moveName: maxMove.name, moveType: maxMove.type, category: 'Special', damage: '4d12', effect: maxMove.effect });
-    };
 
     const handleTeraBlastRoll = () => {
         if (teraBlastUsesLeft <= 0 || !selectedPokemon) return;
@@ -285,6 +300,26 @@ const BattleTab = () => {
 
     const rollPokemonMove = () => {
         if (!selectedPokemon || !selectedMove) return;
+
+        // Max Moves bypass the normal accuracy/stat roll — always hit, flat 4d12
+        if (selectedMove.isMaxMove) {
+            if (!selectedMove.isMaxGuard) {
+                rollSpecialMove({ moveName: selectedMove.name, moveType: selectedMove.type, category: selectedMove.category || 'Special', damage: '4d12', effect: selectedMove.effect });
+            } else {
+                // Max Guard — no damage; log as a status action
+                const hp = getActivePokemonHP(selectedPokemon);
+                addToHistory(buildPokemonRollEntry({
+                    pokemon: selectedPokemon.name || selectedPokemon.species,
+                    move: 'Max Guard', moveType: 'Normal', category: 'Status',
+                    accRoll: 20, accModifier: 0, modifiedAccRoll: 20, moveAC: null, acWasOverridden: false,
+                    isHit: true, isCrit: false, isStatus: true,
+                    dice: null, rolls: [], diceTotal: 0, statBonus: 0, stabBonus: 0, total: 0,
+                    typeColor: 0, attackerCurrentHP: hp.current, attackerMaxHP: hp.max,
+                    ...battleContext()
+                }));
+            }
+            return;
+        }
 
         const actualStats = getStatsWithMega(selectedPokemon);
         const category = selectedMove.category; // 'Physical', 'Special', 'Status'
@@ -630,7 +665,6 @@ const BattleTab = () => {
                                             onActivate={handleDynamax}
                                             onRevert={handleDynamaxRevert}
                                             onGMaxRoll={handleGMaxRoll}
-                                            onMaxMoveRoll={handleMaxMoveRoll}
                                             disabled={anyMechanicActive && !isDynamaxed}
                                         />
                                         <TerastallizationPanel
@@ -705,19 +739,21 @@ const BattleTab = () => {
 
                             <MoveSelector
                                 selectedPokemon={selectedPokemon}
+                                moves={displayedMoves}
                                 selectedMove={selectedMove}
                                 onSelectMove={setSelectedMove}
                                 showDetail={showDetail}
                                 gameData={GAME_DATA}
+                                isDynamaxed={isDynamaxed}
                             />
 
                             {/* Roll Button */}
                             <button
                                 onClick={rollPokemonMove}
                                 disabled={!selectedPokemon || !selectedMove}
-                                style={{ width: '100%', padding: '15px', background: selectedPokemon && selectedMove ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#ccc', color: selectedPokemon && selectedMove ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedPokemon && selectedMove ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
+                                style={{ width: '100%', padding: '15px', background: selectedPokemon && selectedMove ? (isDynamaxed ? 'linear-gradient(135deg, #4a0080, #9b27af)' : 'linear-gradient(135deg, #667eea, #764ba2)') : '#ccc', color: selectedPokemon && selectedMove ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedPokemon && selectedMove ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
                             >
-                                Roll Attack!
+                                {selectedMove?.isMaxGuard ? 'Use Max Guard' : selectedMove?.isMaxMove ? 'Roll Max Move! (4d12)' : 'Roll Attack!'}
                             </button>
                         </div>
                     )}
