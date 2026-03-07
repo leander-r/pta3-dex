@@ -33,3 +33,6 @@ npm-debug.log*
 # Playwright
 test-results/
 playwright-report/
+
+# Reference material (large source PDFs and raw text)
+reference material/
