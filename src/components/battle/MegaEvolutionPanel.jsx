@@ -65,7 +65,7 @@ const MegaEvolutionPanel = ({ selectedPokemon, megaForms, megaEvolved, currentMe
                     role="presentation"
                 >
                     <div
-                        style={{ background: 'var(--card-bg)', borderRadius: '12px', padding: '20px', maxWidth: '400px', width: '90%' }}
+                        style={{ background: 'var(--card-bg)', borderRadius: '12px', padding: '20px', maxWidth: '400px', width: '90%', maxHeight: '85vh', overflowY: 'auto' }}
                         onClick={e => e.stopPropagation()}
                         role="dialog"
                         aria-modal="true"

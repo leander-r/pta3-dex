@@ -79,7 +79,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                         else if (inputRef.current) inputRef.current.value = '';
                     }}
                     aria-label={`Deal custom damage to ${label}`}
-                    style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                    style={{ padding: '4px 8px', minHeight: '34px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                 >
                     Dmg
                 </button>
@@ -90,7 +90,7 @@ const HPTracker = ({ label, currentHP, maxHP, onDamage, onHeal, onFull }) => {
                         else if (inputRef.current) inputRef.current.value = '';
                     }}
                     aria-label={`Heal custom HP for ${label}`}
-                    style={{ padding: '4px 8px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                    style={{ padding: '4px 8px', minHeight: '34px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                 >
                     Heal
                 </button>

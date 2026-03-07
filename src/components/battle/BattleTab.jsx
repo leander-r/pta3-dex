@@ -490,6 +490,14 @@ const BattleTab = () => {
                                 </select>
                             </div>
 
+                            {/* Empty state */}
+                            {!selectedPokemon && (
+                                <div style={{ textAlign: 'center', padding: '24px 16px', color: 'var(--text-muted)', fontSize: '13px' }}>
+                                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>🎲</div>
+                                    Select a Pokémon above to roll moves, track HP, and manage battle mechanics.
+                                </div>
+                            )}
+
                             {/* Pokemon Sprite */}
                             {selectedPokemon && (() => {
                                 const isGmax = isDynamaxed && !!(GAME_DATA.gigantamaxForms?.[selectedPokemon.species]);
