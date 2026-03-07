@@ -3,9 +3,10 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useTrainerContext, useUI } from '../../contexts/index.js';
+import { useTrainerContext, useUI, usePokemonContext } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import { HP_MILESTONE_LEVELS } from '../../data/constants.js';
+import { calculatePokemonHP } from '../../utils/dataUtils.js';
 
 const STAT_CONFIG = [
     { key: 'atk',  label: 'ATK',  color: '#ff5722' },
@@ -26,13 +27,18 @@ const TrainerStats = () => {
         calculateMaxHP,
         undoStatAllocation,
         canUndoStat,
-        rollMilestoneHP
+        rollMilestoneHP,
+        restAndRecover,
+        setTrainer
     } = useTrainerContext();
+    const { updatePokemon, party, reserve } = usePokemonContext();
     const { showHelp } = useUI();
     const [collapsed, setCollapsed] = useState(true);
 
     const maxHp = calculateMaxHP();
     const hpRolls = trainer.hpRolls || [];
+    const currentDamage = trainer.currentDamage || 0;
+    const currentHp = Math.max(0, maxHp - currentDamage);
 
     // How many milestone rolls should be available at this level
     const milestonesReached = HP_MILESTONE_LEVELS.filter(l => l <= trainer.level).length;
@@ -86,15 +92,44 @@ const TrainerStats = () => {
                         flexWrap: 'wrap',
                         gap: '8px'
                     }}>
-                        <div>
+                        <div style={{ flex: 1 }}>
                             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#e53935', marginBottom: '2px' }}>
-                                HP (Fixed)
+                                HP
                             </div>
-                            <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                                {maxHp}
+                            <div style={{ fontSize: '18px', fontWeight: 'bold', color: currentHp <= maxHp * 0.25 ? '#e53935' : 'var(--text-primary)' }}>
+                                {currentHp} / {maxHp}
                                 <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginLeft: '6px' }}>
                                     (20 base{hpRolls.length > 0 ? ` + ${hpRolls.join('+')} from rolls` : ''})
                                 </span>
+                            </div>
+                            {/* Damage controls */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                                <button
+                                    onClick={() => setTrainer(prev => ({ ...prev, currentDamage: Math.min(maxHp, (prev.currentDamage || 0) + 1) }))}
+                                    style={{ padding: '2px 8px', background: '#f4433622', border: '1px solid #f4433666', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#f44336', fontWeight: 'bold' }}
+                                    title="Take 1 damage"
+                                >−1 HP</button>
+                                <button
+                                    onClick={() => setTrainer(prev => ({ ...prev, currentDamage: Math.max(0, (prev.currentDamage || 0) - 1) }))}
+                                    disabled={currentDamage === 0}
+                                    style={{ padding: '2px 8px', background: '#4caf5022', border: '1px solid #4caf5066', borderRadius: '4px', cursor: currentDamage === 0 ? 'not-allowed' : 'pointer', fontSize: '12px', color: '#4caf50', fontWeight: 'bold', opacity: currentDamage === 0 ? 0.5 : 1 }}
+                                    title="Heal 1 HP"
+                                >+1 HP</button>
+                                <button
+                                    onClick={() => {
+                                        const allPkmn = [...party, ...reserve].map(p => ({ pokemon: p, maxHp: calculatePokemonHP(p) }));
+                                        restAndRecover(updatePokemon, allPkmn);
+                                    }}
+                                    style={{ padding: '2px 10px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                                    title="Rest: trainer recovers 1d6 HP, each Pokémon recovers 1/6 max HP, daily bonuses reset"
+                                >🌙 Rest</button>
+                                {currentDamage > 0 && (
+                                    <button
+                                        onClick={() => setTrainer(prev => ({ ...prev, currentDamage: 0 }))}
+                                        style={{ padding: '2px 8px', background: 'none', border: '1px solid var(--border-medium)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}
+                                        title="Full heal"
+                                    >Full Heal</button>
+                                )}
                             </div>
                         </div>
                         {rollsPending > 0 && (
@@ -263,7 +298,7 @@ const TrainerStats = () => {
                         padding: '3px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold',
                         background: '#e5393515', color: '#e53935', border: '1px solid #e5393540'
                     }}>
-                        HP {maxHp}
+                        HP {currentHp}/{maxHp}
                     </span>
                     {rollsPending > 0 && (
                         <span

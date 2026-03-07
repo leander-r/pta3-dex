@@ -16,6 +16,7 @@ const InventoryTab = lazy(() => import('./inventory/InventoryTab.jsx'));
 const BattleTab    = lazy(() => import('./battle/BattleTab.jsx'));
 const ReferenceTab = lazy(() => import('./reference/ReferenceTab.jsx'));
 const NotesTab     = lazy(() => import('./notes/NotesTab.jsx'));
+const GMTab        = lazy(() => import('./gm/GMTab.jsx'));
 
 // Minimal spinner shown while a lazy tab chunk is downloading (first visit only)
 const TabFallback = () => (
@@ -260,6 +261,11 @@ const AppLayout = () => {
                         {visitedTabs.has('notes') && (
                             <div style={{ display: activeTab === 'notes' ? undefined : 'none' }}>
                                 <ErrorBoundary inline><NotesTab /></ErrorBoundary>
+                            </div>
+                        )}
+                        {visitedTabs.has('gm') && (
+                            <div style={{ display: activeTab === 'gm' ? undefined : 'none' }}>
+                                <ErrorBoundary inline><GMTab /></ErrorBoundary>
                             </div>
                         )}
                     </Suspense>

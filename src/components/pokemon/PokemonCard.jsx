@@ -13,6 +13,21 @@ import { getPokemonDisplayImage, getPokemonSprite } from '../../utils/pokemonSpr
 
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
+const LOYALTY_INFO = [
+    { level: 0, label: 'Hostile',  color: '#b71c1c', icon: '💢', desc: 'Constantly tries to escape. Ignores or attacks trainer. Disobeys in battle.' },
+    { level: 1, label: 'Wary',     color: '#e65100', icon: '😒', desc: 'Unfriendly but not hostile. Occasionally ignores commands, chooses different moves.' },
+    { level: 2, label: 'Neutral',  color: '#f57f17', icon: '😐', desc: 'Obedient but not close. Sees trainer as a means to food and shelter. Performs well in battle.' },
+    { level: 3, label: 'Friendly', color: '#2e7d32', icon: '😊', desc: 'Obeys commands, protects allies. Values trainer as much as trainer values them.' },
+    { level: 4, label: 'Bonded',   color: '#1565c0', icon: '💙', desc: 'Closest relationship — knows what trainer expects, very happy. Almost always acts optimally.' },
+    { level: 5, label: 'Perfect',  color: '#6a1b9a', icon: '💜', desc: 'Perfect understanding. Proactive — almost acts without command. A rare, lifetime bond.' },
+];
+
+const SPECIAL_FORM_INFO = {
+    alpha: { label: 'Alpha', color: '#b71c1c', icon: '🔴', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Alpha Beam/Impact (1/day 5d20) and Alpha Restoration (3/day 1d12 heal). Needs ≤50% HP or Master Ball to capture.' },
+    totem:  { label: 'Totem',  color: '#e65100', icon: '🟠', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Totemic Power, Totemic Call, and Totemic Guardian (3/day 3d8 heal).' },
+    titan:  { label: 'Titan',  color: '#37474f', icon: '⚫', desc: 'HP ×10, size Huge+. Melee attacks become Ranged(15ft Burst); ranged attacks gain 15ft Blast. Cannot be captured normally.' },
+};
+
 const STATUS_CONDITIONS = [
     { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336' },
     { key: 'frozen',    label: 'Frozen',    icon: '🧊', color: '#42a5f5' },
@@ -490,6 +505,18 @@ const PokemonCard = ({
                                     {type}
                                 </span>
                             ))}
+                            {pokemon.specialForm && SPECIAL_FORM_INFO[pokemon.specialForm] && (() => {
+                                const sf = SPECIAL_FORM_INFO[pokemon.specialForm];
+                                return (
+                                    <span
+                                        title={sf.desc}
+                                        onClick={(e) => e.stopPropagation()}
+                                        style={{ padding: '2px 8px', borderRadius: '10px', background: sf.color, color: 'white', fontSize: '10px', fontWeight: 'bold' }}
+                                    >
+                                        {sf.icon} {sf.label}
+                                    </span>
+                                );
+                            })()}
                             {pokemon.heldItem && (() => {
                                 const itemData = GAME_DATA?.items?.[pokemon.heldItem];
                                 return (
@@ -558,6 +585,15 @@ const PokemonCard = ({
                             </div>
                             <span className="text-muted" style={{ fontSize: '12px' }}>
                                 {pokemon.nature || 'Hardy'} Nature
+                                {(() => {
+                                    const lvl = pokemon.loyalty ?? 2;
+                                    const info = LOYALTY_INFO[lvl] || LOYALTY_INFO[2];
+                                    return (
+                                        <span title={info.desc} style={{ marginLeft: '8px', color: info.color, fontWeight: 'bold' }}>
+                                            {info.icon} {info.label}
+                                        </span>
+                                    );
+                                })()}
                             </span>
                         </div>
 
@@ -1414,6 +1450,90 @@ const PokemonCard = ({
                                     <option key={t} value={t}>{t}</option>
                                 ))}
                             </select>
+                        </div>
+
+                        {/* Loyalty */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '6px', display: 'block' }}>Loyalty</label>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                {LOYALTY_INFO.map(info => {
+                                    const current = pokemon.loyalty ?? 2;
+                                    return (
+                                        <button
+                                            key={info.level}
+                                            onClick={() => updatePokemon({ loyalty: info.level })}
+                                            title={info.desc}
+                                            style={{
+                                                padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                                background: current === info.level ? info.color : 'var(--input-bg)',
+                                                color: current === info.level ? 'white' : 'var(--text-muted)',
+                                                border: current === info.level ? `2px solid ${info.color}` : '1px solid var(--border-medium)'
+                                            }}
+                                        >
+                                            {info.icon} {info.level} – {info.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {(() => {
+                                const lvl = pokemon.loyalty ?? 2;
+                                const info = LOYALTY_INFO[lvl] || LOYALTY_INFO[2];
+                                return <p style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>{info.desc}</p>;
+                            })()}
+                        </div>
+
+                        {/* Special Form (Alpha / Totem / Titan) */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '6px', display: 'block' }}>Special Form</label>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                {[{ id: null, label: 'Normal', icon: '—', color: '#607d8b', desc: 'Standard Pokémon encounter.' },
+                                  { id: 'alpha', ...SPECIAL_FORM_INFO.alpha },
+                                  { id: 'totem',  ...SPECIAL_FORM_INFO.totem },
+                                  { id: 'titan',  ...SPECIAL_FORM_INFO.titan }].map(opt => {
+                                    const current = pokemon.specialForm || null;
+                                    return (
+                                        <button
+                                            key={String(opt.id)}
+                                            onClick={() => updatePokemon({ specialForm: opt.id })}
+                                            title={opt.desc}
+                                            style={{
+                                                padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                                background: current === opt.id ? opt.color : 'var(--input-bg)',
+                                                color: current === opt.id ? 'white' : 'var(--text-muted)',
+                                                border: current === opt.id ? `2px solid ${opt.color}` : '1px solid var(--border-medium)'
+                                            }}
+                                        >
+                                            {opt.icon} {opt.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {pokemon.specialForm && (
+                                <>
+                                    <p style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                                        {SPECIAL_FORM_INFO[pokemon.specialForm]?.desc}
+                                    </p>
+                                    {(pokemon.specialForm === 'alpha' || pokemon.specialForm === 'totem') && (
+                                        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Raised defense stat:</span>
+                                            {['def', 'sdef'].map(ds => (
+                                                <button
+                                                    key={ds}
+                                                    onClick={() => updatePokemon({ specialFormDefStat: ds })}
+                                                    style={{
+                                                        padding: '3px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                                        background: (pokemon.specialFormDefStat || 'def') === ds ? '#37474f' : 'var(--input-bg)',
+                                                        color: (pokemon.specialFormDefStat || 'def') === ds ? 'white' : 'var(--text-muted)',
+                                                        border: '1px solid var(--border-medium)'
+                                                    }}
+                                                >
+                                                    {ds.toUpperCase()} → 15
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
 
                         {/* Species Passives — up to 3, sourced from Pokédex pool */}

@@ -680,6 +680,30 @@ export const TrainerProvider = ({ children }) => {
         setTrainer(prev => ({ ...prev, dailyBonusUsed: '' }));
     }, [setTrainer]);
 
+    // Rest & Recovery (GMG rules): trainer recovers 1d6 HP, Pokémon recover 1/6 max HP each
+    // updateAllPokemon is PokemonContext.updatePokemon — passed in to avoid circular dep
+    const restAndRecover = useCallback((updateAllPokemon, allPokemonWithMaxHp) => {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        const maxHp = 20 + (trainer.hpRolls || []).reduce((s, v) => s + (v || 0), 0);
+        const trainerCurrentDmg = trainer.currentDamage || 0;
+        const trainerHeal = Math.min(roll, trainerCurrentDmg); // can't heal below 0 damage
+        const newTrainerDmg = Math.max(0, trainerCurrentDmg - roll);
+        setTrainer(prev => ({ ...prev, currentDamage: newTrainerDmg, dailyBonusUsed: '' }));
+
+        const lines = [`Trainer healed ${roll} HP (rolled 1d6; ${maxHp - trainerCurrentDmg + trainerHeal}/${maxHp} HP)`];
+        if (allPokemonWithMaxHp && updateAllPokemon) {
+            allPokemonWithMaxHp.forEach(({ pokemon: p, maxHp: pMax }) => {
+                const heal = Math.floor(pMax / 6);
+                if (heal > 0 && (p.currentDamage || 0) > 0) {
+                    const newDmg = Math.max(0, (p.currentDamage || 0) - heal);
+                    updateAllPokemon(p.id, { currentDamage: newDmg });
+                    lines.push(`${p.name || p.species} +${Math.min(heal, p.currentDamage || 0)} HP`);
+                }
+            });
+        }
+        toast.success(lines.join(' | '));
+    }, [trainer, setTrainer]);
+
     const value = {
         // Trainer State
         trainers,
@@ -730,7 +754,10 @@ export const TrainerProvider = ({ children }) => {
         equipItem,
         unequipItem,
         markBonusUsed,
-        resetDailyBonus
+        resetDailyBonus,
+
+        // Rest & Recovery
+        restAndRecover
     };
 
     return (

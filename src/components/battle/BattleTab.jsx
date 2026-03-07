@@ -183,10 +183,22 @@ const BattleTab = () => {
             spd:  baseStats.spd  + (currentMegaForm.statBoosts.spd  || 0),
         };
         const afterTera = (!isTerastallized) ? afterMega : { ...afterMega, def: afterMega.def + 3, sdef: afterMega.sdef + 3 };
+        // Apply special form (Alpha / Totem / Titan) stat overrides
+        let afterForm = { ...afterTera };
+        const sf = pokemon.specialForm;
+        if (sf === 'alpha' || sf === 'totem') {
+            afterForm.hp  = afterForm.hp * 2;
+            afterForm.atk = afterForm.atk + 5;
+            afterForm.satk = afterForm.satk + 5;
+            const defStat = pokemon.specialFormDefStat || 'def';
+            afterForm[defStat] = Math.max(afterForm[defStat], 15);
+        } else if (sf === 'titan') {
+            afterForm.hp = afterForm.hp * 10;
+        }
         // Apply temporary stat boosts and held item bonuses
         const boosts = pokemon.tempStatBoosts || {};
         const heldBonus = HELD_ITEM_BONUSES[pokemon.heldItem] || {};
-        const stats = { ...afterTera };
+        const stats = { ...afterForm };
         Object.keys(stats).forEach(k => {
             if (boosts[k]) stats[k] = (stats[k] || 0) + boosts[k];
             if (heldBonus[k]) stats[k] = (stats[k] || 0) + heldBonus[k];

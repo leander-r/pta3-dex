@@ -16,6 +16,7 @@ const NAV_ITEMS = [
     { tab: TABS.BATTLE,    icon: '🎲', label: 'Dice Roller',    mobileLabel: 'Battle'  },
     { tab: TABS.REFERENCE, icon: '📚', label: 'Quick Reference', mobileLabel: 'Refs'   },
     { tab: TABS.NOTES,     icon: '📝', label: 'Campaign Notes', mobileLabel: 'Notes'   },
+    { tab: TABS.GM,        icon: '🗺️', label: 'GM Tools',       mobileLabel: 'GM'      },
 ];
 
 

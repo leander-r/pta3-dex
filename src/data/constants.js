@@ -39,6 +39,7 @@ export const DEFAULT_TRAINER = {
     money: 0,
     equippedItems: [],     // string[] — item names currently equipped
     dailyBonusUsed: '',    // string — name of the one item whose bonus was used today
+    currentDamage: 0,      // Damage taken; currentHp = maxHp − currentDamage
     party: [],             // Active party - max 6 Pokemon
     reserve: [],           // Reserve/PC storage - unlimited
     archived: false        // Soft-delete: archived trainers are hidden but recoverable
@@ -70,7 +71,9 @@ export const DEFAULT_POKEMON = {
     notes: '',
     loyalty: 2,
     heldItem: '',
-    tempStatBoosts: {},  // Temporary stat boosts from X items / battle berries; keyed by stat
+    tempStatBoosts: {},     // Temporary stat boosts from X items / battle berries; keyed by stat
+    specialForm: null,      // null | 'alpha' | 'totem' | 'titan' — special encounter form
+    specialFormDefStat: 'def', // Which defense is raised to 15 in Alpha/Totem form
     teraType: ''  // Tera Type: stored permanently on Pokémon (like nature/ability)
 };
 
@@ -83,7 +86,8 @@ export const TABS = {
     INVENTORY: 'inventory',
     BATTLE: 'battle',
     REFERENCE: 'reference',
-    NOTES: 'notes'
+    NOTES: 'notes',
+    GM: 'gm'
 };
 
 /**
