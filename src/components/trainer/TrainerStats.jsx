@@ -126,7 +126,7 @@ const TrainerStats = () => {
                     <div className="trainer-stats-compact">
                         {STAT_CONFIG.map(stat => {
                             const val = trainer.stats[stat.key] ?? 3;
-                            const mod = calculateModifier(stat.key);
+                            const mod = calculateModifier(val);
                             const btnStyle = (disabled) => ({
                                 width: '28px', height: '28px',
                                 border: `1.5px solid ${stat.color}99`,
@@ -234,7 +234,7 @@ const TrainerStats = () => {
                         HP {maxHp}
                     </span>
                     {STAT_CONFIG.map(stat => {
-                        const mod = calculateModifier(stat.key);
+                        const mod = calculateModifier(trainer.stats[stat.key] ?? 3);
                         return (
                             <span key={stat.key} style={{
                                 padding: '3px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold',
