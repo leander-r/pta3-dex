@@ -193,7 +193,9 @@ const BattleTab = () => {
     const handleDynamaxRevert = () => {
         const base = preDynamaxMaxHp;
         setPokemonHP(prev => {
-            const current = prev ? Math.min(prev.current, base) : base;
+            // Preserve proportional HP: 60% during Dynamax → 60% on revert
+            const ratio = prev ? prev.current / prev.max : 1;
+            const current = Math.max(0, Math.floor(base * ratio));
             return { current, max: base };
         });
         setIsDynamaxed(false);
@@ -413,6 +415,12 @@ const BattleTab = () => {
         } else if (formula.type === 'fraction') {
             amount = Math.floor(maxHP * formula.num / formula.denom);
             desc = `${formula.num}/${formula.denom} Max HP`;
+        } else if (formula.type === 'full') {
+            amount = maxHP;
+            desc = 'Full Restore';
+        } else if (formula.type === 'flat') {
+            amount = formula.amount;
+            desc = `${formula.amount} HP`;
         } else {
             toast.info(`Used ${itemName} (status effect only).`);
         }
