@@ -2830,6 +2830,11 @@
             50% { transform: scale(1.05); }
         }
 
+        @keyframes hp-roll-pulse {
+            0%, 100% { box-shadow: 0 0 6px #e5393566; border-color: #ff8a80; }
+            50% { box-shadow: 0 0 14px #e53935cc; border-color: #ffffff; }
+        }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }

@@ -98,22 +98,29 @@ const TrainerStats = () => {
                             </div>
                         </div>
                         {rollsPending > 0 && (
-                            <button
-                                onClick={rollMilestoneHP}
-                                style={{
-                                    padding: '6px 14px',
-                                    background: 'linear-gradient(135deg, #e53935, #b71c1c)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
-                                    fontSize: '13px'
-                                }}
-                                title={`Roll 1d4 HP bonus (${rollsPending} pending)`}
-                            >
-                                🎲 Roll HP Bonus (+1d4)
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                                <button
+                                    onClick={rollMilestoneHP}
+                                    style={{
+                                        padding: '7px 14px',
+                                        background: 'linear-gradient(135deg, #e53935, #b71c1c)',
+                                        color: 'white',
+                                        border: '2px solid #ff8a80',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        fontSize: '13px',
+                                        animation: 'hp-roll-pulse 1.4s ease-in-out infinite',
+                                        boxShadow: '0 0 8px #e5393566'
+                                    }}
+                                    title={`Roll 1d4 HP bonus (${rollsPending} pending) — required before next level-up`}
+                                >
+                                    🎲 Roll HP Bonus (+1d4)
+                                </button>
+                                <span style={{ fontSize: '10px', color: '#e53935', fontWeight: 'bold', letterSpacing: '0.3px' }}>
+                                    ⚠ Required to level up
+                                </span>
+                            </div>
                         )}
                         {milestonesReached > 0 && rollsPending === 0 && (
                             <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
@@ -233,6 +240,19 @@ const TrainerStats = () => {
                     }}>
                         HP {maxHp}
                     </span>
+                    {rollsPending > 0 && (
+                        <span
+                            onClick={() => setCollapsed(false)}
+                            style={{
+                                padding: '3px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold',
+                                background: '#e53935', color: 'white', border: '1px solid #e53935',
+                                cursor: 'pointer', animation: 'hp-roll-pulse 1.4s ease-in-out infinite'
+                            }}
+                            title="HP roll required before next level-up — click to expand"
+                        >
+                            🎲 Roll HP!
+                        </span>
+                    )}
                     {STAT_CONFIG.map(stat => {
                         const mod = calculateModifier(trainer.stats[stat.key] ?? 3);
                         return (

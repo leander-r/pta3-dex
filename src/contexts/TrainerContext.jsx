@@ -333,6 +333,16 @@ export const TrainerProvider = ({ children }) => {
             return;
         }
 
+        // Block level-up if the current level's milestone HP roll hasn't been claimed yet.
+        // PTA3: "When you get to levels 3, 7, and 11 you will gain 1d4 hit points" —
+        // the roll belongs to the milestone level and must be done before advancing further.
+        const milestonesReachedNow = HP_MILESTONE_LEVELS.filter(l => l <= trainer.level).length;
+        const rollsPending = milestonesReachedNow - (trainer.hpRolls || []).length;
+        if (rollsPending > 0) {
+            toast.warning('Roll your HP bonus before leveling up! Use the 🎲 Roll HP Bonus button in the HP section.');
+            return;
+        }
+
         // Creation checklist for level 0 → 1
         if (trainer.level === 0) {
             const creationPointsRemaining = trainer.statPoints || 0;
@@ -402,7 +412,7 @@ export const TrainerProvider = ({ children }) => {
             });
         }
 
-        const notifications = isMilestone ? ['+2 stat points', 'Class slot unlocked! Roll HP bonus (d4)'] : [];
+        const notifications = isMilestone ? ['+2 stat points', 'Roll HP Bonus (+1d4) in the HP section!'] : [];
         if (notifications.length === 0) notifications.push('Level up!');
 
         showLevelUpNotification({
@@ -412,16 +422,7 @@ export const TrainerProvider = ({ children }) => {
             statPoints: 2,
             message: notifications.join(' | ')
         });
-
-        // Auto-prompt milestone HP roll
-        if (isMilestone) {
-            const milestonesReached = HP_MILESTONE_LEVELS.filter(l => l <= newLevel).length;
-            const hpRolls = trainer.hpRolls || [];
-            if (hpRolls.length < milestonesReached) {
-                setTimeout(() => rollMilestoneHP(), 300);
-            }
-        }
-    }, [trainer, setTrainer, showLevelUpNotification, rollMilestoneHP, liveGameData]);
+    }, [trainer, setTrainer, showLevelUpNotification, liveGameData]);
 
     /**
      * Award honors only — does NOT auto-level.
