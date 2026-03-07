@@ -37,7 +37,7 @@ const rollHealFormula = (formula, maxHP) => {
 const InventoryTab = () => {
     const { inventory, setInventory } = useData();
     const { showConfirm, setDetailModal } = useModal();
-    const { party } = useTrainerContext();
+    const { party, trainer, equipItem, unequipItem } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -91,10 +91,17 @@ const InventoryTab = () => {
             'tm': '#3f51b5',
             'hm': '#3f51b5',
             'food': '#8bc34a',
-            'misc': '#667eea'
+            'misc': '#667eea',
+            'clothing':  '#795548',
+            'armor':     '#546e7a',
+            'weapon':    '#b71c1c',
+            'accessory': '#6a1b9a'
         };
         return colors[t] || '#667eea';
     };
+
+    const EQUIPPABLE_TYPES = ['clothing', 'armor', 'weapon', 'accessory'];
+    const equippedItems = trainer?.equippedItems || [];
 
     // Filtered inventory (sorting is done via sortInventory action, not here)
     const filteredInventory = useMemo(() => {
@@ -814,6 +821,28 @@ const InventoryTab = () => {
                                         >
                                             Use
                                         </button>
+                                        {EQUIPPABLE_TYPES.includes(itemType) && (() => {
+                                            const isEquipped = equippedItems.includes(item.name);
+                                            return (
+                                                <button
+                                                    onClick={() => isEquipped ? unequipItem(item.name) : equipItem(item.name)}
+                                                    style={{
+                                                        padding: '4px 8px',
+                                                        background: isEquipped ? '#2e7d32' : '#546e7a',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '12px',
+                                                        fontWeight: 'bold',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                    title={isEquipped ? 'Click to unequip' : 'Equip this item'}
+                                                >
+                                                    {isEquipped ? 'Equipped ✓' : 'Equip ↑'}
+                                                </button>
+                                            );
+                                        })()}
                                         <button
                                             onClick={() => handleDeleteItem(item.name)}
                                             style={{

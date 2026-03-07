@@ -37,6 +37,8 @@ export const DEFAULT_TRAINER = {
     notes: '',
     badges: [],
     money: 0,
+    equippedItems: [],     // string[] — item names currently equipped
+    dailyBonusUsed: '',    // string — name of the one item whose bonus was used today
     party: [],             // Active party - max 6 Pokemon
     reserve: [],           // Reserve/PC storage - unlimited
     archived: false        // Soft-delete: archived trainers are hidden but recoverable

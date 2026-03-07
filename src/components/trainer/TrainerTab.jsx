@@ -9,6 +9,7 @@ import TrainerStats from './TrainerStats.jsx';
 import TrainerClasses from './TrainerClasses.jsx';
 import TrainerFeatures from './TrainerFeatures.jsx';
 import TrainerSkills from './TrainerSkills.jsx';
+import TrainerEquipment from './TrainerEquipment.jsx';
 
 /**
  * TrainerTab - Main trainer management container
@@ -21,6 +22,7 @@ const TrainerTab = () => {
                 <TrainerProfile />
             </div>
             <div className="trainer-layout__data">
+                <TrainerEquipment />
                 <TrainerStats />
                 <TrainerClasses />
                 <TrainerSkills />

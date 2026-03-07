@@ -64,6 +64,8 @@ export interface Trainer {
   money: number;
   party: Pokemon[];
   reserve: Pokemon[];
+  equippedItems?: string[];
+  dailyBonusUsed?: string;
 }
 
 export interface DiscordWebhook {
@@ -75,8 +77,9 @@ export interface InventoryItem {
   id: number;
   name: string;
   quantity: number;
-  description: string;
-  category: string;
+  effect: string;
+  type: string;
+  price?: number;
 }
 
 export interface SaveData {

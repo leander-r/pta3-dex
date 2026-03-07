@@ -115,6 +115,9 @@ const BattleTab = () => {
     const [teraBlastUsesLeft, setTeraBlastUsesLeft] = useState(3);
     const [preDynamaxMaxHp, setPreDynamaxMaxHp] = useState(null);
     const [pokemonHP, setPokemonHP] = useState(null); // override for Dynamax HP scaling
+    const [trainerSubmode, setTrainerSubmode] = useState('skill'); // 'skill' | 'attack' | 'weapon'
+    const [selectedWeapon, setSelectedWeapon] = useState('');
+    const [trainerAcOverride, setTrainerAcOverride] = useState('');
 
     const anyMechanicActive = megaEvolved || isDynamaxed || isTerastallized;
 
@@ -515,6 +518,62 @@ const BattleTab = () => {
         addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '1d20', rolls, baseStat, modifier, hasSkill, bonus: talentBonus, total, trainerCurrentHP, trainerMaxHP, timestamp: Date.now() });
     };
 
+    // Parse move name and type from a weapon item's effect string
+    // e.g. "Branch Poke — Melee Grass At-Will 2d6. Requires Weapons Master."
+    const getWeaponInfo = (weaponName) => {
+        const item = GAME_DATA?.items?.[weaponName];
+        if (!item?.effect) return { moveName: 'Weapon Attack', moveType: 'Normal' };
+        const nameMatch = item.effect.match(/^([^—\-]+)/);
+        const typeMatch = item.effect.match(/Melee (\w+)/);
+        return {
+            moveName: nameMatch ? nameMatch[1].trim() : weaponName,
+            moveType: typeMatch ? typeMatch[1] : 'Normal',
+        };
+    };
+
+    const rollTrainerAttack = () => {
+        const isWeapon = trainerSubmode === 'weapon';
+        const atkStat = trainer.stats?.atk || 3;
+        const atkMod = Math.floor(atkStat / 2);
+        const moveAC = trainerAcOverride !== '' ? (parseInt(trainerAcOverride) || null) : null;
+        const accRoll = Math.floor(Math.random() * 20) + 1;
+        const isCrit = accRoll === 20;
+        const isHit = isCrit || moveAC === null || (accRoll + atkMod) >= moveAC;
+
+        const [count, sides] = isWeapon ? [2, 6] : [1, 4];
+        const damageRolls = isHit ? (isCrit ? Array(count).fill(sides) : rollDice(count, sides)) : [];
+        const diceTotal = damageRolls.reduce((s, r) => s + r, 0);
+        const total = isHit ? diceTotal + atkMod : 0;
+
+        let moveName = 'Unarmed Strike', moveType = 'Normal', weaponName = null;
+        if (isWeapon && selectedWeapon) {
+            weaponName = selectedWeapon;
+            const wInfo = getWeaponInfo(selectedWeapon);
+            moveName = wInfo.moveName;
+            moveType = wInfo.moveType;
+        }
+
+        addToHistory({
+            type: 'trainer_attack',
+            attackType: isWeapon ? 'weapon' : 'unarmed',
+            moveName,
+            weaponName,
+            moveType,
+            accRoll,
+            accModifier: atkMod,
+            modifiedAccRoll: accRoll + atkMod,
+            moveAC,
+            isHit,
+            isCrit,
+            dice: `${count}d${sides}`,
+            rolls: damageRolls,
+            diceTotal,
+            atkMod,
+            total,
+            timestamp: Date.now(),
+        });
+    };
+
     const rollCustomDice = () => {
         const diceData = parseDice(customDice);
         if (diceData.count === 0 || diceData.sides === 0) {
@@ -578,8 +637,8 @@ const BattleTab = () => {
 
             {/* Mode Selector */}
             <div className="tabs" style={{ marginBottom: '15px' }}>
-                <button className={`tab ${mode === 'pokemon'  ? 'active' : ''}`} onClick={() => setMode('pokemon')}>Pokemon Attack</button>
-                <button className={`tab ${mode === 'trainer'  ? 'active' : ''}`} onClick={() => setMode('trainer')}>Trainer Skill</button>
+                <button className={`tab ${mode === 'pokemon'  ? 'active' : ''}`} onClick={() => setMode('pokemon')}>Pokemon</button>
+                <button className={`tab ${mode === 'trainer'  ? 'active' : ''}`} onClick={() => setMode('trainer')}>Trainer</button>
                 <button className={`tab ${mode === 'custom'   ? 'active' : ''}`} onClick={() => setMode('custom')}>Custom Dice</button>
                 <button className={`tab ${mode === 'heal'     ? 'active' : ''}`} onClick={() => setMode('heal')}>🩹 Heal</button>
             </div>
@@ -589,7 +648,7 @@ const BattleTab = () => {
                 <div className="section-card-purple">
                     <h3 className="section-title-purple">
                         <span>{mode === 'heal' ? '🩹' : '🎲'}</span>{' '}
-                        {mode === 'pokemon' ? 'Pokemon Attack' : mode === 'trainer' ? 'Trainer Skill' : mode === 'heal' ? 'Use Healing Item' : 'Custom Roll'}
+                        {mode === 'pokemon' ? 'Pokemon' : mode === 'trainer' ? 'Trainer' : mode === 'heal' ? 'Use Healing Item' : 'Custom Roll'}
                     </h3>
 
                     {mode === 'pokemon' && (
@@ -869,7 +928,7 @@ const BattleTab = () => {
                             {/* Trainer Stats Display */}
                             <div className="trainer-stats-display" style={{ marginBottom: '12px' }}>
                                 <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>
-                                    {trainer.name || 'Trainer'} - Level {trainer.level || 1}
+                                    {trainer.name || 'Trainer'} — Level {trainer.level || 1}
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
                                     {[
@@ -890,14 +949,6 @@ const BattleTab = () => {
                                         );
                                     })}
                                 </div>
-                                {trainer.skills && (Array.isArray(trainer.skills) ? trainer.skills.length > 0 : Object.keys(trainer.skills).length > 0) && (
-                                    <div style={{ marginTop: '8px', fontSize: '12px' }}>
-                                        <strong>Trained Skills:</strong>{' '}
-                                        {Array.isArray(trainer.skills)
-                                            ? trainer.skills.join(', ')
-                                            : Object.entries(trainer.skills).filter(([, rank]) => rank > 0).map(([name, rank]) => rank === 2 ? `${name} ★★` : name).join(', ')}
-                                    </div>
-                                )}
                             </div>
 
                             {/* Trainer HP Tracker */}
@@ -916,55 +967,181 @@ const BattleTab = () => {
                                 );
                             })()}
 
-                            {/* Skill Selector */}
-                            <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Skill</label>
-                            <select
-                                value={selectedSkill}
-                                onChange={(e) => setSelectedSkill(e.target.value)}
-                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '8px' }}
-                            >
-                                <option value="">Choose a skill...</option>
-                                {Object.entries(GAME_DATA.skills || {}).map(([name, data]) => {
-                                    const skills = trainer.skills || {};
-                                    const rank = Array.isArray(skills) ? (skills.includes(name) ? 1 : 0) : (skills[name] || 0);
-                                    return (
-                                        <option key={name} value={name}>
-                                            {name} ({data.stat}) {rank > 0 ? (rank === 2 ? '✓✓ Rank 2' : '✓ Trained') : ''}
-                                        </option>
-                                    );
-                                })}
-                            </select>
+                            {/* Submode tabs */}
+                            <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                                {[
+                                    { id: 'skill',  label: 'Skill Check' },
+                                    { id: 'attack', label: 'Unarmed Attack' },
+                                    { id: 'weapon', label: 'Weapon Attack' },
+                                ].map(({ id, label }) => (
+                                    <button
+                                        key={id}
+                                        onClick={() => setTrainerSubmode(id)}
+                                        style={{
+                                            padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                            background: trainerSubmode === id ? '#667eea' : 'var(--bg-secondary)',
+                                            color: trainerSubmode === id ? 'white' : 'var(--text-secondary)',
+                                        }}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
 
-                            {/* Selected Skill Info */}
-                            {selectedSkill && GAME_DATA.skills?.[selectedSkill] && (() => {
-                                const skillData = GAME_DATA.skills[selectedSkill];
-                                const statKey = skillData.stat?.toLowerCase();
-                                const baseStat = trainer.stats?.[statKey] || 3;
-                                const modifier = Math.floor(baseStat / 2);
-                                const skills = trainer.skills || {};
-                                const skillRank = Array.isArray(skills) ? (skills.includes(selectedSkill) ? 1 : 0) : (skills[selectedSkill] || 0);
-                                const hasTrained = skillRank > 0;
-                                // PTA3: 0 talents = +0, 1 talent = +2, 2 talents = +5
-                                const talentBonus = skillRank === 2 ? 5 : skillRank === 1 ? 2 : 0;
+                            {/* ── Skill Check ── */}
+                            {trainerSubmode === 'skill' && (
+                                <>
+                                    <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Skill</label>
+                                    <select
+                                        value={selectedSkill}
+                                        onChange={(e) => setSelectedSkill(e.target.value)}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '8px' }}
+                                    >
+                                        <option value="">Choose a skill...</option>
+                                        {Object.entries(GAME_DATA.skills || {}).map(([name, data]) => {
+                                            const skills = trainer.skills || {};
+                                            const rank = Array.isArray(skills) ? (skills.includes(name) ? 1 : 0) : (skills[name] || 0);
+                                            return (
+                                                <option key={name} value={name}>
+                                                    {name} ({data.stat}) {rank > 0 ? (rank === 2 ? '✓✓ +5' : '✓ +2') : ''}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+
+                                    {selectedSkill && GAME_DATA.skills?.[selectedSkill] && (() => {
+                                        const skillData = GAME_DATA.skills[selectedSkill];
+                                        const statKey = skillData.stat?.toLowerCase();
+                                        const baseStat = trainer.stats?.[statKey] || 3;
+                                        const modifier = Math.floor(baseStat / 2);
+                                        const skills = trainer.skills || {};
+                                        const skillRank = Array.isArray(skills) ? (skills.includes(selectedSkill) ? 1 : 0) : (skills[selectedSkill] || 0);
+                                        const talentBonus = skillRank === 2 ? 5 : skillRank === 1 ? 2 : 0;
+                                        return (
+                                            <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
+                                                <div><strong>{selectedSkill}</strong> ({skillData.stat})</div>
+                                                <div style={{ marginTop: '4px' }}>
+                                                    1d20 +{modifier} (stat){skillRank > 0 && <span style={{ color: '#4caf50' }}> +{talentBonus} (talent)</span>}
+                                                </div>
+                                                <div className="text-muted" style={{ marginTop: '2px' }}>{skillData.description}</div>
+                                            </div>
+                                        );
+                                    })()}
+
+                                    <button
+                                        onClick={rollTrainerSkill}
+                                        disabled={!selectedSkill}
+                                        style={{ width: '100%', padding: '15px', background: selectedSkill ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#ccc', color: selectedSkill ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedSkill ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
+                                    >
+                                        Roll Skill Check!
+                                    </button>
+                                </>
+                            )}
+
+                            {/* ── Unarmed Attack ── */}
+                            {trainerSubmode === 'attack' && (() => {
+                                const atkVal = trainer.stats?.atk || 3;
+                                const atkMod = Math.floor(atkVal / 2);
                                 return (
-                                    <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
-                                        <div><strong>{selectedSkill}</strong> ({skillData.stat})</div>
-                                        <div style={{ marginTop: '4px' }} title="Roll 1d20 + stat modifier. Talent bonus: 1 talent = +2, 2 talents = +5">
-                                            Roll: 1d20 +{modifier} (stat)
-                                            {hasTrained && <span style={{ color: '#4caf50' }} title={`${skillRank} talent(s)`}> +{talentBonus} (talent)</span>}
+                                    <>
+                                        <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
+                                            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Unarmed Strike</div>
+                                            <div>Accuracy: 1d20 +{atkMod} (ATK) vs target DEF</div>
+                                            <div style={{ marginTop: '2px' }}>Damage on hit: 1d4 +{atkMod} (ATK)</div>
+                                            <div style={{ marginTop: '4px', color: 'var(--text-muted)', fontSize: '12px' }}>Natural 20 = crit (max dice).</div>
                                         </div>
-                                        <div className="text-muted" style={{ marginTop: '2px' }}>{skillData.description}</div>
-                                    </div>
+
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea', whiteSpace: 'nowrap' }}>vs DEF:</label>
+                                            <input
+                                                type="number" min="1" max="20"
+                                                value={trainerAcOverride}
+                                                onChange={(e) => setTrainerAcOverride(e.target.value)}
+                                                placeholder="—"
+                                                style={{ width: '60px', padding: '4px 8px', borderRadius: '4px', border: trainerAcOverride !== '' ? '2px solid #667eea' : '1px solid var(--border-medium)', fontSize: '13px', textAlign: 'center' }}
+                                            />
+                                            {trainerAcOverride !== '' && (
+                                                <button onClick={() => setTrainerAcOverride('')} style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>✕</button>
+                                            )}
+                                            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Leave blank = always hit</span>
+                                        </div>
+
+                                        <button
+                                            onClick={rollTrainerAttack}
+                                            style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #ff5722, #e64a19)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+                                        >
+                                            Roll Unarmed Attack!
+                                        </button>
+                                    </>
                                 );
                             })()}
 
-                            <button
-                                onClick={rollTrainerSkill}
-                                disabled={!selectedSkill}
-                                style={{ width: '100%', padding: '15px', background: selectedSkill ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#ccc', color: selectedSkill ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedSkill ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
-                            >
-                                Roll Skill Check!
-                            </button>
+                            {/* ── Weapon Attack ── */}
+                            {trainerSubmode === 'weapon' && (() => {
+                                const atkVal = trainer.stats?.atk || 3;
+                                const atkMod = Math.floor(atkVal / 2);
+                                // Rules: "If you are holding a weapon" — only equipped weapons are usable
+                                const equippedWeapons = (trainer.equippedItems || []).filter(name => {
+                                    const itemData = GAME_DATA?.items?.[name];
+                                    return (itemData?.type || '').toLowerCase() === 'weapon';
+                                });
+                                const wInfo = selectedWeapon ? getWeaponInfo(selectedWeapon) : null;
+                                return (
+                                    <>
+                                        {equippedWeapons.length === 0 ? (
+                                            <div style={{ padding: '12px', borderRadius: '6px', background: 'var(--bg-secondary)', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                                                No weapons equipped. Equip a Wood Staff, Stone Fist, or Steel Blade from the Inventory or Equipment panel. Requires the <strong>Weapons Master</strong> feature (Martial Artist Lv 6).
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Weapon <span style={{ fontWeight: 'normal', color: 'var(--text-muted)', fontSize: '12px' }}>(free action to switch)</span></label>
+                                                <select
+                                                    value={selectedWeapon}
+                                                    onChange={(e) => setSelectedWeapon(e.target.value)}
+                                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '8px' }}
+                                                >
+                                                    <option value="">Choose a weapon...</option>
+                                                    {equippedWeapons.map(name => (
+                                                        <option key={name} value={name}>{name}</option>
+                                                    ))}
+                                                </select>
+                                            </>
+                                        )}
+
+                                        {wInfo && (
+                                            <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
+                                                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{wInfo.moveName} <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}>({wInfo.moveType})</span></div>
+                                                <div>Accuracy: 1d20 +{atkMod} (ATK) vs target DEF</div>
+                                                <div style={{ marginTop: '2px' }}>Damage on hit: 2d6 +{atkMod} (ATK)</div>
+                                                <div style={{ marginTop: '4px', color: 'var(--text-muted)', fontSize: '12px' }}>Natural 20 = crit (max dice). At-Will.</div>
+                                            </div>
+                                        )}
+
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea', whiteSpace: 'nowrap' }}>vs DEF:</label>
+                                            <input
+                                                type="number" min="1" max="20"
+                                                value={trainerAcOverride}
+                                                onChange={(e) => setTrainerAcOverride(e.target.value)}
+                                                placeholder="—"
+                                                style={{ width: '60px', padding: '4px 8px', borderRadius: '4px', border: trainerAcOverride !== '' ? '2px solid #667eea' : '1px solid var(--border-medium)', fontSize: '13px', textAlign: 'center' }}
+                                            />
+                                            {trainerAcOverride !== '' && (
+                                                <button onClick={() => setTrainerAcOverride('')} style={{ padding: '4px 8px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>✕</button>
+                                            )}
+                                            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Leave blank = always hit</span>
+                                        </div>
+
+                                        <button
+                                            onClick={rollTrainerAttack}
+                                            disabled={!selectedWeapon}
+                                            style={{ width: '100%', padding: '15px', background: selectedWeapon ? 'linear-gradient(135deg, #b71c1c, #e53935)' : '#ccc', color: selectedWeapon ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedWeapon ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
+                                        >
+                                            Roll Weapon Attack!
+                                        </button>
+                                    </>
+                                );
+                            })()}
                         </div>
                     )}
 

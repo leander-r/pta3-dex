@@ -245,7 +245,35 @@ export let GAME_DATA = {
         'Potion':     { type: 'healing', effect: 'Heals 10 HP', price: 25 },
         'Poke Ball':  { type: 'ball',    effect: '+5 to capture roll (standard ball)', price: 100, modifier: 5 },
         'Great Ball': { type: 'ball',    effect: '+0 to capture roll', price: 600, modifier: 0 },
-        'Ultra Ball': { type: 'ball',    effect: '-5 from capture roll', price: 1000, modifier: -5 }
+        'Ultra Ball': { type: 'ball',    effect: '-5 from capture roll', price: 1000, modifier: -5 },
+        // ── Armor (Combat Wear) ──────────────────────────────────────────────
+        'Chainmail':        { type: 'armor', effect: '+1 DEF on accuracy checks made against you. (10 lbs)', price: 1250 },
+        'Full Plate Armor': { type: 'armor', effect: '+2 DEF on accuracy checks, −10ft movement. (20 lbs)', price: 3450 },
+        'Heavy Full Plate': { type: 'armor', effect: '+3 DEF on accuracy checks, −20ft movement. (50 lbs)', price: 9650 },
+        'Nimble Spandex':   { type: 'armor', effect: '+1 SDEF on accuracy checks made against you. (1 lb)', price: 1250 },
+        // ── Skill-Boosting Clothing ──────────────────────────────────────────
+        'Ninja Tabi':          { type: 'clothing', effect: '+2 Acrobatics', price: 800, skillBonus: { skill: 'Acrobatics', bonus: 2 } },
+        'Bracing Sleeves':     { type: 'clothing', effect: '+2 Athletics', price: 800, skillBonus: { skill: 'Athletics', bonus: 2 } },
+        'Domino Mask':         { type: 'clothing', effect: '+2 Bluff/Deception', price: 800, skillBonus: { skill: 'Bluff/Deception', bonus: 2 } },
+        'Pyramid Hat':         { type: 'clothing', effect: '+2 Concentration', price: 800, skillBonus: { skill: 'Concentration', bonus: 2 } },
+        'Padded Jacket':       { type: 'clothing', effect: '+2 Constitution', price: 800, skillBonus: { skill: 'Constitution', bonus: 2 } },
+        'Fine Ascot':          { type: 'clothing', effect: '+2 Diplomacy/Persuasion', price: 800, skillBonus: { skill: 'Diplomacy/Persuasion', bonus: 2 } },
+        'Fingerless Gloves':   { type: 'clothing', effect: '+2 Engineering/Operation', price: 800, skillBonus: { skill: 'Engineering/Operation', bonus: 2 } },
+        'Grand Monocle':       { type: 'clothing', effect: '+2 History', price: 800, skillBonus: { skill: 'History', bonus: 2 } },
+        'Cozy Scarf':          { type: 'clothing', effect: '+2 Insight', price: 800, skillBonus: { skill: 'Insight', bonus: 2 } },
+        'Wrist Magnifier':     { type: 'clothing', effect: '+2 Investigate', price: 800, skillBonus: { skill: 'Investigate', bonus: 2 } },
+        'New Stethoscope':     { type: 'clothing', effect: '+2 Medicine', price: 800, skillBonus: { skill: 'Medicine', bonus: 2 } },
+        'Field Boots':         { type: 'clothing', effect: '+2 Nature', price: 800, skillBonus: { skill: 'Nature', bonus: 2 } },
+        'Tech Visor':          { type: 'clothing', effect: '+2 Perception', price: 800, skillBonus: { skill: 'Perception', bonus: 2 } },
+        'Baller Hacky Sack':   { type: 'clothing', effect: '+2 Perform', price: 800, skillBonus: { skill: 'Perform', bonus: 2 } },
+        'Soft Brush':          { type: 'clothing', effect: '+2 Pokémon Handling', price: 800, skillBonus: { skill: 'Pokémon Handling', bonus: 2 } },
+        'AR Goggles':          { type: 'clothing', effect: '+2 Programming', price: 800, skillBonus: { skill: 'Programming', bonus: 2 } },
+        'Loose Overcoat':      { type: 'clothing', effect: '+2 Sleight of Hand', price: 800, skillBonus: { skill: 'Sleight of Hand', bonus: 2 } },
+        'Silent Sneakers':     { type: 'clothing', effect: '+2 Stealth', price: 800, skillBonus: { skill: 'Stealth', bonus: 2 } },
+        // ── Weapons ─────────────────────────────────────────────────────────
+        'Wood Staff':  { type: 'weapon', effect: 'Branch Poke — Melee Grass At-Will 2d6. Requires Weapons Master.', price: 200 },
+        'Stone Fist':  { type: 'weapon', effect: 'Stone Smash — Melee Rock At-Will 2d6. Requires Weapons Master.', price: 200 },
+        'Steel Blade': { type: 'weapon', effect: 'Steel Strike — Melee Steel At-Will 2d6. Requires Weapons Master.', price: 300 }
     }
 };
 

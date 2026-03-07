@@ -35,6 +35,12 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                 }
             } else if (roll.type === 'trainer_skill') {
                 lines.push(`[${hhmm}] Trainer rolled ${roll.skill || 'Skill'} → ${roll.total ?? '?'} ([${(roll.rolls || []).join(', ')}])`);
+            } else if (roll.type === 'trainer_attack') {
+                const hit = roll.isHit ? 'HIT' : 'MISS';
+                const crit = roll.isCrit ? ' (CRIT!)' : '';
+                const acTarget = roll.moveAC != null ? `vs DEF ${roll.moveAC}` : '(no target set)';
+                lines.push(`[${hhmm}] Trainer used ${roll.moveName || 'Attack'} — Acc: ${roll.modifiedAccRoll} ${acTarget} → ${hit}${crit}`);
+                if (roll.isHit) lines.push(`  Damage: [${(roll.rolls || []).join(', ')}] + ${roll.atkMod} (ATK) = ${roll.total}`);
             } else if (roll.type === 'custom') {
                 lines.push(`[${hhmm}] Custom ${roll.dice || '?'} → [${(roll.rolls || []).join(', ')}] = ${roll.total ?? '?'}`);
             }
@@ -131,9 +137,10 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                             style={{
                                 padding: '10px', marginBottom: '8px', borderRadius: '6px',
                                 borderLeft: `4px solid ${
-                                    roll.type === 'pokemon'       ? getTypeColor(roll.moveType || 'Normal') :
-                                    roll.type === 'trainer_skill' ? '#667eea' :
-                                    roll.type === 'heal'          ? '#4caf50' : '#95a5a6'
+                                    roll.type === 'pokemon'         ? getTypeColor(roll.moveType || 'Normal') :
+                                    roll.type === 'trainer_skill'   ? '#667eea' :
+                                    roll.type === 'trainer_attack'  ? getTypeColor(roll.moveType || 'Normal') :
+                                    roll.type === 'heal'            ? '#4caf50' : '#95a5a6'
                                 }`
                             }}
                         >
@@ -170,6 +177,37 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                             </>
                                         ) : (
                                             <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Attack missed - no damage</span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                            {roll.type === 'trainer_attack' && (
+                                <>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                        {roll.moveName || 'Attack'}
+                                        {roll.weaponName && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)', marginLeft: '6px' }}>({roll.weaponName})</span>}
+                                        {roll.isCrit && <span style={{ marginLeft: '8px', color: '#c62828' }}>CRITICAL!</span>}
+                                        {!roll.isHit && <span style={{ marginLeft: '8px', color: '#f44336', fontWeight: 'bold' }}>MISS!</span>}
+                                    </div>
+                                    <div style={{ fontSize: '12px', padding: '4px 8px', background: roll.isHit ? (roll.isCrit ? 'var(--roll-crit-bg)' : 'var(--roll-hit-bg)') : 'var(--roll-miss-bg)', borderRadius: '4px', marginBottom: '4px', display: 'inline-block' }}>
+                                        <span style={{ fontWeight: 'bold' }}>Acc Roll: </span>
+                                        <span style={{ fontWeight: 'bold', color: roll.isCrit ? '#ff6f00' : (roll.isHit ? '#2e7d32' : '#c62828') }}>
+                                            {roll.accRoll}
+                                            {roll.accModifier !== 0 && <span className="text-muted"> +{roll.accModifier} = {roll.modifiedAccRoll}</span>}
+                                        </span>
+                                        <span style={{ color: 'var(--text-secondary)' }}>
+                                            {roll.moveAC != null ? ` vs DEF ${roll.moveAC}` : ' (no target set)'}
+                                        </span>
+                                        {roll.isCrit && <span style={{ color: '#ff6f00', marginLeft: '4px' }}>(Natural 20!)</span>}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                        {roll.isHit ? (
+                                            <>
+                                                <span style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--text-primary)' }}>{roll.total}</span>
+                                                <span> damage | [{roll.rolls?.join(', ')}] = {roll.diceTotal}{roll.atkMod > 0 ? ` + ${roll.atkMod} (ATK)` : ''}</span>
+                                            </>
+                                        ) : (
+                                            <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Attack missed — no damage</span>
                                         )}
                                     </div>
                                 </>

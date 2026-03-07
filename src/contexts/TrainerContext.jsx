@@ -654,6 +654,32 @@ export const TrainerProvider = ({ children }) => {
         setPendingFeatureDrop(null);
     }, []);
 
+    // ── Equipment actions ────────────────────────────────────────────────────
+
+    const equipItem = useCallback((itemName) => {
+        setTrainer(prev => {
+            const equipped = prev.equippedItems || [];
+            if (equipped.includes(itemName)) return prev;
+            return { ...prev, equippedItems: [...equipped, itemName] };
+        });
+    }, [setTrainer]);
+
+    const unequipItem = useCallback((itemName) => {
+        setTrainer(prev => {
+            const equipped = (prev.equippedItems || []).filter(n => n !== itemName);
+            const dailyBonusUsed = prev.dailyBonusUsed === itemName ? '' : (prev.dailyBonusUsed || '');
+            return { ...prev, equippedItems: equipped, dailyBonusUsed };
+        });
+    }, [setTrainer]);
+
+    const markBonusUsed = useCallback((itemName) => {
+        setTrainer(prev => ({ ...prev, dailyBonusUsed: itemName }));
+    }, [setTrainer]);
+
+    const resetDailyBonus = useCallback(() => {
+        setTrainer(prev => ({ ...prev, dailyBonusUsed: '' }));
+    }, [setTrainer]);
+
     const value = {
         // Trainer State
         trainers,
@@ -698,7 +724,13 @@ export const TrainerProvider = ({ children }) => {
         movePokemonUp,
         movePokemonDown,
         sortPokemonList,
-        reorderPokemon
+        reorderPokemon,
+
+        // Equipment
+        equipItem,
+        unequipItem,
+        markBonusUsed,
+        resetDailyBonus
     };
 
     return (
