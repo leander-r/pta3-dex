@@ -100,6 +100,13 @@ const PokemonCard = ({
     const currentHP = maxHP - (pokemon.currentDamage || 0);
     const stabBonus = useMemo(() => calculateSTAB(), []);
 
+    const HELD_ITEM_BONUSES = {
+        'Choice Band': { atk: 2 }, 'Choice Scarf': { spd: 2 }, 'Choice Specs': { satk: 2 },
+    };
+    const tempBoosts = pokemon.tempStatBoosts || {};
+    const heldBonuses = HELD_ITEM_BONUSES[pokemon.heldItem] || {};
+    const hasAnyTempBoost = Object.values(tempBoosts).some(v => v > 0);
+
     const primaryType = pokemon.types?.[0] || 'Normal';
     const secondaryType = pokemon.types?.[1] || null;
     const primaryColor = getTypeColor(primaryType);
@@ -1816,11 +1823,33 @@ const PokemonCard = ({
                             >?</button>
                         </div>
 
+                        {hasAnyTempBoost && (
+                            <div style={{ marginBottom: '8px' }}>
+                                <button
+                                    onClick={() => updatePokemon(pokemon.id, { tempStatBoosts: {} })}
+                                    style={{
+                                        padding: '4px 10px',
+                                        background: '#ef5350',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold'
+                                    }}
+                                    title="Remove all temporary stat boosts"
+                                >
+                                    Clear all boosts
+                                </button>
+                            </div>
+                        )}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                             {['hp', 'atk', 'def', 'satk', 'sdef', 'spd'].map(stat => {
                                 const natureData = GAME_DATA?.natures?.[pokemon.nature || 'Hardy'] || {};
                                 const isBuff = natureData.buff === stat;
                                 const isNerf = natureData.nerf === stat;
+                                const tempBoost = tempBoosts[stat] || 0;
+                                const heldBonus = heldBonuses[stat] || 0;
                                 return (
                                     <div key={stat} className="bg-light" style={{ padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
                                         <div style={{ fontSize: '12px', fontWeight: 'bold', color: isBuff ? '#4caf50' : isNerf ? '#f44336' : '#667eea', marginBottom: '4px' }}>
@@ -1832,6 +1861,43 @@ const PokemonCard = ({
                                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: isBuff ? '#4caf50' : isNerf ? '#f44336' : 'inherit' }} title="Final stat after nature modifier (±1). Used for damage and skill checks.">
                                             {actualStats[stat]}
                                         </div>
+                                        {tempBoost > 0 && (
+                                            <span
+                                                title="Temporary boost — click × to remove"
+                                                style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: '3px',
+                                                    padding: '1px 5px', marginTop: '3px',
+                                                    background: '#4caf5033', color: '#2e7d32',
+                                                    border: '1px solid #4caf5066',
+                                                    borderRadius: '10px', fontSize: '11px', fontWeight: 'bold'
+                                                }}
+                                            >
+                                                +{tempBoost}
+                                                <button
+                                                    onClick={() => updatePokemon(pokemon.id, { tempStatBoosts: { ...tempBoosts, [stat]: 0 } })}
+                                                    style={{
+                                                        background: 'none', border: 'none', cursor: 'pointer',
+                                                        color: '#2e7d32', padding: '0 1px', fontSize: '11px', lineHeight: 1
+                                                    }}
+                                                    title={`Remove ${stat.toUpperCase()} temp boost`}
+                                                    aria-label={`Remove ${stat.toUpperCase()} temporary boost`}
+                                                >×</button>
+                                            </span>
+                                        )}
+                                        {heldBonus > 0 && (
+                                            <span
+                                                title={`${pokemon.heldItem} bonus (remove held item to lose)`}
+                                                style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: '2px',
+                                                    padding: '1px 5px', marginTop: '3px',
+                                                    background: '#00bcd433', color: '#006064',
+                                                    border: '1px solid #00bcd466',
+                                                    borderRadius: '10px', fontSize: '11px', fontWeight: 'bold'
+                                                }}
+                                            >
+                                                +{heldBonus} 🎒
+                                            </span>
+                                        )}
                                     </div>
                                 );
                             })}

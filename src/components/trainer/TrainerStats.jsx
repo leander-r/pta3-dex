@@ -196,6 +196,31 @@ const TrainerStats = () => {
                         })}
                     </div>
 
+                    {/* Armor Bonuses (from equipped items) */}
+                    {(() => {
+                        const ARMOR_BONUSES = {
+                            'Chainmail': 'DEF +1', 'Full Plate Armor': 'DEF +2',
+                            'Heavy Full Plate': 'DEF +3', 'Nimble Spandex': 'SDEF +1',
+                        };
+                        const armorBonuses = (trainer.equippedItems || [])
+                            .map(name => ({ name, bonus: ARMOR_BONUSES[name] }))
+                            .filter(x => x.bonus);
+                        if (armorBonuses.length === 0) return null;
+                        return (
+                            <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '6px', background: '#1565c015', border: '1px solid #1565c040', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#1565c0', whiteSpace: 'nowrap' }}>🛡 Armor (incoming acc. rolls):</span>
+                                {armorBonuses.map(({ name, bonus }) => (
+                                    <span key={name} style={{
+                                        padding: '2px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold',
+                                        background: '#1565c022', color: '#1565c0', border: '1px solid #1565c055'
+                                    }} title={name}>
+                                        {bonus}
+                                    </span>
+                                ))}
+                            </div>
+                        );
+                    })()}
+
                     {/* Defense Values + Undo */}
                     <div style={{ marginTop: '8px', display: 'flex', gap: '6px', alignItems: 'center' }}>
                         <div className="evasion-box-phys" style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: '6px' }} title="Physical Defense value (raw DEF stat). Incoming physical attacks roll vs. this.">

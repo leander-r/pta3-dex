@@ -70,6 +70,7 @@ export const DEFAULT_POKEMON = {
     notes: '',
     loyalty: 2,
     heldItem: '',
+    tempStatBoosts: {},  // Temporary stat boosts from X items / battle berries; keyed by stat
     teraType: ''  // Tera Type: stored permanently on Pokémon (like nature/ability)
 };
 

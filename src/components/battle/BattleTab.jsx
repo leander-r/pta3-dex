@@ -167,6 +167,10 @@ const BattleTab = () => {
         setPokemonHP(null);
     }, [selectedPokemonId]);
 
+    const HELD_ITEM_BONUSES = {
+        'Choice Band': { atk: 2 }, 'Choice Scarf': { spd: 2 }, 'Choice Specs': { satk: 2 },
+    };
+
     // Apply mega stat boosts and Tera def/sdef bonus to actual stats
     const getStatsWithMega = useCallback((pokemon) => {
         const baseStats = getActualStats(pokemon);
@@ -178,8 +182,16 @@ const BattleTab = () => {
             sdef: baseStats.sdef + (currentMegaForm.statBoosts.sdef || 0),
             spd:  baseStats.spd  + (currentMegaForm.statBoosts.spd  || 0),
         };
-        if (!isTerastallized) return afterMega;
-        return { ...afterMega, def: afterMega.def + 3, sdef: afterMega.sdef + 3 };
+        const afterTera = (!isTerastallized) ? afterMega : { ...afterMega, def: afterMega.def + 3, sdef: afterMega.sdef + 3 };
+        // Apply temporary stat boosts and held item bonuses
+        const boosts = pokemon.tempStatBoosts || {};
+        const heldBonus = HELD_ITEM_BONUSES[pokemon.heldItem] || {};
+        const stats = { ...afterTera };
+        Object.keys(stats).forEach(k => {
+            if (boosts[k]) stats[k] = (stats[k] || 0) + boosts[k];
+            if (heldBonus[k]) stats[k] = (stats[k] || 0) + heldBonus[k];
+        });
+        return stats;
     }, [megaEvolved, currentMegaForm, isTerastallized]);
 
     const gMaxData = useMemo(() => {

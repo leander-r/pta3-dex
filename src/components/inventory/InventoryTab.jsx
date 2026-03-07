@@ -8,6 +8,24 @@ import { useData, useModal, useTrainerContext, usePokemonContext } from '../../c
 import { calculatePokemonHP, parseDice, parseHealFormula } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 
+const PERMANENT_STAT_ITEMS = {
+    'HP Up': { stat: 'hp', delta: 4 }, 'Protein': { stat: 'atk', delta: 1 },
+    'Iron': { stat: 'def', delta: 1 }, 'Calcium': { stat: 'satk', delta: 1 },
+    'Zinc': { stat: 'sdef', delta: 1 }, 'Carbos': { stat: 'spd', delta: 1 },
+    'Pomeg Berry': { stat: 'hp', delta: -4 }, 'Kelpsy Berry': { stat: 'atk', delta: -1 },
+    'Qualot Berry': { stat: 'def', delta: -1 }, 'Hondew Berry': { stat: 'satk', delta: -1 },
+    'Grepa Berry': { stat: 'sdef', delta: -1 }, 'Tamato Berry': { stat: 'spd', delta: -1 },
+};
+const TEMP_STAT_ITEMS = {
+    'X Attack': { stat: 'atk', delta: 1, cap: 3 }, 'X Defend': { stat: 'def', delta: 1, cap: 3 },
+    'X Special': { stat: 'satk', delta: 1, cap: 3 }, 'X Sp. Def': { stat: 'sdef', delta: 1, cap: 1 },
+    'X Speed': { stat: 'spd', delta: 1, cap: 3 },
+    'Lansat Berry': { stat: 'atk', delta: 1, cap: 1 }, 'Ganlon Berry': { stat: 'def', delta: 1, cap: 1 },
+    'Petaya Berry': { stat: 'satk', delta: 1, cap: 1 }, 'Apicot Berry': { stat: 'sdef', delta: 1, cap: 1 },
+    'Salac Berry': { stat: 'spd', delta: 1, cap: 1 }, 'Starf Berry': { stat: 'random', delta: 1, cap: 1 },
+    'Kee Berry': { stat: 'def', delta: 1, cap: 1 }, 'Maranga Berry': { stat: 'sdef', delta: 1, cap: 1 },
+};
+
 // Roll a heal formula and return { amount, desc }
 const rollHealFormula = (formula, maxHP) => {
     if (formula.type === 'dice') {
@@ -52,6 +70,9 @@ const InventoryTab = () => {
     // Heal panel state
     const [healPanel, setHealPanel] = useState(null); // { itemName } or null
     const [healTargetId, setHealTargetId] = useState('');
+    // Stat boost panel state
+    const [statBoostPanel, setStatBoostPanel] = useState(null); // { itemName, isPermanent, stat, delta, cap? }
+    const [boostTargetId, setBoostTargetId] = useState('');
 
     // Get unique item types from GAME_DATA dynamically
     const availableTypes = useMemo(() => {
@@ -257,7 +278,15 @@ const InventoryTab = () => {
                 setHealTargetId('');
                 return;
             }
-            // Status-only item (no HP formula) — consume directly
+            // Status-only item (no HP formula) — may still be a stat berry, fall through
+        }
+        const permEffect = PERMANENT_STAT_ITEMS[invItem?.name];
+        const tempEffect = TEMP_STAT_ITEMS[invItem?.name];
+        if (permEffect || tempEffect) {
+            const eff = permEffect || tempEffect;
+            setStatBoostPanel({ itemName, isPermanent: !!permEffect, ...eff });
+            setBoostTargetId('');
+            return;
         }
         setInventory(prev => {
             const idx = prev.findIndex(item =>
@@ -305,6 +334,50 @@ const InventoryTab = () => {
         });
         setHealPanel(null);
         setHealTargetId('');
+    };
+
+    const handleApplyStatBoost = () => {
+        if (!boostTargetId) {
+            toast.warning('Select a Pokémon first.');
+            return;
+        }
+        const target = party.find(p => String(p.id) === boostTargetId);
+        if (!target) return;
+        const { itemName, isPermanent, delta, cap } = statBoostPanel;
+        let stat = statBoostPanel.stat;
+        if (stat === 'random') {
+            const choices = ['atk', 'def', 'satk', 'sdef', 'spd'];
+            stat = choices[Math.floor(Math.random() * choices.length)];
+        }
+        if (isPermanent) {
+            const current = target.baseStats?.[stat] ?? 0;
+            const newVal = Math.max(1, current + delta);
+            updatePokemon(target.id, { baseStats: { ...target.baseStats, [stat]: newVal } });
+            const label = delta > 0 ? `+${delta}` : `${delta}`;
+            toast.success(`${target.name || target.species}: ${stat.toUpperCase()} ${label} (permanent — now ${newVal})`);
+        } else {
+            const boosts = target.tempStatBoosts || {};
+            const current = boosts[stat] || 0;
+            if (current >= cap) {
+                toast.warning(`${target.name || target.species} is already at the ${stat.toUpperCase()} boost cap (${cap})!`);
+                return;
+            }
+            const newVal = current + delta;
+            updatePokemon(target.id, { tempStatBoosts: { ...boosts, [stat]: newVal } });
+            toast.success(`${target.name || target.species}: ${stat.toUpperCase()} +${delta} temporary boost (now +${newVal})`);
+        }
+        // Consume item
+        setInventory(prev => {
+            const idx = prev.findIndex(i => i.name.toLowerCase() === itemName.toLowerCase());
+            if (idx === -1) return prev;
+            const currentQty = prev[idx].quantity || 1;
+            if (currentQty <= 1) return prev.filter((_, i) => i !== idx);
+            const next = [...prev];
+            next[idx] = { ...next[idx], quantity: currentQty - 1 };
+            return next;
+        });
+        setStatBoostPanel(null);
+        setBoostTargetId('');
     };
 
     const handleSetQuantity = (itemName, quantity) => {
@@ -859,6 +932,85 @@ const InventoryTab = () => {
                                         </button>
                                     </div>
                                     </div>{/* end main row */}
+
+                                    {/* Stat boost panel — shown for stat-modifying items */}
+                                    {statBoostPanel?.itemName === item.name && (
+                                        <div style={{
+                                            padding: '10px 12px',
+                                            background: 'var(--input-bg)',
+                                            borderRadius: '6px',
+                                            border: '1px solid #ff9800',
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            gap: '8px',
+                                            alignItems: 'center'
+                                        }}>
+                                            <select
+                                                value={boostTargetId}
+                                                onChange={(e) => setBoostTargetId(e.target.value)}
+                                                style={{
+                                                    flex: 1,
+                                                    minWidth: '120px',
+                                                    padding: '6px 8px',
+                                                    borderRadius: '4px',
+                                                    border: '1px solid var(--border-medium)',
+                                                    background: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)',
+                                                    fontSize: '13px'
+                                                }}
+                                            >
+                                                <option value="">— Pick Pokémon —</option>
+                                                {party.map(p => (
+                                                    <option key={p.id} value={String(p.id)}>
+                                                        {p.name || p.species}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <span style={{
+                                                padding: '6px 8px',
+                                                borderRadius: '4px',
+                                                border: '1px solid var(--border-medium)',
+                                                background: 'var(--input-bg)',
+                                                color: 'var(--text-primary)',
+                                                fontSize: '13px',
+                                                fontWeight: 'bold',
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                {statBoostPanel.stat === 'random'
+                                                    ? `Random stat ${statBoostPanel.delta > 0 ? '+' : ''}${statBoostPanel.delta} (temporary)`
+                                                    : `${statBoostPanel.stat.toUpperCase()} ${statBoostPanel.delta > 0 ? '+' : ''}${statBoostPanel.delta} (${statBoostPanel.isPermanent ? 'permanent' : 'temporary — removable'})`}
+                                            </span>
+                                            <button
+                                                onClick={handleApplyStatBoost}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    background: '#ff9800',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                Apply
+                                            </button>
+                                            <button
+                                                onClick={() => setStatBoostPanel(null)}
+                                                style={{
+                                                    padding: '6px 10px',
+                                                    background: '#9e9e9e',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '12px'
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
 
                                     {/* Heal panel — shown for healing/berry items */}
                                     {showHealPanel && (
