@@ -13,7 +13,6 @@ import TypeMatchupDisplay from './TypeMatchupDisplay.jsx';
 import StatusConditionUI from './StatusConditionUI.jsx';
 import MegaEvolutionPanel from './MegaEvolutionPanel.jsx';
 import ZMovePanel from './ZMovePanel.jsx';
-import DynamaxPanel from './DynamaxPanel.jsx';
 import TerastallizationPanel from './TerastallizationPanel.jsx';
 import HPTracker from './HPTracker.jsx';
 import CombatStagesPanel from './CombatStagesPanel.jsx';
@@ -178,13 +177,21 @@ const BattleTab = () => {
         return { ...afterMega, def: afterMega.def + 3, sdef: afterMega.sdef + 3 };
     }, [megaEvolved, currentMegaForm, isTerastallized]);
 
+    const gMaxData = useMemo(() => {
+        if (!selectedPokemon?.species) return null;
+        return GAME_DATA.gigantamaxForms?.[selectedPokemon.species] || null;
+    }, [selectedPokemon]);
+
+    const canGigantamax = !!gMaxData;
+
     // When Dynamaxed, each attack move becomes the typed Max Move; status moves become Max Guard.
     // Deduplicated: multiple moves of the same type → one Max Move entry.
+    // G-Max move is prepended when the species can Gigantamax.
     const displayedMoves = useMemo(() => {
         if (!selectedPokemon?.moves?.length) return selectedPokemon?.moves || [];
         if (!isDynamaxed) return selectedPokemon.moves;
         const seen = new Set();
-        return selectedPokemon.moves.reduce((acc, m) => {
+        const maxMoves = selectedPokemon.moves.reduce((acc, m) => {
             let maxMove;
             if (m.category === 'Status') {
                 maxMove = { name: 'Max Guard', type: 'Normal', category: 'Status', damage: null, frequency: 'At-Will', range: 'Self', isMaxMove: true, isMaxGuard: true, effect: 'Blocks all damage and effects targeting the user until the start of its next turn.' };
@@ -197,7 +204,12 @@ const BattleTab = () => {
             if (!seen.has(maxMove.name)) { seen.add(maxMove.name); acc.push(maxMove); }
             return acc;
         }, []);
-    }, [selectedPokemon, isDynamaxed]);
+        if (gMaxData?.gMaxMove) {
+            const gm = gMaxData.gMaxMove;
+            maxMoves.unshift({ name: gm.name, type: gm.type, category: 'Special', damage: gm.damage, frequency: '1/battle', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isGMaxMove: true, isMaxGuard: false, effect: gm.effect });
+        }
+        return maxMoves;
+    }, [selectedPokemon, isDynamaxed, gMaxData]);
 
     const handleMegaEvolve = (megaForm) => { setCurrentMegaForm(megaForm); setMegaEvolved(true); };
     const handleMegaRevert = () => { setMegaEvolved(false); setCurrentMegaForm(null); };
@@ -308,6 +320,10 @@ const BattleTab = () => {
 
         // Max Moves bypass the normal accuracy/stat roll — always hit, flat 4d12
         if (selectedMove.isMaxMove) {
+            if (selectedMove.isGMaxMove) {
+                handleGMaxRoll({ name: selectedMove.name, type: selectedMove.type, damage: selectedMove.damage, effect: selectedMove.effect });
+                return;
+            }
             if (selectedMove.isMaxGuard) {
                 // Max Guard — log as a status action (no damage)
                 const hp = getActivePokemonHP(selectedPokemon);
@@ -663,16 +679,6 @@ const BattleTab = () => {
                                             onReset={() => setZMoveUsed(false)}
                                             disabled={anyMechanicActive}
                                         />
-                                        <DynamaxPanel
-                                            selectedPokemon={selectedPokemon}
-                                            gameData={GAME_DATA}
-                                            isDynamaxed={isDynamaxed}
-                                            gMaxMoveUsed={gMaxMoveUsed}
-                                            onActivate={handleDynamax}
-                                            onRevert={handleDynamaxRevert}
-                                            onGMaxRoll={handleGMaxRoll}
-                                            disabled={anyMechanicActive && !isDynamaxed}
-                                        />
                                         <TerastallizationPanel
                                             selectedPokemon={selectedPokemon}
                                             isTerastallized={isTerastallized}
@@ -751,15 +757,20 @@ const BattleTab = () => {
                                 showDetail={showDetail}
                                 gameData={GAME_DATA}
                                 isDynamaxed={isDynamaxed}
+                                canGigantamax={canGigantamax}
+                                gMaxMoveUsed={gMaxMoveUsed}
+                                onDynamaxActivate={handleDynamax}
+                                onDynamaxRevert={handleDynamaxRevert}
+                                dynamaxDisabled={anyMechanicActive && !isDynamaxed}
                             />
 
                             {/* Roll Button */}
                             <button
                                 onClick={rollPokemonMove}
-                                disabled={!selectedPokemon || !selectedMove}
-                                style={{ width: '100%', padding: '15px', background: selectedPokemon && selectedMove ? (isDynamaxed ? 'linear-gradient(135deg, #4a0080, #9b27af)' : 'linear-gradient(135deg, #667eea, #764ba2)') : '#ccc', color: selectedPokemon && selectedMove ? 'white' : '#555', border: 'none', borderRadius: '8px', cursor: selectedPokemon && selectedMove ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
+                                disabled={!selectedPokemon || !selectedMove || (selectedMove?.isGMaxMove && gMaxMoveUsed)}
+                                style={{ width: '100%', padding: '15px', background: (selectedPokemon && selectedMove && !(selectedMove?.isGMaxMove && gMaxMoveUsed)) ? (selectedMove?.isGMaxMove ? 'linear-gradient(135deg, #b8860b, #ffd700)' : isDynamaxed ? 'linear-gradient(135deg, #4a0080, #9b27af)' : 'linear-gradient(135deg, #667eea, #764ba2)') : '#ccc', color: (selectedPokemon && selectedMove && !(selectedMove?.isGMaxMove && gMaxMoveUsed)) ? (selectedMove?.isGMaxMove ? '#1a1a00' : 'white') : '#555', border: 'none', borderRadius: '8px', cursor: (selectedPokemon && selectedMove && !(selectedMove?.isGMaxMove && gMaxMoveUsed)) ? 'pointer' : 'not-allowed', fontSize: '16px', fontWeight: 'bold' }}
                             >
-                                {selectedMove?.isMaxGuard ? 'Log Max Guard' : selectedMove?.isMaxMove ? 'Roll Max Move! (4d12)' : 'Roll Attack!'}
+                                {selectedMove?.isMaxGuard ? 'Log Max Guard' : selectedMove?.isGMaxMove ? `Roll G-Max! (${selectedMove.damage})` : selectedMove?.isMaxMove ? 'Roll Max Move! (4d12)' : 'Roll Attack!'}
                             </button>
                         </div>
                     )}
