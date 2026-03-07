@@ -263,6 +263,7 @@ const BattleTab = () => {
     const handleDynamax = () => {
         if (!selectedPokemon) return;
         setSelectedMove(null);
+        setZMoveActive(false);
         const base = getPokemonBaseHP(selectedPokemon);
         const newMax = base.max * 5;
         setPreDynamaxMaxHp(base.max);
@@ -284,7 +285,7 @@ const BattleTab = () => {
         setSelectedMove(null);
     };
 
-    const handleTerastallize = () => setIsTerastallized(true);
+    const handleTerastallize = () => { setZMoveActive(false); setSelectedMove(null); setIsTerastallized(true); };
     const handleTeraRevert = () => setIsTerastallized(false);
 
     // Roll a special mechanic move (Z-Move, G-Max, Tera Blast) into roll history
@@ -809,7 +810,7 @@ const BattleTab = () => {
                                 gMaxMoveUsed={gMaxMoveUsed}
                                 onDynamaxActivate={handleDynamax}
                                 onDynamaxRevert={handleDynamaxRevert}
-                                dynamaxDisabled={anyMechanicActive && !isDynamaxed}
+                                dynamaxDisabled={(anyMechanicActive || zMoveActive) && !isDynamaxed}
                                 zMoveActive={zMoveActive}
                                 zMoveUsed={zMoveUsed}
                                 hasZMoves={hasZMoves}
@@ -822,7 +823,7 @@ const BattleTab = () => {
                                 teraBlastUsesLeft={teraBlastUsesLeft}
                                 onTeraActivate={handleTerastallize}
                                 onTeraRevert={handleTeraRevert}
-                                teraDisabled={anyMechanicActive && !isTerastallized}
+                                teraDisabled={(anyMechanicActive || zMoveActive) && !isTerastallized}
                             />
 
                             {/* Roll Button */}

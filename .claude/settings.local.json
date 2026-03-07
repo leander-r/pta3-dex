@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py:*)",
+      "Bash(pdftotext:*)",
+      "Bash(node:*)",
+      "Bash(npx vitest:*)",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(npm run:*)",
+      "Bash(where:*)",
+      "Bash(grep:*)",
+      "Bash(npm test:*)"
+    ]
+  }
+}
