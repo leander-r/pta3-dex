@@ -323,10 +323,6 @@ function main() {
     const pokedex = JSON.parse(fs.readFileSync(POKEDEX, 'utf8'));
     const existingSpecies = new Set(pokedex.pokemon.map(p => p.species.toLowerCase()));
 
-    // Assign IDs starting from max existing + 1
-    const maxId = Math.max(...pokedex.pokemon.map(p => p.id || 0));
-    let nextId = maxId + 1;
-
     let added = 0;
     let flagged = 0;
     for (const entry of all) {
@@ -340,9 +336,8 @@ function main() {
                 flagged++;
             }
         } else {
-            // Add new entry in pokedex format
+            // Add new entry in pokedex format — no id; loader assigns from array index
             pokedex.pokemon.push({
-                id:       nextId++,
                 species:  entry.species,
                 types:    entry.types,
                 size:     entry.size,
