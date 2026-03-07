@@ -117,6 +117,8 @@ const BattleTab = () => {
     const [preDynamaxMaxHp, setPreDynamaxMaxHp] = useState(null);
     const [pokemonHP, setPokemonHP] = useState(null); // override for Dynamax HP scaling
 
+    const anyMechanicActive = megaEvolved || isDynamaxed || isTerastallized;
+
     const selectedPokemon = useMemo(() => party.find(p => p.id === selectedPokemonId) || null, [party, selectedPokemonId]);
 
     // Clear stale selection if the selected Pokemon is no longer in the party
@@ -657,7 +659,6 @@ const BattleTab = () => {
                             <StatusConditionUI selectedPokemon={selectedPokemon} updatePokemon={updatePokemon} />
 
                             {(() => {
-                                const anyMechanicActive = megaEvolved || isDynamaxed || isTerastallized;
                                 return (
                                     <>
                                         <MegaEvolutionPanel
