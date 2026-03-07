@@ -475,8 +475,9 @@ const PokedexSection = () => {
                                         fontWeight: 600, width: '34px', flexShrink: 0, textAlign: 'right'
                                     }}>#{s.id || '?'}</span>
                                     {/* Name */}
-                                    <span style={{ fontWeight: 700, fontSize: '14px', flex: 1 }}>
+                                    <span style={{ fontWeight: 700, fontSize: '14px', flex: 1, display: 'flex', alignItems: 'center', gap: '5px' }}>
                                         {s.species}
+                                        {s.legendary && <span title="Legendary Pokémon" style={{ color: '#f9a825', fontSize: '13px' }}>⭐</span>}
                                     </span>
                                     {/* Types */}
                                     <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>

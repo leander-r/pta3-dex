@@ -6,11 +6,17 @@ import React, { useState } from 'react';
 import CaptureCalculator from './CaptureCalculator.jsx';
 import EncounterGuide from './EncounterGuide.jsx';
 import RewardTables from './RewardTables.jsx';
+import GymLeaderGuide from './GymLeaderGuide.jsx';
+import NpcGenerator from './NpcGenerator.jsx';
+import ContestTracker from './ContestTracker.jsx';
 
 const sections = [
     { id: 'capture',   label: '🎯 Capture Rates' },
     { id: 'encounter', label: '⚔️ Encounter Guide' },
     { id: 'rewards',   label: '💰 Rewards & Loot' },
+    { id: 'gym',       label: '🏟️ Gym Guide' },
+    { id: 'npc',       label: '🧑 NPC Stats' },
+    { id: 'contest',   label: '🏆 Contest' },
 ];
 
 const GMTab = () => {
@@ -37,6 +43,9 @@ const GMTab = () => {
             {activeSection === 'capture'   && <CaptureCalculator />}
             {activeSection === 'encounter' && <EncounterGuide />}
             {activeSection === 'rewards'   && <RewardTables />}
+            {activeSection === 'gym'       && <GymLeaderGuide />}
+            {activeSection === 'npc'       && <NpcGenerator />}
+            {activeSection === 'contest'   && <ContestTracker />}
         </div>
     );
 };

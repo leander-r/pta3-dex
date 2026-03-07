@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import toast from '../../utils/toast.js';
+import { GAME_DATA } from '../../data/configs.js';
 
 const DIFFICULTY_ROWS = [
     { label: 'Easy',      color: '#4caf50', desc: '0–1 basic (unevolved) Pokémon' },
@@ -39,6 +40,18 @@ const SPECIAL_FORMS = [
         moves: 'Normal moves with expanded ranges',
         capture: 'Cannot be captured normally. Capturable within 3 days of losing its mystical herb supply (shrinks to normal size). When caught: HP +18 (not ×10); must lose one stat passive if it had 4.',
     },
+    {
+        name: 'Shadow', icon: '🌑', color: '#311b92',
+        stats: 'No base stat changes (wild state)',
+        moves: 'Shadow Rush (−2 during Accuracy Check). Shadow Aura: +4 damage on every attack hit, then lose 4 HP.',
+        capture: 'Distrustful of new trainers; may undermine trainer. Purifiable via sustained kindness + loyalty milestone → gains Light Aura + Guiding Light.',
+    },
+    {
+        name: 'Purified', icon: '🌟', color: '#00695c',
+        stats: 'No base stat changes',
+        moves: "Guiding Light: +5 to Pokémon Handling checks (own or trainer's). Light Aura: when below 20 HP, attacks deal +4 damage.",
+        capture: 'Result of rehabilitating a Shadow Pokémon. Shadow Rush and Shadow Aura are lost.',
+    },
 ];
 
 const SKILL_DC_TABLE = [
@@ -52,6 +65,16 @@ const SKILL_DC_TABLE = [
 
 const EncounterGuide = () => {
     const [d20Roll, setD20Roll] = useState(null);
+    const [natureRoll, setNatureRoll] = useState(null);
+
+    const rollNature = () => {
+        const natures = Object.entries(GAME_DATA.natures || {});
+        if (!natures.length) return;
+        const [name, data] = natures[Math.floor(Math.random() * natures.length)];
+        setNatureRoll({ name, ...data });
+        const desc = data.buff ? `+${data.buff.toUpperCase()} / −${data.nerf.toUpperCase()}` : 'Neutral';
+        toast.info(`Nature: ${name} (${desc})`);
+    };
 
     const rollD20 = () => {
         const r = Math.floor(Math.random() * 20) + 1;
@@ -98,6 +121,28 @@ const EncounterGuide = () => {
                     🎲 Roll d20
                     {d20Roll !== null && <span style={{ marginLeft: '8px', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '10px' }}>{d20Roll}</span>}
                 </button>
+            </div>
+
+            {/* Wild Nature Roller */}
+            <div className="section-card-purple">
+                <h3 className="section-title-purple">🎲 Wild Nature Roller</h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                    Randomly determine the nature of a wild Pokémon.
+                </p>
+                <button onClick={rollNature}
+                    style={{ padding: '8px 20px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    🎲 Roll Nature
+                </button>
+                {natureRoll && (
+                    <div style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 14px', borderRadius: '8px', background: 'var(--input-bg)', border: '1px solid var(--border-medium)' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{natureRoll.name}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                            {natureRoll.buff
+                                ? `+${natureRoll.buff.toUpperCase()} / −${natureRoll.nerf.toUpperCase()}`
+                                : 'Neutral'}
+                        </span>
+                    </div>
+                )}
             </div>
 
             {/* Special Encounter Forms */}

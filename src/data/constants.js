@@ -74,7 +74,8 @@ export const DEFAULT_POKEMON = {
     tempStatBoosts: {},     // Temporary stat boosts from X items / battle berries; keyed by stat
     specialForm: null,      // null | 'alpha' | 'totem' | 'titan' — special encounter form
     specialFormDefStat: 'def', // Which defense is raised to 15 in Alpha/Totem form
-    teraType: ''  // Tera Type: stored permanently on Pokémon (like nature/ability)
+    teraType: '',  // Tera Type: stored permanently on Pokémon (like nature/ability)
+    isShiny: false // Cosmetic — no stat effects (GMG p.37)
 };
 
 /**

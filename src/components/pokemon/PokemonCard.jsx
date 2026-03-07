@@ -23,9 +23,11 @@ const LOYALTY_INFO = [
 ];
 
 const SPECIAL_FORM_INFO = {
-    alpha: { label: 'Alpha', color: '#b71c1c', icon: '🔴', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Alpha Beam/Impact (1/day 5d20) and Alpha Restoration (3/day 1d12 heal). Needs ≤50% HP or Master Ball to capture.' },
-    totem:  { label: 'Totem',  color: '#e65100', icon: '🟠', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Totemic Power, Totemic Call, and Totemic Guardian (3/day 3d8 heal).' },
-    titan:  { label: 'Titan',  color: '#37474f', icon: '⚫', desc: 'HP ×10, size Huge+. Melee attacks become Ranged(15ft Burst); ranged attacks gain 15ft Blast. Cannot be captured normally.' },
+    alpha:    { label: 'Alpha',    color: '#b71c1c', icon: '🔴', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Alpha Beam/Impact (1/day 5d20) and Alpha Restoration (3/day 1d12 heal). Needs ≤50% HP or Master Ball to capture.' },
+    totem:    { label: 'Totem',    color: '#e65100', icon: '🟠', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Totemic Power, Totemic Call, and Totemic Guardian (3/day 3d8 heal).' },
+    titan:    { label: 'Titan',    color: '#37474f', icon: '⚫', desc: 'HP ×10, size Huge+. Melee attacks become Ranged(15ft Burst); ranged attacks gain 15ft Blast. Cannot be captured normally.' },
+    shadow:   { label: 'Shadow',   color: '#311b92', icon: '🌑', desc: 'Shadow Aura: can make Stealth checks; attacks deal +4 damage but lose 4 HP after each hit. Uses Shadow Rush.' },
+    purified: { label: 'Purified', color: '#00695c', icon: '🌟', desc: 'Light Aura: when below 20 HP, attacks deal +4 damage. Can use Guiding Light (+5 to Pokémon Handling checks).' },
 };
 
 const STATUS_CONDITIONS = [
@@ -517,6 +519,9 @@ const PokemonCard = ({
                                     </span>
                                 );
                             })()}
+                            {pokemon.isShiny && (
+                                <span title="Shiny Pokémon" style={{ fontSize: '13px' }}>✨</span>
+                            )}
                             {pokemon.heldItem && (() => {
                                 const itemData = GAME_DATA?.items?.[pokemon.heldItem];
                                 return (
@@ -1437,6 +1442,21 @@ const PokemonCard = ({
                             </div>
                         </div>
 
+                        {/* Appearance (Shiny toggle) */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>Appearance</label>
+                            <button
+                                onClick={() => updatePokemon({ isShiny: !pokemon.isShiny })}
+                                style={{
+                                    padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                    background: pokemon.isShiny ? 'linear-gradient(135deg, #f9a825, #fdd835)' : 'var(--input-bg)',
+                                    color: pokemon.isShiny ? '#333' : 'var(--text-muted)',
+                                    border: pokemon.isShiny ? '2px solid #f9a825' : '1px solid var(--border-medium)'
+                                }}
+                            >✨ {pokemon.isShiny ? 'Shiny' : 'Normal'}</button>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '8px' }}>Cosmetic only — no stat difference</span>
+                        </div>
+
                         {/* Tera Type */}
                         <div style={{ marginBottom: '15px' }}>
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Tera Type</label>
@@ -1480,6 +1500,30 @@ const PokemonCard = ({
                                 const info = LOYALTY_INFO[lvl] || LOYALTY_INFO[2];
                                 return <p style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>{info.desc}</p>;
                             })()}
+                            <details style={{ marginTop: '8px' }}>
+                                <summary style={{ cursor: 'pointer', fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>
+                                    ▸ Ways to build loyalty
+                                </summary>
+                                <div style={{ marginTop: '6px', fontSize: '12px', padding: '10px', background: 'var(--input-bg)', borderRadius: '6px' }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Loyalty-building activities:</div>
+                                    <ul style={{ margin: 0, paddingLeft: '16px', color: 'var(--text-muted)', lineHeight: 1.8 }}>
+                                        <li>Physical affection — petting, grooming, polishing</li>
+                                        <li>Play matching their nature — swimming, climbing, battling together</li>
+                                        <li>Conversation and inclusion in roleplay</li>
+                                        <li>Encouragement after failures</li>
+                                        <li>Crafting accessories or items for them</li>
+                                    </ul>
+                                    <div style={{ fontWeight: 'bold', margin: '8px 0 4px' }}>Pokémon evolution requires:</div>
+                                    <ul style={{ margin: 0, paddingLeft: '16px', color: 'var(--text-muted)', lineHeight: 1.8 }}>
+                                        <li>Hatched or last evolved more than a week ago</li>
+                                        <li>Loyalty 2 or higher</li>
+                                        <li>Something awesome happened</li>
+                                    </ul>
+                                    <div style={{ marginTop: '8px', fontStyle: 'italic', fontSize: '11px', color: 'var(--text-muted)' }}>
+                                        Loyalty 5 is GM-awarded for exceptional roleplay moments, not a checklist.
+                                    </div>
+                                </div>
+                            </details>
                         </div>
 
                         {/* Special Form (Alpha / Totem / Titan) */}
@@ -1487,9 +1531,11 @@ const PokemonCard = ({
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '6px', display: 'block' }}>Special Form</label>
                             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                                 {[{ id: null, label: 'Normal', icon: '—', color: '#607d8b', desc: 'Standard Pokémon encounter.' },
-                                  { id: 'alpha', ...SPECIAL_FORM_INFO.alpha },
-                                  { id: 'totem',  ...SPECIAL_FORM_INFO.totem },
-                                  { id: 'titan',  ...SPECIAL_FORM_INFO.titan }].map(opt => {
+                                  { id: 'alpha',    ...SPECIAL_FORM_INFO.alpha },
+                                  { id: 'totem',    ...SPECIAL_FORM_INFO.totem },
+                                  { id: 'titan',    ...SPECIAL_FORM_INFO.titan },
+                                  { id: 'shadow',   ...SPECIAL_FORM_INFO.shadow },
+                                  { id: 'purified', ...SPECIAL_FORM_INFO.purified }].map(opt => {
                                     const current = pokemon.specialForm || null;
                                     return (
                                         <button
