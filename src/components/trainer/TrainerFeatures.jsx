@@ -136,7 +136,7 @@ const TrainerFeatures = () => {
             {!collapsed && <>
                 <p className="section-description" style={{ fontSize: '12px' }}>
                     Features are automatically granted and removed as your classes level up or down.
-                    When leveling up, you may <strong>drop</strong> a new feature (up to 4 times total across your career) to gain +1 to any trainer stat instead.
+                    When you <strong>gain</strong> a new feature (on level-up), you may <strong>drop</strong> it for +1 to a stat — up to 4 drops total across your career. This option only appears when you gain new features.
                 </p>
 
                 {/* Feature Drop Panel — shown after level-up when drops are available */}

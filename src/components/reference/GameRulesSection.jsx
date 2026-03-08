@@ -113,8 +113,8 @@ const GameRulesSection = () => {
                     <ul>
                         <li>5 stats (ATK, DEF, SATK, SDEF, SPD) — no HP stat</li>
                         <li>Point-buy budget: <strong>25 points</strong></li>
-                        <li>Costs: 1→1pt | 2→2pt | 3→3pt | 4→6pt | 5→8pt | 6→11pt</li>
-                        <li>Max stat at creation: <strong>6</strong></li>
+                        <li>Cumulative cost to reach: 1=1pt | 2=2pt | 3=3pt | 4=6pt | 5=8pt | 6=11pt</li>
+                        <li>Max stat at creation: <strong>6</strong> — can reach 10 via level-up (flat 1pt per +1)</li>
                     </ul>
 
                     <h4>Leveling (Honor-based)</h4>

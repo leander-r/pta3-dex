@@ -211,7 +211,7 @@ const TrainerSkills = () => {
                                                 <span style={{ fontWeight: isTrained ? 'bold' : 'normal', flex: 1 }}>
                                                     {skill.name}
                                                     {isPassive && (
-                                                        <span style={{ marginLeft: '4px', fontSize: '10px', opacity: 0.8 }}>(Passive)</span>
+                                                        <span style={{ marginLeft: '4px', fontSize: '10px', opacity: 0.8 }} title="Passive: the GM calls for this check, not the player. Capped at 1 talent.">(Passive)</span>
                                                     )}
                                                 </span>
 

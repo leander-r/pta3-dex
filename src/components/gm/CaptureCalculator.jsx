@@ -184,7 +184,7 @@ const CaptureCalculator = () => {
                         </div>
                         {target !== clampedTarget && <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>(raw {target}, clamped to 0–100)</div>}
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                            {clampedTarget <= 0 ? 'Cannot be captured this way.' : `${clampedTarget}% chance of capture`}
+                            {clampedTarget <= 0 ? 'Cannot be captured — try a different Poké Ball or better conditions.' : `${clampedTarget}% chance of capture`}
                         </div>
 
                         {/* HP progress bar */}
@@ -215,7 +215,7 @@ const CaptureCalculator = () => {
 
             {/* Modifier breakdown — always visible */}
             <div style={{ marginTop: '12px', fontSize: '12px', padding: '10px', background: 'var(--input-bg)', borderRadius: '6px', border: '1px solid var(--border-light)' }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-secondary)' }}>Target breakdown (roll d100, succeed if ≤ target)</div>
+                <div style={{ fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-secondary)' }}>Target breakdown (roll d100, succeed if roll &lt; target — ties fail)</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span>Base ({RARITY_LABELS[rarity]}, Stage {stage + 1})</span>
@@ -238,7 +238,7 @@ const CaptureCalculator = () => {
                         <strong style={{ color: POKEBALL_MODS[ball] >= 999 ? '#f9a825' : POKEBALL_MODS[ball] >= 0 ? '#4caf50' : '#f44336' }}>{POKEBALL_MODS[ball] >= 999 ? 'auto' : POKEBALL_MODS[ball] >= 0 ? `+${POKEBALL_MODS[ball]}` : POKEBALL_MODS[ball]}</strong>
                     </div>
                     <div style={{ marginTop: '4px', paddingTop: '6px', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                        <span>Target (clamped 1–99)</span>
+                        <span>Target{clampedTarget <= 0 ? ' — Impossible!' : clampedTarget >= 100 ? ' — Guaranteed!' : ''}</span>
                         <span>{clampedTarget}</span>
                     </div>
                 </div>

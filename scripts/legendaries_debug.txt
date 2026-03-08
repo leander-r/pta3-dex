@@ -1,0 +1,137 @@
+Type: Null | Normal | HP:90 ATK:10 DEF:10 SATK:11 SDEF:10 SPD:8 | moves:3 | skills:8 | passives:3
+Silvally | Normal | HP:90 ATK:10 DEF:10 SATK:11 SDEF:10 SPD:12 | moves:3 | skills:8 | passives:1
+Genesect | Bug/Steel | HP:210 ATK:12 DEF:10 SATK:13 SDEF:10 SPD:12 | moves:3 | skills:3 | passives:3
+Mewtwo | Psychic | HP:330 ATK:11 DEF:16 SATK:16 SDEF:16 SPD:13 | moves:5 | skills:5 | passives:7
+Mega Mewtwo X | Psychic/Fighting | HP:330 ATK:19 DEF:17 SATK:16 SDEF:17 SPD:13 | moves:3 | skills:0 | passives:0
+Mega Mewtwo Y | Psychic | HP:330 ATK:15 DEF:14 SATK:20 SDEF:19 SPD:14 | moves:2 | skills:0 | passives:0
+Great Tusk | Ground/Fighting | HP:72 ATK:13 DEF:14 SATK:5 SDEF:5 SPD:9 | moves:4 | skills:3 | passives:2
+Brute Bonnet | Grass/Dark | HP:66 ATK:14 DEF:10 SATK:9 SDEF:10 SPD:6 | moves:5 | skills:2 | passives:2
+Slither Wing | Bug/Fighting | HP:54 ATK:15 DEF:9 SATK:9 SDEF:11 SPD:8 | moves:4 | skills:5 | passives:2
+Roaring Moon | Dragon/Dark | HP:66 ATK:15 DEF:7 SATK:6 SDEF:10 SPD:14 | moves:4 | skills:2 | passives:4
+Iron Bundle | Ice/Water | HP:36 ATK:8 DEF:11 SATK:12 SDEF:6 SPD:16 | moves:3 | skills:2 | passives:2
+Iron Jugulis | Dark/Flying | HP:54 ATK:8 DEF:9 SATK:12 SDEF:8 SPD:11 | moves:2 | skills:2 | passives:2
+Iron Thorns | Rock/Electric | HP:60 ATK:13 DEF:13 SATK:7 SDEF:8 SPD:7 | moves:3 | skills:3 | passives:2
+Pheromosa | Bug/Fighting | HP:42 ATK:15 DEF:4 SATK:14 SDEF:4 SPD:17 | moves:5 | skills:2 | passives:2
+Kartana | Grass/Steel | HP:36 ATK:20 DEF:13 SATK:6 SDEF:3 SPD:11 | moves:5 | skills:1 | passives:1
+Blacephalon | Fire/Ghost | HP:30 ATK:13 DEF:5 SATK:16 SDEF:9 SPD:11 | moves:5 | skills:2 | passives:1
+Articuno | Psychic/Flying | HP:108 ATK:9 DEF:9 SATK:13 SDEF:10 SPD:12 | moves:4 | skills:3 | passives:3
+Zapdos | Electric/Flying | HP:108 ATK:9 DEF:9 SATK:13 SDEF:9 SPD:12 | moves:5 | skills:3 | passives:4
+Moltres | Fire/Flying | HP:108 ATK:10 DEF:9 SATK:13 SDEF:9 SPD:11 | moves:4 | skills:4 | passives:3
+Raikou | Electric | HP:108 ATK:10 DEF:8 SATK:13 SDEF:11 SPD:12 | moves:3 | skills:2 | passives:6
+Suicune | Water | HP:120 ATK:9 DEF:12 SATK:10 SDEF:13 SPD:9 | moves:3 | skills:1 | passives:5
+Tapu Lele | Psychic/Fairy | HP:84 ATK:10 DEF:10 SATK:13 SDEF:12 SPD:10 | moves:3 | skills:3 | passives:4
+Tapu Fini | Water/Fairy | HP:84 ATK:8 DEF:13 SATK:10 SDEF:13 SPD:9 | moves:2 | skills:5 | passives:3
+Wo-Chien | Dark/Grass | HP:54 ATK:9 DEF:12 SATK:10 SDEF:14 SPD:7 | moves:5 | skills:6 | passives:2
+Ting-Lu | Dark/Ground | HP:96 ATK:11 DEF:13 SATK:6 SDEF:10 SPD:5 | moves:5 | skills:4 | passives:2
+Cobalion | Steel/Fighting | HP:108 ATK:12 DEF:13 SATK:10 SDEF:7 SPD:11 | moves:5 | skills:2 | passives:4
+Virizion | Grass/Fighting | HP:108 ATK:12 DEF:7 SATK:10 SDEF:13 SPD:11 | moves:5 | skills:2 | passives:3
+Incarnate Form | Electric/Flying | HP:96 ATK:11 DEF:7 SATK:16 SDEF:8 SPD:12 | moves:4 | skills:3 | passives:5
+Latias | Dragon/Psychic | HP:96 ATK:9 DEF:10 SATK:11 SDEF:13 SPD:14 | moves:5 | skills:4 | passives:4
+Mega Latias | Dragon/Psychic | HP:480 ATK:11 DEF:13 SATK:14 SDEF:15 SPD:14 | moves:0 | skills:0 | passives:0
+Regirock | Rock | HP:96 ATK:10 DEF:22 SATK:5 SDEF:10 SPD:5 | moves:5 | skills:6 | passives:4
+Registeel | Steel | HP:96 ATK:8 DEF:17 SATK:8 SDEF:17 SPD:5 | moves:4 | skills:5 | passives:4
+Regidrago | Dragon | HP:240 ATK:11 DEF:5 SATK:10 SDEF:5 SPD:9 | moves:5 | skills:3 | passives:3
+Uxie | Psychic | HP:96 ATK:8 DEF:13 SATK:8 SDEF:15 SPD:10 | moves:5 | skills:4 | passives:2
+Azelf | Psychic | HP:96 ATK:13 DEF:7 SATK:14 SDEF:7 SPD:12 | moves:5 | skills:4 | passives:2
+Heatran | Fire/Steel | HP:216 ATK:10 DEF:11 SATK:14 SDEF:11 SPD:10 | moves:5 | skills:7 | passives:5
+Ho-oh | Fire/Flying | HP:264 ATK:13 DEF:9 SATK:12 SDEF:16 SPD:9 | moves:5 | skills:5 | passives:2
+Okidogi | Poison/Fighting | HP:108 ATK:15 DEF:13 SATK:6 SDEF:9 SPD:8 | moves:4 | skills:1 | passives:3
+Fezandipiti | Poison/Fairy | HP:108 ATK:9 DEF:8 SATK:7 SDEF:13 SPD:12 | moves:4 | skills:2 | passives:2
+Terapagos | Normal | HP:450 ATK:11 DEF:12 SATK:13 SDEF:11 SPD:11 | moves:3 | skills:4 | passives:2
+Phione | Water | HP:48 ATK:8 DEF:10 SATK:8 SDEF:8 SPD:8 | moves:5 | skills:3 | passives:2
+Celebi | Psychic/Grass | HP:180 ATK:10 DEF:10 SATK:11 SDEF:11 SPD:10 | moves:5 | skills:4 | passives:2
+Jirachi | Steel/Psychic | HP:365 ATK:10 DEF:11 SATK:10 SDEF:11 SPD:10 | moves:5 | skills:5 | passives:2
+Marshadow | Fighting/Ghost | HP:108 ATK:13 DEF:8 SATK:9 SDEF:9 SPD:13 | moves:5 | skills:4 | passives:1
+Aria Form | Normal/Psychic | HP:120 ATK:8 DEF:8 SATK:14 SDEF:14 SPD:9 | moves:0 | skills:0 | passives:0
+Pirouette Form | Normal/Fighting | HP:120 ATK:13 DEF:9 SATK:9 SDEF:9 SPD:13 | moves:4 | skills:2 | passives:2
+Diancie | Rock/Fairy | HP:90 ATK:11 DEF:16 SATK:10 SDEF:15 SPD:5 | moves:4 | skills:3 | passives:4
+Mega Diancie | Rock/Fairy | HP:300 ATK:17 DEF:12 SATK:16 SDEF:11 SPD:11 | moves:1 | skills:0 | passives:0
+Zarude | Dark/Grass | HP:132 ATK:14 DEF:11 SATK:8 SDEF:10 SPD:11 | moves:5 | skills:3 | passives:3
+Walking Wake | Water/Dragon | HP:120 ATK:9 DEF:9 SATK:13 SDEF:8 SPD:11 | moves:0 | skills:3 | passives:5
+Raging Bolt | Electric/Dragon | HP:156 ATK:8 DEF:9 SATK:14 SDEF:9 SPD:8 | moves:4 | skills:2 | passives:5
+Iron Boulder | Rock/Psychic | HP:108 ATK:15 DEF:8 SATK:8 SDEF:11 SPD:12 | moves:4 | skills:2 | passives:6
+Koraidon | Fighting/Dragon | HP:150 ATK:14 DEF:12 SATK:9 SDEF:10 SPD:16 | moves:5 | skills:8 | passives:3
+Glastrier | Ice | HP:100 ATK:0 DEF:15 SATK:0 SDEF:11 SPD:0 | moves:5 | skills:1 | passives:2
+Calyrex | Psychic/Grass | HP:100 ATK:9 DEF:8 SATK:9 SDEF:8 SPD:8 | moves:4 | skills:7 | passives:2
+Kubfu | Fighting | HP:36 ATK:10 DEF:6 SATK:5 SDEF:5 SPD:7 | moves:3 | skills:1 | passives:3
+Urshifu Single Strike | Fighting/Dark | HP:120 ATK:15 DEF:11 SATK:6 SDEF:6 SPD:10 | moves:3 | skills:2 | passives:2
+Meltan | Steel | HP:30 ATK:7 DEF:10 SATK:6 SDEF:5 SPD:3 | moves:2 | skills:2 | passives:2
+Hoopa | Psychic/Ghost | HP:100 ATK:11 DEF:6 SATK:15 SDEF:13 SPD:7 | moves:5 | skills:4 | passives:1
+Deoxys | Psychic | HP:60 ATK:15 DEF:8 SATK:15 SDEF:8 SPD:15 | moves:4 | skills:6 | passives:4
+Darkrai | Dark | HP:360 ATK:9 DEF:9 SATK:15 SDEF:9 SPD:13 | moves:5 | skills:5 | passives:1
+Zacian | Fairy | HP:540 ATK:20 DEF:13 SATK:8 SDEF:12 SPD:14 | moves:4 | skills:5 | passives:1
+Cosmog | Psychic | HP:24 ATK:3 DEF:3 SATK:3 SDEF:3 SPD:4 | moves:2 | skills:2 | passives:1
+Cosmoem | Psychic | HP:48 ATK:3 DEF:14 SATK:3 SDEF:14 SPD:4 | moves:1 | skills:1 | passives:2
+Lunala | Psychic/Ghost | HP:840 ATK:11 DEF:10 SATK:14 SDEF:12 SPD:10 | moves:6 | skills:5 | passives:1
+Necrozma | Psychic | HP:300 ATK:11 DEF:12 SATK:13 SDEF:9 SPD:10 | moves:5 | skills:6 | passives:2
+Necrozma Dawn Wings | Psychic/Ghost | HP:1140 ATK:11 DEF:13 SATK:16 SDEF:13 SPD:10 | moves:0 | skills:0 | passives:0
+Necrozma Ultra Mantle | Psychic/Dragon | HP:1980 ATK:17 DEF:12 SATK:17 SDEF:10 SPD:15 | moves:0 | skills:0 | passives:0
+Kyogre | Water | HP:1200 ATK:10 DEF:9 SATK:16 SDEF:15 SPD:11 | moves:2 | skills:5 | passives:2
+Reshiram | Dragon/Fire | HP:1600 ATK:13 DEF:10 SATK:15 SDEF:12 SPD:10 | moves:6 | skills:5 | passives:1
+Kyurem | Dragon/Ice | HP:1780 ATK:14 DEF:9 SATK:13 SDEF:9 SPD:11 | moves:5 | skills:4 | passives:2
+Xerneas | Fairy | HP:1480 ATK:14 DEF:10 SATK:14 SDEF:10 SPD:10 | moves:6 | skills:6 | passives:1
+Dialga Altered Form | Steel/Dragon | HP:1750 ATK:12 DEF:13 SATK:15 SDEF:11 SPD:9 | moves:5 | skills:5 | passives:3
+Palkia Altered Form | Water/Dragon | HP:1750 ATK:12 DEF:11 SATK:15 SDEF:13 SPD:9 | moves:3 | skills:5 | passives:3
+Giratina Altered Form | Ghost/Dragon | HP:1950 ATK:11 DEF:12 SATK:10 SDEF:12 SPD:12 | moves:6 | skills:7 | passives:5
+Eternatus | Poison/Dragon | HP:1450 ATK:10 DEF:10 SATK:15 SDEF:10 SPD:16 | moves:6 | skills:6 | passives:3
+Eternatus Eternamax | Poison/Dragon | HP:2925 ATK:13 DEF:18 SATK:13 SDEF:18 SPD:16 | moves:0 | skills:0 | passives:0
+Arceus | Normal | HP:3000 ATK:12 DEF:15 SATK:12 SDEF:15 SPD:12 | moves:2 | skills:7 | passives:3
+Magearna | Steel/Fairy | HP:96 ATK:10 DEF:14 SATK:13 SDEF:12 SPD:7 | moves:5 | skills:2 | passives:1
+Mew | Psychic | HP:100 ATK:10 DEF:12 SATK:11 SDEF:12 SPD:10 | moves:2 | skills:7 | passives:4
+Scream Tail | Fairy/Psychic | HP:72 ATK:8 DEF:10 SATK:7 SDEF:12 SPD:11 | moves:3 | skills:3 | passives:2
+Flutter Mane | Ghost/Fairy | HP:36 ATK:6 DEF:6 SATK:14 SDEF:14 SPD:14 | moves:3 | skills:4 | passives:1
+Sandy Shocks | Electric/Ground | HP:54 ATK:10 DEF:10 SATK:13 SDEF:9 SPD:10 | moves:3 | skills:2 | passives:3
+Iron Treads | Ground/Steel | HP:54 ATK:11 DEF:13 SATK:7 SDEF:7 SPD:11 | moves:4 | skills:2 | passives:2
+Iron Hands | Fighting/Electric | HP:90 ATK:14 DEF:11 SATK:5 SDEF:7 SPD:5 | moves:3 | skills:4 | passives:2
+Iron Moth | Fire/Poison | HP:48 ATK:9 DEF:6 SATK:14 SDEF:11 SPD:11 | moves:3 | skills:2 | passives:2
+Iron Valiant | Fairy/Fighting | HP:42 ATK:13 DEF:9 SATK:12 SDEF:6 SPD:12 | moves:4 | skills:4 | passives:1
+Nihilego | Rock/Poison | HP:66 ATK:6 DEF:6 SATK:13 SDEF:13 SPD:10 | moves:4 | skills:3 | passives:1
+Xurkitree | Electric | HP:48 ATK:9 DEF:7 SATK:20 SDEF:9 SPD:8 | moves:5 | skills:2 | passives:2
+Guzzlord | Dark/Dragon | HP:132 ATK:10 DEF:5 SATK:10 SDEF:5 SPD:4 | moves:5 | skills:2 | passives:1
+Poipole | Poison | HP:42 ATK:7 DEF:8 SATK:8 SDEF:7 SPD:7 | moves:3 | skills:1 | passives:2
+Entei | Fire | HP:144 ATK:13 DEF:9 SATK:10 SDEF:9 SPD:10 | moves:3 | skills:2 | passives:1
+Tapu Koko | Electric/Fairy | HP:84 ATK:14 DEF:10 SATK:10 SDEF:8 SPD:15 | moves:2 | skills:3 | passives:5
+Tapu Bulu | Grass/Fairy | HP:84 ATK:13 DEF:13 SATK:9 SDEF:10 SPD:10 | moves:3 | skills:3 | passives:2
+Chien-Pao | Dark/Ice | HP:48 ATK:14 DEF:8 SATK:9 SDEF:7 SPD:14 | moves:5 | skills:0 | passives:2
+Chi-Yu | Dark/Fire | HP:36 ATK:8 DEF:8 SATK:16 SDEF:12 SPD:10 | moves:5 | skills:4 | passives:2
+Terrakion | Rock/Fighting | HP:108 ATK:16 DEF:9 SATK:8 SDEF:9 SPD:11 | moves:5 | skills:2 | passives:2
+Keldeo | Water/Fighting | HP:108 ATK:10 DEF:9 SATK:14 SDEF:9 SPD:11 | moves:5 | skills:2 | passives:3
+Latios | Dragon/Psychic | HP:96 ATK:10 DEF:9 SATK:13 SDEF:11 SPD:14 | moves:5 | skills:4 | passives:4
+Mega Latios | Dragon/Psychic | HP:480 ATK:14 DEF:11 SATK:16 SDEF:12 SPD:14 | moves:0 | skills:0 | passives:0
+Regice | Ice | HP:96 ATK:5 DEF:10 SATK:10 SDEF:22 SPD:5 | moves:3 | skills:3 | passives:2
+Regieleki | Electric | HP:96 ATK:10 DEF:5 SATK:10 SDEF:5 SPD:20 | moves:2 | skills:2 | passives:1
+Regigigas | Normal | HP:1660 ATK:2 DEF:13 SATK:2 SDEF:13 SPD:2 | moves:3 | skills:3 | passives:3
+Mesprit | Psychic | HP:96 ATK:11 DEF:12 SATK:11 SDEF:11 SPD:8 | moves:5 | skills:4 | passives:2
+Volcanion | Fire/Water | HP:240 ATK:11 DEF:12 SATK:13 SDEF:9 SPD:7 | moves:4 | skills:7 | passives:1
+Lugia | Psychic/Flying | HP:264 ATK:9 DEF:13 SATK:10 SDEF:16 SPD:11 | moves:4 | skills:4 | passives:2
+Munkidori | Poison/Psychic | HP:108 ATK:8 DEF:7 SATK:15 SDEF:10 SPD:11 | moves:3 | skills:2 | passives:3
+Pecharunt | Poison/Ghost | HP:108 ATK:9 DEF:17 SATK:11 SDEF:9 SPD:9 | moves:4 | skills:3 | passives:3
+Ogerpon | Grass | HP:96 ATK:13 DEF:8 SATK:7 SDEF:10 SPD:11 | moves:4 | skills:3 | passives:3
+Tera Form | Normal | HP:120 ATK:10 DEF:12 SATK:11 SDEF:11 SPD:9 | moves:2 | skills:2 | passives:2
+Manaphy | Water | HP:120 ATK:10 DEF:12 SATK:13 SDEF:10 SPD:10 | moves:1 | skills:4 | passives:3
+Victini | Psychic/Fire | HP:220 ATK:10 DEF:10 SATK:10 SDEF:10 SPD:12 | moves:5 | skills:5 | passives:2
+Land Form | Grass | HP:100 ATK:11 DEF:11 SATK:11 SDEF:10 SPD:10 | moves:0 | skills:0 | passives:0
+Sky Form | Grass/Flying | HP:100 ATK:11 DEF:9 SATK:13 SDEF:8 SPD:13 | moves:4 | skills:3 | passives:4
+Zeraora | Electric | HP:108 ATK:13 DEF:8 SATK:10 SDEF:8 SPD:14 | moves:5 | skills:4 | passives:2
+Iron Leaves | Grass/Psychic | HP:108 ATK:16 DEF:9 SATK:8 SDEF:11 SPD:10 | moves:3 | skills:2 | passives:4
+Iron Crown | Steel/Psychic | HP:108 ATK:10 DEF:10 SATK:13 SDEF:11 SPD:10 | moves:5 | skills:2 | passives:2
+Miraidon | Electric/Dragon | HP:150 ATK:9 DEF:10 SATK:14 SDEF:12 SPD:16 | moves:3 | skills:4 | passives:3
+Spectrier | Ghost | HP:100 ATK:7 DEF:6 SATK:16 SDEF:8 SPD:15 | moves:5 | skills:1 | passives:2
+Calyrex Ice Rider | Psychic/Ice | HP:300 ATK:20 DEF:17 SATK:10 SDEF:13 SPD:5 | moves:1 | skills:8 | passives:3
+Calyrex Shadow Rider | Psychic/Ghost | HP:300 ATK:10 DEF:8 SATK:19 SDEF:10 SPD:17 | moves:0 | skills:8 | passives:3
+Urshifu Rapid Strike | Fighting/Water | HP:120 ATK:15 DEF:11 SATK:6 SDEF:6 SPD:10 | moves:3 | skills:2 | passives:1
+Cresselia | Psychic | HP:480 ATK:7 DEF:12 SATK:9 SDEF:14 SPD:9 | moves:6 | skills:5 | passives:2
+Zamazenta | Fighting | HP:540 ATK:14 DEF:19 SATK:8 SDEF:12 SPD:14 | moves:4 | skills:5 | passives:1
+Solgaleo | Psychic/Steel | HP:840 ATK:14 DEF:12 SATK:11 SDEF:10 SPD:10 | moves:5 | skills:5 | passives:1
+Necrozma Dusk Mane | Psychic/Steel | HP:1140 ATK:16 DEF:15 SATK:11 SDEF:11 SPD:10 | moves:0 | skills:0 | passives:0
+Kyogre Primal Reversion | Water | HP:1600 ATK:15 DEF:9 SATK:19 SDEF:17 SPD:11 | moves:1 | skills:0 | passives:0
+Groudon | Ground | HP:1200 ATK:16 DEF:15 SATK:10 SDEF:9 SPD:11 | moves:2 | skills:5 | passives:2
+Rayquaza | Dragon/Flying | HP:1260 ATK:16 DEF:9 SATK:15 SDEF:9 SPD:13 | moves:4 | skills:6 | passives:2
+Zekrom | Dragon/Electric | HP:1600 ATK:16 DEF:12 SATK:12 SDEF:10 SPD:10 | moves:7 | skills:5 | passives:1
+Kyurem Black Fusion | Dragon/Ice | HP:2380 ATK:18 DEF:10 SATK:12 SDEF:9 SPD:11 | moves:1 | skills:1 | passives:0
+Kyurem White Fusion | Dragon/Ice | HP:2380 ATK:13 DEF:9 SATK:17 SDEF:10 SPD:11 | moves:1 | skills:1 | passives:0
+Yveltal | Dark/Flying | HP:1480 ATK:14 DEF:10 SATK:13 SDEF:10 SPD:11 | moves:5 | skills:3 | passives:1
+Zygarde Complete | Dragon/Ground | HP:1800 ATK:12 DEF:13 SATK:9 SDEF:10 SPD:9 | moves:2 | skills:0 | passives:0
+Dialga Origin Form | Steel/Dragon | HP:1750 ATK:10 DEF:13 SATK:15 SDEF:13 SPD:9 | moves:0 | skills:0 | passives:0
+Palkia Origin Form | Water/Dragon | HP:1750 ATK:10 DEF:11 SATK:15 SDEF:13 SPD:11 | moves:0 | skills:0 | passives:0
+Giratina Origin Form | Ghost/Dragon | HP:1950 ATK:13 DEF:10 SATK:12 SDEF:10 SPD:12 | moves:0 | skills:0 | passives:0

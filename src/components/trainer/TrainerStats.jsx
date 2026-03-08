@@ -249,12 +249,12 @@ const TrainerStats = () => {
 
                     {/* Point-buy cost legend */}
                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', padding: '4px 8px', background: 'var(--bg-light, #f5f5f5)', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                        <span style={{ fontWeight: 'bold' }}>Point cost:</span>
-                        <span>1–6 → 1pt each</span>
+                        <span style={{ fontWeight: 'bold' }}>Creation total cost:</span>
+                        <span title="1+2+3=6pts cumulative to reach stat 3">≤3: 1–3 pts</span>
                         <span style={{ opacity: 0.5 }}>|</span>
-                        <span>7–8 → 2pts each</span>
-                        <span style={{ opacity: 0.5 }}>|</span>
-                        <span>9–10 → 3pts each</span>
+                        <span title="Cumulative cost to reach stat 4 is 6pts, stat 5 is 8pts, stat 6 is 11pts">4=6 · 5=8 · 6=11 pts</span>
+                        <span style={{ opacity: 0.5 }}>·</span>
+                        <span title="Level-up stat points: flat 1pt per +1, no cap table applies. Each level-up, 2 points, each to a different stat.">Level-up: 1pt per +1 (to 2 diff. stats)</span>
                         <span style={{ opacity: 0.5, marginLeft: 'auto' }}>Modifier = ⌊stat÷2⌋</span>
                     </div>
 
