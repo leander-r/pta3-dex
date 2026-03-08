@@ -33,13 +33,24 @@ const MOVE_RE  = new RegExp(
 );
 
 // ── Column splitter ─────────────────────────────────────────
-// Tries to detect lines with two columns separated by 8+ spaces.
+// Tries to detect lines with two columns separated by 5+ spaces.
+// Handles leading whitespace (indented left column) and right-column-only lines.
 // Returns [leftPart, rightPart | null].
+const STAT_LINE_RE = /^(?:Speed:\s*\d|Hit Points:\s*\d|Skills:|Passives:|Moves\s*\(|Biology:|Proficiencies:|Evolution:|(?:Normal|Fire|Water|Grass|Electric|Ice|Fighting|Poison|Ground|Flying|Psychic|Bug|Rock|Ghost|Dragon|Dark|Steel|Fairy)(?:\s*\/|\s*-\s*\w+\s*\())/i;
 function splitColumns(line) {
-    // Match: left content ending with non-space (at least 3 chars), gap of 8+ spaces, right content.
-    // The left side must have a word of at least 3 chars to avoid splitting short filler.
-    const m = line.match(/^(\S.{2,}?\S|\S{3,})\s{8,}(\S.*)$/);
-    if (m) return [m[1].trim(), m[2].trim()];
+    // Right-column-only: 30+ leading spaces then content (e.g. Proficiencies/Biology lines)
+    if (/^\s{30,}\S/.test(line)) return ['', line.trim()];
+
+    // Two-column: any text (including leading spaces) + 5+ space gap + right content.
+    // Use lazy .*?\S so we find the FIRST large gap, not the last.
+    const m = line.match(/^(.*?\S)\s{5,}(\S.*)$/);
+    if (m && m[1].trim().length >= 3) return [m[1].trim(), m[2].trim()];
+
+    // Stat-line fallback: 2+ space gap when right part is a recognizable stat block keyword.
+    // Handles cases where left-column text ends close to the right column (< 5 space gap).
+    const m2 = line.match(/^(.*?\S)\s{2,}(\S.*)$/);
+    if (m2 && m2[1].trim().length >= 3 && STAT_LINE_RE.test(m2[2])) return [m2[1].trim(), m2[2].trim()];
+
     return [line.trim(), null];
 }
 
@@ -104,7 +115,10 @@ function extractEntries(stream) {
                 const isLore = ['the','they','it ','in ','on ','at ','this','that',
                     'legendary','biology','proficiencies','evolution','there','these'].some(w => lowerT.startsWith(w));
                 if (!isLore) {
-                    nameLine = t.replace(/\s*\([^)]+\)\s*$/, '').trim(); // remove "(Donphan)" suffix
+                    // Extract base species from parenthetical (e.g. "Great Tusk (Donphan)" → baseSpecies "Donphan")
+                    const parenM = t.match(/\s*\(([^)]+)\)\s*$/);
+                    if (parenM) nameLine = { name: t.replace(/\s*\([^)]+\)\s*$/, '').trim(), baseSpecies: parenM[1] };
+                    else        nameLine = { name: t.trim(), baseSpecies: null };
                 }
             }
         }
@@ -114,7 +128,7 @@ function extractEntries(stream) {
         // ── Validate the name ─────────────────────────────────
         // Reject names that are clearly lore text or type lines
         const nameOk = (() => {
-            const n = nameLine;
+            const n = nameLine.name;
             if (/[.!?]/.test(n) && /\s/.test(n)) return false;  // sentence (has punct + space)
             if (/\s*\/\s*[A-Z][a-z]+\s+-\s+[A-Z][a-z]/.test(n)) return false;  // "Type / Type - Size"
             if (n.endsWith(' -') || n.endsWith('-')) return false; // truncated
@@ -133,6 +147,9 @@ function extractEntries(stream) {
 
         while (j < Math.min(hpLine + 80, stream.length)) {
             const t = stream[j].text;
+
+            // Stop at the next entry's HP line (prevents scan from consuming adjacent species)
+            if (HP_RE.test(t)) break;
 
             const spdM = SPEED_RE.exec(t);
             if (spdM && spd === 0) {
@@ -184,7 +201,8 @@ function extractEntries(stream) {
         const moves = parseMoves(blockText);
 
         entries.push({
-            species: nameLine,
+            species:     nameLine.name,
+            baseSpecies: nameLine.baseSpecies || undefined,
             types:   typeLine.types,
             size:    typeLine.size,
             weight:  typeLine.weight,
@@ -323,10 +341,15 @@ function main() {
     const pokedex = JSON.parse(fs.readFileSync(POKEDEX, 'utf8'));
     const existingSpecies = new Set(pokedex.pokemon.map(p => p.species.toLowerCase()));
 
+    // Species that should be skipped as standalone entries because they are
+    // stored as megaForms on their base species (manually patched in pokedex.min.json).
+    const SKIP_STANDALONE = new Set(['mega mewtwo x', 'mega mewtwo y']);
+
     let added = 0;
     let flagged = 0;
     for (const entry of all) {
         const key = entry.species.toLowerCase();
+        if (SKIP_STANDALONE.has(key)) continue; // handled as megaForms on Mewtwo
         if (existingSpecies.has(key)) {
             // Flag existing entry as legendary
             const existing = pokedex.pokemon.find(p => p.species.toLowerCase() === key);
@@ -338,7 +361,8 @@ function main() {
         } else {
             // Add new entry in pokedex format — no id; loader assigns from array index
             pokedex.pokemon.push({
-                species:  entry.species,
+                species:     entry.species,
+                ...(entry.baseSpecies ? { baseSpecies: entry.baseSpecies } : {}),
                 types:    entry.types,
                 size:     entry.size,
                 weight:   entry.weight,
