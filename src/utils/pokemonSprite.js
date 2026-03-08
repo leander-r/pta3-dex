@@ -180,6 +180,8 @@ export const getMegaSprite = (pokemon, megaForm) => {
     // Allow form data to override the base species slug (e.g. Zygarde-10% → Complete uses Zygarde's sprite)
     const base = speciesSlug(megaForm?.baseSpeciesOverride || pokemon?.species);
     if (!base || !megaForm?.name) return getPokemonSprite(pokemon);
+    // Allow an explicit Showdown slug override on the form object (e.g. { slug: 'black' } → kyurem-black)
+    if (megaForm.slug) return `https://play.pokemonshowdown.com/sprites/gen5/${base}-${megaForm.slug}.png`;
     // Strip the base species name from the form name so the qualifier is correct:
     // "Mega Charizard X" → "megax", "Mega Venusaur" → "mega", "10%" → "10"
     const escapedBase = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
