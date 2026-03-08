@@ -72,7 +72,7 @@ export const buildPokemonEmbed = (roll, trainerName) => {
         const formula = parts.join(' + ');
         const notation = diceBonus ? `${roll.dice}+${diceBonus}` : roll.dice;
         fields.push({
-            name: crit ? '🎲 Damage (Crit — double dice)' : '🎲 Damage',
+            name: crit ? '🎲 Damage (Crit — max dice value)' : '🎲 Damage',
             value: `${notation}: ${formula} = **${roll.total}**`,
             inline: false,
         });

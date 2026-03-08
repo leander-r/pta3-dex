@@ -8,7 +8,8 @@ const BASE_POKEMON_HIT = {
     pokemon: 'Rowdy', move: 'High Horsepower', moveType: 'Ground', category: 'Physical',
     accRoll: 6, accModifier: 0, modifiedAccRoll: 6, moveAC: 2, acWasOverridden: false,
     isHit: true, isCrit: false, isStatus: false,
-    dice: '4d12+16', rolls: [9, 12, 8, 8], diceTotal: 37, statBonus: 14, stabBonus: 4, total: 71,
+    // PTA3: statBonus = ⌊ATK/2⌋ (ATK=8 → 4); total = diceTotal + statBonus + stabBonus
+    dice: '4d12', rolls: [9, 12, 8, 8], diceTotal: 37, statBonus: 4, stabBonus: 4, total: 45,
     typeColor: 0xE2BF65,
     attackerCurrentHP: 35, attackerMaxHP: 50,
     activeStatuses: [],
@@ -25,14 +26,15 @@ const BASE_POKEMON_MISS = {
 const BASE_POKEMON_CRIT = {
     ...BASE_POKEMON_HIT,
     accRoll: 20, modifiedAccRoll: 20, isCrit: true,
-    dice: '8d12+16', rolls: [9, 12, 8, 8, 10, 11, 7, 9], diceTotal: 74, total: 106,
+    // PTA3: crit = all dice at max value (not double dice count)
+    dice: '4d12', rolls: [12, 12, 12, 12], diceTotal: 48, total: 56,
 };
 
 const BASE_TRAINER_SKILL = {
     type: 'trainer_skill',
-    skill: 'Perception', skillStat: 'WIS',
-    rolls: [4, 6], modifier: 3, hasSkill: true, bonus: 5, total: 18,
-    trainerCurrentHP: 45, trainerMaxHP: 50,
+    skill: 'Perception', skillStat: 'SPD',  // PTA3: stat names are ATK/DEF/SATK/SDEF/SPD
+    rolls: [10], modifier: 3, hasSkill: true, bonus: 5, total: 18, // PTA3: 1d20; 10+3+5=18
+    trainerCurrentHP: 20, trainerMaxHP: 24, // PTA3: 20 base + 1d4 roll
 };
 
 const BASE_HEAL = {
@@ -103,15 +105,15 @@ describe('buildPokemonEmbed — hit', () => {
     });
 
     it('description shows damage total', () => {
-        expect(embed.description).toContain('71 damage');
+        expect(embed.description).toContain('45 damage');
     });
 
     it('shows damage breakdown field', () => {
         const dmgField = embed.fields.find(f => f.name.includes('Damage'));
         expect(dmgField).toBeTruthy();
-        expect(dmgField.value).toContain('14 (stat)');
+        expect(dmgField.value).toContain('4 (stat)');
         expect(dmgField.value).toContain('4 (STAB)');
-        expect(dmgField.value).toContain('= **71**');
+        expect(dmgField.value).toContain('= **45**');
     });
 
     it('shows HP bar field', () => {
@@ -273,9 +275,8 @@ describe('buildTrainerSkillEmbed', () => {
         expect(embed.description).toContain('18');
     });
 
-    it('description shows rolls', () => {
-        expect(embed.description).toContain('4');
-        expect(embed.description).toContain('6');
+    it('description shows roll', () => {
+        expect(embed.description).toContain('[10]'); // PTA3: 1d20 roll
     });
 
     it('description shows trained bonus when trained', () => {
@@ -289,7 +290,7 @@ describe('buildTrainerSkillEmbed', () => {
     it('shows trainer HP bar', () => {
         const hpField = embed.fields.find(f => f.name === 'Trainer HP');
         expect(hpField).toBeTruthy();
-        expect(hpField.value).toContain('45/50');
+        expect(hpField.value).toContain('20/24'); // PTA3: 20 base + 1d4 roll
         expect(hpField.value).toMatch(/█/);
     });
 });
