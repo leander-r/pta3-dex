@@ -212,6 +212,23 @@ const HELP_CONTENT = {
             </>
         )
     },
+    'equipment': {
+        title: 'Trainer Equipment',
+        body: () => (
+            <>
+                <p>Trainers can equip items from their inventory. Equipped items are tracked here and their effects apply automatically.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Item Types</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Armor</strong> — grants a passive DEF or SDEF bonus while equipped (e.g. Chainmail: DEF +1, Full Plate: DEF +2)</li>
+                    <li><strong>Weapons</strong> — used in the Dice Roller → Trainer → Weapon Attack mode for melee combat</li>
+                    <li><strong>Clothing &amp; Accessories</strong> — provide a <strong>once-per-day</strong> bonus to a skill check; use "Mark used" to track it and Reset at the start of a new day</li>
+                </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Equipping Items</h4>
+                <p>Go to the <strong>Inventory tab</strong> and click <em>Equip ↑</em> next to any armor, weapon, or clothing item. You can also equip directly from the quick-equip dropdown at the bottom of this panel.</p>
+                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Tip: Click any item name to view its full description and effects.</p>
+            </>
+        )
+    },
     'hp-tracking': {
         title: 'HP Tracking',
         body: () => (

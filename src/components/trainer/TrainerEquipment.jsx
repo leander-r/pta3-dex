@@ -5,7 +5,7 @@
 // daily bonus tracking.
 
 import React, { useState, useMemo } from 'react';
-import { useTrainerContext, useModal } from '../../contexts/index.js';
+import { useTrainerContext, useModal, useUI } from '../../contexts/index.js';
 import { useGameData } from '../../contexts/GameDataContext.jsx';
 
 const TYPE_COLORS = {
@@ -48,6 +48,7 @@ const TrainerEquipment = () => {
     const { trainer, equipItem, unequipItem, markBonusUsed, resetDailyBonus } = useTrainerContext();
     const { GAME_DATA } = useGameData();
     const { showDetail } = useModal();
+    const { showHelp } = useUI();
     const [collapsed, setCollapsed] = useState(false);
     const [quickEquipValue, setQuickEquipValue] = useState('');
 
@@ -95,6 +96,12 @@ const TrainerEquipment = () => {
                             ({equippedItems.length} equipped)
                         </span>
                     )}
+                    <button
+                        onClick={e => { e.stopPropagation(); showHelp('equipment'); }}
+                        style={{ marginLeft: '8px', background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '11px', color: 'white', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                        title="Help: Equipment"
+                        aria-label="Help: Equipment"
+                    >?</button>
                 </h3>
                 <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', userSelect: 'none' }}>
                     {collapsed ? '▶' : '▼'}
