@@ -243,7 +243,7 @@ const TrainerStats = () => {
                     {/* Level-up prompt */}
                     {(trainer.levelStatPoints || 0) > 0 && (
                         <div style={{ marginBottom: '8px', padding: '6px 10px', borderRadius: '6px', background: '#e6510015', border: '2px solid #e6510055', fontSize: '12px', color: '#e65100', fontWeight: '600' }}>
-                            ⬆ Level-up: raise <strong>one</strong> stat by 1 point ({trainer.levelStatPoints} point{trainer.levelStatPoints > 1 ? 's' : ''} remaining). Each stat can only be raised once per level-up.
+                            ⬆ Level-up: raise <strong>2 different</strong> stats by 1 each ({trainer.levelStatPoints} point{trainer.levelStatPoints !== 1 ? 's' : ''} remaining — each stat once per level).
                         </div>
                     )}
 

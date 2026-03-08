@@ -369,7 +369,7 @@ export const TrainerProvider = ({ children }) => {
 
         }
 
-        // PTA3: stat increases only at milestone levels 3, 7, 11 (+1 to two different stats = 2 points)
+        // PTA3: +2 stat points every level (each to a different stat); HP roll only at milestones 3, 7, 11
         const isMilestone = HP_MILESTONE_LEVELS.includes(newLevel);
 
         // Auto-grant features unlocked at the new class level for each class
@@ -388,8 +388,8 @@ export const TrainerProvider = ({ children }) => {
         setTrainer(prev => ({
             ...prev,
             level: newLevel,
-            levelStatPoints: (prev.levelStatPoints || 0) + (isMilestone ? 2 : 0),
-            levelStatAllocations: isMilestone ? [] : (prev.levelStatAllocations || []),
+            levelStatPoints: (prev.levelStatPoints || 0) + 2,
+            levelStatAllocations: [],
             // Snapshot pre-level state so level-down can revert stats exactly
             statHistory: [...(prev.statHistory || []), {
                 stats: { ...prev.stats },
@@ -412,8 +412,8 @@ export const TrainerProvider = ({ children }) => {
             });
         }
 
-        const notifications = isMilestone ? ['+2 stat points', 'Roll HP Bonus (+1d4) in the HP section!'] : [];
-        if (notifications.length === 0) notifications.push('Level up!');
+        const notifications = ['+2 stat points (raise 2 different stats)'];
+        if (isMilestone) notifications.push('Roll HP Bonus (+1d4) in the HP section!');
 
         showLevelUpNotification({
             type: 'trainer',
@@ -463,7 +463,7 @@ export const TrainerProvider = ({ children }) => {
         const restoredStats = snapshot ? snapshot.stats : trainer.stats;
         const restoredLevelStatPoints = snapshot
             ? snapshot.levelStatPoints
-            : Math.max(0, (trainer.levelStatPoints || 0) + (wasMilestone ? 2 : 0));
+            : Math.max(0, (trainer.levelStatPoints || 0) + 2);
         const restoredLevelStatAllocations = snapshot ? snapshot.levelStatAllocations : [];
 
         // Remove features that were granted at the class level being lost
