@@ -132,8 +132,6 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'munkidori':        'munkidori',
     'fezandipiti':      'fezandipiti',
     'pecharunt':        'pecharunt',
-    // ── Zygarde (base entry = 10% form; Showdown's default sprite is 50%) ─────
-    'zygarde':                      'zygarde-10',
     // ── Alternate forms ───────────────────────────────────────────────────────
     'wormadam (plant cloak)':       'wormadam',
     'wormadam (sandy cloak)':       'wormadam-sandy',
