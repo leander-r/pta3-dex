@@ -12,7 +12,7 @@ const pokemon = data.pokemon;
 // Entries added manually (Forces of Nature, Remote Isles birds) are
 // inserted next to their closest relatives in the GMG sequence.
 const GMG_ORDER = [
-    'Type: Null', 'Silvally', 'Genesect', 'Mewtwo',
+    'Type: Null', 'Silvally', 'Genesect', 'Mew', 'Mewtwo',
     'Great Tusk', 'Brute Bonnet', 'Slither Wing', 'Roaring Moon',
     'Iron Bundle', 'Iron Jugulis', 'Iron Thorns',
     'Pheromosa', 'Kartana', 'Blacephalon',
@@ -47,7 +47,7 @@ const GMG_ORDER = [
     'Kyogre', 'Reshiram', 'Kyurem', 'Xerneas',
     'Dialga', 'Palkia', 'Giratina',
     'Eternatus', 'Arceus',
-    'Magearna', 'Mew',
+    'Magearna',
     'Scream Tail', 'Flutter Mane', 'Sandy Shocks',
     'Iron Treads', 'Iron Hands', 'Iron Moth', 'Iron Valiant',
     'Nihilego', 'Xurkitree', 'Guzzlord', 'Poipole',
