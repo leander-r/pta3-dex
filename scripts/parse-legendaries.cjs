@@ -341,6 +341,21 @@ function main() {
     const pokedex = JSON.parse(fs.readFileSync(POKEDEX, 'utf8'));
     const existingSpecies = new Set(pokedex.pokemon.map(p => p.species.toLowerCase()));
 
+    // Species name remaps: parser extracts these with form suffixes (e.g. "Altered Form")
+    // but the canonical base species name is the simpler form.
+    const NAME_REMAP = {
+        'dialga altered form': 'Dialga',
+        'palkia altered form': 'Palkia',
+        'giratina altered form': 'Giratina',
+    };
+
+    // Origin Forms: stored as megaForms on their base species, not standalone.
+    const ORIGIN_FORM_BASE = {
+        'dialga origin form': 'Dialga',
+        'palkia origin form': 'Palkia',
+        'giratina origin form': 'Giratina',
+    };
+
     // Species that should be skipped as standalone entries because they are
     // stored as megaForms on their base species (manually patched in pokedex.min.json).
     const SKIP_STANDALONE = new Set(['mega mewtwo x', 'mega mewtwo y']);
@@ -348,8 +363,27 @@ function main() {
     let added = 0;
     let flagged = 0;
     for (const entry of all) {
-        const key = entry.species.toLowerCase();
-        if (SKIP_STANDALONE.has(key)) continue; // handled as megaForms on Mewtwo
+        let key = entry.species.toLowerCase();
+
+        // Apply name remap (e.g. "Dialga Altered Form" → "Dialga")
+        const remappedName = NAME_REMAP[key];
+        if (remappedName) { entry.species = remappedName; key = remappedName.toLowerCase(); }
+
+        // Origin Forms: attach to base species megaForms instead of standalone
+        const originBase = ORIGIN_FORM_BASE[key];
+        if (originBase) {
+            const base = pokedex.pokemon.find(p => p.species === originBase);
+            if (base) {
+                if (!base.megaForms) base.megaForms = [];
+                const alreadyHas = base.megaForms.some(f => f.name === 'Origin Form');
+                if (!alreadyHas) {
+                    base.megaForms.push({ name: 'Origin Form', types: entry.types, stats: entry.stats, speedFt: entry.speedFt });
+                }
+            }
+            continue; // Don't add as standalone
+        }
+
+        if (SKIP_STANDALONE.has(key)) continue; // handled as megaForms on their base species
         if (existingSpecies.has(key)) {
             // Flag existing entry as legendary
             const existing = pokedex.pokemon.find(p => p.species.toLowerCase() === key);
