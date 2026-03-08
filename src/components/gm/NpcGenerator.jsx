@@ -3,6 +3,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useGameData } from '../../contexts/index.js';
 import toast from '../../utils/toast.js';
 
 const NPC_STATS = {
@@ -46,10 +47,19 @@ const STAT_LABELS = { atk: 'ATK', def: 'DEF', satk: 'SATK', sdef: 'SDEF', spd: '
 const NpcGenerator = () => {
     const [tier, setTier] = useState('junior');
     const [trainerClass, setTrainerClass] = useState('Ace Trainer');
+    const { GAME_DATA } = useGameData();
 
     const classes = Object.keys(NPC_STATS[tier]);
     const selectedClass = classes.includes(trainerClass) ? trainerClass : classes[0];
     const stats = NPC_STATS[tier][selectedClass];
+
+    const classFeatures = Object.entries(GAME_DATA.features || {})
+        .filter(([, f]) => f.category === selectedClass)
+        .sort(([, a], [, b]) => {
+            const lvA = parseInt((a.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99);
+            const lvB = parseInt((b.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99);
+            return lvA - lvB;
+        });
 
     const copyToClipboard = () => {
         const lines = [
@@ -151,6 +161,28 @@ const NpcGenerator = () => {
                         ))}
                     </div>
                 </div>
+
+                {classFeatures.length > 0 && (
+                    <details style={{ marginTop: '14px' }}>
+                        <summary style={{ cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)', padding: '4px 0' }}>
+                            ▸ {selectedClass} Features ({classFeatures.length})
+                        </summary>
+                        <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {classFeatures.map(([name, f]) => (
+                                <div key={name} style={{ padding: '8px 10px', background: 'var(--bg-section)', borderRadius: '6px', fontSize: '12px' }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>
+                                        {name}
+                                        <span style={{ marginLeft: '6px', fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'normal' }}>
+                                            {f.prerequisites}
+                                            {f.frequency && ` · ${f.frequency}`}
+                                        </span>
+                                    </div>
+                                    <div style={{ color: 'var(--text-muted)', lineHeight: 1.5 }}>{f.effect}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </details>
+                )}
             </div>
         </div>
     );

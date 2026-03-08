@@ -28,7 +28,7 @@ const ReferenceTab = () => {
         { id: 'moves', label: 'Moves Database' },
         { id: 'abilities', label: 'Abilities' },
         { id: 'rules', label: 'Game Rules' },
-        { id: 'honors', label: 'Level Chart' }
+        { id: 'honors', label: 'Honor Thresholds' }
     ];
 
     return (

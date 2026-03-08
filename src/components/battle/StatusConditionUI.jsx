@@ -1,14 +1,14 @@
 import React from 'react';
 
 const CONDITIONS = [
-    { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336' },
-    { key: 'frozen',    label: 'Frozen',    icon: '🧊', color: '#42a5f5' },
-    { key: 'paralyzed', label: 'Paralyzed', icon: '⚡', color: '#ffc107' },
-    { key: 'poisoned',  label: 'Poisoned',  icon: '☠️', color: '#9c27b0' },
-    { key: 'asleep',    label: 'Asleep',    icon: '💤', color: '#607d8b' },
-    { key: 'confused',  label: 'Confused',  icon: '💫', color: '#ff9800' },
-    { key: 'flinched',  label: 'Flinched',  icon: '😵', color: '#795548' },
-    { key: 'fainted',   label: 'Fainted',   icon: '✖',  color: '#333'    },
+    { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336', desc: 'ATK −2. Takes 2 damage at end of each round.' },
+    { key: 'frozen',    label: 'Frozen',    icon: '🧊', color: '#42a5f5', desc: 'Cannot use moves. Thaws on 1/6 roll (1 on d6) at start of turn or when hit by Fire.' },
+    { key: 'paralyzed', label: 'Paralyzed', icon: '⚡', color: '#ffc107', desc: 'SPD halved. 1/6 chance to fail action each turn (1 on d6).' },
+    { key: 'poisoned',  label: 'Poisoned',  icon: '☠️', color: '#9c27b0', desc: 'Takes increasing poison damage at end of each round (1, 2, 3, … per round).' },
+    { key: 'asleep',    label: 'Asleep',    icon: '💤', color: '#607d8b', desc: 'Cannot act. Wakes on 1/6 roll (1 on d6) at start of turn.' },
+    { key: 'confused',  label: 'Confused',  icon: '💫', color: '#ff9800', desc: 'When using a damaging move, roll 1d6: on a 1 hits itself instead.' },
+    { key: 'flinched',  label: 'Flinched',  icon: '😵', color: '#795548', desc: 'Cannot use moves this turn. Wears off at end of round.' },
+    { key: 'fainted',   label: 'Fainted',   icon: '✖',  color: '#333',    desc: 'HP reduced to 0. Out of battle until healed.' },
 ];
 
 const StatusConditionUI = ({ selectedPokemon, updatePokemon }) => {
@@ -38,7 +38,7 @@ const StatusConditionUI = ({ selectedPokemon, updatePokemon }) => {
                                 fontWeight: isActive ? 'bold' : 'normal',
                                 transition: 'all 0.15s ease'
                             }}
-                            title={`Toggle ${cond.label}`}
+                            title={`${cond.label}: ${cond.desc}`}
                         >
                             {cond.icon} {cond.label}
                         </button>

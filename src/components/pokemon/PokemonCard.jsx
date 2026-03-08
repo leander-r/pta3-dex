@@ -31,14 +31,14 @@ const SPECIAL_FORM_INFO = {
 };
 
 const STATUS_CONDITIONS = [
-    { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336' },
-    { key: 'frozen',    label: 'Frozen',    icon: '🧊', color: '#42a5f5' },
-    { key: 'paralyzed', label: 'Paralyzed', icon: '⚡', color: '#ffc107' },
-    { key: 'poisoned',  label: 'Poisoned',  icon: '☠️', color: '#9c27b0' },
-    { key: 'asleep',    label: 'Asleep',    icon: '💤', color: '#607d8b' },
-    { key: 'confused',  label: 'Confused',  icon: '💫', color: '#ff9800' },
-    { key: 'flinched',  label: 'Flinched',  icon: '😵', color: '#795548' },
-    { key: 'fainted',   label: 'Fainted',   icon: '✖',  color: '#333'    },
+    { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336', desc: 'ATK −2. Takes 2 damage at the end of each round.' },
+    { key: 'frozen',    label: 'Frozen',    icon: '🧊', color: '#42a5f5', desc: 'Cannot use moves. Thaws on a 1/6 roll (1 on d6) at the start of each turn, or when hit by a Fire-type move.' },
+    { key: 'paralyzed', label: 'Paralyzed', icon: '⚡', color: '#ffc107', desc: 'SPD halved. 1/6 chance to fail action each turn (roll 1 on d6).' },
+    { key: 'poisoned',  label: 'Poisoned',  icon: '☠️', color: '#9c27b0', desc: 'Takes poison damage at the end of each round; damage increases by 1 each round (1, 2, 3, ...).' },
+    { key: 'asleep',    label: 'Asleep',    icon: '💤', color: '#607d8b', desc: 'Cannot act. Wakes on a 1/6 roll (1 on d6) at the start of each turn.' },
+    { key: 'confused',  label: 'Confused',  icon: '💫', color: '#ff9800', desc: 'When using a damaging move, roll 1d6: on a 1, the Pokémon hits itself instead.' },
+    { key: 'flinched',  label: 'Flinched',  icon: '😵', color: '#795548', desc: 'Cannot use moves this turn. Wears off at the end of the round.' },
+    { key: 'fainted',   label: 'Fainted',   icon: '✖',  color: '#333',    desc: 'HP reduced to 0. Out of battle until healed.' },
 ];
 
 const PokemonCard = ({
@@ -555,10 +555,11 @@ const PokemonCard = ({
                             return (
                                 <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
                                     {active.map(c => (
-                                        <span key={c.key} style={{
+                                        <span key={c.key} title={c.desc} style={{
                                             padding: '1px 6px', borderRadius: '10px',
                                             background: c.color, color: 'white',
-                                            fontSize: '10px', fontWeight: 'bold'
+                                            fontSize: '10px', fontWeight: 'bold',
+                                            cursor: 'help'
                                         }}>
                                             {c.icon} {c.label}
                                         </span>
@@ -587,6 +588,9 @@ const PokemonCard = ({
                                 <span style={{ fontSize: '12px', fontWeight: 'bold', color: currentHP / maxHP > 0.5 ? '#4caf50' : currentHP / maxHP > 0.25 ? '#ff9800' : '#f44336', minWidth: '55px' }}>
                                     {currentHP}/{maxHP}
                                 </span>
+                                {/* Quick HP controls */}
+                                <button onClick={(e) => { e.stopPropagation(); updatePokemon(pokemon.id, { currentDamage: Math.min(maxHP, (pokemon.currentDamage || 0) + 1) }); }} disabled={(pokemon.currentDamage || 0) >= maxHP} title="Take 1 damage" style={{ padding: '1px 6px', fontSize: '11px', fontWeight: 'bold', background: '#f4433618', color: '#f44336', border: '1px solid #f4433644', borderRadius: '4px', cursor: 'pointer', opacity: (pokemon.currentDamage || 0) >= maxHP ? 0.4 : 1, flexShrink: 0 }}>−1</button>
+                                <button onClick={(e) => { e.stopPropagation(); updatePokemon(pokemon.id, { currentDamage: Math.max(0, (pokemon.currentDamage || 0) - 1) }); }} disabled={!(pokemon.currentDamage || 0)} title="Heal 1 HP" style={{ padding: '1px 6px', fontSize: '11px', fontWeight: 'bold', background: '#4caf5018', color: '#4caf50', border: '1px solid #4caf5044', borderRadius: '4px', cursor: 'pointer', opacity: !(pokemon.currentDamage || 0) ? 0.4 : 1, flexShrink: 0 }}>+1</button>
                             </div>
                             <span className="text-muted" style={{ fontSize: '12px' }}>
                                 {pokemon.nature || 'Hardy'} Nature
@@ -656,7 +660,7 @@ const PokemonCard = ({
                                         gap: '4px'
                                     }}
                                 >
-                                    <span>⚔️</span> Moves ({(pokemon.moves || []).length})
+                                    <span>⚔️</span> Moves ({(pokemon.moves || []).length}/{MAX_TOTAL_MOVES})
                                 </button>
                             )}
                             {/* Skills Button */}

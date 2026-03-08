@@ -162,6 +162,11 @@ const TrainerStats = () => {
                                 All milestone rolls used
                             </span>
                         )}
+                        {milestonesReached === 0 && (
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                                +1d4 HP at Lv 3, 7 & 11
+                            </span>
+                        )}
                     </div>
 
                     {/* 5 Stats Grid */}
@@ -233,6 +238,24 @@ const TrainerStats = () => {
                                 </div>
                             );
                         })}
+                    </div>
+
+                    {/* Level-up prompt */}
+                    {(trainer.levelStatPoints || 0) > 0 && (
+                        <div style={{ marginBottom: '8px', padding: '6px 10px', borderRadius: '6px', background: '#e6510015', border: '2px solid #e6510055', fontSize: '12px', color: '#e65100', fontWeight: '600' }}>
+                            ⬆ Level-up: raise <strong>one</strong> stat by 1 point ({trainer.levelStatPoints} point{trainer.levelStatPoints > 1 ? 's' : ''} remaining). Each stat can only be raised once per level-up.
+                        </div>
+                    )}
+
+                    {/* Point-buy cost legend */}
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', padding: '4px 8px', background: 'var(--bg-light, #f5f5f5)', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 'bold' }}>Point cost:</span>
+                        <span>1–6 → 1pt each</span>
+                        <span style={{ opacity: 0.5 }}>|</span>
+                        <span>7–8 → 2pts each</span>
+                        <span style={{ opacity: 0.5 }}>|</span>
+                        <span>9–10 → 3pts each</span>
+                        <span style={{ opacity: 0.5, marginLeft: 'auto' }}>Modifier = ⌊stat÷2⌋</span>
                     </div>
 
                     {/* Armor Bonuses (from equipped items) */}

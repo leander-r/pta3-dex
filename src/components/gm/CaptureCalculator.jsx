@@ -213,18 +213,36 @@ const CaptureCalculator = () => {
                 🎲 Roll d100
             </button>
 
-            {/* Modifier breakdown */}
-            <details style={{ marginTop: '12px' }}>
-                <summary style={{ cursor: 'pointer', fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold' }}>Show modifier breakdown</summary>
-                <div style={{ marginTop: '8px', fontSize: '12px', padding: '10px', background: 'var(--input-bg)', borderRadius: '6px' }}>
-                    <div>Base ({RARITY_LABELS[rarity]}, Stage {stage + 1}): <strong>{BASE_RATES[rarity][stage]}</strong></div>
-                    <div>HP: <strong>{HP_MODS[hpMod].mod >= 0 ? '+' : ''}{HP_MODS[hpMod].mod}</strong></div>
-                    <div>Status: <strong>{STATUS_MODS[statusMod].mod >= 0 ? '+' : ''}{STATUS_MODS[statusMod].mod}</strong></div>
-                    <div>Initiative: <strong>{INITIATIVE_MODS[initMod].mod >= 0 ? '+' : ''}{INITIATIVE_MODS[initMod].mod}</strong></div>
-                    <div>Ball: <strong>{POKEBALL_MODS[ball] >= 999 ? 'auto' : POKEBALL_MODS[ball] >= 0 ? `+${POKEBALL_MODS[ball]}` : POKEBALL_MODS[ball]}</strong></div>
-                    <div style={{ marginTop: '6px', fontWeight: 'bold', borderTop: '1px solid var(--border-light)', paddingTop: '6px' }}>Total: {target} → clamped to {clampedTarget}</div>
+            {/* Modifier breakdown — always visible */}
+            <div style={{ marginTop: '12px', fontSize: '12px', padding: '10px', background: 'var(--input-bg)', borderRadius: '6px', border: '1px solid var(--border-light)' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-secondary)' }}>Target breakdown (roll d100, succeed if ≤ target)</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Base ({RARITY_LABELS[rarity]}, Stage {stage + 1})</span>
+                        <strong>{BASE_RATES[rarity][stage]}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>HP ({HP_MODS[hpMod].label})</span>
+                        <strong style={{ color: HP_MODS[hpMod].mod >= 0 ? '#4caf50' : '#f44336' }}>{HP_MODS[hpMod].mod >= 0 ? '+' : ''}{HP_MODS[hpMod].mod}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Status ({STATUS_MODS[statusMod].label})</span>
+                        <strong style={{ color: STATUS_MODS[statusMod].mod >= 0 ? '#4caf50' : '#f44336' }}>{STATUS_MODS[statusMod].mod >= 0 ? '+' : ''}{STATUS_MODS[statusMod].mod}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Initiative ({INITIATIVE_MODS[initMod].label})</span>
+                        <strong style={{ color: INITIATIVE_MODS[initMod].mod >= 0 ? '#4caf50' : '#f44336' }}>{INITIATIVE_MODS[initMod].mod >= 0 ? '+' : ''}{INITIATIVE_MODS[initMod].mod}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Poké Ball ({ball})</span>
+                        <strong style={{ color: POKEBALL_MODS[ball] >= 999 ? '#f9a825' : POKEBALL_MODS[ball] >= 0 ? '#4caf50' : '#f44336' }}>{POKEBALL_MODS[ball] >= 999 ? 'auto' : POKEBALL_MODS[ball] >= 0 ? `+${POKEBALL_MODS[ball]}` : POKEBALL_MODS[ball]}</strong>
+                    </div>
+                    <div style={{ marginTop: '4px', paddingTop: '6px', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                        <span>Target (clamped 1–99)</span>
+                        <span>{clampedTarget}</span>
+                    </div>
                 </div>
-            </details>
+            </div>
         </div>
     );
 };

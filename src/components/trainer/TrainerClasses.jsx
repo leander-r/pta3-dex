@@ -255,6 +255,10 @@ const TrainerClasses = () => {
                 Classes unlock features and skill talents. Lv 1: 1 class | Lv 3: 2 | Lv 7: 3 | Lv 11: 4.
                 Level 1 features are granted automatically when a class is taken.
             </p>
+            <div style={{ fontSize: '11px', padding: '6px 10px', borderRadius: '6px', background: '#f5a62312', border: '1px solid #f5a62344', marginBottom: '10px', lineHeight: 1.6 }}>
+                <span style={{ fontWeight: 'bold', color: '#e8941c' }}>🥇 Primary base class</span> — earns 2 skill talents and gains the Level 15 capstone feature.{' '}
+                <span style={{ fontWeight: 'bold', color: '#4caf50' }}>Secondary base class</span> — only 1 talent; Level 15 capstone is <em>not</em> available.
+            </div>
 
             {/* Current Classes */}
             {currentClasses.length > 0 && (
