@@ -435,7 +435,9 @@ const BattleTab = () => {
         const statKey = isPhysical ? 'atk' : 'satk'; // stat used for damage
         // PTA3: Physical → ATK accuracy mod vs DEF; Special → SATK mod vs SDEF; Status → EFF mod vs SPD
         const accModKey = isPhysical ? 'atk' : category === 'Status' ? 'eff' : 'satk';
-        const statMod = applyCombatStage(actualStats[statKey] || 0, combatStages[statKey] || 0);
+        // PTA3: combat stages adjust the full stat; damage modifier = ⌊adjusted_stat/2⌋
+        const adjustedStat = applyCombatStage(actualStats[statKey] || 0, combatStages[statKey] || 0);
+        const statMod = Math.floor(adjustedStat / 2);
 
         // PTA3: accuracy = 1d20 + acc combat stages + Pokémon's accuracy bonus (from Pokédex)
         const accStageMod = combatStages.acc || 0;
@@ -468,10 +470,10 @@ const BattleTab = () => {
         // Collect non-zero combat stages relevant to this roll
         const statLabel = isPhysical ? 'ATK' : 'SATK';
         const baseStatVal = actualStats[statKey] || 0;
-        const statBonus = statMod - baseStatVal; // actual stat change from combat stage
+        const stageBonus = adjustedStat - baseStatVal; // raw stat change from combat stages
         const relevantStages = [
             combatStages.acc ? { label: 'ACC', stage: combatStages.acc, bonus: combatStages.acc, isFlat: true } : null,
-            diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey], bonus: statBonus, base: baseStatVal, boosted: statMod } : null,
+            diceData.count > 0 && combatStages[statKey] ? { label: statLabel, stage: combatStages[statKey], bonus: stageBonus, base: baseStatVal, boosted: adjustedStat } : null,
         ].filter(Boolean);
 
         if (diceData.count === 0 && diceData.flat === 0) {
