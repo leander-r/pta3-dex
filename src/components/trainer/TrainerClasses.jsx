@@ -141,6 +141,12 @@ const TrainerClasses = () => {
             return;
         }
 
+        // PTA3: first class must be a base class
+        if (currentClasses.length === 0 && GAME_DATA.trainerClasses?.[cls]?.type !== 'base') {
+            toast.warning('Your first class must be a Base class.');
+            return;
+        }
+
         setPendingClass(cls);
         setSelectedClassSkills([]);
         select.value = '';
@@ -416,11 +422,11 @@ const TrainerClasses = () => {
                                     <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
                                 ))}
                         </optgroup>
-                        <optgroup label="━━ Advanced Classes ━━">
+                        <optgroup label={currentClasses.length === 0 ? '━━ Advanced Classes (pick a Base class first) ━━' : '━━ Advanced Classes ━━'}>
                             {Object.entries(GAME_DATA.trainerClasses || {})
                                 .filter(([_, data]) => data.type === 'advanced')
                                 .map(([cls]) => (
-                                    <option key={cls} value={cls} disabled={currentClasses.includes(cls)}>{cls}</option>
+                                    <option key={cls} value={cls} disabled={currentClasses.includes(cls) || currentClasses.length === 0}>{cls}</option>
                                 ))}
                         </optgroup>
                     </select>
