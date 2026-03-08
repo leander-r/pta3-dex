@@ -91,6 +91,10 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'jangmo-o':                     'jangmoo',
     'hakamo-o':                     'hakamoo',
     'kommo-o':                      'kommoo',
+    // ── Remote Isles (Galarian) legendary birds ────────────────────────────────
+    'articuno (remote isles)':  'articuno-galar',
+    'zapdos (remote isles)':    'zapdos-galar',
+    'moltres (remote isles)':   'moltres-galar',
     // ── Legendary & Paradox Pokémon (spaces/hyphens removed on Showdown) ─────
     'type: null':       'typenull',
     'great tusk':       'greattusk',
