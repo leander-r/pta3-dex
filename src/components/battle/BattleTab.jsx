@@ -24,11 +24,12 @@ import DiscordWebhookConfig from './DiscordWebhookConfig.jsx';
 // Zygarde's forms are now stored in pokedex.min.json megaForms, so no overrides needed here.
 const BATTLE_FORM_CHANGES = {};
 
-// PTA3 HB1 pp.106-109: only Stealth and Tracker have explicit skill check rules.
+// PTA3 HB1 pp.106-109: only these three capabilities have explicit skill check rules.
 // All other capabilities are passive/movement and cannot be rolled.
 const POKEMON_CAPABILITY_STAT = {
-    'Stealth': 'spd',   // HB1: "adding their Speed modifier"
-    'Tracker': 'satk',  // HB1: "adding their Special Attack modifier"
+    'Stealth': 'spd',   // HB1: stealth check, "adding their Speed modifier"
+    'Tracker': 'satk',  // HB1: investigate check, "adding their Special Attack modifier"
+    'Wired':   'satk',  // HB1: programming check, "adding their Special Attack modifier"
 };
 const getPokemonCapabilityStat = (capabilityName) =>
     POKEMON_CAPABILITY_STAT[capabilityName] ?? 'spd';
@@ -1006,7 +1007,7 @@ const BattleTab = () => {
                                         if (selectedPokemon && rollableSkills.length === 0) {
                                             return (
                                                 <div style={{ padding: '12px', borderRadius: '6px', background: 'var(--bg-secondary)', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
-                                                    This Pokémon has no rollable capabilities (Stealth or Tracker).
+                                                    This Pokémon has no rollable capabilities (Stealth, Tracker, or Wired).
                                                 </div>
                                             );
                                         }
