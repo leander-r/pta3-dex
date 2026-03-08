@@ -14,6 +14,7 @@ new PTA3 books. This plan adapts every mechanical rule and data set to the new v
 | Trainer HP | `(hp_stat × 4) + (level × 4)` | Fixed **20**, +1d4 at levels 3 / 7 / 11 |
 | Stat modifier | `stat − 10` / `⌊(stat−10)/2⌋` | `⌊stat / 2⌋` |
 | Leveling | EXP, max 50 | **Honors** (Gym Badges, Ribbons…), max 15 |
+| Stat increase | every level | **+1 to two different stats only at Lv 3 / 7 / 11** (HB1: "You only gain new stats at levels 3, 7, and 11") |
 | Class unlocks | Lv 5 / 12 / 24 | **Lv 3 / 7 / 11** |
 | Trainer classes | 3 placeholders | 7 base (5 HB1 + 2 HB2) × 5 advanced each |
 | Trainer skills | 24 skills, 2d6 + rank bonus | **18 skills**, 1d20 + talent bonus (+2/+5) |

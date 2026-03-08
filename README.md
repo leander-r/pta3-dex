@@ -11,21 +11,23 @@ This tool replaces spreadsheets and manual note-taking with a clean, interactive
 ## Features
 
 ### Trainer Management
-- **Profile & Stats** — Name, age, level, gender, and five core stats (ATK, DEF, SATK, SDEF, SPD) on a 1–10 scale with point-buy creation tracking (25 pts) and level-up stat points
+- **Profile & Stats** — Name, age, level, gender, and five core stats (ATK, DEF, SATK, SDEF, SPD) on a 1–10 scale with point-buy creation tracking (25 pts)
 - **HP** — Base 20 HP; rolls a 1d4 bonus at milestone levels 3, 7, and 11
+- **Stat Increases** — At levels 3, 7, and 11, raise two different stats by 1 each
 - **Modifier** — `⌊stat / 2⌋` displayed alongside each stat
-- **Classes & Features** — Up to four trainer classes (unlocked at Lv 1 / 3 / 7 / 11) chosen from 7 base and 35 advanced classes; skill picker for class-granted skill talents
+- **Classes & Features** — Up to four trainer classes (unlocked at Lv 1 / 3 / 7 / 11) chosen from 7 base and 35 advanced classes; 509 class features from both handbooks
 - **Skills** — 18 PTA3 skills grouped by stat; talent bonus: 0 talents → +0, 1 talent → +2, 2 talents → +5; Concentration and Constitution are passive
 - **Honor Leveling** — Gain honors (gym badges, ribbons, etc.) to advance; max level 15
+- **Equipment** — Equip armor, weapons, and clothing from the item database; stat bonuses applied automatically
 - **Badges** — Track gym badges
 - **Money** — Track Pokédollars (₽)
-- **Stat Undo** — Step back the last stat change during allocation
 
 ### Pokémon Team
 - **Party & Reserve** — Up to 6 active Pokémon plus an unlimited reserve box
 - **Stats from Pokédex** — All base stats (HP, ATK, DEF, SATK, SDEF, SPD) are fixed species values from the Pokédex; no per-level allocation
 - **Nature Modifier** — ±1 to one stat; displayed with color highlight
 - **Move Management** — Single pool of up to 6 moves (no natural/taught distinction); move-learning modal with frequency labels (At-Will / 3/day / 1/day)
+- **Special Forms** — Alpha, Totem, Titan, Shadow, and Purified variants with unique mechanics; shiny cosmetic toggle
 - **Evolution Tracking** — View evolution chains; one-click evolve and devolve
 - **Abilities** — Basic, Advanced, and Hidden abilities per species
 - **Regional Forms** — Alolan, Galarian, Hisuian, and Paldean forms with correct sprites
@@ -37,6 +39,9 @@ This tool replaces spreadsheets and manual note-taking with a clean, interactive
 - **Combat Stages** — Track stat modifiers (−6 to +6) per Pokémon; each stage = flat ±2 to stat
 - **HP Tracking** — Current HP and damage for each party member
 - **STAB** — Fixed +4 bonus applied automatically
+- **Z-Moves** — Activate Z-Move for a one-time powered-up attack (1/battle); species-specific Z-Moves supported
+- **Dynamax / Gigantamax** — Double HP scaling, Max Move table, Gigantamax form visuals (1/battle)
+- **Terastallization** — Tera Type selector per Pokémon; Tera Blast uses typed STAB
 - **Discord Integration** — Send roll results to a channel via webhook
 
 ### Inventory
@@ -44,8 +49,16 @@ This tool replaces spreadsheets and manual note-taking with a clean, interactive
 - **Item Database** — Browse and search the full PTA item database
 - **Category Filters** — Filter by item type (Healing, Poké Balls, Held Items, etc.)
 
+### GM Tools
+- **Capture Calculator** — Dynamic catch rate based on Pokémon rarity, HP %, and ball type
+- **Encounter Guide** — Special encounter types (Alpha, Totem, Titan, Shadow, Purified) with full mechanics; wild nature roller
+- **Rewards & Loot** — Filler encounter tables and reward guidelines by level range
+- **Gym Guide** — Badge-count difficulty scaling, Gym Leader stat passives, Elite Four passives, and trainer features
+- **NPC Stat Blocks** — Instant stat block generator for Junior, Experienced, and Veteran NPC trainers across 7 classes
+- **Contest Tracker** — Heart Points grid, Star Points awards, and NPC competitor d20 roller for all 5 contest types
+
 ### Quick Reference
-- **Pokédex Browser** — Look up any of 962 species' base stats, capabilities, passives, and moves (with type, frequency, and damage); search by name or filter by type
+- **Pokédex Browser** — Look up any of 1084 species' base stats, capabilities, passives, and moves (with type, frequency, and damage); legendary entries marked with ⭐; search by name or filter by type
 - **Type Chart** — Interactive type effectiveness chart
 - **Natures** — All 25 natures with ±1 modifier reference
 - **Moves Database** — Searchable and filterable database of all moves
@@ -80,6 +93,7 @@ This tool replaces spreadsheets and manual note-taking with a clean, interactive
 | Creation cap | 6 per stat |
 | Stat modifier | `⌊stat / 2⌋` |
 | Trainer HP | 20 base + 1d4 at Lv 3 / 7 / 11 |
+| Stat increase | +1 to two different stats, only at Lv 3 / 7 / 11 |
 | Class slots | Lv 1 / 3 / 7 / 11 |
 | Max trainer level | 15 (honor-based) |
 | Skill check | 1d20 + modifier + talent bonus (+2 or +5) |
@@ -143,8 +157,7 @@ npm run test:e2e   # end-to-end tests (Playwright)
 2. Set your trainer's name, age, and gender
 3. Allocate the 25 creation stat points using point-buy (max 6 per stat at creation)
 4. Add a trainer class; pick your class-granted skill talents in the skill picker
-5. Level up to spend +2 level stat points per level (no per-stat cap, max 10 per stat)
-6. Roll HP bonuses automatically at levels 3, 7, and 11
+5. At levels 3, 7, and 11 raise two different stats by 1 each, and roll a 1d4 HP bonus
 
 ### Adding Pokémon to Your Team
 
@@ -187,6 +200,7 @@ pta3-dex/
 │   ├── components/
 │   │   ├── battle/        # Dice roller & combat tools
 │   │   ├── common/        # Header, navigation, modals container
+│   │   ├── gm/            # GM Tools (capture, encounter, rewards, gym, NPC, contest)
 │   │   ├── inventory/     # Item management
 │   │   ├── modals/        # All modal dialogs
 │   │   ├── notes/         # Campaign notes
@@ -198,9 +212,9 @@ pta3-dex/
 │   ├── hooks/             # Custom React hooks
 │   ├── styles/            # Global CSS
 │   └── utils/             # Utility functions (sprites, export, migration…)
-├── scripts/               # Data generation (Pokédex PDF parser)
-├── pokedex.min.json       # 962 Pokémon species entries (PTA3 format)
-├── pta-game-data.min.json # PTA3 rules data (natures, skills, classes…)
+├── scripts/               # Data generation scripts (Pokédex & legendary parsers)
+├── pokedex.min.json       # 1084 Pokémon species entries (PTA3 format, incl. legendaries)
+├── pta-game-data.min.json # PTA3 rules data (natures, skills, classes, 509 features…)
 └── index.html
 ```
 
