@@ -296,6 +296,45 @@ const SpeciesDetail = ({ species }) => {
                 </DetailSection>
             )}
 
+            {/* Mega Forms */}
+            {species.megaForms?.length > 0 && (
+                <DetailSection last={!hasEvo}>
+                    <SectionLabel>Mega Forms</SectionLabel>
+                    {species.megaForms.map((form, fi) => (
+                        <div key={fi} style={{ marginBottom: fi < species.megaForms.length - 1 ? '18px' : 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <span style={{ fontWeight: 700, fontSize: '13px' }}>{form.name}</span>
+                                {form.types?.map(t => <TypeChip key={t} type={t} />)}
+                                {form.speedFt && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{form.speedFt}ft</span>}
+                            </div>
+                            {form.stats && STAT_KEYS.map((key, i) => (
+                                <StatBar key={key} label={STAT_LABELS[i]} statKey={key} value={form.stats[key] || 0} />
+                            ))}
+                            {form.additionalSkills?.length > 0 && (
+                                <div style={{ marginTop: '6px' }}>
+                                    <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>Additional Capabilities</div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                        {form.additionalSkills.map((sk, i) => <Chip key={i} label={sk} />)}
+                                    </div>
+                                </div>
+                            )}
+                            {form.moves?.length > 0 && (
+                                <div style={{ marginTop: '6px' }}>
+                                    <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>Additional Moves</div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                        {form.moves.map((m, i) => (
+                                            <span key={i} style={{ fontSize: '11px', background: 'var(--poke-gray)', border: '1px solid var(--border-light)', color: 'var(--text-primary)', borderRadius: '6px', padding: '3px 8px', fontWeight: 500 }}>
+                                                {m.name} <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{m.frequency} {m.damage || ''}</span>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </DetailSection>
+            )}
+
             {/* Evolution */}
             {hasEvo && (
                 <DetailSection last>
