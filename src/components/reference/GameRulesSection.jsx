@@ -121,7 +121,7 @@ const GameRulesSection = () => {
                     <ul>
                         <li>Levels advance by earning <strong>Honors</strong> (Gym Badges, Ribbons, etc.)</li>
                         <li>Max level: <strong>15</strong></li>
-                        <li>Each level: +2 stat points</li>
+                        <li>Stat increase (+1 to two different stats) only at levels <strong>3, 7, and 11</strong></li>
                         <li>Class slots: 1st at Lv1 | 2nd at Lv3 | 3rd at Lv7 | 4th at Lv11</li>
                         <li>HP milestone rolls (1d4) at levels <strong>3, 7, and 11</strong></li>
                     </ul>
