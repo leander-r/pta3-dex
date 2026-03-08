@@ -2,7 +2,7 @@
 // Trainer Skills Component (PTA3)
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTrainerContext, useGameData, useModal, useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
@@ -70,6 +70,18 @@ const TrainerSkills = () => {
             return { ...prev, skills: { ...skillsObj, [skillName]: newTalents } };
         });
     };
+
+    // Skills available from the trainer's current class pools
+    const classPoolSkills = useMemo(() => {
+        const pool = new Set();
+        (trainer.classes || []).forEach(cls => {
+            const classData = GAME_DATA.trainerClasses?.[cls];
+            const skills = classData?.skillPool;
+            if (skills?.length) skills.forEach(s => pool.add(s));
+            else Object.keys(GAME_DATA.skills || {}).forEach(s => pool.add(s)); // open pool
+        });
+        return pool;
+    }, [trainer.classes, GAME_DATA.trainerClasses, GAME_DATA.skills]);
 
     // Group skills by stat
     const skillsByStat = SKILL_STATS.reduce((acc, stat) => {
@@ -150,6 +162,7 @@ const TrainerSkills = () => {
                                         const isPassive = skill.type === 'passive';
                                         const maxTalents = isPassive ? 1 : 2;
                                         const bonus = getSkillCheckBonus(statValue, talents);
+                                        const inClassPool = classPoolSkills.size > 0 && classPoolSkills.has(skill.name);
 
                                         return (
                                             <div
@@ -202,6 +215,11 @@ const TrainerSkills = () => {
                                                     )}
                                                 </span>
 
+                                                {!isTrained && inClassPool && (
+                                                    <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: '8px', background: '#667eea22', color: '#667eea', border: '1px solid #667eea44', flexShrink: 0 }} title="In your class skill pool — can be taken when adding a class">
+                                                        pool
+                                                    </span>
+                                                )}
                                                 {isTrained && (
                                                     <span style={{
                                                         fontSize: '12px',

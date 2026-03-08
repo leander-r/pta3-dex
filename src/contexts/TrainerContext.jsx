@@ -690,7 +690,12 @@ export const TrainerProvider = ({ children }) => {
         const newTrainerDmg = Math.max(0, trainerCurrentDmg - roll);
         setTrainer(prev => ({ ...prev, currentDamage: newTrainerDmg, dailyBonusUsed: '' }));
 
-        const lines = [`Trainer healed ${roll} HP (rolled 1d6; ${maxHp - trainerCurrentDmg + trainerHeal}/${maxHp} HP)`];
+        const trainerHpAfter = maxHp - newTrainerDmg;
+        const lines = [
+            trainerHeal > 0
+                ? `Trainer healed ${trainerHeal} HP (rolled ${roll} on 1d6; ${trainerHpAfter}/${maxHp} HP)`
+                : `Trainer already at full HP (rolled ${roll} on 1d6)`,
+        ];
         if (allPokemonWithMaxHp && updateAllPokemon) {
             allPokemonWithMaxHp.forEach(({ pokemon: p, maxHp: pMax }) => {
                 const heal = Math.floor(pMax / 6);

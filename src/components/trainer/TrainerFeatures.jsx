@@ -113,6 +113,13 @@ const TrainerFeatures = () => {
                     title="About trainer features"
                 >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {pendingFeatureDrop && (
+                        <span
+                            onClick={(e) => { e.stopPropagation(); setCollapsed(false); }}
+                            style={{ fontSize: '11px', fontWeight: 'bold', color: '#e65100', background: '#fff3e0', border: '2px solid #f57c00', borderRadius: '10px', padding: '1px 8px', cursor: 'pointer', animation: 'hp-roll-pulse 1.4s ease-in-out infinite' }}
+                            title="Feature drop available — click to expand"
+                        >🔄 Drop available!</span>
+                    )}
                     <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
                         {currentFeatures.length} features
                     </span>

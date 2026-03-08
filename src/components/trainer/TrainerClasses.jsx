@@ -198,7 +198,9 @@ const TrainerClasses = () => {
                 },
                 primaryBaseClass: prev.primaryBaseClass
                     ? prev.primaryBaseClass
-                    : ((prev.classes || []).length === 0 ? pendingClass : ''),
+                    : (!isSecondary && GAME_DATA.trainerClasses?.[pendingClass]?.type === 'base'
+                        ? pendingClass
+                        : ''),
                 secondaryBaseClasses: isSecondary
                     ? [...(prev.secondaryBaseClasses || []), pendingClass]
                     : (prev.secondaryBaseClasses || [])

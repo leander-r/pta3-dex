@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useTrainerContext, useModal, useUI } from '../../contexts/index.js';
-import { CREATION_STAT_POINTS, HONOR_THRESHOLDS, MAX_TRAINER_LEVEL } from '../../data/constants.js';
+import { CREATION_STAT_POINTS, HONOR_THRESHOLDS, MAX_TRAINER_LEVEL, HP_MILESTONE_LEVELS } from '../../data/constants.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 /**
@@ -99,16 +99,20 @@ const TrainerProfile = () => {
         ? Math.max(0, honorsForNext - currentHonors)
         : 0;
     const honorsMet = atMaxLevel || honorsForNext === undefined || currentHonors >= honorsForNext;
+    const milestonesReached = HP_MILESTONE_LEVELS.filter(l => l <= trainer.level).length;
+    const hpRollsPending = milestonesReached - (trainer.hpRolls || []).length;
     const canLevelUp = isLevel0
         ? (creationPointsRemaining === 0 && hasClass)
-        : honorsMet;
+        : honorsMet && hpRollsPending === 0;
     const levelUpTitle = isLevel0
         ? (!canLevelUp ? 'Complete character creation first' : 'Become Level 1')
         : atMaxLevel
             ? 'Maximum level reached'
-            : !honorsMet
-                ? `Need ${honorsNeeded} more honor${honorsNeeded !== 1 ? 's' : ''} to reach Level ${nextLevel} (requires ${honorsForNext})`
-                : `Level up to ${nextLevel}`;
+            : hpRollsPending > 0
+                ? `Roll your HP bonus first! (${hpRollsPending} pending — use 🎲 Roll HP Bonus in Stats)`
+                : !honorsMet
+                    ? `Need ${honorsNeeded} more honor${honorsNeeded !== 1 ? 's' : ''} to reach Level ${nextLevel} (requires ${honorsForNext})`
+                    : `Level up to ${nextLevel}`;
     const badges = trainer.badges || [];
 
     return (
