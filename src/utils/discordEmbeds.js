@@ -215,9 +215,31 @@ export const buildCustomEmbed = (roll, trainerName) => {
     };
 };
 
+export const buildPokemonSkillEmbed = (roll, trainerName) => {
+    const modStr = `+${roll.modifier} ${roll.skillStat}`;
+    const description = `**Total: ${roll.total}** · [${roll.rolls.join(', ')}] ${modStr}`;
+    const fields = [];
+    if (roll.pokemonMaxHP > 0) {
+        fields.push({
+            name: `${roll.pokemon} HP`,
+            value: hpFieldValue(roll.pokemonCurrentHP, roll.pokemonMaxHP),
+            inline: false,
+        });
+    }
+    return {
+        author: { name: trainerName },
+        title: `🎯 ${roll.pokemon} — ${roll.skill} Check`,
+        description,
+        color: 0x26A69A,
+        fields,
+        timestamp: new Date().toISOString(),
+    };
+};
+
 export const buildEmbed = (roll, trainerName) => {
     if (roll.type === 'pokemon')       return buildPokemonEmbed(roll, trainerName);
     if (roll.type === 'trainer_skill') return buildTrainerSkillEmbed(roll, trainerName);
+    if (roll.type === 'pokemon_skill') return buildPokemonSkillEmbed(roll, trainerName);
     if (roll.type === 'heal')          return buildHealEmbed(roll, trainerName);
     if (roll.type === 'custom')        return buildCustomEmbed(roll, trainerName);
     return null;

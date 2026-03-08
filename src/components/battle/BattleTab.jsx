@@ -24,6 +24,16 @@ import DiscordWebhookConfig from './DiscordWebhookConfig.jsx';
 // Zygarde's forms are now stored in pokedex.min.json megaForms, so no overrides needed here.
 const BATTLE_FORM_CHANGES = {};
 
+// Pokémon capability → stat mapping for skill checks (default: spd)
+const POKEMON_CAPABILITY_STAT = {
+    'Stealth':    'spd',
+    'Strength':   'atk',
+    'Tracker':    'sdef',
+    'Acrobatics': 'spd',
+};
+const getPokemonCapabilityStat = (capabilityName) =>
+    POKEMON_CAPABILITY_STAT[capabilityName] ?? 'spd';
+
 // Convert a CSS hex color string to a Discord integer color
 const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''), 16);
 
@@ -99,6 +109,8 @@ const BattleTab = () => {
     const [trainerSubmode, setTrainerSubmode] = useState('skill'); // 'skill' | 'attack' | 'weapon'
     const [selectedWeapon, setSelectedWeapon] = useState('');
     const [trainerAcOverride, setTrainerAcOverride] = useState('');
+    const [pokemonSubmode, setPokemonSubmode] = useState('move'); // 'move' | 'skill'
+    const [selectedPokemonSkill, setSelectedPokemonSkill] = useState('');
 
     const anyMechanicActive = megaEvolved || isDynamaxed || isTerastallized;
 
@@ -536,6 +548,30 @@ const BattleTab = () => {
         addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '1d20', rolls, baseStat, modifier, hasSkill, bonus: talentBonus, total, trainerCurrentHP, trainerMaxHP, timestamp: Date.now() });
     };
 
+    const rollPokemonSkill = () => {
+        if (!selectedPokemon || !selectedPokemonSkill) return;
+        const statKey = getPokemonCapabilityStat(selectedPokemonSkill);
+        const baseStat = (selectedPokemon.baseStats || selectedPokemon.stats)?.[statKey] || 0;
+        const modifier = Math.floor(baseStat / 2);
+        const rolls = rollDice(1, 20);
+        const total = rolls[0] + modifier;
+        const hp = getPokemonHP(selectedPokemon);
+        addToHistory({
+            type: 'pokemon_skill',
+            pokemon: selectedPokemon.name || selectedPokemon.species,
+            skill: selectedPokemonSkill,
+            skillStat: statKey.toUpperCase(),
+            dice: '1d20',
+            rolls,
+            baseStat,
+            modifier,
+            total,
+            pokemonCurrentHP: hp.current,
+            pokemonMaxHP: hp.max,
+            timestamp: Date.now(),
+        });
+    };
+
     // Parse move name and type from a weapon item's effect string
     // e.g. "Branch Poke — Melee Grass At-Will 2d6. Requires Weapons Master."
     const getWeaponInfo = (weaponName) => {
@@ -695,6 +731,27 @@ const BattleTab = () => {
                                 </select>
                             </div>
 
+                            {/* Pokemon sub-mode tabs */}
+                            <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+                                {[
+                                    { id: 'move',  label: '⚔️ Move' },
+                                    { id: 'skill', label: '🎯 Skill Check' },
+                                ].map(({ id, label }) => (
+                                    <button
+                                        key={id}
+                                        onClick={() => setPokemonSubmode(id)}
+                                        style={{
+                                            flex: 1, padding: '5px 12px', borderRadius: '6px', border: 'none',
+                                            cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                            background: pokemonSubmode === id ? '#667eea' : 'var(--bg-secondary)',
+                                            color: pokemonSubmode === id ? 'white' : 'var(--text-secondary)',
+                                        }}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+
                             {/* Empty state */}
                             {!selectedPokemon && (
                                 <div style={{ textAlign: 'center', padding: '24px 16px', color: 'var(--text-muted)', fontSize: '13px' }}>
@@ -827,6 +884,7 @@ const BattleTab = () => {
                                 onHelp={() => showHelp('combat-stages')}
                             />
 
+                            {pokemonSubmode === 'move' && (<>
                             {/* STAB Toggle & AC Override */}
                             {selectedPokemon && (
                                 <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -938,6 +996,43 @@ const BattleTab = () => {
                                     </button>
                                 );
                             })()}
+                            </>)}
+
+                            {/* Pokémon Skill Check Panel */}
+                            {pokemonSubmode === 'skill' && (
+                                <div>
+                                    <select
+                                        value={selectedPokemonSkill}
+                                        onChange={e => setSelectedPokemonSkill(e.target.value)}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '8px' }}
+                                    >
+                                        <option value="">— select capability —</option>
+                                        {(selectedPokemon?.pokemonSkills || []).map(s => (
+                                            <option key={s.name} value={s.name}>{s.name}</option>
+                                        ))}
+                                    </select>
+
+                                    {selectedPokemonSkill && (() => {
+                                        const statKey = getPokemonCapabilityStat(selectedPokemonSkill);
+                                        const baseStat = (selectedPokemon?.baseStats || selectedPokemon?.stats)?.[statKey] || 0;
+                                        const mod = Math.floor(baseStat / 2);
+                                        return (
+                                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '6px 0' }}>
+                                                1d20 + ⌊{statKey.toUpperCase()} {baseStat}/2⌋ = 1d20 +{mod}
+                                            </div>
+                                        );
+                                    })()}
+
+                                    <button
+                                        onClick={rollPokemonSkill}
+                                        disabled={!selectedPokemon || !selectedPokemonSkill}
+                                        className="roll-button"
+                                        style={{ width: '100%', padding: '15px', marginTop: '8px', background: (!selectedPokemon || !selectedPokemonSkill) ? '#ccc' : 'linear-gradient(135deg, #26a69a, #00796b)', color: (!selectedPokemon || !selectedPokemonSkill) ? '#555' : 'white', border: 'none', borderRadius: '8px', cursor: (!selectedPokemon || !selectedPokemonSkill) ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+                                    >
+                                        🎯 Roll {selectedPokemonSkill || 'Skill'} Check
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 

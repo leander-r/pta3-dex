@@ -35,6 +35,8 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                 }
             } else if (roll.type === 'trainer_skill') {
                 lines.push(`[${hhmm}] Trainer rolled ${roll.skill || 'Skill'} → ${roll.total ?? '?'} ([${(roll.rolls || []).join(', ')}])`);
+            } else if (roll.type === 'pokemon_skill') {
+                lines.push(`[${hhmm}] ${roll.pokemon} rolled ${roll.skill} → ${roll.total ?? '?'} ([${(roll.rolls || []).join(', ')}])`);
             } else if (roll.type === 'trainer_attack') {
                 const hit = roll.isHit ? 'HIT' : 'MISS';
                 const crit = roll.isCrit ? ' (CRIT!)' : '';
@@ -139,6 +141,7 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                 borderLeft: `4px solid ${
                                     roll.type === 'pokemon'         ? getTypeColor(roll.moveType || 'Normal') :
                                     roll.type === 'trainer_skill'   ? '#667eea' :
+                                    roll.type === 'pokemon_skill'   ? '#26a69a' :
                                     roll.type === 'trainer_attack'  ? getTypeColor(roll.moveType || 'Normal') :
                                     roll.type === 'heal'            ? '#4caf50' : '#95a5a6'
                                 }`
@@ -219,6 +222,17 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                         <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{roll.total}</span>
                                         <span> | 1d20 [{roll.rolls?.join(', ')}] +{roll.modifier} stat</span>
                                         {roll.hasSkill && roll.bonus > 0 && <span> +{roll.bonus} talent</span>}
+                                    </div>
+                                </>
+                            )}
+                            {roll.type === 'pokemon_skill' && (
+                                <>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                        {roll.pokemon} — {roll.skill} ({roll.skillStat})
+                                    </div>
+                                    <div style={{ fontSize: '12px' }}>
+                                        <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{roll.total}</span>
+                                        <span> | 1d20 [{roll.rolls?.join(', ')}] +{roll.modifier} {roll.skillStat}</span>
                                     </div>
                                 </>
                             )}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildEmbed, buildPokemonEmbed, buildTrainerSkillEmbed, buildHealEmbed, buildCustomEmbed } from '../discordEmbeds.js';
+import { buildEmbed, buildPokemonEmbed, buildTrainerSkillEmbed, buildHealEmbed, buildCustomEmbed, buildPokemonSkillEmbed } from '../discordEmbeds.js';
 
 // ── Shared roll fixtures ──────────────────────────────────────
 
@@ -49,6 +49,13 @@ const BASE_CUSTOM = {
     dice: '2d6', rolls: [3, 5], rollTotal: 8, bonus: 2, total: 10,
 };
 
+const BASE_POKEMON_SKILL = {
+    type: 'pokemon_skill',
+    pokemon: 'Rowdy', skill: 'Stealth', skillStat: 'SPD',
+    rolls: [14], modifier: 4, total: 18,
+    pokemonCurrentHP: 35, pokemonMaxHP: 50,
+};
+
 // ── buildEmbed router ─────────────────────────────────────────
 
 describe('buildEmbed', () => {
@@ -61,6 +68,11 @@ describe('buildEmbed', () => {
     it('routes trainer_skill type', () => {
         const e = buildEmbed(BASE_TRAINER_SKILL, 'Ash');
         expect(e.title).toContain('Perception');
+    });
+
+    it('routes pokemon_skill type', () => {
+        const e = buildEmbed(BASE_POKEMON_SKILL, 'Ash');
+        expect(e.title).toContain('Stealth');
     });
 
     it('routes heal type', () => {
@@ -365,5 +377,41 @@ describe('buildCustomEmbed', () => {
     it('no bonus in description when bonus is 0', () => {
         const e = buildCustomEmbed({ ...BASE_CUSTOM, bonus: 0 }, 'Ash');
         expect(e.description).not.toContain('+');
+    });
+});
+
+// ── Pokémon skill embed ───────────────────────────────────────
+
+describe('buildPokemonSkillEmbed', () => {
+    const embed = buildPokemonSkillEmbed(BASE_POKEMON_SKILL, 'Ash');
+
+    it('title contains pokemon name and skill', () => {
+        expect(embed.title).toContain('Rowdy');
+        expect(embed.title).toContain('Stealth');
+    });
+
+    it('description shows total and roll', () => {
+        expect(embed.description).toContain('18');
+        expect(embed.description).toContain('[14]');
+        expect(embed.description).toContain('+4 SPD');
+    });
+
+    it('shows HP bar', () => {
+        const hpField = embed.fields.find(f => f.name === 'Rowdy HP');
+        expect(hpField).toBeTruthy();
+        expect(hpField.value).toContain('35/50');
+    });
+
+    it('uses teal color', () => {
+        expect(embed.color).toBe(0x26A69A);
+    });
+
+    it('author name is trainer name', () => {
+        expect(embed.author.name).toBe('Ash');
+    });
+
+    it('no HP field when pokemonMaxHP is 0', () => {
+        const e = buildPokemonSkillEmbed({ ...BASE_POKEMON_SKILL, pokemonMaxHP: 0 }, 'Ash');
+        expect(e.fields.find(f => f.name === 'Rowdy HP')).toBeUndefined();
     });
 });
