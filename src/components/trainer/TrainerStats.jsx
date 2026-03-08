@@ -340,6 +340,19 @@ const TrainerStats = () => {
                             🎲 Roll HP!
                         </span>
                     )}
+                    {(trainer.levelStatPoints || 0) > 0 && (
+                        <span
+                            onClick={() => setCollapsed(false)}
+                            style={{
+                                padding: '3px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold',
+                                background: '#e65100', color: 'white', border: '1px solid #e65100',
+                                cursor: 'pointer', animation: 'hp-roll-pulse 1.4s ease-in-out infinite'
+                            }}
+                            title="Spend stat points before next level-up — click to expand"
+                        >
+                            ⬆ {trainer.levelStatPoints} stat pt{trainer.levelStatPoints !== 1 ? 's' : ''}!
+                        </span>
+                    )}
                     {STAT_CONFIG.map(stat => {
                         const mod = calculateModifier(trainer.stats[stat.key] ?? 3);
                         return (

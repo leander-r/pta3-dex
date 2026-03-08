@@ -101,18 +101,21 @@ const TrainerProfile = () => {
     const honorsMet = atMaxLevel || honorsForNext === undefined || currentHonors >= honorsForNext;
     const milestonesReached = HP_MILESTONE_LEVELS.filter(l => l <= trainer.level).length;
     const hpRollsPending = milestonesReached - (trainer.hpRolls || []).length;
+    const statPointsPending = trainer.levelStatPoints || 0;
     const canLevelUp = isLevel0
         ? (creationPointsRemaining === 0 && hasClass)
-        : honorsMet && hpRollsPending === 0;
+        : honorsMet && hpRollsPending === 0 && statPointsPending === 0;
     const levelUpTitle = isLevel0
         ? (!canLevelUp ? 'Complete character creation first' : 'Become Level 1')
         : atMaxLevel
             ? 'Maximum level reached'
             : hpRollsPending > 0
                 ? `Roll your HP bonus first! (${hpRollsPending} pending — use 🎲 Roll HP Bonus in Stats)`
-                : !honorsMet
-                    ? `Need ${honorsNeeded} more honor${honorsNeeded !== 1 ? 's' : ''} to reach Level ${nextLevel} (requires ${honorsForNext})`
-                    : `Level up to ${nextLevel}`;
+                : statPointsPending > 0
+                    ? `Spend your ${statPointsPending} stat point${statPointsPending !== 1 ? 's' : ''} first! (use ⬆ in the Stats section)`
+                    : !honorsMet
+                        ? `Need ${honorsNeeded} more honor${honorsNeeded !== 1 ? 's' : ''} to reach Level ${nextLevel} (requires ${honorsForNext})`
+                        : `Level up to ${nextLevel}`;
     const badges = trainer.badges || [];
 
     return (
