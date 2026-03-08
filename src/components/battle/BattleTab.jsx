@@ -24,12 +24,11 @@ import DiscordWebhookConfig from './DiscordWebhookConfig.jsx';
 // Zygarde's forms are now stored in pokedex.min.json megaForms, so no overrides needed here.
 const BATTLE_FORM_CHANGES = {};
 
-// Pokémon capability → stat mapping for skill checks (default: spd)
+// PTA3 HB1 pp.106-109: only Stealth and Tracker have explicit skill check rules.
+// All other capabilities are passive/movement and cannot be rolled.
 const POKEMON_CAPABILITY_STAT = {
-    'Stealth':    'spd',
-    'Strength':   'atk',
-    'Tracker':    'sdef',
-    'Acrobatics': 'spd',
+    'Stealth': 'spd',   // HB1: "adding their Speed modifier"
+    'Tracker': 'satk',  // HB1: "adding their Special Attack modifier"
 };
 const getPokemonCapabilityStat = (capabilityName) =>
     POKEMON_CAPABILITY_STAT[capabilityName] ?? 'spd';
@@ -1001,15 +1000,29 @@ const BattleTab = () => {
                             {/* Pokémon Skill Check Panel */}
                             {pokemonSubmode === 'skill' && (
                                 <div>
+                                    {(() => {
+                                        const rollableSkills = (selectedPokemon?.pokemonSkills || [])
+                                            .filter(s => s.name in POKEMON_CAPABILITY_STAT);
+                                        if (selectedPokemon && rollableSkills.length === 0) {
+                                            return (
+                                                <div style={{ padding: '12px', borderRadius: '6px', background: 'var(--bg-secondary)', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
+                                                    This Pokémon has no rollable capabilities (Stealth or Tracker).
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
                                     <select
                                         value={selectedPokemonSkill}
                                         onChange={e => setSelectedPokemonSkill(e.target.value)}
                                         style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '8px' }}
                                     >
                                         <option value="">— select capability —</option>
-                                        {(selectedPokemon?.pokemonSkills || []).map(s => (
-                                            <option key={s.name} value={s.name}>{s.name}</option>
-                                        ))}
+                                        {(selectedPokemon?.pokemonSkills || [])
+                                            .filter(s => s.name in POKEMON_CAPABILITY_STAT)
+                                            .map(s => (
+                                                <option key={s.name} value={s.name}>{s.name}</option>
+                                            ))}
                                     </select>
 
                                     {selectedPokemonSkill && (() => {
