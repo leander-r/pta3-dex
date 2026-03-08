@@ -132,6 +132,8 @@ const PTA3_SPECIES_SLUG_OVERRIDES = {
     'munkidori':        'munkidori',
     'fezandipiti':      'fezandipiti',
     'pecharunt':        'pecharunt',
+    // ── Zygarde (base entry = 10% form; Showdown's default sprite is 50%) ─────
+    'zygarde':                      'zygarde-10',
     // ── Alternate forms ───────────────────────────────────────────────────────
     'wormadam (plant cloak)':       'wormadam',
     'wormadam (sandy cloak)':       'wormadam-sandy',
@@ -192,6 +194,8 @@ export const getMegaSprite = (pokemon, megaForm) => {
     // Allow form data to override the base species slug (e.g. Zygarde-10% → Complete uses Zygarde's sprite)
     const base = speciesSlug(megaForm?.baseSpeciesOverride || pokemon?.species);
     if (!base || !megaForm?.name) return getPokemonSprite(pokemon);
+    // Allow a full filename override when the form slug doesn't follow the {base}-{suffix} pattern
+    if (megaForm.fullSlug) return `https://play.pokemonshowdown.com/sprites/gen5/${megaForm.fullSlug}.png`;
     // Allow an explicit Showdown slug override on the form object (e.g. { slug: 'black' } → kyurem-black)
     if (megaForm.slug) return `https://play.pokemonshowdown.com/sprites/gen5/${base}-${megaForm.slug}.png`;
     // Strip the base species name from the form name so the qualifier is correct:
