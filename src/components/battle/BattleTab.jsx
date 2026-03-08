@@ -70,7 +70,7 @@ const buildPokemonRollEntry = ({
 const BattleTab = () => {
     const { GAME_DATA, pokedex } = useGameData();
     const { showDetail } = useModal();
-    const { trainer, setTrainer, party, calculateMaxHP } = useTrainerContext();
+    const { trainer, setTrainer, party, reserve, calculateMaxHP, restAndRecover } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
     const { sendToDiscord, inventory, setInventory } = useData();
     const { showHelp, setActiveTab } = useUI();
@@ -1167,13 +1167,31 @@ const BattleTab = () => {
                     )}
 
                     {mode === 'heal' && (
-                        <HealModePanel
-                            selectedPokemonId={selectedPokemonId}
-                            setSelectedPokemonId={setSelectedPokemonId}
-                            party={party}
-                            healingInventory={healingInventory}
-                            onUseItem={rollHealItem}
-                        />
+                        <>
+                            <HealModePanel
+                                selectedPokemonId={selectedPokemonId}
+                                setSelectedPokemonId={setSelectedPokemonId}
+                                party={party}
+                                healingInventory={healingInventory}
+                                onUseItem={rollHealItem}
+                            />
+                            {/* Rest & Recovery */}
+                            <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--border-light)' }}>
+                                <div style={{ fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>🌙 Rest & Recovery</div>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 10px 0' }}>
+                                    Trainer recovers 1d6 HP. Each Pokémon recovers ⌊max HP ÷ 6⌋. Daily equipment bonuses reset.
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        const allPkmn = [...party, ...(reserve || [])].map(p => ({ pokemon: p, maxHp: calculatePokemonHP(p) }));
+                                        restAndRecover(updatePokemon, allPkmn);
+                                    }}
+                                    style={{ width: '100%', padding: '10px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+                                >
+                                    🌙 Rest
+                                </button>
+                            </div>
+                        </>
                     )}
 
                     <DiscordWebhookConfig />
