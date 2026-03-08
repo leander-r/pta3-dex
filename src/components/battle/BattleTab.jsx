@@ -155,14 +155,18 @@ const BattleTab = () => {
     // Apply mega stat boosts and Tera def/sdef bonus to actual stats
     const getStatsWithMega = useCallback((pokemon) => {
         const baseStats = getActualStats(pokemon);
-        const afterMega = (!megaEvolved || !currentMegaForm?.statBoosts) ? baseStats : {
-            hp:   baseStats.hp   + (currentMegaForm.statBoosts.hp   || 0),
-            atk:  baseStats.atk  + (currentMegaForm.statBoosts.atk  || 0),
-            def:  baseStats.def  + (currentMegaForm.statBoosts.def  || 0),
-            satk: baseStats.satk + (currentMegaForm.statBoosts.satk || 0),
-            sdef: baseStats.sdef + (currentMegaForm.statBoosts.sdef || 0),
-            spd:  baseStats.spd  + (currentMegaForm.statBoosts.spd  || 0),
-        };
+        // Pokedex megaForms carry absolute `stats`; legacy BATTLE_FORM_CHANGES use `statBoosts` deltas.
+        const afterMega = !megaEvolved ? baseStats
+            : currentMegaForm?.stats      ? { ...baseStats, ...currentMegaForm.stats }
+            : currentMegaForm?.statBoosts ? {
+                hp:   baseStats.hp   + (currentMegaForm.statBoosts.hp   || 0),
+                atk:  baseStats.atk  + (currentMegaForm.statBoosts.atk  || 0),
+                def:  baseStats.def  + (currentMegaForm.statBoosts.def  || 0),
+                satk: baseStats.satk + (currentMegaForm.statBoosts.satk || 0),
+                sdef: baseStats.sdef + (currentMegaForm.statBoosts.sdef || 0),
+                spd:  baseStats.spd  + (currentMegaForm.statBoosts.spd  || 0),
+            }
+            : baseStats;
         const afterTera = (!isTerastallized) ? afterMega : { ...afterMega, def: afterMega.def + 3, sdef: afterMega.sdef + 3 };
         // Apply special form (Alpha / Totem / Titan) stat overrides
         let afterForm = { ...afterTera };
