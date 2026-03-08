@@ -265,7 +265,14 @@ const BattleTab = () => {
         return selectedPokemon.moves;
     }, [selectedPokemon, isDynamaxed, gMaxData, zMoveActive, isTerastallized, teraBlastUsesLeft]);
 
-    const handleMegaEvolve = (megaForm) => { setCurrentMegaForm(megaForm); setMegaEvolved(true); setZMoveActive(false); setSelectedMove(null); };
+    const handleMegaEvolve = (megaForm) => {
+        setCurrentMegaForm(megaForm);
+        setMegaEvolved(true);
+        setZMoveActive(false);
+        setSelectedMove(null);
+        // Clear any residual Dynamax HP override so the new form's HP is recalculated
+        if (!isDynamaxed) setPokemonHP(null);
+    };
     const handleMegaRevert = () => { setMegaEvolved(false); setCurrentMegaForm(null); setSelectedMove(null); };
 
     const handleZMoveActivate = () => { setZMoveActive(true); setSelectedMove(null); };
