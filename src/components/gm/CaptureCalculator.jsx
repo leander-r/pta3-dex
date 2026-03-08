@@ -34,11 +34,13 @@ const POKEBALL_MODS = {
     'Heal Ball':    0,
 };
 
+// GMG p.22 — HP modifiers (pick most applicable tier; only one applies)
 const HP_MODS = [
-    { label: '75-100% HP', mod: +20 },
-    { label: '50-74% HP',  mod: +10 },
-    { label: '25-49% HP',  mod:   0 },
-    { label: '1-24% HP',   mod: -10 },
+    { label: 'At Max HP',             mod: -25 },
+    { label: 'Damaged (above half)',   mod: -10 },
+    { label: 'Below half Max HP',      mod:   0 },
+    { label: 'Below 10 HP',           mod: +20 },
+    { label: 'At 0 HP or lower',      mod: +75 },
 ];
 
 const STATUS_MODS = [
@@ -57,7 +59,7 @@ const INITIATIVE_MODS = [
 const CaptureCalculator = () => {
     const [rarity, setRarity]       = useState('common');
     const [stage, setStage]         = useState(0);   // 0=first, 1=second, 2=third
-    const [hpMod, setHpMod]         = useState(0);   // index into HP_MODS
+    const [hpMod, setHpMod]         = useState(1);   // index into HP_MODS (damaged above half = common default)
     const [statusMod, setStatusMod] = useState(0);   // index
     const [initMod, setInitMod]     = useState(1);   // index (wild initiated = default)
     const [ball, setBall]           = useState('Poké Ball');
