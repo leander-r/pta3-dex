@@ -72,9 +72,10 @@ export const loadGameDataFromGitHub = async () => {
         const cachedMetadata = await getFromGameDataDB('metadata');
         if (cachedMetadata && (Date.now() - cachedMetadata.timestamp) < DATA_CONFIG.cacheDuration) {
             const cachedData = await getFromGameDataDB('gamedata');
-            // Validate cache completeness — reject if abilities are missing or too few (stale pre-v285 cache)
+            // Validate cache completeness — reject if abilities/moves are missing or too few (stale pre-v285/pre-moves-catalog cache)
             const abilityCount = Object.keys(cachedData?.abilities || {}).length;
-            if (cachedData && abilityCount >= 100) {
+            const moveCount = Object.keys(cachedData?.moves || {}).length;
+            if (cachedData && abilityCount >= 100 && moveCount >= 100) {
                 updateGameData(cachedData);
                 GAME_DATA._loaded = true;
                 return true;
