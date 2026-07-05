@@ -1540,48 +1540,6 @@
             line-height: 1.5;
         }
         
-        .info-tooltip {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 6px;
-            width: 20px;
-            height: 20px;
-            background: var(--poke-orange);
-            color: white;
-            border-radius: 50%;
-            font-size: var(--font-xs);
-            font-weight: 700;
-            cursor: help;
-            position: relative;
-        }
-        
-        .info-tooltip .tooltip-text {
-            visibility: hidden;
-            width: 260px;
-            max-width: calc(100vw - 32px);
-            background-color: var(--poke-dark);
-            color: #fff;
-            text-align: left;
-            border-radius: 10px;
-            padding: 14px;
-            position: absolute;
-            z-index: 100;
-            bottom: 130%;
-            left: 50%;
-            margin-left: -130px;
-            font-size: var(--font-sm);
-            line-height: 1.5;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            font-weight: 500;
-            word-wrap: break-word;
-        }
-        
-        .info-tooltip:hover .tooltip-text,
-        .info-tooltip:focus-within .tooltip-text {
-            visibility: visible;
-        }
-        
         .level-up-notification {
             position: fixed;
             bottom: 20px;
@@ -3139,12 +3097,9 @@
                 display: block;
             }
 
-            /* Hide the ? help button inside Save/Load on mobile — no room */
-            .nav-help-btn {
-                display: none;
-            }
-
-            /* Hide onboarding checklist and divider — no room in bottom bar */
+            /* Hide onboarding checklist and divider — no room in bottom bar.
+               (Reachable instead via Header's "Getting Started" / "Help Topics"
+               menu items, which are not part of this bottom nav bar.) */
             .nav-checklist,
             .nav-divider {
                 display: none;
@@ -3541,12 +3496,8 @@
                 font-size: 14px;
             }
             
-            /* ===== MOBILE TOOLTIPS - Hide on touch ===== */
-            .info-tooltip .tooltip-text {
-                display: none;
-            }
         }
-        
+
         /* Small mobile breakpoint */
         @media (max-width: 480px) {
             body {
@@ -4187,14 +4138,6 @@
 
         [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
             background: #5d5d6d;
-        }
-
-        /* Dark mode: Tooltips */
-        [data-theme="dark"] .tooltip,
-        [data-theme="dark"] .info-tooltip .tooltip-text {
-            background: #3d3d4d !important;
-            color: var(--text-primary) !important;
-            border-color: var(--border-light) !important;
         }
 
         /* Dark mode: Progress bars */

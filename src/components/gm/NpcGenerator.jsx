@@ -3,7 +3,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useGameData } from '../../contexts/index.js';
+import { useGameData, useUI } from '../../contexts/index.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
 const NPC_STATS = {
@@ -48,6 +49,7 @@ const NpcGenerator = () => {
     const [tier, setTier] = useState('junior');
     const [trainerClass, setTrainerClass] = useState('Ace Trainer');
     const { GAME_DATA } = useGameData();
+    const { showHelp } = useUI();
 
     const classes = Object.keys(NPC_STATS[tier]);
     const selectedClass = classes.includes(trainerClass) ? trainerClass : classes[0];
@@ -77,7 +79,15 @@ const NpcGenerator = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="section-card-purple">
-                <h3 className="section-title-purple">🧑 NPC Trainer Stat Blocks</h3>
+                <h3 className="section-title-purple">
+                    🧑 NPC Trainer Stat Blocks
+                    <button
+                        onClick={(e) => { e.stopPropagation(); showHelp('gm-npc'); }}
+                        style={HELP_BTN_STYLE}
+                        aria-label="Help: NPC Stats"
+                        title="About NPC stats"
+                    >?</button>
+                </h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px' }}>
                     Stat blocks for NPC trainers at each experience tier, drawn from GMG tables.
                 </p>

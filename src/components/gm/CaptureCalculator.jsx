@@ -6,6 +6,8 @@
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
+import { useUI } from '../../contexts/index.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
 // Base capture rates: rarity → [stage1, stage2, stage3]
@@ -57,6 +59,7 @@ const INITIATIVE_MODS = [
 ];
 
 const CaptureCalculator = () => {
+    const { showHelp } = useUI();
     const [rarity, setRarity]       = useState('common');
     const [stage, setStage]         = useState(0);   // 0=first, 1=second, 2=third
     const [hpMod, setHpMod]         = useState(1);   // index into HP_MODS (damaged above half = common default)
@@ -98,7 +101,15 @@ const CaptureCalculator = () => {
 
     return (
         <div className="section-card-purple">
-            <h3 className="section-title-purple">🎯 Capture Rate Calculator</h3>
+            <h3 className="section-title-purple">
+                🎯 Capture Rate Calculator
+                <button
+                    onClick={(e) => { e.stopPropagation(); showHelp('gm-capture'); }}
+                    style={HELP_BTN_STYLE}
+                    aria-label="Help: Capture Rate Calculator"
+                    title="About the capture calculator"
+                >?</button>
+            </h3>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '16px' }}>
                 Roll d100 — capture succeeds if the roll is strictly <strong>less than</strong> the target number. Ties are failures.
             </p>

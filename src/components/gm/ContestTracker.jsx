@@ -3,6 +3,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useUI } from '../../contexts/index.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
 const CONTEST_TYPES = ['Cool', 'Beautiful', 'Cute', 'Clever', 'Tough'];
@@ -14,6 +16,7 @@ const NPC_RESULTS = [
 ];
 
 const ContestTracker = () => {
+    const { showHelp } = useUI();
     const [contestType, setContestType]         = useState('Cool');
     const [contestants, setContestants]         = useState(['', '', '', '']);
     const [judgeCategories, setJudgeCategories] = useState(['', '', '']);
@@ -72,7 +75,15 @@ const ContestTracker = () => {
 
             {/* Setup */}
             <div className="section-card-purple">
-                <h3 className="section-title-purple">🏆 Contest Setup</h3>
+                <h3 className="section-title-purple">
+                    🏆 Contest Setup
+                    <button
+                        onClick={(e) => { e.stopPropagation(); showHelp('gm-contest'); }}
+                        style={HELP_BTN_STYLE}
+                        aria-label="Help: Contest Tracker"
+                        title="About the contest tracker"
+                    >?</button>
+                </h3>
 
                 {/* Contest type */}
                 <div style={{ marginBottom: '14px' }}>

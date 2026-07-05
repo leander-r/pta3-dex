@@ -4,9 +4,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
-import { useData, useModal, useTrainerContext, usePokemonContext } from '../../contexts/index.js';
+import { useData, useModal, useTrainerContext, usePokemonContext, useUI } from '../../contexts/index.js';
 import { calculatePokemonHP, parseDice, parseHealFormula } from '../../utils/dataUtils.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
+
+const PAGE_SIZE = 60;
 
 const PERMANENT_STAT_ITEMS = {
     'HP Up': { stat: 'hp', delta: 4 }, 'Protein': { stat: 'atk', delta: 1 },
@@ -57,6 +60,7 @@ const InventoryTab = () => {
     const { showConfirm, setDetailModal } = useModal();
     const { party, trainer, equipItem, unequipItem } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
+    const { showHelp } = useUI();
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearch, setShowSearch] = useState(false);
@@ -67,6 +71,9 @@ const InventoryTab = () => {
     // New states for add item panel
     const [addItemFilter, setAddItemFilter] = useState('all');
     const [addItemSort, setAddItemSort] = useState('name'); // 'name', 'price-low', 'price-high', 'type'
+    // Render caps — these lists can be 200+ entries; avoid mounting them all at once
+    const [visibleInventoryCount, setVisibleInventoryCount] = useState(PAGE_SIZE);
+    const [visibleCatalogCount, setVisibleCatalogCount] = useState(PAGE_SIZE);
     // Heal panel state
     const [healPanel, setHealPanel] = useState(null); // { itemName } or null
     const [healTargetId, setHealTargetId] = useState('');
@@ -427,6 +434,12 @@ const InventoryTab = () => {
             <div className="section-card-purple">
                 <h3 className="section-title-purple">
                     <span>🎒</span> Items
+                    <button
+                        onClick={(e) => { e.stopPropagation(); showHelp('inventory'); }}
+                        style={HELP_BTN_STYLE}
+                        aria-label="Help: Inventory"
+                        title="About inventory"
+                    >?</button>
                     <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span className="text-muted" style={{ fontSize: '12px', fontWeight: 'normal' }}>
                             {totalItems} items ({inventory.length} unique)
@@ -473,7 +486,7 @@ const InventoryTab = () => {
                         type="text"
                         placeholder="Search inventory..."
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => { setSearchQuery(e.target.value); setVisibleInventoryCount(PAGE_SIZE); }}
                         style={{
                             flex: 1,
                             minWidth: '150px',
@@ -486,7 +499,7 @@ const InventoryTab = () => {
                     />
                     <select
                         value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
+                        onChange={(e) => { setFilter(e.target.value); setVisibleInventoryCount(PAGE_SIZE); }}
                         style={{
                             padding: '8px 12px',
                             borderRadius: '6px',
@@ -529,7 +542,7 @@ const InventoryTab = () => {
                                     type="text"
                                     placeholder="Search items by name or effect..."
                                     value={itemSearch}
-                                    onChange={(e) => setItemSearch(e.target.value)}
+                                    onChange={(e) => { setItemSearch(e.target.value); setVisibleCatalogCount(PAGE_SIZE); }}
                                     style={{
                                         width: '100%',
                                         padding: '10px 12px',
@@ -543,7 +556,7 @@ const InventoryTab = () => {
                                 />
                                 {itemSearch && (
                                     <button
-                                        onClick={() => setItemSearch('')}
+                                        onClick={() => { setItemSearch(''); setVisibleCatalogCount(PAGE_SIZE); }}
                                         style={{
                                             position: 'absolute',
                                             right: '8px',
@@ -584,7 +597,7 @@ const InventoryTab = () => {
                                 <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)' }}>Type:</span>
                                 <select
                                     value={addItemFilter}
-                                    onChange={(e) => setAddItemFilter(e.target.value)}
+                                    onChange={(e) => { setAddItemFilter(e.target.value); setVisibleCatalogCount(PAGE_SIZE); }}
                                     style={{
                                         padding: '6px 10px',
                                         borderRadius: '6px',
@@ -636,7 +649,7 @@ const InventoryTab = () => {
                         </div>
 
                         <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                            {availableItems.map(([name, data]) => {
+                            {availableItems.slice(0, visibleCatalogCount).map(([name, data]) => {
                                 return (
                                     <div
                                         key={name}
@@ -754,6 +767,20 @@ const InventoryTab = () => {
                                     </p>
                                 </div>
                             )}
+
+                            {visibleCatalogCount < availableItems.length && (
+                                <button
+                                    onClick={() => setVisibleCatalogCount(c => c + PAGE_SIZE)}
+                                    style={{
+                                        width: '100%', marginTop: '8px', padding: '8px',
+                                        borderRadius: '6px', border: '1px solid var(--border-medium)',
+                                        background: 'var(--surface-bg)', color: 'var(--text-primary)',
+                                        fontSize: '12px', fontWeight: 'bold', cursor: 'pointer'
+                                    }}
+                                >
+                                    Show {Math.min(PAGE_SIZE, availableItems.length - visibleCatalogCount)} more ({availableItems.length - visibleCatalogCount} remaining)
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}
@@ -782,7 +809,7 @@ const InventoryTab = () => {
                     </div>
                 ) : (
                     <div style={{ display: 'grid', gap: '8px' }}>
-                        {filteredInventory.map((item, index) => {
+                        {filteredInventory.slice(0, visibleInventoryCount).map((item, index) => {
                             const itemType = (item.type || 'misc').toLowerCase();
                             const showHealPanel = healPanel?.itemName === item.name;
                             return (
@@ -1105,6 +1132,20 @@ const InventoryTab = () => {
                             );
                         })}
                     </div>
+                )}
+
+                {visibleInventoryCount < filteredInventory.length && (
+                    <button
+                        onClick={() => setVisibleInventoryCount(c => c + PAGE_SIZE)}
+                        style={{
+                            width: '100%', marginTop: '10px', padding: '10px',
+                            borderRadius: '8px', border: '1px solid var(--border-light)',
+                            background: 'var(--surface-bg)', color: 'var(--text-primary)',
+                            fontSize: '13px', fontWeight: 600, cursor: 'pointer'
+                        }}
+                    >
+                        Show {Math.min(PAGE_SIZE, filteredInventory.length - visibleInventoryCount)} more ({filteredInventory.length - visibleInventoryCount} remaining)
+                    </button>
                 )}
             </div>
         </div>

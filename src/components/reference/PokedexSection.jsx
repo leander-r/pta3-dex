@@ -365,12 +365,15 @@ const SpeciesDetail = ({ species }) => {
 
 // ── Main component ────────────────────────────────────────────
 
+const PAGE_SIZE = 60;
+
 const PokedexSection = () => {
     const { pokedex, customSpecies, pokedexLoading } = useGameData();
     const [search, setSearch]         = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [expandedId, setExpandedId] = useState(null);
     const [hoveredId, setHoveredId]   = useState(null);
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
     const allSpecies = useMemo(() =>
         [...(pokedex || []), ...(customSpecies || [])],
@@ -411,7 +414,7 @@ const PokedexSection = () => {
                         type="text"
                         placeholder="Search species…"
                         value={search}
-                        onChange={e => setSearch(e.target.value)}
+                        onChange={e => { setSearch(e.target.value); setVisibleCount(PAGE_SIZE); }}
                         style={{
                             width: '100%', padding: '8px 32px 8px 12px',
                             borderRadius: '8px', border: '1px solid var(--input-border)',
@@ -422,7 +425,7 @@ const PokedexSection = () => {
                     />
                     {search && (
                         <button
-                            onClick={() => setSearch('')}
+                            onClick={() => { setSearch(''); setVisibleCount(PAGE_SIZE); }}
                             aria-label="Clear search"
                             style={{
                                 position: 'absolute', right: '8px', top: '50%',
@@ -436,7 +439,7 @@ const PokedexSection = () => {
                 </div>
                 <select
                     value={typeFilter}
-                    onChange={e => setTypeFilter(e.target.value)}
+                    onChange={e => { setTypeFilter(e.target.value); setVisibleCount(PAGE_SIZE); }}
                     style={{
                         padding: '8px 10px', borderRadius: '8px',
                         border: '1px solid var(--input-border)',
@@ -469,7 +472,7 @@ const PokedexSection = () => {
                         No species found.
                     </div>
                 ) : (
-                    filtered.map((s, idx) => {
+                    filtered.slice(0, visibleCount).map((s, idx) => {
                         const rowId      = s.id ?? s.species;
                         const isExpanded = expandedId === rowId;
                         const isHovered  = hoveredId === rowId && !isExpanded;
@@ -543,6 +546,20 @@ const PokedexSection = () => {
                     })
                 )}
             </div>
+
+            {visibleCount < filtered.length && (
+                <button
+                    onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                    style={{
+                        width: '100%', marginTop: '10px', padding: '10px',
+                        borderRadius: '8px', border: '1px solid var(--border-light)',
+                        background: 'var(--surface-bg)', color: 'var(--text-primary)',
+                        fontSize: '13px', fontWeight: 600, cursor: 'pointer'
+                    }}
+                >
+                    Show {Math.min(PAGE_SIZE, filtered.length - visibleCount)} more ({filtered.length - visibleCount} remaining)
+                </button>
+            )}
         </div>
     );
 };

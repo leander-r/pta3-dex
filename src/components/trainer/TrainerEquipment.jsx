@@ -49,7 +49,7 @@ const TrainerEquipment = () => {
     const { GAME_DATA } = useGameData();
     const { showDetail } = useModal();
     const { showHelp } = useUI();
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
     const [quickEquipValue, setQuickEquipValue] = useState('');
 
     const equippedItems = trainer.equippedItems || [];

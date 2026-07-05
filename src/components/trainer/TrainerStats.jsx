@@ -7,6 +7,7 @@ import { useTrainerContext, useUI, usePokemonContext } from '../../contexts/inde
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import { HP_MILESTONE_LEVELS } from '../../data/constants.js';
 import { calculatePokemonHP } from '../../utils/dataUtils.js';
+import toast from '../../utils/toast.js';
 
 const STAT_CONFIG = [
     { key: 'atk',  label: 'ATK',  color: '#ff5722' },
@@ -200,38 +201,40 @@ const TrainerStats = () => {
                                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                         {stat.label}
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                        <button
-                                            onClick={() => updateTrainerStat(stat.key, val - 1)}
-                                            disabled={val <= 1}
-                                            style={btnStyle(val <= 1)}
-                                            aria-label={`Decrease ${stat.label}`}
-                                        >−</button>
-                                        <span style={{
-                                            minWidth: '28px', textAlign: 'center',
-                                            fontSize: '18px', fontWeight: 'bold',
-                                            color: 'var(--text-primary)', lineHeight: 1
-                                        }}>{val}</span>
-                                        <button
-                                            onClick={() => updateTrainerStat(stat.key, val + 1)}
-                                            disabled={val >= 10 || (
-                                                (trainer.levelStatAllocations || []).includes(stat.key) &&
-                                                (trainer.levelStatPoints || 0) > 0 &&
-                                                (trainer.statPoints || 0) === 0
-                                            )}
-                                            style={btnStyle(val >= 10 || (
-                                                (trainer.levelStatAllocations || []).includes(stat.key) &&
-                                                (trainer.levelStatPoints || 0) > 0 &&
-                                                (trainer.statPoints || 0) === 0
-                                            ))}
-                                            title={
-                                                val >= 10 ? `${stat.label} is at maximum (10)`
-                                                : (trainer.levelStatAllocations || []).includes(stat.key) && (trainer.levelStatPoints || 0) > 0 ? 'Already raised this level-up — choose a different stat'
-                                                : undefined
-                                            }
-                                            aria-label={`Increase ${stat.label}`}
-                                        >+</button>
-                                    </div>
+                                    {(() => {
+                                        const atMin = val <= 1;
+                                        const levelLocked = (trainer.levelStatAllocations || []).includes(stat.key) &&
+                                            (trainer.levelStatPoints || 0) > 0 &&
+                                            (trainer.statPoints || 0) === 0;
+                                        const atMax = val >= 10 || levelLocked;
+                                        const decReason = atMin ? `${stat.label} is at minimum (1)` : null;
+                                        const incReason = val >= 10 ? `${stat.label} is at maximum (10)`
+                                            : levelLocked ? 'Already raised this level-up — choose a different stat'
+                                            : null;
+                                        return (
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                                <button
+                                                    onClick={() => atMin ? toast.info(decReason) : updateTrainerStat(stat.key, val - 1)}
+                                                    aria-disabled={atMin}
+                                                    style={btnStyle(atMin)}
+                                                    title={decReason || undefined}
+                                                    aria-label={`Decrease ${stat.label}`}
+                                                >−</button>
+                                                <span style={{
+                                                    minWidth: '28px', textAlign: 'center',
+                                                    fontSize: '18px', fontWeight: 'bold',
+                                                    color: 'var(--text-primary)', lineHeight: 1
+                                                }}>{val}</span>
+                                                <button
+                                                    onClick={() => atMax ? toast.info(incReason) : updateTrainerStat(stat.key, val + 1)}
+                                                    aria-disabled={atMax}
+                                                    style={btnStyle(atMax)}
+                                                    title={incReason || undefined}
+                                                    aria-label={`Increase ${stat.label}`}
+                                                >+</button>
+                                            </div>
+                                        );
+                                    })()}
                                     <div style={{ fontSize: '12px', color: '#4caf50', fontWeight: 'bold', marginTop: '4px' }}>
                                         +{mod}
                                     </div>

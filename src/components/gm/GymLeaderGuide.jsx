@@ -3,6 +3,8 @@
 // ============================================================
 
 import React from 'react';
+import { useUI } from '../../contexts/index.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 const BADGE_SCALING = [
     { range: '0–1', level: 'Easy',      color: '#4caf50', desc: '1 Pokémon (basic/unevolved). Gym trainers use first-stage Pokémon.' },
@@ -54,12 +56,22 @@ const PassiveRow = ({ name, effect, freq }) => (
     </div>
 );
 
-const GymLeaderGuide = () => (
+const GymLeaderGuide = () => {
+    const { showHelp } = useUI();
+    return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Badge Count Scaling */}
         <div className="section-card-purple">
-            <h3 className="section-title-purple">🏅 Gym Leader Difficulty (by Badge Count)</h3>
+            <h3 className="section-title-purple">
+                🏅 Gym Leader Difficulty (by Badge Count)
+                <button
+                    onClick={(e) => { e.stopPropagation(); showHelp('gm-gym'); }}
+                    style={HELP_BTN_STYLE}
+                    aria-label="Help: Gym Guide"
+                    title="About the gym guide"
+                >?</button>
+            </h3>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
                 Scale the Gym Leader's party and strategy to the party's current badge count.
             </p>
@@ -115,6 +127,7 @@ const GymLeaderGuide = () => (
             </div>
         </div>
     </div>
-);
+    );
+};
 
 export default GymLeaderGuide;

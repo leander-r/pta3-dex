@@ -3,6 +3,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useUI } from '../../contexts/index.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
 const WILD_GOODS = [
@@ -45,6 +47,7 @@ const POKECREDIT_PAYOUTS = [
 ];
 
 const RewardTables = () => {
+    const { showHelp } = useUI();
     const [d100Roll, setD100Roll] = useState(null);
     const [d100Result, setD100Result] = useState(null);
 
@@ -61,7 +64,15 @@ const RewardTables = () => {
 
             {/* Wild Goods d100 Roller */}
             <div className="section-card-purple">
-                <h3 className="section-title-purple">🌿 Wild Goods Finder (d100)</h3>
+                <h3 className="section-title-purple">
+                    🌿 Wild Goods Finder (d100)
+                    <button
+                        onClick={(e) => { e.stopPropagation(); showHelp('gm-rewards'); }}
+                        style={HELP_BTN_STYLE}
+                        aria-label="Help: Rewards & Loot"
+                        title="About rewards & loot"
+                    >?</button>
+                </h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
                     Roll d100 when trainers search wild areas for valuables.
                 </p>

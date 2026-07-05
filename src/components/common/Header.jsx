@@ -5,12 +5,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTrainerContext, useData, useUI, useModal } from '../../contexts/index.js';
+import { useOnboarding } from '../../hooks/useOnboarding.js';
 import toast from '../../utils/toast.js';
 
-const MenuItem = ({ id, icon, label, onClick, danger, disabled, hoveredItem, setHoveredItem, title }) => (
+const MenuItem = ({ id, icon, label, onClick, danger, disabled, disabledReason, hoveredItem, setHoveredItem, title }) => (
     <button
-        onClick={onClick}
-        disabled={disabled}
+        onClick={() => {
+            if (disabled) {
+                if (disabledReason) toast.info(disabledReason);
+                return;
+            }
+            onClick();
+        }}
+        aria-disabled={disabled}
         title={title}
         onMouseEnter={() => setHoveredItem(id)}
         onMouseLeave={() => setHoveredItem(null)}
@@ -63,8 +70,9 @@ const Header = () => {
         unarchiveTrainer
     } = useTrainerContext();
     const { exportSingleTrainer, exportAllData, importData, restoreAutoBackup, loadDemoTrainer } = useData();
-    const { theme, setTheme, compactMode, setCompactMode, setEditingPokemon } = useUI();
+    const { theme, setTheme, compactMode, setCompactMode, setEditingPokemon, openGettingStarted, openHelpHub } = useUI();
     const { showConfirm } = useModal();
+    const { dismissed: onboardingDismissed } = useOnboarding();
 
     // Active (non-archived) and archived trainer lists
     const activeTrainers = trainers.filter(t => !t.archived);
@@ -370,6 +378,44 @@ const Header = () => {
                                 Character Menu
                             </div>
 
+                            {/* Getting Started / Help — reachable on every screen size, unlike
+                                the sidebar checklist and (removed) nav help button which are
+                                hidden on mobile */}
+                            <div style={{ padding: '8px 0' }}>
+                                {!onboardingDismissed && (
+                                    <MenuItem {...menuItemProps}
+                                        id="getting-started"
+                                        icon={
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                            </svg>
+                                        }
+                                        label="Getting Started"
+                                        onClick={() => {
+                                            openGettingStarted();
+                                            setShowCharacterMenu(false);
+                                        }}
+                                    />
+                                )}
+                                <MenuItem {...menuItemProps}
+                                    id="help-hub"
+                                    icon={
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
+                                    }
+                                    label="Help Topics"
+                                    onClick={() => {
+                                        openHelpHub();
+                                        setShowCharacterMenu(false);
+                                    }}
+                                />
+                            </div>
+
+                            <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
+
                             {/* Trainer Section */}
                             <div style={{ padding: '8px 0' }}>
                                 <MenuItem {...menuItemProps}
@@ -576,6 +622,7 @@ const Header = () => {
                                     }
                                     label="Archive Trainer"
                                     disabled={activeTrainers.length <= 1}
+                                    disabledReason="Need at least 2 active trainers to archive one"
                                     title={activeTrainers.length <= 1 ? 'Need at least 2 active trainers to archive one' : 'Move this trainer to the archived list'}
                                     onClick={() => {
                                         showConfirm({
@@ -600,6 +647,7 @@ const Header = () => {
                                     label="Delete Trainer"
                                     danger
                                     disabled={activeTrainers.length <= 1 && archivedTrainers.length === 0}
+                                    disabledReason="Cannot delete the only trainer"
                                     title={activeTrainers.length <= 1 && archivedTrainers.length === 0 ? 'Cannot delete the only trainer' : 'Permanently delete this trainer'}
                                     onClick={() => {
                                         deleteTrainer(activeTrainerId);

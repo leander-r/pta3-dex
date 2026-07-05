@@ -21,6 +21,8 @@ const ConfirmModal       = lazy(() => import('../modals/ConfirmModal.jsx'));
 const ComparisonModal    = lazy(() => import('../modals/ComparisonModal.jsx'));
 const SaveLoadModal      = lazy(() => import('../modals/SaveLoadModal.jsx'));
 const PrintSheetModal    = lazy(() => import('../modals/PrintSheetModal.jsx'));
+const GettingStartedModal = lazy(() => import('../modals/GettingStartedModal.jsx'));
+const HelpHubModal        = lazy(() => import('../modals/HelpHubModal.jsx'));
 
 // null fallback: modals appear when the user triggers them, so a loading
 // spinner inside the modal would be jarring. The chunk is small enough
@@ -41,6 +43,8 @@ const ModalsContainer = () => (
         <PrintSheetModal />
         <ConfirmModal />
         <HelpModal />
+        <GettingStartedModal />
+        <HelpHubModal />
     </Suspense>
 );
 

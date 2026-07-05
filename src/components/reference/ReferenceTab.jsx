@@ -4,6 +4,8 @@
 // Quick reference section with type chart, moves, abilities, etc.
 
 import React, { useState } from 'react';
+import { useUI } from '../../contexts/index.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
 // Sub-components for each reference section
 import TypeChartSection from './TypeChartSection.jsx';
@@ -19,6 +21,7 @@ import PokedexSection from './PokedexSection.jsx';
  * Sub-components use context for showDetail directly
  */
 const ReferenceTab = () => {
+    const { showHelp } = useUI();
     const [activeSection, setActiveSection] = useState('pokedex');
 
     const sections = [
@@ -33,7 +36,15 @@ const ReferenceTab = () => {
 
     return (
         <div>
-            <h2 className="section-title">Quick Reference</h2>
+            <h2 className="section-title">
+                Quick Reference
+                <button
+                    onClick={() => showHelp('reference')}
+                    style={{ ...HELP_BTN_STYLE, marginLeft: '8px' }}
+                    aria-label="Help: Quick Reference"
+                    title="About the reference database"
+                >?</button>
+            </h2>
 
             {/* Tab Navigation */}
             <div className="tabs">

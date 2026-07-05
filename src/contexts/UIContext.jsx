@@ -55,6 +55,14 @@ export const UIProvider = ({ children }) => {
     const showHelp  = useCallback((topic) => setHelpTopic(topic), []);
     const closeHelp = useCallback(() => setHelpTopic(null), []);
 
+    // Getting Started / Help Hub modal state (mobile-reachable entry points, see Header)
+    const [showGettingStarted, setShowGettingStarted] = useState(false);
+    const [showHelpHub, setShowHelpHub] = useState(false);
+    const openGettingStarted  = useCallback(() => setShowGettingStarted(true), []);
+    const closeGettingStarted = useCallback(() => setShowGettingStarted(false), []);
+    const openHelpHub  = useCallback(() => setShowHelpHub(true), []);
+    const closeHelpHub = useCallback(() => setShowHelpHub(false), []);
+
     // Save theme to localStorage and apply to document
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -112,7 +120,15 @@ export const UIProvider = ({ children }) => {
         // Help Modal
         helpTopic,
         showHelp,
-        closeHelp
+        closeHelp,
+
+        // Getting Started / Help Hub
+        showGettingStarted,
+        openGettingStarted,
+        closeGettingStarted,
+        showHelpHub,
+        openHelpHub,
+        closeHelpHub
     };
 
     return (

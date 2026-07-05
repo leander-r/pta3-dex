@@ -2,7 +2,7 @@ import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useUI } from '../../contexts/index.js';
 
-const HELP_CONTENT = {
+export const HELP_CONTENT = {
     'stat-allocation': {
         title: 'Trainer Stats',
         body: () => (
@@ -243,6 +243,141 @@ const HELP_CONTENT = {
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Custom Amount</h4>
                 <p>Type any number in the input box and click <strong>Dmg</strong> or <strong>Heal</strong> to apply an exact amount. Pressing <kbd>Enter</kbd> applies damage.</p>
                 <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>HP is shown as a colour-coded bar: green above 50 %, orange above 25 %, red at 25 % or below.</p>
+            </>
+        )
+    },
+    'inventory': {
+        title: 'Inventory',
+        body: () => (
+            <>
+                <p>The Inventory tab tracks every item your trainer owns — Poké Balls, medicine, stat boosters, berries, armor, weapons, and clothing.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Using Items</h4>
+                <p>Click an item to apply its effect to a Pokémon (healing, curing a status) or your trainer. Quantity is tracked automatically and decreases by one per use.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Stat Items</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Permanent</strong> (HP Up, Protein, etc.) — raise a stat immediately with no cap.</li>
+                    <li><strong>Temporary</strong> (X Attack, Lansat Berry, etc.) — apply a battle-only bonus capped per item; stacks reset after battle.</li>
+                </ul>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Equip vs. Use</h4>
+                <p>Armor, weapons, clothing, and accessories are <strong>equipped</strong> rather than consumed — see the Equipment help topic on the Trainer tab.</p>
+                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Tip: use the search box and type filter to find an item quickly among the full catalog.</p>
+            </>
+        )
+    },
+    'gm-capture': {
+        title: 'Capture Rate Calculator',
+        body: () => (
+            <>
+                <p>Simulates a capture attempt: roll <strong>d100</strong>, and the catch succeeds if the roll is <em>strictly less than</em> the target number (ties fail).</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Target Number</h4>
+                <p>Target = base rate (by species rarity &amp; evolution stage) + HP modifier + status modifier + initiative modifier + Poké Ball modifier.</p>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li>Base rates drop as rarity increases and as the species evolves further.</li>
+                    <li>A wounded target is easier to catch; a Pokémon at full HP is harder.</li>
+                    <li><strong>Master Ball</strong> always succeeds — no roll needed.</li>
+                </ul>
+            </>
+        )
+    },
+    'gm-encounter': {
+        title: 'Encounter Guide',
+        body: () => (
+            <>
+                <p>Reference tools for running wild encounters.</p>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Encounter Difficulty</strong> — party-size guidance for Easy/Normal/Hard/Dangerous wild fights.</li>
+                    <li><strong>Wild Filler Behavior (d20)</strong> — how nearby wild Pokémon react when a battle breaks out.</li>
+                    <li><strong>Wild Nature Roller</strong> — randomly rolls one of the 25 natures for a new wild Pokémon.</li>
+                    <li><strong>Special Encounter Forms</strong> — Shiny, Shadow, and Purified variant stats and capture notes.</li>
+                    <li><strong>Skill Check DC Scale</strong> — quick DC reference for d20 + talent bonus (+0/+2/+5) checks.</li>
+                </ul>
+            </>
+        )
+    },
+    'gm-rewards': {
+        title: 'Rewards & Loot',
+        body: () => (
+            <>
+                <p>Payout references for downtime and battle rewards.</p>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Wild Goods Finder (d100)</strong> — roll to see what a trainer finds foraging in the wild.</li>
+                    <li><strong>Pokécredit Reward Tables</strong> — suggested payouts for league battles, gym battles, tournaments, contests, and odd jobs.</li>
+                    <li><strong>Loyalty Progression</strong> — how many downtime hours it typically takes to raise a Pokémon's loyalty by one point.</li>
+                </ul>
+            </>
+        )
+    },
+    'gm-gym': {
+        title: 'Gym Guide',
+        body: () => (
+            <>
+                <p>Scaling and passives for Gym Leaders and the Elite Four.</p>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Badge Count Scaling</strong> — how many Pokémon and how much complexity to give a Gym Leader based on the party's current badge count.</li>
+                    <li><strong>Gym Pokémon Passives</strong> — stat and ability passives assignable to Gym Leader/Trainer Pokémon.</li>
+                    <li><strong>Gym Trainer Features</strong> — once-per-day abilities for non-Leader Gym Trainers.</li>
+                    <li><strong>Elite Four Passives</strong> — stronger versions of the gym passives for Elite Four members.</li>
+                </ul>
+            </>
+        )
+    },
+    'gm-npc': {
+        title: 'NPC Stats',
+        body: () => (
+            <>
+                <p>Generates ready-to-use stat blocks for NPC trainers.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Tiers</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Junior</strong> — a new trainer.</li>
+                    <li><strong>Experienced</strong> — a seasoned trainer.</li>
+                    <li><strong>Veteran</strong> — an expert trainer.</li>
+                </ul>
+                <p>Pick a tier and trainer class to see that NPC's 5 stats (all NPCs use the standard 20 HP) and any class features they've unlocked. Use <strong>Copy</strong> to paste the stat block straight into your notes.</p>
+            </>
+        )
+    },
+    'gm-contest': {
+        title: 'Contest Tracker',
+        body: () => (
+            <>
+                <p>Runs a Pokémon Contest from setup through judging.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Heart Points</h4>
+                <p>Each of the 3 judges scores every contestant; use the grid to track running totals per judge.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Star Points</h4>
+                <p>Award a Star Point to whichever contestant leads a judge's column. If two or more contestants are tied for the lead, no Star Point is awarded for that judge.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>NPC Roll</h4>
+                <p>Roll d20 to determine an NPC competitor's contest preparedness (Novice / Prepared / Expert Coordinator).</p>
+            </>
+        )
+    },
+    'reference': {
+        title: 'Quick Reference',
+        body: () => (
+            <>
+                <p>A searchable database for everything you'd otherwise need to flip through the handbooks for.</p>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Pokédex</strong> — every species' stats, capabilities, moves, and abilities.</li>
+                    <li><strong>Type Chart</strong> — full type effectiveness grid.</li>
+                    <li><strong>Natures</strong> — all 25 natures and their ±1 stat modifiers.</li>
+                    <li><strong>Moves Database</strong> — every move's type, range, frequency, and damage.</li>
+                    <li><strong>Abilities</strong> — ability descriptions.</li>
+                    <li><strong>Game Rules</strong> — condensed core rules text.</li>
+                    <li><strong>Honor Thresholds</strong> — Honors required per trainer level.</li>
+                </ul>
+            </>
+        )
+    },
+    'notes': {
+        title: 'Campaign Notes',
+        body: () => (
+            <>
+                <p>A place to keep track of the story as it unfolds, separate from any single trainer's mechanical sheet.</p>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>Campaign</strong> — freeform long-term notes (NPCs, plot threads, world details).</li>
+                    <li><strong>Session</strong> — freeform notes for the current session.</li>
+                    <li><strong>Quests</strong> — a quest log with Active / Completed / Abandoned status per entry.</li>
+                </ul>
+                <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>Both note fields save automatically as you type.</p>
             </>
         )
     },

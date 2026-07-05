@@ -220,13 +220,3 @@ export const TypeBadge = React.memo(({ type }) => (
 ));
 TypeBadge.displayName = 'TypeBadge';
 
-/**
- * Tooltip - Info tooltip with hover
- */
-export const Tooltip = React.memo(({ text }) => (
-    <span className="info-tooltip">
-        ?
-        <span className="tooltip-text">{text}</span>
-    </span>
-));
-Tooltip.displayName = 'Tooltip';

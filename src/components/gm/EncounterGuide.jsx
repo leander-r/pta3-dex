@@ -3,6 +3,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useUI } from '../../contexts/index.js';
+import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 import { GAME_DATA } from '../../data/configs.js';
 
@@ -64,6 +66,7 @@ const SKILL_DC_TABLE = [
 ];
 
 const EncounterGuide = () => {
+    const { showHelp } = useUI();
     const [d20Roll, setD20Roll] = useState(null);
     const [natureRoll, setNatureRoll] = useState(null);
 
@@ -91,7 +94,15 @@ const EncounterGuide = () => {
 
             {/* Difficulty Table */}
             <div className="section-card-purple">
-                <h3 className="section-title-purple">⚔️ Encounter Difficulty</h3>
+                <h3 className="section-title-purple">
+                    ⚔️ Encounter Difficulty
+                    <button
+                        onClick={(e) => { e.stopPropagation(); showHelp('gm-encounter'); }}
+                        style={HELP_BTN_STYLE}
+                        aria-label="Help: Encounter Guide"
+                        title="About the encounter guide"
+                    >?</button>
+                </h3>
                 <div style={{ display: 'grid', gap: '8px' }}>
                     {DIFFICULTY_ROWS.map(row => (
                         <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', borderLeft: `4px solid ${row.color}`, background: `${row.color}11` }}>
