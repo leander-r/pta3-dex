@@ -34,26 +34,36 @@ const ContestTracker = () => {
 
     const colTotal = (ji) => heartPoints.reduce((sum, row) => sum + row[ji], 0);
 
-    const leadContestant = (ji) => {
+    const totalHeartPoints = (ci) => heartPoints[ci].reduce((sum, v) => sum + v, 0);
+
+    // Returns the contestant indices leading a given judge's category. Per the GMG, a tie is
+    // first broken by each contestant's total Heart Points across all judges; if still tied,
+    // the Star Point is awarded to all still-tied contestants rather than withheld.
+    const leadContestants = (ji) => {
         const totals = contestants.map((_, ci) => heartPoints[ci][ji]);
         const max = Math.max(...totals);
-        if (max === 0) return null;
-        const leaders = totals.map((v, ci) => ({ ci, v })).filter(x => x.v === max);
-        return leaders.length === 1 ? leaders[0].ci : null;
+        if (max === 0) return [];
+        let leaders = totals.map((v, ci) => ci).filter(ci => totals[ci] === max);
+        if (leaders.length > 1) {
+            const maxTotal = Math.max(...leaders.map(totalHeartPoints));
+            leaders = leaders.filter(ci => totalHeartPoints(ci) === maxTotal);
+        }
+        return leaders;
     };
 
     const awardStar = (ji) => {
-        const lead = leadContestant(ji);
-        if (lead === null) {
+        const leaders = leadContestants(ji);
+        if (leaders.length === 0) {
             toast.warning('No clear leader for this judge yet.');
             return;
         }
         setStarPoints(prev => {
             const next = [...prev];
-            next[ji] = lead;
+            next[ji] = leaders;
             return next;
         });
-        toast.success(`⭐ Star awarded to ${contestants[lead] || `Contestant ${lead + 1}`}!`);
+        const names = leaders.map(ci => contestants[ci] || `Contestant ${ci + 1}`).join(' & ');
+        toast.success(`⭐ Star awarded to ${names}!`);
     };
 
     const rollNpc = () => {
@@ -159,7 +169,7 @@ const ContestTracker = () => {
                                 <tr key={ci} style={{ borderTop: '1px solid var(--border-light)' }}>
                                     <td style={{ padding: '8px 10px', fontWeight: 'bold' }}>{name || `Contestant ${ci + 1}`}</td>
                                     {heartPoints[ci].map((val, ji) => {
-                                        const isLead = leadContestant(ji) === ci;
+                                        const isLead = leadContestants(ji).includes(ci);
                                         return (
                                             <td key={ji} style={{ padding: '6px', textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
@@ -201,19 +211,19 @@ const ContestTracker = () => {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {judgeCategories.map((cat, ji) => {
-                        const lead = leadContestant(ji);
+                        const leaders = leadContestants(ji);
                         const awarded = starPoints[ji];
                         return (
                             <div key={ji} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: 'var(--input-bg)' }}>
                                 <span style={{ fontWeight: 'bold', minWidth: '100px', fontSize: '13px' }}>{cat || `Judge ${ji + 1}`}</span>
                                 <span style={{ flex: 1, fontSize: '12px', color: 'var(--text-muted)' }}>
-                                    {lead !== null
-                                        ? `Leader: ${contestants[lead] || `Contestant ${lead + 1}`}`
+                                    {leaders.length > 0
+                                        ? `Leader: ${leaders.map(ci => contestants[ci] || `Contestant ${ci + 1}`).join(' & ')}`
                                         : 'No leader yet'}
                                 </span>
-                                {awarded !== null && (
+                                {awarded && awarded.length > 0 && (
                                     <span style={{ fontSize: '12px', color: '#f9a825', fontWeight: 'bold' }}>
-                                        ⭐ {contestants[awarded] || `Contestant ${awarded + 1}`}
+                                        ⭐ {awarded.map(ci => contestants[ci] || `Contestant ${ci + 1}`).join(' & ')}
                                     </span>
                                 )}
                                 <button

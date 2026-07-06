@@ -42,7 +42,10 @@
             --text-primary: #1a1a2e;
             --text-secondary: #4a4a5a;
             --text-muted: #6b7280;
-            --text-light: #9ca3af;
+            /* Was #9ca3af (~2.5:1 on white, fails WCAG AA). Matched to --text-muted's
+               already-passing contrast (~4.8:1) since this token is used for real content,
+               not just decoration. */
+            --text-light: #6b7280;
 
             /* Status colors */
             --warning-bg: #fff3cd;
@@ -211,7 +214,7 @@
             --text-primary: #f0f0f5;
             --text-secondary: #b8b8c8;
             --text-muted: #a0a0b8;
-            --text-light: #9898b0;
+            --text-light: #a0a0b8;
 
             /* Component colors - dark mode */
             --section-bg: linear-gradient(135deg, #252535 0%, #2a2a3a 100%);
@@ -953,6 +956,10 @@
             border-radius: var(--radius-lg);
             border: 2px solid #e0e0f0;
             position: relative;
+            /* Allow shrinking below content's intrinsic width when used as a grid/flex item
+               (e.g. grid-responsive-2) — otherwise nowrap content like the sprite picker
+               forces the whole grid/page wider instead of scrolling internally. */
+            min-width: 0;
         }
         
         .section-card-purple::before {
@@ -972,6 +979,7 @@
             border-radius: var(--radius-lg);
             border: 2px solid #ffe0b2;
             position: relative;
+            min-width: 0;
         }
 
         .section-card-orange::before {
@@ -2699,6 +2707,7 @@
             padding: 20px;
             border-radius: 12px;
             border: 1px solid #e0e0e0;
+            min-width: 0;
         }
         
         .section-title-sm {
@@ -4583,7 +4592,7 @@
                 --text-primary: #f0f0f5;
                 --text-secondary: #b8b8c8;
                 --text-muted: #a0a0b8;
-                --text-light: #9898b0;
+                --text-light: #a0a0b8;
 
                 /* Component colors - dark mode */
                 --section-bg: linear-gradient(135deg, #252535 0%, #2a2a3a 100%);

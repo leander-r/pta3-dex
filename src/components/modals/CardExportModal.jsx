@@ -12,6 +12,7 @@ import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/d
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { GAME_DATA } from '../../data/configs.js';
+import PokemonSpritePicker from '../battle/PokemonSpritePicker.jsx';
 
 // ============================================================
 // Shared Design Tokens & Helper Components
@@ -333,16 +334,15 @@ const CardExportModal = () => {
 
                     {cardType === 'pokemon' && (
                         <div className="mt-10">
-                            <select
-                                value={selectedCardPokemon?.id || ''}
-                                onChange={(e) => setSelectedCardPokemon(allPokemon.find(p => p.id === parseInt(e.target.value)))}
-                                className="w-full"
-                            >
-                                <option value="">Select a Pokémon...</option>
-                                {allPokemon.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
+                            <PokemonSpritePicker
+                                party={allPokemon}
+                                selectedId={selectedCardPokemon?.id}
+                                onSelect={(id) => setSelectedCardPokemon(allPokemon.find(p => p.id === id))}
+                                getHP={(p) => {
+                                    const max = calculatePokemonHP(p);
+                                    return { current: max - (p.currentDamage || 0), max };
+                                }}
+                            />
                         </div>
                     )}
                 </div>

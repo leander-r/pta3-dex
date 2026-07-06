@@ -8,9 +8,9 @@ import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
 const WILD_GOODS = [
-    { range: [1,  60],  label: 'Common Berries',    value: '1–100 P',          color: '#4caf50' },
-    { range: [61, 70],  label: 'Uncommon Berries',  value: '10–50 P',          color: '#8bc34a' },
-    { range: [71, 75],  label: 'Rare Berries',      value: '50–200 P',         color: '#cddc39' },
+    { range: [1,  60],  label: 'Common Berries',    value: 'Variable',         color: '#4caf50' },
+    { range: [61, 70],  label: 'Uncommon Berries',  value: 'Variable',         color: '#8bc34a' },
+    { range: [71, 75],  label: 'Rare Berries',      value: 'Variable',         color: '#cddc39' },
     { range: [76, 80],  label: 'Rare Fungi',        value: '200–800 P',        color: '#ff9800' },
     { range: [81, 85],  label: 'Trainer Items',     value: 'Variable',         color: '#03a9f4' },
     { range: [86, 90],  label: 'Precious Gems',     value: '1,000 P',          color: '#9c27b0' },

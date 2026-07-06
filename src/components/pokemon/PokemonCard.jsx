@@ -2389,6 +2389,7 @@ const PokemonCard = ({
                                                                 cursor: 'pointer'
                                                             }}
                                                             title={(pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES ? "Replace a move (at limit)" : "Add move"}
+                                                            aria-label={`Add ${name} to moves`}
                                                         >
                                                             +
                                                         </button>
@@ -2410,6 +2411,7 @@ const PokemonCard = ({
                                                                 marginLeft: '2px'
                                                             }}
                                                             title="View move details"
+                                                            aria-label={`View details for ${name}`}
                                                         >
                                                             ℹ
                                                         </button>
@@ -2553,7 +2555,14 @@ const PokemonCard = ({
                                                     </div>
                                                     {evo.canEvolveNow && evolvePokemon && (
                                                         <button
-                                                            onClick={() => evolvePokemon(pokemon.id, evo.species, evo.regionalForm, evo.needsItem)}
+                                                            onClick={() => {
+                                                                showConfirm({
+                                                                    title: 'Evolve Pokémon',
+                                                                    message: `Evolve ${pokemon.name || pokemon.species} into ${evo.regionalForm ? `${evo.regionalForm} ${evo.species}` : evo.species}? This changes its stats, sprite, and available moves/abilities.`,
+                                                                    danger: true,
+                                                                    onConfirm: () => evolvePokemon(pokemon.id, evo.species, evo.regionalForm, evo.needsItem)
+                                                                });
+                                                            }}
                                                             style={{
                                                                 padding: '6px 12px',
                                                                 background: 'linear-gradient(135deg, #667eea, #764ba2)',
@@ -2592,7 +2601,14 @@ const PokemonCard = ({
                                                     </div>
                                                 </div>
                                                 <button
-                                                    onClick={() => devolvePokemon(pokemon.id, canDevolve.species)}
+                                                    onClick={() => {
+                                                        showConfirm({
+                                                            title: 'Devolve Pokémon',
+                                                            message: `Revert ${pokemon.name || pokemon.species} to ${canDevolve.species}? This changes its stats, sprite, and available moves/abilities.`,
+                                                            danger: true,
+                                                            onConfirm: () => devolvePokemon(pokemon.id, canDevolve.species)
+                                                        });
+                                                    }}
                                                     style={{
                                                         padding: '6px 12px',
                                                         background: '#f44336',

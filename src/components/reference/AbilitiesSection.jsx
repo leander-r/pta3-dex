@@ -2,9 +2,11 @@
 // Abilities Section Component
 // ============================================================
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 import { useModal, useFilter } from '../../contexts/index.js';
+
+const PAGE_SIZE = 60;
 
 /**
  * AbilitiesSection - Display and search abilities database
@@ -13,6 +15,9 @@ import { useModal, useFilter } from '../../contexts/index.js';
 const AbilitiesSection = () => {
     const { showDetail } = useModal();
     const { abilitiesFilter: filter, setAbilitiesFilter: setFilter } = useFilter();
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+    useEffect(() => { setVisibleCount(PAGE_SIZE); }, [filter]);
 
     const filteredAbilities = useMemo(() => {
         return Object.entries(GAME_DATA.abilities || {})
@@ -108,7 +113,7 @@ const AbilitiesSection = () => {
                         No abilities found matching your search.
                     </div>
                 ) : (
-                    filteredAbilities.map(([name, desc]) => (
+                    filteredAbilities.slice(0, visibleCount).map(([name, desc]) => (
                         <div
                             key={name}
                             style={{
@@ -132,6 +137,20 @@ const AbilitiesSection = () => {
                     ))
                 )}
             </div>
+
+            {visibleCount < filteredAbilities.length && (
+                <button
+                    onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                    style={{
+                        width: '100%', marginTop: '10px', padding: '10px',
+                        borderRadius: '8px', border: '1px solid var(--border-medium)',
+                        background: 'var(--input-bg)', color: 'var(--text-primary)',
+                        fontSize: '13px', fontWeight: 'bold', cursor: 'pointer'
+                    }}
+                >
+                    Show {Math.min(PAGE_SIZE, filteredAbilities.length - visibleCount)} more ({filteredAbilities.length - visibleCount} remaining)
+                </button>
+            )}
         </div>
     );
 };

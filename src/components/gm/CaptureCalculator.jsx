@@ -55,7 +55,6 @@ const INITIATIVE_MODS = [
     { label: 'Wild ambushed trainer',     mod: -25 },
     { label: 'Wild initiated combat',     mod:   0 },
     { label: 'Trainer initiated combat',  mod: +10 },
-    { label: 'Wild knew about trainers',  mod: -10 },
 ];
 
 const CaptureCalculator = () => {

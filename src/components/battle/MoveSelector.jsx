@@ -265,6 +265,7 @@ const MoveSelector = ({
 
                     const category = move.category || gameData?.moves?.[move.name]?.category;
                     const damage = move.damage || gameData?.moves?.[move.name]?.damage;
+                    const frequency = move.frequency || gameData?.moves?.[move.name]?.frequency;
 
                     // Background when selected
                     const selectedBg = isGMax ? 'linear-gradient(135deg, #b8860b, #ffd700)'
@@ -333,22 +334,37 @@ const MoveSelector = ({
                                     {move.name}
                                     {badge}
                                 </div>
-                                <div style={{ fontSize: '12px', opacity: 0.8 }}>
-                                    {move.type} | {category || '—'} |{' '}
-                                    {move.isMaxGuard ? 'No Damage' : (damage || 'Status')}
-                                    {!move.isMaxMove && !isGMax && !isZMove && !isTeraMove && (
-                                        <span title="PTA3: Roll 1d20 + accuracy bonus against the target's stat value.">
-                                            {' '}| {accTargetLabel(category)}
+                                <div style={{ fontSize: '12px', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                                    <span>{move.type}</span>
+                                    {category && (
+                                        <span style={{
+                                            padding: '1px 6px',
+                                            borderRadius: '4px',
+                                            fontSize: '10px',
+                                            fontWeight: 'bold',
+                                            background: category === 'Physical' ? 'var(--moves-category-physical-bg)' : category === 'Special' ? 'var(--moves-category-special-bg)' : 'var(--moves-category-status-bg)',
+                                            color: category === 'Physical' ? 'var(--moves-category-physical-text)' : category === 'Special' ? 'var(--moves-category-special-text)' : 'var(--moves-category-status-text)'
+                                        }}>
+                                            {category}
                                         </span>
                                     )}
+                                    <span>| {move.isMaxGuard ? 'No Damage' : (damage || 'Status')}</span>
+                                    {!move.isMaxMove && !isGMax && !isZMove && !isTeraMove && (
+                                        <span title="PTA3: Roll 1d20 + accuracy bonus against the target's stat value.">
+                                            | {accTargetLabel(category)}
+                                        </span>
+                                    )}
+                                    {!move.isMaxMove && !isGMax && !isZMove && !isTeraMove && frequency && (
+                                        <span style={{ opacity: 0.7 }}>| {frequency}</span>
+                                    )}
                                     {((move.isMaxMove && !move.isMaxGuard) || isGMax || isZMove) ? (
-                                        <span style={{ opacity: 0.7 }}> | At-Will, always hits</span>
+                                        <span style={{ opacity: 0.7 }}>| At-Will, always hits</span>
                                     ) : null}
                                     {isTeraBlast && (
-                                        <span style={{ opacity: 0.7 }}> | Always hits</span>
+                                        <span style={{ opacity: 0.7 }}>| Always hits</span>
                                     )}
                                     {isTeraCrown && (
-                                        <span style={{ opacity: 0.7 }}> | At-Will</span>
+                                        <span style={{ opacity: 0.7 }}>| At-Will</span>
                                     )}
                                 </div>
                             </button>

@@ -63,7 +63,7 @@ const PokemonSpritePicker = ({ party, selectedId, onSelect, getHP }) => {
     }
 
     return (
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: '4px' }}>
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: '4px', width: '100%', minWidth: 0 }}>
             {party.map(poke => {
                 const { current, max } = getHP(poke);
                 const fainted = current <= 0;

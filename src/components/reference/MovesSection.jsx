@@ -2,11 +2,13 @@
 // Moves Section Component
 // ============================================================
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 import { getTypeColor } from '../../utils/typeUtils.js';
 import { POKEMON_TYPES } from '../../data/typeChart.js';
 import { useModal, useFilter } from '../../contexts/index.js';
+
+const PAGE_SIZE = 60;
 
 /**
  * MovesSection - Display and search moves database
@@ -15,6 +17,9 @@ import { useModal, useFilter } from '../../contexts/index.js';
 const MovesSection = () => {
     const { showDetail } = useModal();
     const { movesFilter: filter, setMovesFilter: setFilter } = useFilter();
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+    useEffect(() => { setVisibleCount(PAGE_SIZE); }, [filter]);
 
     const filteredMoves = useMemo(() => {
         return Object.entries(GAME_DATA.moves || {})
@@ -185,7 +190,7 @@ const MovesSection = () => {
                         No moves found matching your filters.
                     </div>
                 ) : (
-                    filteredMoves.map(([move, data]) => (
+                    filteredMoves.slice(0, visibleCount).map(([move, data]) => (
                         <div
                             key={move}
                             style={{
@@ -245,6 +250,20 @@ const MovesSection = () => {
                     ))
                 )}
             </div>
+
+            {visibleCount < filteredMoves.length && (
+                <button
+                    onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                    style={{
+                        width: '100%', marginTop: '10px', padding: '10px',
+                        borderRadius: '8px', border: '1px solid var(--border-medium)',
+                        background: 'var(--input-bg)', color: 'var(--text-primary)',
+                        fontSize: '13px', fontWeight: 'bold', cursor: 'pointer'
+                    }}
+                >
+                    Show {Math.min(PAGE_SIZE, filteredMoves.length - visibleCount)} more ({filteredMoves.length - visibleCount} remaining)
+                </button>
+            )}
         </div>
     );
 };
