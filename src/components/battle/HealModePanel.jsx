@@ -1,5 +1,11 @@
 import React from 'react';
 import { calculatePokemonHP, parseHealFormula } from '../../utils/dataUtils.js';
+import PokemonSpritePicker from './PokemonSpritePicker.jsx';
+
+const getHP = (p) => {
+    const max = calculatePokemonHP(p);
+    return { current: max - (p.currentDamage || 0), max };
+};
 
 const HealModePanel = ({ selectedPokemonId, setSelectedPokemonId, party, healingInventory, onUseItem }) => (
     <div>
@@ -7,22 +13,12 @@ const HealModePanel = ({ selectedPokemonId, setSelectedPokemonId, party, healing
             <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>
                 Target Pokémon
             </label>
-            <select
-                value={selectedPokemonId || ''}
-                onChange={(e) => setSelectedPokemonId(parseInt(e.target.value) || null)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
-            >
-                <option value="">— Select Pokémon —</option>
-                {party.map(p => {
-                    const maxHP = calculatePokemonHP(p);
-                    const currentHP = maxHP - (p.currentDamage || 0);
-                    return (
-                        <option key={p.id} value={p.id}>
-                            {p.name || p.species} ({currentHP}/{maxHP} HP)
-                        </option>
-                    );
-                })}
-            </select>
+            <PokemonSpritePicker
+                party={party}
+                selectedId={selectedPokemonId}
+                onSelect={setSelectedPokemonId}
+                getHP={getHP}
+            />
         </div>
 
         {healingInventory.length === 0 ? (

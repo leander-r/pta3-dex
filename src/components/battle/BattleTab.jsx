@@ -17,6 +17,7 @@ import CombatStagesPanel from './CombatStagesPanel.jsx';
 import MoveSelector from './MoveSelector.jsx';
 import CustomDicePanel from './CustomDicePanel.jsx';
 import HealModePanel from './HealModePanel.jsx';
+import PokemonSpritePicker from './PokemonSpritePicker.jsx';
 import RollHistory from './RollHistory.jsx';
 import DiscordWebhookConfig from './DiscordWebhookConfig.jsx';
 
@@ -710,25 +711,16 @@ const BattleTab = () => {
                             {/* Pokemon Selector */}
                             <div style={{ marginBottom: '12px' }}>
                                 <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Pokemon</label>
-                                <select
-                                    value={selectedPokemonId || ''}
-                                    onChange={(e) => {
-                                        setSelectedPokemonId(parseInt(e.target.value) || null);
+                                <PokemonSpritePicker
+                                    party={party}
+                                    selectedId={selectedPokemonId}
+                                    onSelect={(id) => {
+                                        setSelectedPokemonId(id);
                                         setSelectedMove(null);
                                         resetCombatStages();
                                     }}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)' }}
-                                >
-                                    <option value="">Choose a Pokemon...</option>
-                                    {party.map(poke => {
-                                        const hp = getPokemonHP(poke);
-                                        return (
-                                            <option key={poke.id} value={poke.id}>
-                                                {poke.name || poke.species} — HP: {hp.current}/{hp.max}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
+                                    getHP={getPokemonHP}
+                                />
                             </div>
 
                             {/* Pokemon sub-mode tabs */}

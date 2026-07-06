@@ -1118,6 +1118,20 @@ const PokemonCard = ({
                                                             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                                         >
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                <div style={{
+                                                                    width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
+                                                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px'
+                                                                }}>
+                                                                    {getPokemonDisplayImage(sp) ? (
+                                                                        <img
+                                                                            src={getPokemonDisplayImage(sp)}
+                                                                            alt=""
+                                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                        />
+                                                                    ) : '🔴'}
+                                                                </div>
                                                                 <span style={{ fontWeight: 'bold' }}>{sp.species}</span>
                                                                 {sp.isCustom ? (
                                                                     <span style={{
@@ -1328,7 +1342,21 @@ const PokemonCard = ({
                                                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                             >
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <div style={{
+                                                            width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
+                                                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px'
+                                                        }}>
+                                                            {getPokemonDisplayImage(pendingSpeciesData) ? (
+                                                                <img
+                                                                    src={getPokemonDisplayImage(pendingSpeciesData)}
+                                                                    alt=""
+                                                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                />
+                                                            ) : '🔴'}
+                                                        </div>
                                                         <span style={{ fontWeight: 'bold' }}>🔵 Normal Form</span>
                                                     </div>
                                                     <div style={{ display: 'flex', gap: '4px' }}>
@@ -1364,7 +1392,24 @@ const PokemonCard = ({
                                                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                                 >
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                        <div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <div style={{
+                                                                width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
+                                                                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px'
+                                                            }}>
+                                                                {(() => {
+                                                                    const formSprite = getPokemonSprite({ species: pendingSpeciesData.species, regionalForm: form.name });
+                                                                    return formSprite ? (
+                                                                        <img
+                                                                            src={formSprite}
+                                                                            alt=""
+                                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                        />
+                                                                    ) : '🔴';
+                                                                })()}
+                                                            </div>
                                                             <span style={{ fontWeight: 'bold' }}>🌴 {form.name} Form</span>
                                                         </div>
                                                         <div style={{ display: 'flex', gap: '4px' }}>
