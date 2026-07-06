@@ -125,7 +125,7 @@ const ContestTracker = () => {
                                 placeholder={`Contestant ${i + 1}`}
                                 value={name}
                                 onChange={e => setContestants(prev => { const n = [...prev]; n[i] = e.target.value; return n; })}
-                                style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', fontSize: '13px', color: 'var(--text-primary)' }}
+                                style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', fontSize: '13px', color: 'var(--text-primary)', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
                             />
                         ))}
                     </div>
@@ -142,7 +142,7 @@ const ContestTracker = () => {
                                 placeholder={`Judge ${i + 1} category`}
                                 value={cat}
                                 onChange={e => setJudgeCategories(prev => { const n = [...prev]; n[i] = e.target.value; return n; })}
-                                style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', fontSize: '12px', color: 'var(--text-primary)' }}
+                                style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', fontSize: '12px', color: 'var(--text-primary)', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
                             />
                         ))}
                     </div>
