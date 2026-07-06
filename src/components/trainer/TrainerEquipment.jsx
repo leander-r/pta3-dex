@@ -89,7 +89,7 @@ const TrainerEquipment = () => {
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: collapsed ? 0 : '12px' }}
                 onClick={() => setCollapsed(c => !c)}
             >
-                <h3 className="section-title-purple" style={{ margin: 0 }}>
+                <h3 className="section-title-purple" style={{ margin: 0 }} aria-label="Equipment">
                     <span>🛡️</span> Equipment
                     {equippedItems.length > 0 && (
                         <span style={{ marginLeft: '8px', fontSize: '12px', fontWeight: 'normal', opacity: 0.8 }}>
@@ -103,9 +103,14 @@ const TrainerEquipment = () => {
                         aria-label="Help: Equipment"
                     >?</button>
                 </h3>
-                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', userSelect: 'none' }}>
+                <button
+                    onClick={e => { e.stopPropagation(); setCollapsed(c => !c); }}
+                    aria-label={collapsed ? 'Expand Equipment' : 'Collapse Equipment'}
+                    aria-expanded={!collapsed}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}
+                >
                     {collapsed ? '▶' : '▼'}
-                </span>
+                </button>
             </div>
 
             {/* Collapsed chip view */}

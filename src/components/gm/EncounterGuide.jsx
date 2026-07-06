@@ -94,7 +94,7 @@ const EncounterGuide = () => {
 
             {/* Difficulty Table */}
             <div className="section-card-purple">
-                <h3 className="section-title-purple">
+                <h3 className="section-title-purple" aria-label="Encounter Difficulty">
                     ⚔️ Encounter Difficulty
                     <button
                         onClick={(e) => { e.stopPropagation(); showHelp('gm-encounter'); }}

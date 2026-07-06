@@ -331,7 +331,8 @@ const Header = () => {
                         }}
                         role="button"
                         tabIndex={0}
-                        aria-label="Open menu"
+                        aria-expanded={showCharacterMenu}
+                        aria-label={showCharacterMenu ? 'Close menu' : 'Open menu'}
                     >
                         <svg
                             width={isMobile ? "18" : (isScrolled ? "18" : "20")}

@@ -84,7 +84,7 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
 
     return (
         <div className="section-card-purple">
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" aria-label="Roll History">
                 <span>📜</span> Roll History
                 {rollHistory.length > 0 && (
                     <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>

@@ -85,7 +85,7 @@ const ContestTracker = () => {
 
             {/* Setup */}
             <div className="section-card-purple">
-                <h3 className="section-title-purple">
+                <h3 className="section-title-purple" aria-label="Contest Setup">
                     🏆 Contest Setup
                     <button
                         onClick={(e) => { e.stopPropagation(); showHelp('gm-contest'); }}

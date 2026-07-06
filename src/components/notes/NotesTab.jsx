@@ -143,7 +143,11 @@ const NotesTab = () => {
                     transition: 'box-shadow 0.2s ease',
                     boxShadow: isFocused ? '0 0 0 3px rgba(102, 126, 234, 0.2)' : 'none'
                 }}>
-                    <h3 className="section-title-purple" style={{ marginBottom: '12px' }}>
+                    <h3
+                        className="section-title-purple"
+                        style={{ marginBottom: '12px' }}
+                        aria-label={isCampaign ? `${trainer.name || 'Trainer'}'s Campaign Notes` : 'Session Notes'}
+                    >
                         <span>{isCampaign ? '📝' : '🗒️'}</span>
                         {isCampaign ? `${trainer.name || 'Trainer'}'s Campaign Notes` : 'Session Notes'}
                         {isSession && (

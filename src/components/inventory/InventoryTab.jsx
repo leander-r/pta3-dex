@@ -432,7 +432,7 @@ const InventoryTab = () => {
             </p>
 
             <div className="section-card-purple">
-                <h3 className="section-title-purple">
+                <h3 className="section-title-purple" aria-label="Items">
                     <span>🎒</span> Items
                     <button
                         onClick={(e) => { e.stopPropagation(); showHelp('inventory'); }}

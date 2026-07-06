@@ -468,27 +468,6 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        /* Skip to content link for accessibility */
-        .skip-to-content {
-            position: absolute;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--poke-orange);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 0 0 8px 8px;
-            text-decoration: none;
-            font-weight: 700;
-            z-index: 9999;
-            transition: top 0.2s ease;
-        }
-
-        .skip-to-content:focus {
-            top: 0;
-            outline: none;
-        }
-
         /* Focus trap indicator for modals */
         .focus-trap-active {
             position: fixed;

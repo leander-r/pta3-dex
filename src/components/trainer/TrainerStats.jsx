@@ -47,7 +47,7 @@ const TrainerStats = () => {
 
     return (
         <div className="section-card-purple">
-            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }} aria-label="Stats">
                 <span>📊</span> Stats
                 <button
                     onClick={(e) => { e.stopPropagation(); showHelp('stat-allocation'); }}
@@ -56,20 +56,27 @@ const TrainerStats = () => {
                     title="About stat allocation"
                 >?</button>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span
+                    <button
+                        onClick={(e) => { e.stopPropagation(); toast.info('Creation points used during character creation (point-buy). Level points gained by leveling up.'); }}
                         style={{
                             fontSize: '12px',
                             fontWeight: (trainer.levelStatPoints || 0) > 0 ? 'bold' : 'normal',
-                            color: (trainer.levelStatPoints || 0) > 0 ? '#e65100' : 'var(--text-muted)'
+                            color: (trainer.levelStatPoints || 0) > 0 ? '#e65100' : 'var(--text-muted)',
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit'
                         }}
                         title="Creation points used during character creation (point-buy). Level points gained by leveling up."
                     >
                         Creation: {trainer.statPoints ?? 0} | Level: {trainer.levelStatPoints || 0}
                         {(trainer.levelStatPoints || 0) > 0 && ' ⬆'}
-                    </span>
+                    </button>
                     <button
                         onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Stats' : 'Collapse Stats'}
+                        aria-expanded={!collapsed}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >
                         <span style={{ display: 'inline-block', transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '12px' }}>▼</span>

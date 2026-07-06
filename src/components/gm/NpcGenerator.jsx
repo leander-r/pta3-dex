@@ -79,7 +79,7 @@ const NpcGenerator = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="section-card-purple">
-                <h3 className="section-title-purple">
+                <h3 className="section-title-purple" aria-label="NPC Trainer Stat Blocks">
                     🧑 NPC Trainer Stat Blocks
                     <button
                         onClick={(e) => { e.stopPropagation(); showHelp('gm-npc'); }}

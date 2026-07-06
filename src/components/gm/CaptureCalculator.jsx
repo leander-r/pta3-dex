@@ -100,7 +100,7 @@ const CaptureCalculator = () => {
 
     return (
         <div className="section-card-purple">
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" aria-label="Capture Rate Calculator">
                 🎯 Capture Rate Calculator
                 <button
                     onClick={(e) => { e.stopPropagation(); showHelp('gm-capture'); }}

@@ -64,7 +64,7 @@ const RewardTables = () => {
 
             {/* Wild Goods d100 Roller */}
             <div className="section-card-purple">
-                <h3 className="section-title-purple">
+                <h3 className="section-title-purple" aria-label="Wild Goods Finder (d100)">
                     🌿 Wild Goods Finder (d100)
                     <button
                         onClick={(e) => { e.stopPropagation(); showHelp('gm-rewards'); }}

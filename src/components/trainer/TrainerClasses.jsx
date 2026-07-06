@@ -230,7 +230,7 @@ const TrainerClasses = () => {
 
     return (
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
-            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }} aria-label="Classes">
                 <span>🎓</span> Classes
                 <button
                     onClick={(e) => { e.stopPropagation(); showHelp('classes'); }}
@@ -250,6 +250,7 @@ const TrainerClasses = () => {
                     <button
                         onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Classes' : 'Collapse Classes'}
+                        aria-expanded={!collapsed}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >
                         <span style={{ display: 'inline-block', transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '12px' }}>▼</span>

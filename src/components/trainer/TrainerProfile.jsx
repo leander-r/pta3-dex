@@ -122,7 +122,7 @@ const TrainerProfile = () => {
         <div className="section-card-purple">
 
             {/* Header: avatar + name */}
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" aria-label="Trainer Profile">
                 <div
                     style={{ position: 'relative', flexShrink: 0, cursor: 'pointer' }}
                     onClick={() => document.getElementById('trainerAvatarInput').click()}

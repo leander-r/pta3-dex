@@ -63,7 +63,7 @@ const GymLeaderGuide = () => {
 
         {/* Badge Count Scaling */}
         <div className="section-card-purple">
-            <h3 className="section-title-purple">
+            <h3 className="section-title-purple" aria-label="Gym Leader Difficulty (by Badge Count)">
                 🏅 Gym Leader Difficulty (by Badge Count)
                 <button
                     onClick={(e) => { e.stopPropagation(); showHelp('gm-gym'); }}

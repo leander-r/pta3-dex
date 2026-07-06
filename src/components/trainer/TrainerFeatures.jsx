@@ -104,7 +104,7 @@ const TrainerFeatures = () => {
 
     return (
         <div className="section-card-purple" style={{ marginBottom: '20px' }}>
-            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <h3 className="section-title-purple" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer', userSelect: 'none' }} aria-label="Features">
                 <span>⭐</span> Features
                 <button
                     onClick={(e) => { e.stopPropagation(); showHelp('trainer-features'); }}
@@ -126,6 +126,7 @@ const TrainerFeatures = () => {
                     <button
                         onClick={(e) => { e.stopPropagation(); setCollapsed(c => !c); }}
                         aria-label={collapsed ? 'Expand Features' : 'Collapse Features'}
+                        aria-expanded={!collapsed}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'inherit' }}
                     >
                         <span style={{ display: 'inline-block', transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '12px' }}>▼</span>

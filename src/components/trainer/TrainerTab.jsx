@@ -18,6 +18,7 @@ import TrainerEquipment from './TrainerEquipment.jsx';
 const TrainerTab = () => {
     return (
         <div className="trainer-layout">
+            <h2 className="section-title" style={{ gridColumn: '1 / -1' }}>Trainer</h2>
             <div className="trainer-layout__profile">
                 <TrainerProfile />
             </div>

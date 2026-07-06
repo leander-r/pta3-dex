@@ -129,7 +129,7 @@ const AppLayout = () => {
                     left: '-999px',
                     zIndex: 9999,
                     padding: '8px 16px',
-                    background: '#667eea',
+                    background: '#764ba2',
                     color: 'white',
                     borderRadius: '0 0 6px 6px',
                     fontWeight: 'bold',
