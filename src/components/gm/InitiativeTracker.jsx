@@ -38,7 +38,7 @@ const KIND_LABELS = { trainer: 'Player', pokemon: "Player's Pokémon", npc: 'NPC
 const KIND_COLORS = { trainer: '#2196f3', pokemon: '#4caf50', npc: '#e65100', 'npc-pokemon': '#ff9800', custom: '#9c27b0' };
 
 const trainerToCombatant = (t) => ({
-    id: newId(), name: t.name || 'Unnamed Trainer', kind: 'trainer', level: t.level ?? 0,
+    id: newId(), sourceId: t.id, name: t.name || 'Unnamed Trainer', kind: 'trainer', level: t.level ?? 0,
     initiative: null, spd: t.stats?.spd ?? 3,
     hp: { current: Math.max(0, (20 + (t.hpRolls || []).reduce((s, v) => s + v, 0)) - (t.currentDamage || 0)), max: 20 + (t.hpRolls || []).reduce((s, v) => s + v, 0) },
     stats: { ...t.stats }, types: [], moves: [], features: (t.features || []).map(f => typeof f === 'object' ? f.name : f),
@@ -49,7 +49,7 @@ const pokemonToCombatant = (p, kind = 'pokemon') => {
     const actualStats = getActualStats(p);
     const maxHP = calculatePokemonHP(p);
     return {
-        id: newId(), name: p.name || p.species || 'Pokémon', kind, level: null,
+        id: newId(), sourceId: p.id, name: p.name || p.species || 'Pokémon', kind, level: null,
         initiative: null, spd: actualStats.spd,
         hp: { current: Math.max(0, maxHP - (p.currentDamage || 0)), max: maxHP },
         stats: actualStats, types: p.types || [], moves: (p.moves || []).map(m => m.name), features: [],
@@ -68,7 +68,7 @@ const npcToCombatant = (n, GAME_DATA) => {
         .sort((a, b) => a[1] - b[1])
         .map(([name]) => name);
     return {
-        id: newId(), name: n.name, kind: 'npc', level,
+        id: newId(), sourceId: n.id, name: n.name, kind: 'npc', level,
         initiative: null, spd: n.stats?.spd ?? 3,
         hp: { current: Math.max(0, (n.maxHp ?? 20) - (n.currentDamage || 0)), max: n.maxHp ?? 20 },
         stats: { ...n.stats }, types: [], moves: [], features,
@@ -86,62 +86,93 @@ const HPStepper = ({ current, max, onChange }) => (
     </div>
 );
 
-const AddFromNpcRoster = ({ npcs, onAdd, GAME_DATA }) => (
+// Shared "already in the tracker?" check — combatant.sourceId points back to the
+// original NPC/trainer/Pokémon id, separate from combatant.id (a fresh synthetic id
+// per add, since the same Pokémon can't otherwise be told apart from a duplicate add).
+const isAlreadyAdded = (combatants, kind, sourceId) => combatants.some(c => c.kind === kind && c.sourceId === sourceId);
+
+const AddFromNpcRoster = ({ npcs, onAdd, GAME_DATA, combatants }) => (
     <div style={{ padding: '10px', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-medium)', maxHeight: '260px', overflowY: 'auto' }}>
         {npcs.length === 0 && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No saved NPCs — build one in NPC Roster first.</div>}
-        {npcs.map(n => (
-            <div key={n.id} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{n.name}{n.level != null && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {n.level}</span>}</span>
-                    <button onClick={() => onAdd(npcToCombatant(n, GAME_DATA))}
-                        style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '11px' }}>
-                        ＋ NPC
-                    </button>
-                    <button onClick={() => { onAdd(npcToCombatant(n, GAME_DATA)); (n.team || []).forEach(p => onAdd(pokemonToCombatant(p, 'npc-pokemon'))); }}
-                        disabled={!n.team || n.team.length === 0}
-                        style={{ padding: '4px 10px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', cursor: (!n.team || n.team.length === 0) ? 'not-allowed' : 'pointer', fontSize: '11px', opacity: (!n.team || n.team.length === 0) ? 0.5 : 1 }}>
-                        ＋ NPC + Team
-                    </button>
-                </div>
-                {(n.team || []).length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', paddingLeft: '4px' }}>
-                        {n.team.map(p => (
-                            <button key={p.id} onClick={() => onAdd(pokemonToCombatant(p, 'npc-pokemon'))}
-                                style={{ padding: '3px 8px', borderRadius: '10px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '10px' }}>
-                                ＋ {p.name || p.species}
-                            </button>
-                        ))}
+        {npcs.map(n => {
+            const team = n.team || [];
+            const npcAdded = isAlreadyAdded(combatants, 'npc', n.id);
+            const allTeamAdded = team.length > 0 && team.every(p => isAlreadyAdded(combatants, 'npc-pokemon', p.id));
+            return (
+                <div key={n.id} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{n.name}{n.level != null && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {n.level}</span>}</span>
+                        <button onClick={() => onAdd(npcToCombatant(n, GAME_DATA))}
+                            disabled={npcAdded}
+                            title={npcAdded ? 'Already in the tracker' : undefined}
+                            style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: npcAdded ? 'not-allowed' : 'pointer', fontSize: '11px', opacity: npcAdded ? 0.5 : 1 }}>
+                            {npcAdded ? '✓ NPC' : '＋ NPC'}
+                        </button>
+                        <button onClick={() => {
+                                if (!npcAdded) onAdd(npcToCombatant(n, GAME_DATA));
+                                team.forEach(p => { if (!isAlreadyAdded(combatants, 'npc-pokemon', p.id)) onAdd(pokemonToCombatant(p, 'npc-pokemon')); });
+                            }}
+                            disabled={team.length === 0 || (npcAdded && allTeamAdded)}
+                            title={team.length === 0 ? undefined : (npcAdded && allTeamAdded) ? 'Already in the tracker' : undefined}
+                            style={{ padding: '4px 10px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', cursor: (team.length === 0 || (npcAdded && allTeamAdded)) ? 'not-allowed' : 'pointer', fontSize: '11px', opacity: (team.length === 0 || (npcAdded && allTeamAdded)) ? 0.5 : 1 }}>
+                            ＋ NPC + Team
+                        </button>
                     </div>
-                )}
-            </div>
-        ))}
+                    {team.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', paddingLeft: '4px' }}>
+                            {team.map(p => {
+                                const added = isAlreadyAdded(combatants, 'npc-pokemon', p.id);
+                                return (
+                                    <button key={p.id} onClick={() => onAdd(pokemonToCombatant(p, 'npc-pokemon'))}
+                                        disabled={added}
+                                        title={added ? 'Already in the tracker' : undefined}
+                                        style={{ padding: '3px 8px', borderRadius: '10px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: added ? 'not-allowed' : 'pointer', fontSize: '10px', opacity: added ? 0.5 : 1 }}>
+                                        {added ? '✓' : '＋'} {p.name || p.species}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            );
+        })}
     </div>
 );
 
-const AddFromPlayers = ({ trainers, onAdd }) => (
+const AddFromPlayers = ({ trainers, onAdd, combatants }) => (
     <div style={{ padding: '10px', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-medium)', maxHeight: '260px', overflowY: 'auto' }}>
         {trainers.length === 0 && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No trainers found.</div>}
-        {trainers.map(t => (
-            <div key={t.id} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{t.name || 'Unnamed'}<span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {t.level ?? 0}</span></span>
-                    <button onClick={() => onAdd(trainerToCombatant(t))}
-                        style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '11px' }}>
-                        ＋ Trainer
-                    </button>
-                </div>
-                {(t.party || []).length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', paddingLeft: '4px' }}>
-                        {t.party.map(p => (
-                            <button key={p.id} onClick={() => onAdd(pokemonToCombatant(p, 'pokemon'))}
-                                style={{ padding: '3px 8px', borderRadius: '10px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '10px' }}>
-                                ＋ {p.name || p.species}
-                            </button>
-                        ))}
+        {trainers.map(t => {
+            const trainerAdded = isAlreadyAdded(combatants, 'trainer', t.id);
+            return (
+                <div key={t.id} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{t.name || 'Unnamed'}<span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {t.level ?? 0}</span></span>
+                        <button onClick={() => onAdd(trainerToCombatant(t))}
+                            disabled={trainerAdded}
+                            title={trainerAdded ? 'Already in the tracker' : undefined}
+                            style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: trainerAdded ? 'not-allowed' : 'pointer', fontSize: '11px', opacity: trainerAdded ? 0.5 : 1 }}>
+                            {trainerAdded ? '✓ Trainer' : '＋ Trainer'}
+                        </button>
                     </div>
-                )}
-            </div>
-        ))}
+                    {(t.party || []).length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', paddingLeft: '4px' }}>
+                            {t.party.map(p => {
+                                const added = isAlreadyAdded(combatants, 'pokemon', p.id);
+                                return (
+                                    <button key={p.id} onClick={() => onAdd(pokemonToCombatant(p, 'pokemon'))}
+                                        disabled={added}
+                                        title={added ? 'Already in the tracker' : undefined}
+                                        style={{ padding: '3px 8px', borderRadius: '10px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: added ? 'not-allowed' : 'pointer', fontSize: '10px', opacity: added ? 0.5 : 1 }}>
+                                        {added ? '✓' : '＋'} {p.name || p.species}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            );
+        })}
     </div>
 );
 
@@ -280,7 +311,7 @@ const CombatantRow = ({ c, isActive, onRoll, onHpChange, onRemove, onQuickRoll }
                 <span key={t} style={{ padding: '1px 6px', borderRadius: '8px', background: getTypeColor(t), color: getContrastTextColor(getTypeColor(t)), fontSize: '9px', fontWeight: 'bold' }}>{t}</span>
             ))}
             <button onClick={onRoll} title="Optional variant rule: roll 1d20 + Speed instead of sorting by raw Speed"
-                style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', cursor: 'pointer', fontSize: '12px' }}>🎲</button>
+                style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '12px' }}>🎲</button>
             <button onClick={() => setCheckOpen(v => !v)} title="Quick Check — a fast 1d20 + modifier roll for anything that isn't a full move (opposed checks, reactions, ad hoc rulings)"
                 style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: checkOpen ? '#667eea' : 'var(--bg-section)', color: checkOpen ? 'white' : 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>🎯 Check</button>
             <HPStepper current={c.hp.current} max={c.hp.max} onChange={onHpChange} />
@@ -411,19 +442,19 @@ const InitiativeTracker = () => {
                     </button>
                 </div>
 
-                {addPanel === 'npc' && <div style={{ marginBottom: '14px' }}><AddFromNpcRoster npcs={npcs} onAdd={addCombatant} GAME_DATA={GAME_DATA} /></div>}
-                {addPanel === 'player' && <div style={{ marginBottom: '14px' }}><AddFromPlayers trainers={trainers} onAdd={addCombatant} /></div>}
+                {addPanel === 'npc' && <div style={{ marginBottom: '14px' }}><AddFromNpcRoster npcs={npcs} onAdd={addCombatant} GAME_DATA={GAME_DATA} combatants={combatants} /></div>}
+                {addPanel === 'player' && <div style={{ marginBottom: '14px' }}><AddFromPlayers trainers={trainers} onAdd={addCombatant} combatants={combatants} /></div>}
                 {addPanel === 'custom' && <div style={{ marginBottom: '14px' }}><AddCustom onAdd={addCombatant} /></div>}
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', padding: '10px 14px', borderRadius: '8px', background: 'var(--input-bg)' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Round {round}</span>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <button onClick={rollAll} disabled={combatants.length === 0} title='Optional variant rule: roll 1d20 + Speed for everyone still sorted by raw Speed'
-                            style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', cursor: combatants.length === 0 ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 'bold', opacity: combatants.length === 0 ? 0.5 : 1 }}>
+                            style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', cursor: combatants.length === 0 ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 'bold', opacity: combatants.length === 0 ? 0.5 : 1 }}>
                             🎲 Roll All
                         </button>
                         <button onClick={clearRolls} disabled={combatants.length === 0} title="Revert to the default rule: sort by raw Speed only"
-                            style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', cursor: combatants.length === 0 ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 'bold', opacity: combatants.length === 0 ? 0.5 : 1 }}>
+                            style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', cursor: combatants.length === 0 ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 'bold', opacity: combatants.length === 0 ? 0.5 : 1 }}>
                             Clear Rolls
                         </button>
                         <button onClick={nextTurn} disabled={combatants.length === 0}
