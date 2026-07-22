@@ -127,14 +127,16 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
     const [pickingSpecies, setPickingSpecies] = useState(false);
 
     const currentHP = Math.max(0, (npc.maxHp ?? 20) - (npc.currentDamage || 0));
+    const level = npc.level ?? 1;
 
+    // Only features this NPC would actually have at its level (GMG: NPCs
+    // default to level 1 and get level-1 class features, not the full catalog).
     const classFeatures = useMemo(() => Object.entries(GAME_DATA.features || {})
         .filter(([, f]) => f.category === npc.trainerClass)
-        .sort(([, a], [, b]) => {
-            const lvA = parseInt((a.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99);
-            const lvB = parseInt((b.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99);
-            return lvA - lvB;
-        }), [GAME_DATA.features, npc.trainerClass]);
+        .map(([name, f]) => [name, f, parseInt((f.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99)])
+        .filter(([, , lv]) => lv <= level)
+        .sort((a, b) => a[2] - b[2])
+        .map(([name, f]) => [name, f]), [GAME_DATA.features, npc.trainerClass, level]);
 
     const setStat = (key, val) => onUpdate({ stats: { ...npc.stats, [key]: Math.max(1, Math.min(10, val)) } });
 
@@ -142,6 +144,7 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
         <div style={{ background: 'var(--input-bg)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border-medium)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
                 <input
+                    aria-label="NPC name"
                     value={npc.name}
                     onChange={(e) => onUpdate({ name: e.target.value })}
                     style={{ flex: '1 1 160px', minWidth: 0, padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '14px' }}
@@ -151,6 +154,17 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
                         {npc.trainerClass}{npc.tier ? ` · ${npc.tier}` : ''}
                     </span>
                 )}
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>
+                    Lv
+                    <input
+                        type="number" min={0} max={15}
+                        aria-label="NPC Level"
+                        value={level}
+                        onChange={(e) => onUpdate({ level: Math.max(0, Math.min(15, parseInt(e.target.value) || 0)) })}
+                        title="Level — controls which class features this NPC has"
+                        style={{ width: '44px', padding: '4px 6px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                </label>
                 <HPStepper
                     current={currentHP}
                     max={npc.maxHp ?? 20}
@@ -175,21 +189,27 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
                 ))}
             </div>
 
-            {classFeatures.length > 0 && (
-                <details style={{ marginBottom: '10px' }}>
-                    <summary style={{ cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>▸ Features ({classFeatures.length})</summary>
-                    <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        {classFeatures.map(([name, f]) => (
-                            <div key={name} style={{ padding: '8px 10px', background: 'var(--bg-section)', borderRadius: '6px', fontSize: '12px' }}>
-                                <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>
-                                    {name}
-                                    <span style={{ marginLeft: '6px', fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'normal' }}>{f.prerequisites}{f.frequency && ` · ${f.frequency}`}</span>
+            {npc.trainerClass && (
+                classFeatures.length > 0 ? (
+                    <details style={{ marginBottom: '10px' }} open>
+                        <summary style={{ cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>▸ Features up to Level {level} ({classFeatures.length})</summary>
+                        <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {classFeatures.map(([name, f]) => (
+                                <div key={name} style={{ padding: '8px 10px', background: 'var(--bg-section)', borderRadius: '6px', fontSize: '12px' }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>
+                                        {name}
+                                        <span style={{ marginLeft: '6px', fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'normal' }}>{f.prerequisites}{f.frequency && ` · ${f.frequency}`}</span>
+                                    </div>
+                                    <div style={{ color: 'var(--text-muted)', lineHeight: 1.5 }}>{f.effect}</div>
                                 </div>
-                                <div style={{ color: 'var(--text-muted)', lineHeight: 1.5 }}>{f.effect}</div>
-                            </div>
-                        ))}
-                    </div>
-                </details>
+                            ))}
+                        </div>
+                    </details>
+                ) : (
+                    <p style={{ marginBottom: '10px', fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        No {npc.trainerClass} features at level {level}.
+                    </p>
+                )
             )}
 
             <div>
@@ -275,6 +295,7 @@ const NpcRoster = () => {
             name: 'New NPC',
             tier: 'custom',
             trainerClass: '',
+            level: 1,
             stats: { atk: 3, def: 3, satk: 3, sdef: 3, spd: 3 },
             maxHp: 20,
             currentDamage: 0,

@@ -7,7 +7,7 @@
 // permanent HP changes are still applied back in the Trainer/Pokémon tab.
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useUI, useModal, useData, useTrainerContext } from '../../contexts/index.js';
+import { useUI, useModal, useData, useTrainerContext, useGameData } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import { getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
 import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
@@ -38,7 +38,7 @@ const KIND_LABELS = { trainer: 'Player', pokemon: "Player's Pokémon", npc: 'NPC
 const KIND_COLORS = { trainer: '#2196f3', pokemon: '#4caf50', npc: '#e65100', 'npc-pokemon': '#ff9800', custom: '#9c27b0' };
 
 const trainerToCombatant = (t) => ({
-    id: newId(), name: t.name || 'Unnamed Trainer', kind: 'trainer',
+    id: newId(), name: t.name || 'Unnamed Trainer', kind: 'trainer', level: t.level ?? 0,
     initiative: null, spd: t.stats?.spd ?? 3,
     hp: { current: Math.max(0, (20 + (t.hpRolls || []).reduce((s, v) => s + v, 0)) - (t.currentDamage || 0)), max: 20 + (t.hpRolls || []).reduce((s, v) => s + v, 0) },
     stats: { ...t.stats }, types: [], moves: [], features: (t.features || []).map(f => typeof f === 'object' ? f.name : f),
@@ -49,7 +49,7 @@ const pokemonToCombatant = (p, kind = 'pokemon') => {
     const actualStats = getActualStats(p);
     const maxHP = calculatePokemonHP(p);
     return {
-        id: newId(), name: p.name || p.species || 'Pokémon', kind,
+        id: newId(), name: p.name || p.species || 'Pokémon', kind, level: null,
         initiative: null, spd: actualStats.spd,
         hp: { current: Math.max(0, maxHP - (p.currentDamage || 0)), max: maxHP },
         stats: actualStats, types: p.types || [], moves: (p.moves || []).map(m => m.name), features: [],
@@ -57,13 +57,24 @@ const pokemonToCombatant = (p, kind = 'pokemon') => {
     };
 };
 
-const npcToCombatant = (n) => ({
-    id: newId(), name: n.name, kind: 'npc',
-    initiative: null, spd: n.stats?.spd ?? 3,
-    hp: { current: Math.max(0, (n.maxHp ?? 20) - (n.currentDamage || 0)), max: n.maxHp ?? 20 },
-    stats: { ...n.stats }, types: [], moves: [], features: [],
-    avatar: ''
-});
+// Features are gated to the NPC's level (GMG: NPCs get access to what all
+// level-N trainers of their class have — not the whole class feature list).
+const npcToCombatant = (n, GAME_DATA) => {
+    const level = n.level ?? 1;
+    const features = Object.entries(GAME_DATA?.features || {})
+        .filter(([, f]) => f.category === n.trainerClass)
+        .map(([name, f]) => [name, parseInt((f.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99)])
+        .filter(([, lv]) => lv <= level)
+        .sort((a, b) => a[1] - b[1])
+        .map(([name]) => name);
+    return {
+        id: newId(), name: n.name, kind: 'npc', level,
+        initiative: null, spd: n.stats?.spd ?? 3,
+        hp: { current: Math.max(0, (n.maxHp ?? 20) - (n.currentDamage || 0)), max: n.maxHp ?? 20 },
+        stats: { ...n.stats }, types: [], moves: [], features,
+        avatar: ''
+    };
+};
 
 const HPStepper = ({ current, max, onChange }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -75,17 +86,17 @@ const HPStepper = ({ current, max, onChange }) => (
     </div>
 );
 
-const AddFromNpcRoster = ({ npcs, onAdd }) => (
+const AddFromNpcRoster = ({ npcs, onAdd, GAME_DATA }) => (
     <div style={{ padding: '10px', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-medium)', maxHeight: '260px', overflowY: 'auto' }}>
         {npcs.length === 0 && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No saved NPCs — build one in NPC Roster first.</div>}
         {npcs.map(n => (
             <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{n.name}</span>
-                <button onClick={() => onAdd(npcToCombatant(n))}
+                <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{n.name}{n.level != null && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {n.level}</span>}</span>
+                <button onClick={() => onAdd(npcToCombatant(n, GAME_DATA))}
                     style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '11px' }}>
                     ＋ NPC
                 </button>
-                <button onClick={() => { onAdd(npcToCombatant(n)); (n.team || []).forEach(p => onAdd(pokemonToCombatant(p, 'npc-pokemon'))); }}
+                <button onClick={() => { onAdd(npcToCombatant(n, GAME_DATA)); (n.team || []).forEach(p => onAdd(pokemonToCombatant(p, 'npc-pokemon'))); }}
                     disabled={!n.team || n.team.length === 0}
                     style={{ padding: '4px 10px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', cursor: (!n.team || n.team.length === 0) ? 'not-allowed' : 'pointer', fontSize: '11px', opacity: (!n.team || n.team.length === 0) ? 0.5 : 1 }}>
                     ＋ NPC + Team
@@ -101,7 +112,7 @@ const AddFromPlayers = ({ trainers, onAdd }) => (
         {trainers.map(t => (
             <div key={t.id} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{t.name || 'Unnamed'}</span>
+                    <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold' }}>{t.name || 'Unnamed'}<span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {t.level ?? 0}</span></span>
                     <button onClick={() => onAdd(trainerToCombatant(t))}
                         style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '11px' }}>
                         ＋ Trainer
@@ -169,7 +180,10 @@ const CombatantRow = ({ c, isActive, onRoll, onHpChange, onRemove }) => (
                 {c.initiative ?? c.spd}
             </span>
             {c.avatar ? <img src={c.avatar} alt="" style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} /> : null}
-            <span style={{ fontWeight: 'bold', fontSize: '13px', flex: '1 1 auto' }}>{c.name}</span>
+            <span style={{ fontWeight: 'bold', fontSize: '13px', flex: '1 1 auto' }}>
+                {c.name}
+                {c.level != null && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {c.level}</span>}
+            </span>
             <span style={{ padding: '2px 8px', borderRadius: '8px', background: `${KIND_COLORS[c.kind]}22`, color: KIND_COLORS[c.kind], fontSize: '10px', fontWeight: 'bold' }}>
                 {KIND_LABELS[c.kind]}
             </span>
@@ -203,6 +217,7 @@ const InitiativeTracker = () => {
 
     const { npcs } = useData();
     const { trainers } = useTrainerContext();
+    const { GAME_DATA } = useGameData();
     const { showHelp } = useUI();
     const { showConfirm } = useModal();
 
@@ -297,7 +312,7 @@ const InitiativeTracker = () => {
                     </button>
                 </div>
 
-                {addPanel === 'npc' && <div style={{ marginBottom: '14px' }}><AddFromNpcRoster npcs={npcs} onAdd={addCombatant} /></div>}
+                {addPanel === 'npc' && <div style={{ marginBottom: '14px' }}><AddFromNpcRoster npcs={npcs} onAdd={addCombatant} GAME_DATA={GAME_DATA} /></div>}
                 {addPanel === 'player' && <div style={{ marginBottom: '14px' }}><AddFromPlayers trainers={trainers} onAdd={addCombatant} /></div>}
                 {addPanel === 'custom' && <div style={{ marginBottom: '14px' }}><AddCustom onAdd={addCombatant} /></div>}
 

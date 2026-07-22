@@ -43,12 +43,19 @@ const TIER_LABELS = [
     { id: 'veteran',    label: 'Veteran',    color: '#9c27b0', desc: 'Expert trainer, 7 classes' },
 ];
 
+// GMG (p.20): "NPC Trainers can be level 1... give them access to what all
+// level 1s of their class have access to." The book doesn't tie a specific
+// level to each tier, so these are just reasonable starting suggestions —
+// freely editable below, independent of tier.
+const TIER_DEFAULT_LEVEL = { junior: 1, experienced: 6, veteran: 11 };
+
 const STAT_KEYS = ['atk', 'def', 'satk', 'sdef', 'spd'];
 const STAT_LABELS = { atk: 'ATK', def: 'DEF', satk: 'SATK', sdef: 'SDEF', spd: 'SPD' };
 
 const NpcGenerator = () => {
     const [tier, setTier] = useState('junior');
     const [trainerClass, setTrainerClass] = useState('Ace Trainer');
+    const [level, setLevel] = useState(TIER_DEFAULT_LEVEL.junior);
     const { GAME_DATA } = useGameData();
     const { showHelp } = useUI();
     const { setNpcs } = useData();
@@ -57,13 +64,14 @@ const NpcGenerator = () => {
     const selectedClass = classes.includes(trainerClass) ? trainerClass : classes[0];
     const stats = NPC_STATS[tier][selectedClass];
 
+    // Only features this NPC would actually have at its level (GMG: NPCs
+    // default to level 1 and get level-1 class features, not the full catalog).
     const classFeatures = Object.entries(GAME_DATA.features || {})
         .filter(([, f]) => f.category === selectedClass)
-        .sort(([, a], [, b]) => {
-            const lvA = parseInt((a.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99);
-            const lvB = parseInt((b.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99);
-            return lvA - lvB;
-        });
+        .map(([name, f]) => [name, f, parseInt((f.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99)])
+        .filter(([, , lv]) => lv <= level)
+        .sort((a, b) => a[2] - b[2])
+        .map(([name, f]) => [name, f]);
 
     const copyToClipboard = () => {
         const lines = [
@@ -82,9 +90,12 @@ const NpcGenerator = () => {
         const tierLabel = TIER_LABELS.find(t => t.id === tier)?.label || tier;
         setNpcs(prev => [...prev, {
             id: Date.now(),
+            // Level is not baked into the name — it's a live field (editable in
+            // NPC Roster), shown separately everywhere so it can't go stale.
             name: `${selectedClass} (${tierLabel})`,
             tier,
             trainerClass: selectedClass,
+            level,
             stats: { ...stats },
             maxHp: 20,
             currentDamage: 0,
@@ -117,7 +128,7 @@ const NpcGenerator = () => {
                         {TIER_LABELS.map(t => (
                             <button
                                 key={t.id}
-                                onClick={() => setTier(t.id)}
+                                onClick={() => { setTier(t.id); setLevel(TIER_DEFAULT_LEVEL[t.id]); }}
                                 title={t.desc}
                                 style={{
                                     padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold',
@@ -153,13 +164,30 @@ const NpcGenerator = () => {
                     </div>
                 </div>
 
+                {/* Level */}
+                <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+                        Level
+                        <span style={{ marginLeft: '6px', fontSize: '10px', fontWeight: 'normal', textTransform: 'none', letterSpacing: 0 }}>
+                            (controls which class features this NPC has — not tied to tier by the book)
+                        </span>
+                    </div>
+                    <input
+                        type="number" min={0} max={15}
+                        aria-label="NPC Level"
+                        value={level}
+                        onChange={(e) => setLevel(Math.max(0, Math.min(15, parseInt(e.target.value) || 0)))}
+                        style={{ width: '70px', padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 'bold' }}
+                    />
+                </div>
+
                 {/* Stat block */}
                 <div style={{ background: 'var(--input-bg)', borderRadius: '10px', padding: '16px', border: '1px solid var(--border-medium)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                         <div>
                             <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{selectedClass}</div>
                             <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                                {TIER_LABELS.find(t => t.id === tier)?.label} NPC Trainer
+                                {TIER_LABELS.find(t => t.id === tier)?.label} NPC Trainer · Level {level}
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -198,10 +226,10 @@ const NpcGenerator = () => {
                     </div>
                 </div>
 
-                {classFeatures.length > 0 && (
-                    <details style={{ marginTop: '14px' }}>
+                {classFeatures.length > 0 ? (
+                    <details style={{ marginTop: '14px' }} open>
                         <summary style={{ cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)', padding: '4px 0' }}>
-                            ▸ {selectedClass} Features ({classFeatures.length})
+                            ▸ {selectedClass} Features up to Level {level} ({classFeatures.length})
                         </summary>
                         <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             {classFeatures.map(([name, f]) => (
@@ -218,6 +246,10 @@ const NpcGenerator = () => {
                             ))}
                         </div>
                     </details>
+                ) : (
+                    <p style={{ marginTop: '14px', fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        No {selectedClass} features at level {level} — per the GMG, most NPCs are level 0 with no mechanically unique traits unless you give them one.
+                    </p>
                 )}
             </div>
         </div>
