@@ -8,15 +8,19 @@ import EncounterGuide from './EncounterGuide.jsx';
 import RewardTables from './RewardTables.jsx';
 import GymLeaderGuide from './GymLeaderGuide.jsx';
 import NpcGenerator from './NpcGenerator.jsx';
+import NpcRoster from './NpcRoster.jsx';
+import InitiativeTracker from './InitiativeTracker.jsx';
 import ContestTracker from './ContestTracker.jsx';
 
 const sections = [
-    { id: 'capture',   label: '🎯 Capture Rates' },
-    { id: 'encounter', label: '⚔️ Encounter Guide' },
-    { id: 'rewards',   label: '💰 Rewards & Loot' },
-    { id: 'gym',       label: '🏟️ Gym Guide' },
-    { id: 'npc',       label: '🧑 NPC Stats' },
-    { id: 'contest',   label: '🏆 Contest' },
+    { id: 'capture',    label: '🎯 Capture Rates' },
+    { id: 'encounter',  label: '⚔️ Encounter Guide' },
+    { id: 'rewards',    label: '💰 Rewards & Loot' },
+    { id: 'gym',        label: '🏟️ Gym Guide' },
+    { id: 'npc',        label: '🧑 NPC Stats' },
+    { id: 'npcroster',  label: '🗂️ NPC Roster' },
+    { id: 'initiative', label: '🎯 Initiative Tracker' },
+    { id: 'contest',    label: '🏆 Contest' },
 ];
 
 const GMTab = () => {
@@ -45,6 +49,8 @@ const GMTab = () => {
             {activeSection === 'rewards'   && <RewardTables />}
             {activeSection === 'gym'       && <GymLeaderGuide />}
             {activeSection === 'npc'       && <NpcGenerator />}
+            {activeSection === 'npcroster' && <NpcRoster />}
+            {activeSection === 'initiative' && <InitiativeTracker />}
             {activeSection === 'contest'   && <ContestTracker />}
         </div>
     );

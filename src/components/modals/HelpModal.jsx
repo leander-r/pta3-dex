@@ -332,7 +332,32 @@ export const HELP_CONTENT = {
                     <li><strong>Experienced</strong> — a seasoned trainer.</li>
                     <li><strong>Veteran</strong> — an expert trainer.</li>
                 </ul>
-                <p>Pick a tier and trainer class to see that NPC's 5 stats (all NPCs use the standard 20 HP) and any class features they've unlocked. Use <strong>Copy</strong> to paste the stat block straight into your notes.</p>
+                <p>Pick a tier and trainer class to see that NPC's 5 stats (all NPCs use the standard 20 HP) and any class features they've unlocked. Use <strong>Copy</strong> to paste the stat block straight into your notes, or <strong>Save as NPC</strong> to keep it in your NPC Roster.</p>
+            </>
+        )
+    },
+    'gm-npcroster': {
+        title: 'NPC Roster',
+        body: () => (
+            <>
+                <p>Persistent library of NPCs — their stats, features, and Pokémon team — so you don't have to rebuild a recurring rival or gym trainer every session.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Building an NPC</h4>
+                <p>Generate a stat block in <strong>NPC Stats</strong> and hit <strong>Save as NPC</strong>, or start from <strong>+ New Blank NPC</strong> here and set the 5 stats by hand.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Team</h4>
+                <p>Use <strong>+ Add Pokémon</strong> to search the Pokédex — stats, types, and moves fill in automatically, same as a player's Pokémon. Track HP with the +/− stepper on each entry.</p>
+                <p>NPCs are saved with the rest of your data — they're included in exports, imports, and save slots.</p>
+            </>
+        )
+    },
+    'gm-initiative': {
+        title: 'Initiative Tracker',
+        body: () => (
+            <>
+                <p>Turn-order tracker for combat. Add combatants from three sources: your <strong>NPC Roster</strong> (NPC alone, or NPC + its whole team), <strong>Players</strong> (a trainer and any of their active party Pokémon), or a <strong>Custom</strong> one-off entry for something improvised.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Running combat</h4>
+                <p>🎲 rolls d20 + Speed modifier for a single combatant; <strong>Roll All</strong> does it for everyone still missing a roll. The list always sorts by initiative automatically. <strong>Next Turn</strong> advances the highlighted combatant and bumps the round counter once it wraps around.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Scratchpad, not source of truth</h4>
+                <p>Combatants are a snapshot taken when added — HP changes here don't write back to your trainers, Pokémon, or NPC Roster. Apply any lasting damage there separately. The tracker survives a page refresh but isn't part of exports or save slots.</p>
             </>
         )
     },

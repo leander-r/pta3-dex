@@ -42,6 +42,10 @@ export const DataProvider = ({ children }) => {
     // Inventory owned here; shared with PokemonProvider via useData()
     const [inventory, setInventory] = useState([]);
 
+    // GM-only NPC roster (saved stat blocks + Pokémon teams); owned here so it
+    // rides the same save/export/import/save-slot pipeline as inventory/customSpecies
+    const [npcs, setNpcs] = useState([]);
+
     // Save slots — 3 named snapshot slots persisted to localStorage
     const [saveSlots, setSaveSlots] = useState(() => {
         try {
@@ -97,6 +101,7 @@ export const DataProvider = ({ children }) => {
                 activeTrainerId,
                 inventory,
                 customSpecies,
+                npcs,
                 lastSaved: new Date().toISOString(),
                 version: '2.1'
             };
@@ -117,7 +122,7 @@ export const DataProvider = ({ children }) => {
             console.error('Error saving data:', error);
             toast.error('Failed to save. Check your browser storage settings.');
         }
-    }, [trainers, activeTrainerId, inventory, customSpecies, triggerSaveIndicator]);
+    }, [trainers, activeTrainerId, inventory, customSpecies, npcs, triggerSaveIndicator]);
 
     // Keep ref current so auto-save effects always call the latest version
     useEffect(() => { saveDataRef.current = saveData; });
@@ -285,6 +290,7 @@ export const DataProvider = ({ children }) => {
                 }
                 setInventory(Array.isArray(migratedData.inventory) ? migratedData.inventory : []);
                 setCustomSpecies(Array.isArray(migratedData.customSpecies) ? migratedData.customSpecies : []);
+                setNpcs(Array.isArray(migratedData.npcs) ? migratedData.npcs : []);
             }
             // Mark data as loaded AFTER loading completes
             dataLoadedRef.current = true;
@@ -303,7 +309,7 @@ export const DataProvider = ({ children }) => {
             // Still enable auto-save on error so user can save their work
             dataLoadedRef.current = true;
         }
-    }, [migrateOldData, GAME_DATA, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+    }, [migrateOldData, GAME_DATA, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs]);
 
     // Restore from the rolling auto-backup snapshot
     const restoreAutoBackup = useCallback(() => {
@@ -330,6 +336,7 @@ export const DataProvider = ({ children }) => {
                     }
                     setInventory(Array.isArray(migrated.inventory) ? migrated.inventory : []);
                     setCustomSpecies(Array.isArray(migrated.customSpecies) ? migrated.customSpecies : []);
+                    setNpcs(Array.isArray(migrated.npcs) ? migrated.npcs : []);
                     toast.success('Auto-backup restored successfully!');
                 } catch (err) {
                     console.error('Restore auto-backup error:', err);
@@ -337,7 +344,7 @@ export const DataProvider = ({ children }) => {
                 }
             }
         });
-    }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+    }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs]);
 
     const loadDemoTrainer = useCallback(() => {
         showConfirm({
@@ -387,6 +394,7 @@ export const DataProvider = ({ children }) => {
                 activeTrainerId,
                 inventory,
                 customSpecies,
+                npcs,
                 version: '2.1',
                 _preview: buildPreview()
             };
@@ -404,7 +412,7 @@ export const DataProvider = ({ children }) => {
         } else {
             doSave(slotName);
         }
-    }, [saveSlots, trainers, activeTrainerId, inventory, customSpecies, buildPreview, persistSlots, showConfirm]);
+    }, [saveSlots, trainers, activeTrainerId, inventory, customSpecies, npcs, buildPreview, persistSlots, showConfirm]);
 
     const loadFromSlot = useCallback((index) => {
         const slot = saveSlots[index];
@@ -424,6 +432,7 @@ export const DataProvider = ({ children }) => {
                     }
                     setInventory(Array.isArray(slot.inventory) ? slot.inventory : []);
                     setCustomSpecies(Array.isArray(slot.customSpecies) ? slot.customSpecies : []);
+                    setNpcs(Array.isArray(slot.npcs) ? slot.npcs : []);
                     toast.success(`Slot ${index + 1} loaded!`);
                 } catch (err) {
                     console.error('Load slot error:', err);
@@ -431,7 +440,7 @@ export const DataProvider = ({ children }) => {
                 }
             }
         });
-    }, [saveSlots, showConfirm, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies]);
+    }, [saveSlots, showConfirm, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs]);
 
     const deleteSlot = useCallback((index) => {
         const slot = saveSlots[index];
@@ -467,6 +476,7 @@ export const DataProvider = ({ children }) => {
             activeTrainerId,
             inventory,
             customSpecies,
+            npcs,
             exportedAt: new Date().toISOString(),
             version: '2.1',
             _m: { c: 'leander_rsr', h: '6c65616e6465725f727372' },
@@ -475,7 +485,8 @@ export const DataProvider = ({ children }) => {
                 trainerNames: trainers.map(t => t.name || 'Unnamed').join(', '),
                 totalMoney: trainers.reduce((sum, t) => sum + (t.money || 0), 0),
                 inventoryItemCount: inventory.length,
-                totalPokemon: trainers.reduce((sum, t) => sum + (t.party?.length || 0) + (t.reserve?.length || 0), 0)
+                totalPokemon: trainers.reduce((sum, t) => sum + (t.party?.length || 0) + (t.reserve?.length || 0), 0),
+                npcCount: npcs.length
             }
         };
         const dataStr = JSON.stringify(exportData, null, 2);
@@ -487,7 +498,7 @@ export const DataProvider = ({ children }) => {
         a.click();
         URL.revokeObjectURL(url);
         try { localStorage.setItem('pta3-last-backup', Date.now().toString()); } catch {}
-    }, [trainers, activeTrainerId, inventory, customSpecies]);
+    }, [trainers, activeTrainerId, inventory, customSpecies, npcs]);
 
     // Export single trainer (no global inventory — use exportAllData for that)
     const exportSingleTrainer = useCallback((trainerToExport) => {
@@ -561,6 +572,7 @@ export const DataProvider = ({ children }) => {
                     setActiveTrainerId(data.activeTrainerId || migratedTrainers[0]?.id);
                     if (data.inventory) setInventory(data.inventory);
                     if (data.customSpecies) setCustomSpecies(data.customSpecies);
+                    if (Array.isArray(data.npcs)) setNpcs(data.npcs);
 
                     const totalMoney = migratedTrainers.reduce((sum, t) => sum + (t.money || 0), 0);
                     const totalPokemon = migratedTrainers.reduce((sum, t) => sum + (t.party?.length || 0) + (t.reserve?.length || 0), 0);
@@ -655,7 +667,7 @@ export const DataProvider = ({ children }) => {
         };
         reader.onerror = () => { isImportingRef.current = false; };
         reader.readAsText(file);
-    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, showConfirm]);
+    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs, showConfirm]);
 
     // Export text functions
     const exportTrainerText = useCallback((trainer) => {
@@ -831,7 +843,7 @@ export const DataProvider = ({ children }) => {
         }, AUTOSAVE_DEBOUNCE_MS);
 
         return () => clearTimeout(saveTimeout);
-    }, [trainers, inventory, activeTrainerId, customSpecies]);
+    }, [trainers, inventory, activeTrainerId, customSpecies, npcs]);
 
     // Interval-based auto-save (every 2 minutes, only if changed)
     // No data dependencies — interval should not restart on every data change
@@ -848,6 +860,10 @@ export const DataProvider = ({ children }) => {
         // Inventory State
         inventory,
         setInventory,
+
+        // GM NPC Roster
+        npcs,
+        setNpcs,
 
         // Persistence
         saveData,

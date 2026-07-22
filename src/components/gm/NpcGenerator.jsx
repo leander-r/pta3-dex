@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useGameData, useUI } from '../../contexts/index.js';
+import { useGameData, useUI, useData } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
@@ -15,6 +15,7 @@ const NPC_STATS = {
         'Ranger':         { atk: 4, def: 4, satk: 3, sdef: 3, spd: 4 },
         'Researcher':     { atk: 3, def: 4, satk: 4, sdef: 4, spd: 3 },
         'Martial Artist': { atk: 4, def: 4, satk: 3, sdef: 3, spd: 4 },
+        'Psychic':        { atk: 3, def: 3, satk: 4, sdef: 4, spd: 4 },
     },
     experienced: {
         'Ace Trainer':    { atk: 6, def: 6, satk: 3, sdef: 6, spd: 4 },
@@ -37,7 +38,7 @@ const NPC_STATS = {
 };
 
 const TIER_LABELS = [
-    { id: 'junior',     label: 'Junior',     color: '#4caf50', desc: 'New trainer, 6 classes' },
+    { id: 'junior',     label: 'Junior',     color: '#4caf50', desc: 'New trainer, 7 classes' },
     { id: 'experienced', label: 'Experienced', color: '#2196f3', desc: 'Seasoned trainer, 7 classes' },
     { id: 'veteran',    label: 'Veteran',    color: '#9c27b0', desc: 'Expert trainer, 7 classes' },
 ];
@@ -50,6 +51,7 @@ const NpcGenerator = () => {
     const [trainerClass, setTrainerClass] = useState('Ace Trainer');
     const { GAME_DATA } = useGameData();
     const { showHelp } = useUI();
+    const { setNpcs } = useData();
 
     const classes = Object.keys(NPC_STATS[tier]);
     const selectedClass = classes.includes(trainerClass) ? trainerClass : classes[0];
@@ -74,6 +76,22 @@ const NpcGenerator = () => {
         }).catch(() => {
             toast.error('Could not copy to clipboard');
         });
+    };
+
+    const saveAsNpc = () => {
+        const tierLabel = TIER_LABELS.find(t => t.id === tier)?.label || tier;
+        setNpcs(prev => [...prev, {
+            id: Date.now(),
+            name: `${selectedClass} (${tierLabel})`,
+            tier,
+            trainerClass: selectedClass,
+            stats: { ...stats },
+            maxHp: 20,
+            currentDamage: 0,
+            notes: '',
+            team: []
+        }]);
+        toast.success('Saved to NPC Roster — rename it and add a team there.');
     };
 
     return (
@@ -144,12 +162,20 @@ const NpcGenerator = () => {
                                 {TIER_LABELS.find(t => t.id === tier)?.label} NPC Trainer
                             </div>
                         </div>
-                        <button
-                            onClick={copyToClipboard}
-                            style={{ padding: '6px 14px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
-                        >
-                            📋 Copy
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                                onClick={saveAsNpc}
+                                style={{ padding: '6px 14px', background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                            >
+                                💾 Save as NPC
+                            </button>
+                            <button
+                                onClick={copyToClipboard}
+                                style={{ padding: '6px 14px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                            >
+                                📋 Copy
+                            </button>
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: '6px', background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)', marginBottom: '10px' }}>
