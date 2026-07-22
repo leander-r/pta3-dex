@@ -188,13 +188,19 @@ const QuickCheckPanel = ({ c, onRoll }) => {
     };
 
     return (
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', padding: '8px 10px', borderRadius: '6px', background: 'var(--bg-section)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '8px 10px', borderRadius: '6px', background: 'var(--bg-section)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                Rolls 1d20 + a modifier — for anything that isn't a full move (an opposed check, a reaction, an ad hoc ruling). Set a target to auto-resolve Success/Fail, or leave it blank and judge the total yourself.
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '4px' }}>
                 <button onClick={() => setMode('stat')} disabled={!c.stats}
+                    title={c.stats ? "Use ⌊stat/2⌋ as the modifier — the same math the book uses when a GM rolls an NPC's stat" : 'No stats on this entry — use Flat instead'}
                     style={{ padding: '4px 8px', borderRadius: '5px', border: '1px solid var(--border-medium)', cursor: c.stats ? 'pointer' : 'not-allowed', fontSize: '11px', fontWeight: 'bold', opacity: c.stats ? 1 : 0.4, background: mode === 'stat' ? '#667eea' : 'var(--input-bg)', color: mode === 'stat' ? 'white' : 'var(--text-primary)' }}>
                     Stat
                 </button>
                 <button onClick={() => setMode('flat')}
+                    title="Enter your own modifier by hand — e.g. a trained skill's talent bonus"
                     style={{ padding: '4px 8px', borderRadius: '5px', border: '1px solid var(--border-medium)', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', background: mode === 'flat' ? '#667eea' : 'var(--input-bg)', color: mode === 'flat' ? 'white' : 'var(--text-primary)' }}>
                     Flat
                 </button>
@@ -226,6 +232,7 @@ const QuickCheckPanel = ({ c, onRoll }) => {
                     )}
                 </span>
             )}
+            </div>
         </div>
     );
 };
@@ -262,8 +269,8 @@ const CombatantRow = ({ c, isActive, onRoll, onHpChange, onRemove, onQuickRoll }
             ))}
             <button onClick={onRoll} title="Optional variant rule: roll 1d20 + Speed instead of sorting by raw Speed"
                 style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', cursor: 'pointer', fontSize: '12px' }}>🎲</button>
-            <button onClick={() => setCheckOpen(v => !v)} title="Quick check — 1d20 + stat modifier (or a flat bonus), with an optional opposing target"
-                style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: checkOpen ? '#667eea' : 'var(--bg-section)', color: checkOpen ? 'white' : 'var(--text-primary)', cursor: 'pointer', fontSize: '12px' }}>🎯</button>
+            <button onClick={() => setCheckOpen(v => !v)} title="Quick Check — a fast 1d20 + modifier roll for anything that isn't a full move (opposed checks, reactions, ad hoc rulings)"
+                style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: checkOpen ? '#667eea' : 'var(--bg-section)', color: checkOpen ? 'white' : 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>🎯 Check</button>
             <HPStepper current={c.hp.current} max={c.hp.max} onChange={onHpChange} />
             <button onClick={onRemove} title="Remove" style={{ background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', fontSize: '14px' }}>✕</button>
         </div>
@@ -374,7 +381,7 @@ const InitiativeTracker = () => {
                     >?</button>
                 </h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px' }}>
-                    Session scratchpad for turn order. Add combatants from your NPC Roster, player trainers, or a one-off custom entry. Turn order defaults to raw Speed, highest first (PTA3 default rule) — use 🎲 per combatant only if your table prefers the optional "Roll For Initiative" variant (1d20 + Speed).
+                    Session scratchpad for turn order. Add combatants from your NPC Roster, player trainers, or a one-off custom entry. Turn order defaults to raw Speed, highest first (PTA3 default rule) — use 🎲 per combatant only if your table prefers the optional "Roll For Initiative" variant (1d20 + Speed). Need a roll that isn't a full move — an opposed check, a reaction, anything ad hoc — without leaving this screen? Use 🎯 Check on any row.
                 </p>
 
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>

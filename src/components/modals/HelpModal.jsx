@@ -357,8 +357,12 @@ export const HELP_CONTENT = {
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Turn order</h4>
                 <p>By the book (PHB1 Rules of Engagement), turn order is just raw Speed, highest first — no roll needed, and that's the default here. Ties are broken by an opposed Speed check between the tied combatants.</p>
                 <p>If your table prefers the "Roll For Initiative" variant instead, 🎲 rolls 1d20 + Speed for a single combatant (or use <strong>Roll All</strong> for everyone still unrolled); <strong>Clear Rolls</strong> reverts back to plain Speed order. <strong>Next Turn</strong> advances the highlighted combatant and bumps the round counter once it wraps around.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Quick Check (🎯)</h4>
+                <p>Why: combat throws up rolls the book doesn't give you a dedicated tool for — an opposed check, a reaction, a GM ruling on the fly — and switching to the Dice Roller mid-fight just to make one roll is friction. 🎯 Check on any row rolls <strong>1d20 + a modifier</strong> right there instead.</p>
+                <p>How: pick <strong>Stat</strong> to auto-use ⌊stat/2⌋ — the same math the book uses when a GM secretly rolls an NPC's stat against a target's (see the HB1 combat demo) — or <strong>Flat</strong> to type your own modifier, e.g. a trained skill's talent bonus the tracker doesn't know about. Fill in an opposing target number to get an automatic Success/Fail, or leave it blank and just read the total.</p>
+                <p>This is deliberately lightweight — it doesn't know move damage, STAB, or combat stages, since combatant entries here only keep move names, not full move data. For an actual attack roll, use the <strong>Dice Roller</strong> (Battle tab), which now also rolls for NPCs and their teams via its Player Trainer / NPC toggle.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Scratchpad, not source of truth</h4>
-                <p>Combatants are a snapshot taken when added — HP changes here don't write back to your trainers, Pokémon, or NPC Roster. Apply any lasting damage there separately. The tracker survives a page refresh but isn't part of exports or save slots.</p>
+                <p>Combatants are a snapshot taken when added — HP changes here don't write back to your trainers, Pokémon, or NPC Roster. Apply any lasting damage there separately. The tracker survives a page refresh but isn't part of exports or save slots. The same goes for the Quick Check log — it's session-only and clears on refresh.</p>
             </>
         )
     },
