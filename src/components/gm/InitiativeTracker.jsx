@@ -162,7 +162,77 @@ const AddCustom = ({ onAdd }) => {
     );
 };
 
-const CombatantRow = ({ c, isActive, onRoll, onHpChange, onRemove }) => (
+// Lightweight, book-accurate GM check: 1d20 + ⌊stat/2⌋ (or a manual flat bonus), with an
+// optional opposing target number — the same resolution the HB1 combat demo uses for GM-side
+// rolls (e.g. "1d20 + Special Attack vs the defender's raw Special Defense"). Deliberately not
+// a move-damage roll: combatant snapshots here only keep move *names*, not full move data —
+// use the Dice Roller (Battle tab) for that, which now also supports NPCs and their teams.
+const QuickCheckPanel = ({ c, onRoll }) => {
+    const [mode, setMode] = useState(c.stats ? 'stat' : 'flat');
+    const [statKey, setStatKey] = useState(c.stats ? STAT_KEYS[0] : '');
+    const [flatMod, setFlatMod] = useState('0');
+    const [vsTarget, setVsTarget] = useState('');
+    const [lastResult, setLastResult] = useState(null);
+
+    const modifier = mode === 'stat' ? Math.floor((c.stats?.[statKey] || 0) / 2) : (parseInt(flatMod) || 0);
+    const label = mode === 'stat' ? STAT_LABELS[statKey] : 'Flat';
+
+    const roll = () => {
+        const d20 = 1 + Math.floor(Math.random() * 20);
+        const total = d20 + modifier;
+        const target = vsTarget !== '' ? (parseInt(vsTarget) || null) : null;
+        const success = target != null ? total >= target : null;
+        const result = { d20, mod: modifier, total, label, target, success };
+        setLastResult(result);
+        onRoll?.({ combatantName: c.name, combatantKind: c.kind, ...result, timestamp: Date.now() });
+    };
+
+    return (
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', padding: '8px 10px', borderRadius: '6px', background: 'var(--bg-section)' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+                <button onClick={() => setMode('stat')} disabled={!c.stats}
+                    style={{ padding: '4px 8px', borderRadius: '5px', border: '1px solid var(--border-medium)', cursor: c.stats ? 'pointer' : 'not-allowed', fontSize: '11px', fontWeight: 'bold', opacity: c.stats ? 1 : 0.4, background: mode === 'stat' ? '#667eea' : 'var(--input-bg)', color: mode === 'stat' ? 'white' : 'var(--text-primary)' }}>
+                    Stat
+                </button>
+                <button onClick={() => setMode('flat')}
+                    style={{ padding: '4px 8px', borderRadius: '5px', border: '1px solid var(--border-medium)', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', background: mode === 'flat' ? '#667eea' : 'var(--input-bg)', color: mode === 'flat' ? 'white' : 'var(--text-primary)' }}>
+                    Flat
+                </button>
+            </div>
+            {mode === 'stat' ? (
+                <select value={statKey} onChange={(e) => setStatKey(e.target.value)}
+                    style={{ padding: '4px 6px', borderRadius: '5px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '12px' }}>
+                    {STAT_KEYS.map(k => (
+                        <option key={k} value={k}>{STAT_LABELS[k]} {c.stats?.[k] ?? '—'} (⌊{c.stats?.[k] ?? 0}/2⌋ = +{Math.floor((c.stats?.[k] || 0) / 2)})</option>
+                    ))}
+                </select>
+            ) : (
+                <input type="number" value={flatMod} onChange={(e) => setFlatMod(e.target.value)} title="Manual modifier — e.g. a trained skill's talent bonus"
+                    style={{ width: '60px', padding: '4px 6px', borderRadius: '5px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '12px', textAlign: 'center' }} />
+            )}
+            <input type="number" value={vsTarget} onChange={(e) => setVsTarget(e.target.value)} placeholder="vs (optional)" title="Opposing target number — leave blank to just show the total"
+                style={{ width: '92px', padding: '4px 6px', borderRadius: '5px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '12px', textAlign: 'center' }} />
+            <button onClick={roll} disabled={mode === 'stat' && !statKey}
+                style={{ padding: '5px 12px', borderRadius: '5px', border: 'none', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                🎲 Roll
+            </button>
+            {lastResult && (
+                <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
+                    {lastResult.d20} {lastResult.mod >= 0 ? '+' : ''}{lastResult.mod} = {lastResult.total}
+                    {lastResult.target != null && (
+                        <span style={{ marginLeft: '6px', color: lastResult.success ? '#4caf50' : '#f44336' }}>
+                            vs {lastResult.target} → {lastResult.success ? 'Success' : 'Fail'}
+                        </span>
+                    )}
+                </span>
+            )}
+        </div>
+    );
+};
+
+const CombatantRow = ({ c, isActive, onRoll, onHpChange, onRemove, onQuickRoll }) => {
+    const [checkOpen, setCheckOpen] = useState(false);
+    return (
     <div style={{
         display: 'flex', flexDirection: 'column', gap: '4px', padding: '10px 12px', borderRadius: '8px',
         background: isActive ? 'rgba(102,126,234,0.12)' : 'var(--input-bg)',
@@ -192,9 +262,12 @@ const CombatantRow = ({ c, isActive, onRoll, onHpChange, onRemove }) => (
             ))}
             <button onClick={onRoll} title="Optional variant rule: roll 1d20 + Speed instead of sorting by raw Speed"
                 style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', cursor: 'pointer', fontSize: '12px' }}>🎲</button>
+            <button onClick={() => setCheckOpen(v => !v)} title="Quick check — 1d20 + stat modifier (or a flat bonus), with an optional opposing target"
+                style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: checkOpen ? '#667eea' : 'var(--bg-section)', color: checkOpen ? 'white' : 'var(--text-primary)', cursor: 'pointer', fontSize: '12px' }}>🎯</button>
             <HPStepper current={c.hp.current} max={c.hp.max} onChange={onHpChange} />
             <button onClick={onRemove} title="Remove" style={{ background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', fontSize: '14px' }}>✕</button>
         </div>
+        {checkOpen && <QuickCheckPanel c={c} onRoll={onQuickRoll} />}
         {(c.stats || c.moves?.length > 0 || c.features?.length > 0) && (
             <details>
                 <summary style={{ cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)' }}>▸ Details</summary>
@@ -206,7 +279,8 @@ const CombatantRow = ({ c, isActive, onRoll, onHpChange, onRemove }) => (
             </details>
         )}
     </div>
-);
+    );
+};
 
 const InitiativeTracker = () => {
     const initial = useMemo(loadTracker, []);
@@ -214,8 +288,9 @@ const InitiativeTracker = () => {
     const [round, setRound] = useState(initial.round || 1);
     const [currentTurn, setCurrentTurn] = useState(initial.currentTurn || 0);
     const [addPanel, setAddPanel] = useState('none'); // 'none' | 'npc' | 'player' | 'custom'
+    const [recentRolls, setRecentRolls] = useState([]); // session-only quick-check feed, not persisted
 
-    const { npcs } = useData();
+    const { npcs, sendToDiscord } = useData();
     const { trainers } = useTrainerContext();
     const { GAME_DATA } = useGameData();
     const { showHelp } = useUI();
@@ -259,6 +334,11 @@ const InitiativeTracker = () => {
     };
 
     const clearRolls = () => setCombatants(prev => prev.map(c => ({ ...c, initiative: null })));
+
+    const handleQuickRoll = (result) => {
+        setRecentRolls(prev => [result, ...prev].slice(0, 8));
+        if (sendToDiscord) sendToDiscord({ type: 'quick_check', ...result }, result.combatantName);
+    };
 
     const nextTurn = () => {
         if (sorted.length === 0) return;
@@ -352,9 +432,30 @@ const InitiativeTracker = () => {
                             onRoll={() => rollOne(c.id)}
                             onHpChange={(val) => setCombatants(prev => prev.map(x => x.id === c.id ? { ...x, hp: { ...x.hp, current: val } } : x))}
                             onRemove={() => setCombatants(prev => prev.filter(x => x.id !== c.id))}
+                            onQuickRoll={handleQuickRoll}
                         />
                     ))}
                 </div>
+
+                {recentRolls.length > 0 && (
+                    <div style={{ marginTop: '14px', paddingTop: '10px', borderTop: '1px solid var(--border-light)' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px' }}>Recent Quick Rolls</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {recentRolls.map((r, i) => (
+                                <div key={i} style={{ fontSize: '12px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 'bold' }}>{r.combatantName}</span>
+                                    <span style={{ color: 'var(--text-muted)' }}>{r.label}</span>
+                                    <span>{r.d20} {r.mod >= 0 ? '+' : ''}{r.mod} = <strong>{r.total}</strong></span>
+                                    {r.target != null && (
+                                        <span style={{ color: r.success ? '#4caf50' : '#f44336', fontWeight: 'bold' }}>
+                                            vs {r.target} → {r.success ? 'Success' : 'Fail'}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

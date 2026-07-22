@@ -34,14 +34,14 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                     lines.push(`  Status move — ${roll.isHit ? 'HIT' : 'MISS'}`);
                 }
             } else if (roll.type === 'trainer_skill') {
-                lines.push(`[${hhmm}] Trainer rolled ${roll.skill || 'Skill'} → ${roll.total ?? '?'} ([${(roll.rolls || []).join(', ')}])`);
+                lines.push(`[${hhmm}] ${roll.actorName || 'Trainer'}${roll.actorKind === 'npc' ? ' (NPC)' : ''} rolled ${roll.skill || 'Skill'} → ${roll.total ?? '?'} ([${(roll.rolls || []).join(', ')}])`);
             } else if (roll.type === 'pokemon_skill') {
                 lines.push(`[${hhmm}] ${roll.pokemon} rolled ${roll.skill} → ${roll.total ?? '?'} ([${(roll.rolls || []).join(', ')}])`);
             } else if (roll.type === 'trainer_attack') {
                 const hit = roll.isHit ? 'HIT' : 'MISS';
                 const crit = roll.isCrit ? ' (CRIT!)' : '';
                 const acTarget = roll.moveAC != null ? `vs DEF ${roll.moveAC}` : '(no target set)';
-                lines.push(`[${hhmm}] Trainer used ${roll.moveName || 'Attack'} — Acc: ${roll.modifiedAccRoll} ${acTarget} → ${hit}${crit}`);
+                lines.push(`[${hhmm}] ${roll.actorName || 'Trainer'}${roll.actorKind === 'npc' ? ' (NPC)' : ''} used ${roll.moveName || 'Attack'} — Acc: ${roll.modifiedAccRoll} ${acTarget} → ${hit}${crit}`);
                 if (roll.isHit) lines.push(`  Damage: [${(roll.rolls || []).join(', ')}] + ${roll.atkMod} (ATK) = ${roll.total}`);
             } else if (roll.type === 'custom') {
                 lines.push(`[${hhmm}] Custom ${roll.dice || '?'} → [${(roll.rolls || []).join(', ')}] = ${roll.total ?? '?'}`);
@@ -147,6 +147,13 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                 }`
                             }}
                         >
+                            {roll.actorKind === 'npc' && roll.actorName && (
+                                <div style={{ marginBottom: '4px' }}>
+                                    <span style={{ padding: '1px 7px', borderRadius: '8px', background: '#e6510022', color: '#e65100', fontSize: '10px', fontWeight: 'bold' }}>
+                                        🎭 {roll.actorName}
+                                    </span>
+                                </div>
+                            )}
                             {roll.type === 'pokemon' && (
                                 <>
                                     <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>

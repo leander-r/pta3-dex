@@ -83,10 +83,12 @@ const BattleTab = () => {
     const { showDetail } = useModal();
     const { trainer, setTrainer, party, reserve, calculateMaxHP, restAndRecover } = useTrainerContext();
     const { updatePokemon } = usePokemonContext();
-    const { sendToDiscord, inventory, setInventory } = useData();
+    const { sendToDiscord, inventory, setInventory, npcs, setNpcs } = useData();
     const { showHelp, setActiveTab } = useUI();
 
     const [mode, setMode] = useState('pokemon');
+    const [actorSource, setActorSource] = useState('player'); // 'player' | 'npc' — who the roller acts for
+    const [selectedNpcId, setSelectedNpcId] = useState(null);
     const [selectedMove, setSelectedMove] = useState(null);
     const [selectedSkill, setSelectedSkill] = useState('');
     const [customDice, setCustomDice] = useState('');
@@ -115,14 +117,86 @@ const BattleTab = () => {
 
     const anyMechanicActive = megaEvolved || isDynamaxed || isTerastallized;
 
-    const selectedPokemon = useMemo(() => party.find(p => p.id === selectedPokemonId) || null, [party, selectedPokemonId]);
+    const selectedNpc = useMemo(() => npcs.find(n => n.id === selectedNpcId) || null, [npcs, selectedNpcId]);
 
-    // Clear stale selection if the selected Pokemon is no longer in the party
+    // The "actor" the roller currently acts for — the active player trainer, or a chosen NPC.
+    // NPCs (NpcRoster.jsx) don't track individualized skill talents, only stats/class/level,
+    // so `skills` is intentionally omitted for NPC actors (treated as untrained everywhere).
+    const actor = useMemo(() => {
+        if (actorSource === 'npc' && selectedNpc) {
+            return {
+                id: selectedNpc.id, name: selectedNpc.name || 'NPC', level: selectedNpc.level ?? null,
+                stats: selectedNpc.stats, maxHp: selectedNpc.maxHp ?? 20, currentDamage: selectedNpc.currentDamage || 0,
+                avatar: '', isNpc: true,
+            };
+        }
+        return {
+            id: trainer.id, name: trainer.name || 'Trainer', level: trainer.level ?? 1,
+            stats: trainer.stats, maxHp: calculateMaxHP(), currentDamage: trainer.currentDamage || 0,
+            avatar: trainer.avatar, skills: trainer.skills, isNpc: false,
+        };
+    }, [actorSource, selectedNpc, trainer, calculateMaxHP]);
+
+    const actorMaxHP = actor.maxHp;
+    const actorCurrentHP = Math.max(0, actorMaxHP - (actor.currentDamage || 0));
+
+    const actorParty = actorSource === 'npc' && selectedNpc ? (selectedNpc.team || []) : party;
+
+    // Apply damage/heal to whichever actor is active — an NPC's own record (via setNpcs) or the
+    // real player trainer (via setTrainer). Never let NPC HP writes fall through to the player.
+    const handleActorDamage = (val) => {
+        if (actor.isNpc) {
+            setNpcs(prev => prev.map(n => n.id === actor.id ? { ...n, currentDamage: Math.min(n.maxHp ?? 20, (n.currentDamage || 0) + val) } : n));
+        } else {
+            setTrainer(prev => ({ ...prev, currentDamage: Math.min(actorMaxHP, (prev.currentDamage || 0) + val) }));
+        }
+    };
+    const handleActorHeal = (val) => {
+        if (actor.isNpc) {
+            setNpcs(prev => prev.map(n => n.id === actor.id ? { ...n, currentDamage: Math.max(0, (n.currentDamage || 0) - val) } : n));
+        } else {
+            setTrainer(prev => ({ ...prev, currentDamage: Math.max(0, (prev.currentDamage || 0) - val) }));
+        }
+    };
+    const handleActorFull = () => {
+        if (actor.isNpc) {
+            setNpcs(prev => prev.map(n => n.id === actor.id ? { ...n, currentDamage: 0 } : n));
+        } else {
+            setTrainer(prev => ({ ...prev, currentDamage: 0 }));
+        }
+    };
+
+    // Apply a Pokémon-data patch to whichever actor owns it — an NPC's team member (via setNpcs)
+    // or a real persisted player Pokémon (via updatePokemon). NPC team Pokémon aren't tracked by
+    // PokemonContext, so routing NPC patches through updatePokemon would silently no-op.
+    const updateActorPokemon = (pokemonId, patch) => {
+        if (actorSource === 'npc' && selectedNpc) {
+            setNpcs(prev => prev.map(n => n.id === selectedNpc.id
+                ? { ...n, team: (n.team || []).map(p => p.id === pokemonId ? { ...p, ...patch } : p) }
+                : n));
+        } else {
+            updatePokemon(pokemonId, patch);
+        }
+    };
+
+    const selectedPokemon = useMemo(() => actorParty.find(p => p.id === selectedPokemonId) || null, [actorParty, selectedPokemonId]);
+
+    // Clear stale selection if the selected Pokemon is no longer in the active party
     useEffect(() => {
-        if (selectedPokemonId && !party.some(p => p.id === selectedPokemonId)) {
+        if (selectedPokemonId && !actorParty.some(p => p.id === selectedPokemonId)) {
             setSelectedPokemonId(null);
         }
-    }, [party, selectedPokemonId]);
+    }, [actorParty, selectedPokemonId]);
+
+    // Weapon submode requires player inventory/equipment — not tracked for NPCs
+    useEffect(() => {
+        if (actor.isNpc && trainerSubmode === 'weapon') setTrainerSubmode('skill');
+    }, [actor.isNpc, trainerSubmode]);
+
+    // Heal mode always acts on the player's own inventory/party — force the source back
+    useEffect(() => {
+        if (mode === 'heal' && actorSource === 'npc') setActorSource('player');
+    }, [mode, actorSource]);
 
     const megaForms = useMemo(() => {
         if (!selectedPokemon || !pokedex) return [];
@@ -390,8 +464,9 @@ const BattleTab = () => {
     };
 
     const addToHistory = (roll) => {
-        setRollHistory(prev => [roll, ...prev].slice(0, MAX_ROLL_HISTORY));
-        if (sendToDiscord) sendToDiscord(roll, trainer.name);
+        const entry = { ...roll, actorName: actor.name, actorKind: actor.isNpc ? 'npc' : 'player' };
+        setRollHistory(prev => [entry, ...prev].slice(0, MAX_ROLL_HISTORY));
+        if (sendToDiscord) sendToDiscord(entry, actor.name);
     };
 
     const rollPokemonMove = () => {
@@ -529,10 +604,10 @@ const BattleTab = () => {
         if (!skillData) return;
 
         const statKey = skillData.stat?.toLowerCase();
-        const baseStat = trainer.stats?.[statKey] || 3;
+        const baseStat = actor.stats?.[statKey] || 3;
         const modifier = Math.floor(baseStat / 2);
 
-        const skills = trainer.skills || {};
+        const skills = actor.skills || {};
         const skillRank = Array.isArray(skills)
             ? (skills.includes(selectedSkill) ? 1 : 0)
             : (skills[selectedSkill] || 0);
@@ -544,9 +619,7 @@ const BattleTab = () => {
         const rollTotal = rolls[0];
         const total = rollTotal + modifier + talentBonus;
 
-        const trainerMaxHP = calculateMaxHP();
-        const trainerCurrentHP = Math.max(0, trainerMaxHP - (trainer.currentDamage || 0));
-        addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '1d20', rolls, baseStat, modifier, hasSkill, bonus: talentBonus, total, trainerCurrentHP, trainerMaxHP, timestamp: Date.now() });
+        addToHistory({ type: 'trainer_skill', skill: selectedSkill, skillStat: skillData.stat, dice: '1d20', rolls, baseStat, modifier, hasSkill, bonus: talentBonus, total, trainerCurrentHP: actorCurrentHP, trainerMaxHP: actorMaxHP, timestamp: Date.now() });
     };
 
     const rollPokemonSkill = () => {
@@ -588,7 +661,7 @@ const BattleTab = () => {
 
     const rollTrainerAttack = () => {
         const isWeapon = trainerSubmode === 'weapon';
-        const atkStat = trainer.stats?.atk || 3;
+        const atkStat = actor.stats?.atk || 3;
         const atkMod = Math.floor(atkStat / 2);
         const moveAC = trainerAcOverride !== '' ? (parseInt(trainerAcOverride) || null) : null;
         const accRoll = Math.floor(Math.random() * 20) + 1;
@@ -698,6 +771,63 @@ const BattleTab = () => {
                 <button className={`tab ${mode === 'heal'     ? 'active' : ''}`} onClick={() => setMode('heal')}>🩹 Heal</button>
             </div>
 
+            {/* Actor Source — who the roller acts for. Heal mode always uses the player's own
+                inventory/party, so the toggle is hidden there (see the effect above that forces
+                actorSource back to 'player' on entering Heal mode). Custom Dice doesn't need an
+                actor either, but is left showing the last-picked one for Discord attribution. */}
+            {mode !== 'heal' && (
+                <div style={{ marginBottom: '15px', padding: '10px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                            onClick={() => setActorSource('player')}
+                            style={{
+                                flex: '0 0 auto', padding: '6px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                                fontSize: '12px', fontWeight: 'bold',
+                                background: actorSource === 'player' ? '#667eea' : 'var(--input-bg)',
+                                color: actorSource === 'player' ? 'white' : 'var(--text-secondary)',
+                            }}
+                        >
+                            🧑 Player Trainer
+                        </button>
+                        <button
+                            onClick={() => setActorSource('npc')}
+                            style={{
+                                flex: '0 0 auto', padding: '6px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                                fontSize: '12px', fontWeight: 'bold',
+                                background: actorSource === 'npc' ? '#667eea' : 'var(--input-bg)',
+                                color: actorSource === 'npc' ? 'white' : 'var(--text-secondary)',
+                            }}
+                        >
+                            🎭 NPC
+                        </button>
+                    </div>
+                    {actorSource === 'npc' && (
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px' }}>
+                            {npcs.length === 0 && (
+                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                                    No NPCs yet — create one in GM Tools → NPC Roster.
+                                </span>
+                            )}
+                            {npcs.map(n => (
+                                <button
+                                    key={n.id}
+                                    onClick={() => setSelectedNpcId(n.id)}
+                                    aria-pressed={selectedNpcId === n.id}
+                                    style={{
+                                        padding: '5px 10px', borderRadius: '14px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                        border: selectedNpcId === n.id ? '2px solid #667eea' : '1px solid var(--border-medium)',
+                                        background: selectedNpcId === n.id ? 'rgba(102,126,234,0.15)' : 'var(--input-bg)',
+                                        color: 'var(--text-primary)',
+                                    }}
+                                >
+                                    {n.name}{n.level != null && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {n.level}</span>}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
             <div className="grid-responsive-2">
                 {/* Left: Roll Controls */}
                 <div className="section-card-purple">
@@ -712,7 +842,7 @@ const BattleTab = () => {
                             <div style={{ marginBottom: '12px' }}>
                                 <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Pokemon</label>
                                 <PokemonSpritePicker
-                                    party={party}
+                                    party={actorParty}
                                     selectedId={selectedPokemonId}
                                     onSelect={(id) => {
                                         setSelectedPokemonId(id);
@@ -720,6 +850,7 @@ const BattleTab = () => {
                                         resetCombatStages();
                                     }}
                                     getHP={getPokemonHP}
+                                    emptyMessage={actor.isNpc ? `${actor.name} has no Pokémon on its team — add one in GM Tools → NPC Roster.` : undefined}
                                 />
                             </div>
 
@@ -804,21 +935,21 @@ const BattleTab = () => {
                                     if (isDynamaxed) {
                                         setPokemonHP(prev => ({ ...prev, current: Math.max(0, (prev?.current ?? hp.current) - val) }));
                                     } else {
-                                        updatePokemon(selectedPokemon.id, { currentDamage: Math.min(hp.max, (selectedPokemon.currentDamage || 0) + val) });
+                                        updateActorPokemon(selectedPokemon.id, { currentDamage: Math.min(hp.max, (selectedPokemon.currentDamage || 0) + val) });
                                     }
                                 };
                                 const handleHeal = (val) => {
                                     if (isDynamaxed) {
                                         setPokemonHP(prev => ({ ...prev, current: Math.min(prev?.max ?? hp.max, (prev?.current ?? hp.current) + val) }));
                                     } else {
-                                        updatePokemon(selectedPokemon.id, { currentDamage: Math.max(0, (selectedPokemon.currentDamage || 0) - val) });
+                                        updateActorPokemon(selectedPokemon.id, { currentDamage: Math.max(0, (selectedPokemon.currentDamage || 0) - val) });
                                     }
                                 };
                                 const handleFull = () => {
                                     if (isDynamaxed) {
                                         setPokemonHP(prev => ({ ...prev, current: prev?.max ?? hp.max }));
                                     } else {
-                                        updatePokemon(selectedPokemon.id, { currentDamage: 0 });
+                                        updateActorPokemon(selectedPokemon.id, { currentDamage: 0 });
                                     }
                                 };
                                 return (
@@ -847,7 +978,7 @@ const BattleTab = () => {
                                 );
                             })()}
 
-                            <StatusConditionUI selectedPokemon={selectedPokemon} updatePokemon={updatePokemon} />
+                            <StatusConditionUI selectedPokemon={selectedPokemon} updatePokemon={updateActorPokemon} />
 
                             {(() => {
                                 return (
@@ -1047,7 +1178,8 @@ const BattleTab = () => {
                             {/* Trainer Stats Display */}
                             <div className="trainer-stats-display" style={{ marginBottom: '12px' }}>
                                 <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>
-                                    {trainer.name || 'Trainer'} — Level {trainer.level || 1}
+                                    {actor.name}{actor.level != null && <> — Level {actor.level}</>}
+                                    {actor.isNpc && <span style={{ marginLeft: '8px', padding: '2px 8px', borderRadius: '8px', background: '#e6510022', color: '#e65100', fontSize: '10px', fontWeight: 'bold', verticalAlign: 'middle' }}>NPC</span>}
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
                                     {[
@@ -1057,7 +1189,7 @@ const BattleTab = () => {
                                         { key: 'sdef', label: 'SDEF', color: '#ff9800' },
                                         { key: 'spd',  label: 'SPD',  color: '#00bcd4' },
                                     ].map(stat => {
-                                        const value = trainer.stats?.[stat.key] || 3;
+                                        const value = actor.stats?.[stat.key] || 3;
                                         const mod = Math.floor(value / 2);
                                         return (
                                             <div key={stat.key} className="trainer-stat-mini-box" style={{ textAlign: 'center', padding: '4px', borderRadius: '4px' }}>
@@ -1070,28 +1202,22 @@ const BattleTab = () => {
                                 </div>
                             </div>
 
-                            {/* Trainer HP Tracker */}
-                            {(() => {
-                                const maxHP = calculateMaxHP();
-                                const currentHP = Math.max(0, maxHP - (trainer.currentDamage || 0));
-                                return (
-                                    <HPTracker
-                                        label="Trainer HP"
-                                        currentHP={currentHP}
-                                        maxHP={maxHP}
-                                        onDamage={(val) => setTrainer(prev => ({ ...prev, currentDamage: Math.min(maxHP, (prev.currentDamage || 0) + val) }))}
-                                        onHeal={(val) => setTrainer(prev => ({ ...prev, currentDamage: Math.max(0, (prev.currentDamage || 0) - val) }))}
-                                        onFull={() => setTrainer(prev => ({ ...prev, currentDamage: 0 }))}
-                                    />
-                                );
-                            })()}
+                            {/* Actor HP Tracker */}
+                            <HPTracker
+                                label={actor.isNpc ? `${actor.name} HP` : 'Trainer HP'}
+                                currentHP={actorCurrentHP}
+                                maxHP={actorMaxHP}
+                                onDamage={handleActorDamage}
+                                onHeal={handleActorHeal}
+                                onFull={handleActorFull}
+                            />
 
                             {/* Submode tabs */}
                             <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
                                 {[
                                     { id: 'skill',  label: 'Skill Check' },
                                     { id: 'attack', label: 'Unarmed Attack' },
-                                    { id: 'weapon', label: 'Weapon Attack' },
+                                    ...(!actor.isNpc ? [{ id: 'weapon', label: 'Weapon Attack' }] : []),
                                 ].map(({ id, label }) => (
                                     <button
                                         key={id}
@@ -1118,7 +1244,7 @@ const BattleTab = () => {
                                     >
                                         <option value="">Choose a skill...</option>
                                         {Object.entries(GAME_DATA.skills || {}).map(([name, data]) => {
-                                            const skills = trainer.skills || {};
+                                            const skills = actor.skills || {};
                                             const rank = Array.isArray(skills) ? (skills.includes(name) ? 1 : 0) : (skills[name] || 0);
                                             return (
                                                 <option key={name} value={name}>
@@ -1128,12 +1254,18 @@ const BattleTab = () => {
                                         })}
                                     </select>
 
+                                    {actor.isNpc && (
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                                            NPCs roll skill checks untrained (stat modifier only) — the roster doesn't track individual talents.
+                                        </div>
+                                    )}
+
                                     {selectedSkill && GAME_DATA.skills?.[selectedSkill] && (() => {
                                         const skillData = GAME_DATA.skills[selectedSkill];
                                         const statKey = skillData.stat?.toLowerCase();
-                                        const baseStat = trainer.stats?.[statKey] || 3;
+                                        const baseStat = actor.stats?.[statKey] || 3;
                                         const modifier = Math.floor(baseStat / 2);
-                                        const skills = trainer.skills || {};
+                                        const skills = actor.skills || {};
                                         const skillRank = Array.isArray(skills) ? (skills.includes(selectedSkill) ? 1 : 0) : (skills[selectedSkill] || 0);
                                         const talentBonus = skillRank === 2 ? 5 : skillRank === 1 ? 2 : 0;
                                         return (
@@ -1159,7 +1291,7 @@ const BattleTab = () => {
 
                             {/* ── Unarmed Attack ── */}
                             {trainerSubmode === 'attack' && (() => {
-                                const atkVal = trainer.stats?.atk || 3;
+                                const atkVal = actor.stats?.atk || 3;
                                 const atkMod = Math.floor(atkVal / 2);
                                 return (
                                     <>

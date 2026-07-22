@@ -236,11 +236,29 @@ export const buildPokemonSkillEmbed = (roll, trainerName) => {
     };
 };
 
+// GM Tools → Initiative Tracker "Quick Check": a generic 1d20 + stat/flat modifier
+// roll for whichever combatant is up, with an optional opposing target number.
+export const buildQuickCheckEmbed = (roll, actorName) => {
+    const modStr = `${roll.mod >= 0 ? '+' : ''}${roll.mod}`;
+    let description = `**Total: ${roll.total}** · [${roll.d20}] ${modStr} (${roll.label})`;
+    if (roll.target != null) {
+        description += ` vs ${roll.target} → ${roll.success ? '✅ Success' : '❌ Fail'}`;
+    }
+    return {
+        author: { name: actorName },
+        title: `🎯 ${roll.combatantName} — Quick Check`,
+        description,
+        color: roll.success === false ? 0xF44336 : roll.success === true ? 0x4CAF50 : 0x667EEA,
+        timestamp: new Date().toISOString(),
+    };
+};
+
 export const buildEmbed = (roll, trainerName) => {
     if (roll.type === 'pokemon')       return buildPokemonEmbed(roll, trainerName);
     if (roll.type === 'trainer_skill') return buildTrainerSkillEmbed(roll, trainerName);
     if (roll.type === 'pokemon_skill') return buildPokemonSkillEmbed(roll, trainerName);
     if (roll.type === 'heal')          return buildHealEmbed(roll, trainerName);
     if (roll.type === 'custom')        return buildCustomEmbed(roll, trainerName);
+    if (roll.type === 'quick_check')   return buildQuickCheckEmbed(roll, trainerName);
     return null;
 };

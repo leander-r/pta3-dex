@@ -50,14 +50,14 @@ const SpriteThumb = ({ pokemon, size, faded }) => {
  * @param {(id:number)=>void} onSelect
  * @param {(pokemon)=>{current:number,max:number}} getHP - caller-supplied HP calc
  */
-const PokemonSpritePicker = ({ party, selectedId, onSelect, getHP }) => {
+const PokemonSpritePicker = ({ party, selectedId, onSelect, getHP, emptyMessage }) => {
     if (!party || party.length === 0) {
         return (
             <div style={{
                 padding: '16px', textAlign: 'center', fontSize: '13px',
                 color: 'var(--text-muted)', background: 'var(--bg-secondary)', borderRadius: '6px'
             }}>
-                No Pokémon in party — add one from the Pokémon tab.
+                {emptyMessage || 'No Pokémon in party — add one from the Pokémon tab.'}
             </div>
         );
     }
