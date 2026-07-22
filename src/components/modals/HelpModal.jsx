@@ -354,8 +354,9 @@ export const HELP_CONTENT = {
         body: () => (
             <>
                 <p>Turn-order tracker for combat. Add combatants from three sources: your <strong>NPC Roster</strong> (NPC alone, or NPC + its whole team), <strong>Players</strong> (a trainer and any of their active party Pokémon), or a <strong>Custom</strong> one-off entry for something improvised.</p>
-                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Running combat</h4>
-                <p>🎲 rolls d20 + Speed modifier for a single combatant; <strong>Roll All</strong> does it for everyone still missing a roll. The list always sorts by initiative automatically. <strong>Next Turn</strong> advances the highlighted combatant and bumps the round counter once it wraps around.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Turn order</h4>
+                <p>By the book (PHB1 Rules of Engagement), turn order is just raw Speed, highest first — no roll needed, and that's the default here. Ties are broken by an opposed Speed check between the tied combatants.</p>
+                <p>If your table prefers the "Roll For Initiative" variant instead, 🎲 rolls 1d20 + Speed for a single combatant (or use <strong>Roll All</strong> for everyone still unrolled); <strong>Clear Rolls</strong> reverts back to plain Speed order. <strong>Next Turn</strong> advances the highlighted combatant and bumps the round counter once it wraps around.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Scratchpad, not source of truth</h4>
                 <p>Combatants are a snapshot taken when added — HP changes here don't write back to your trainers, Pokémon, or NPC Roster. Apply any lasting damage there separately. The tracker survives a page refresh but isn't part of exports or save slots.</p>
             </>
