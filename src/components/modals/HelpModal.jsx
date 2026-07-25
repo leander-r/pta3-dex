@@ -315,9 +315,11 @@ export const HELP_CONTENT = {
                 <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
                     <li><strong>Badge Count Scaling</strong> — how many Pokémon and how much complexity to give a Gym Leader based on the party's current badge count.</li>
                     <li><strong>Gym Pokémon Passives</strong> — stat and ability passives assignable to Gym Leader/Trainer Pokémon.</li>
-                    <li><strong>Gym Trainer Features</strong> — once-per-day abilities for non-Leader Gym Trainers.</li>
-                    <li><strong>Elite Four Passives</strong> — stronger versions of the gym passives for Elite Four members.</li>
+                    <li><strong>Gym Trainer Features</strong> — once-per-day abilities a Gym Leader or their gym trainers can use.</li>
+                    <li><strong>Elite Four Passives</strong> — stronger versions of the gym passives for Elite Four members' Pokémon.</li>
+                    <li><strong>Elite Four Trainer Features</strong> — once-per-day abilities for the Elite Four members themselves.</li>
                 </ul>
+                <p>Tag an NPC's team Pokémon or the NPC trainer itself with any of these from <strong>NPC Roster</strong> — see its help for details.</p>
             </>
         )
     },
@@ -344,6 +346,7 @@ export const HELP_CONTENT = {
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Building an NPC</h4>
                 <p>Generate a stat block in <strong>NPC Stats</strong> and hit <strong>Save as NPC</strong> as a quick template, or start from <strong>+ New Blank NPC</strong> here and set the 5 stats by hand. Either way, the class dropdown next to the name is always editable — pick any of the 7 base or 35 advanced classes (or "No class" for a level-0 NPC with no features) to build things like a Gym Leader or Elite Four member the generator's 3 tiers don't cover.</p>
                 <p>If the NPC's level has passed 3, 7, or 11, a <strong>🎲 Roll HP</strong> button appears — click it to roll the 1d4 HP bonus for that milestone (same rule as player trainers). Editing the level down trims off rolls that no longer apply.</p>
+                <p><strong>+ Feature</strong> tags the NPC trainer itself with one of the Gym/Elite Four <em>trainer</em> features from the <strong>Gym Guide</strong> tab (e.g. "I'll Show You Our True Power!", "Elite Intimidation") — these are the book's trainer-facing abilities, separate from the Pokémon passives below.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Team</h4>
                 <p>Use <strong>+ Add Pokémon</strong> to search the Pokédex — stats, types, and moves fill in automatically, same as a player's Pokémon. Track HP with the +/− stepper on each entry.</p>
                 <p>Each team Pokémon can be tagged with <strong>+ Passive</strong> — the Gym/Elite Four passives from the <strong>Gym Guide</strong> tab (Gym Anchor, Elite's, Elite Striker, etc.), for a Gym Leader or Elite Four member's team. Per HB1's Pokémon Passives rule, a Pokémon can't carry more than 3 Stat Passives at once (Ability Passives are unlimited) — the picker enforces that cap for passives added here, though it can't see stat passives a species already has from the Pokédex, so account for those yourself.</p>

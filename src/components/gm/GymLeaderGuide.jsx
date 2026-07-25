@@ -5,7 +5,7 @@
 import React from 'react';
 import { useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
-import { GYM_STAT_PASSIVES, GYM_ABILITY_PASSIVES, GYM_TRAINER_FEATURES, ELITE_STAT_PASSIVES, ELITE_ABILITY_PASSIVES } from '../../data/gymPassives.js';
+import { GYM_STAT_PASSIVES, GYM_ABILITY_PASSIVES, GYM_TRAINER_FEATURES, ELITE_STAT_PASSIVES, ELITE_ABILITY_PASSIVES, ELITE_TRAINER_FEATURES } from '../../data/gymPassives.js';
 
 const BADGE_SCALING = [
     { range: '0–1', level: 'Easy',      color: '#4caf50', desc: '1 Pokémon (basic/unevolved). Gym trainers use first-stage Pokémon.' },
@@ -74,7 +74,7 @@ const GymLeaderGuide = () => {
         <div className="section-card-purple">
             <h3 className="section-title-purple">🎽 Gym Trainer Features</h3>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                Gym Trainers (not the Leader) can use these once-per-day features.
+                Gym Leaders — or even their gym trainers — can use these once-per-day features to gain an edge in battle.
             </p>
             {GYM_TRAINER_FEATURES.map(p => <PassiveRow key={p.name} {...p} />)}
         </div>
@@ -93,6 +93,15 @@ const GymLeaderGuide = () => {
                 <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>Ability Passives</div>
                 {ELITE_ABILITY_PASSIVES.map(p => <PassiveRow key={p.name} {...p} />)}
             </div>
+        </div>
+
+        {/* Elite Four Trainer Features */}
+        <div className="section-card-purple">
+            <h3 className="section-title-purple">🏆 Elite Four Trainer Features</h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                Elite Four members can use these once-per-day features to dominate in battle.
+            </p>
+            {ELITE_TRAINER_FEATURES.map(p => <PassiveRow key={p.name} {...p} />)}
         </div>
     </div>
     );

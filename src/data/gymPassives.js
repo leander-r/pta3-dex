@@ -36,3 +36,12 @@ export const ELITE_ABILITY_PASSIVES = [
     { name: 'No Faults',        effect: 'First immunity-ignored attack per battle is treated as shielded instead.' },
     { name: 'Subvert Weakness', effect: 'First super-effective/extremely-effective hit per battle: attacker adds one less damage die.' },
 ];
+
+// GMG "Encounter Building", Elite Trainer Features — the Elite Four's trainer-facing
+// counterpart to Gym Trainer Features above (used "at the height of exciting battles,
+// or even right at the start of a battle... to dominate in battle").
+export const ELITE_TRAINER_FEATURES = [
+    { name: 'Elite Intimidation', freq: '1/day', effect: "A challenger's Pokémon has its Attack and Special Attack lowered by 2 for 10 minutes." },
+    { name: 'Get Back Up!',       freq: '1/day', effect: "If your Pokémon would have been knocked out by an attack and it would still be above -10 HP, instead set your Pokémon's HP to 1." },
+    { name: 'So Exciting!',       freq: '1/day', effect: "When your Pokémon knocks out a challenger's Pokémon, it recovers 12 HP." },
+];

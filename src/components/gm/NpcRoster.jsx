@@ -9,7 +9,7 @@ import { getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
 import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
 import { HP_MILESTONE_LEVELS } from '../../data/constants.js';
-import { GYM_STAT_PASSIVES, GYM_ABILITY_PASSIVES, ELITE_STAT_PASSIVES, ELITE_ABILITY_PASSIVES } from '../../data/gymPassives.js';
+import { GYM_STAT_PASSIVES, GYM_ABILITY_PASSIVES, GYM_TRAINER_FEATURES, ELITE_STAT_PASSIVES, ELITE_ABILITY_PASSIVES, ELITE_TRAINER_FEATURES } from '../../data/gymPassives.js';
 import toast from '../../utils/toast.js';
 
 const STAT_KEYS = ['atk', 'def', 'satk', 'sdef', 'spd'];
@@ -27,6 +27,37 @@ const GYM_ELITE_PASSIVE_EFFECTS = Object.fromEntries(
 );
 const GYM_ELITE_STAT_PASSIVE_NAMES = new Set(GYM_ELITE_STAT_PASSIVES.map(p => p.name));
 const MAX_STAT_PASSIVES = 3;
+
+// GMG: "Gym Leaders, or even gym trainers, may use these features" and "Elite Four
+// Members may use these features" — both are trainer-facing (not Pokémon), so they're
+// offered on the NPC trainer itself rather than on a team Pokémon. No numeric cap in
+// the book for these (unlike Pokémon Stat Passives), so nothing is disabled here.
+const GYM_ELITE_TRAINER_FEATURES = [...GYM_TRAINER_FEATURES, ...ELITE_TRAINER_FEATURES];
+const GYM_ELITE_TRAINER_FEATURE_INFO = Object.fromEntries(GYM_ELITE_TRAINER_FEATURES.map(f => [f.name, f]));
+
+const TrainerFeaturePicker = ({ existing, onAdd, onCancel }) => (
+    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', padding: '6px 8px', background: 'var(--bg-secondary)', borderRadius: '6px', marginTop: '4px' }}>
+        <select
+            aria-label="Add Gym/Elite trainer feature"
+            defaultValue=""
+            onChange={(e) => { if (e.target.value) { onAdd(e.target.value); e.target.value = ''; } }}
+            style={{ flex: '1 1 160px', padding: '4px 6px', borderRadius: '5px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '11px' }}
+        >
+            <option value="" disabled>Add a trainer feature...</option>
+            <optgroup label="Gym Trainer Features (Leader or Gym Trainer)">
+                {GYM_TRAINER_FEATURES.filter(f => !existing.includes(f.name)).map(f => (
+                    <option key={f.name} value={f.name}>{f.name} ({f.freq}) — {f.effect}</option>
+                ))}
+            </optgroup>
+            <optgroup label="Elite Four Trainer Features">
+                {ELITE_TRAINER_FEATURES.filter(f => !existing.includes(f.name)).map(f => (
+                    <option key={f.name} value={f.name}>{f.name} ({f.freq}) — {f.effect}</option>
+                ))}
+            </optgroup>
+        </select>
+        <button onClick={onCancel} style={{ padding: '4px 8px', borderRadius: '5px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '11px' }}>Done</button>
+    </div>
+);
 
 const PassivePicker = ({ existing, statPassivesUsed, onAdd, onCancel }) => (
     <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', padding: '6px 8px', background: 'var(--bg-secondary)', borderRadius: '6px', marginTop: '4px' }}>
@@ -198,6 +229,8 @@ const TeamPokemonRow = ({ poke, onDamage, onHeal, onRemove, onAddPassive, onRemo
 const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
     const { GAME_DATA, pokedex, customSpecies } = useGameData();
     const [pickingSpecies, setPickingSpecies] = useState(false);
+    const [pickingFeature, setPickingFeature] = useState(false);
+    const trainerFeatures = npc.trainerFeatures || [];
 
     const maxHp = npcMaxHp(npc);
     const currentHP = Math.max(0, maxHp - (npc.currentDamage || 0));
@@ -335,6 +368,40 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
                     </p>
                 )
             )}
+
+            <div style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Gym/Elite Trainer Features</span>
+                    <button
+                        onClick={() => setPickingFeature(v => !v)}
+                        title="Tag with a Gym Leader or Elite Four trainer feature (GMG Encounter Building)"
+                        style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '5px', cursor: 'pointer', fontSize: '11px', padding: '3px 7px', color: 'var(--text-primary)' }}
+                    >
+                        + Feature
+                    </button>
+                </div>
+                {trainerFeatures.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: pickingFeature ? '6px' : 0 }}>
+                        {trainerFeatures.map((name, idx) => {
+                            const info = GYM_ELITE_TRAINER_FEATURE_INFO[name];
+                            return (
+                                <span key={`${name}-${idx}`} title={info ? `${info.freq} — ${info.effect}` : undefined}
+                                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '10px', background: '#c9960022', color: '#c99600', fontSize: '10px', fontWeight: 'bold', border: '1px solid var(--border-medium)' }}>
+                                    {name}{info?.freq && ` (${info.freq})`}
+                                    <button onClick={() => onUpdate({ trainerFeatures: trainerFeatures.filter((_, i) => i !== idx) })} title={`Remove ${name}`} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '10px', padding: 0, lineHeight: 1 }}>✕</button>
+                                </span>
+                            );
+                        })}
+                    </div>
+                )}
+                {pickingFeature && (
+                    <TrainerFeaturePicker
+                        existing={trainerFeatures}
+                        onAdd={(name) => onUpdate({ trainerFeatures: [...trainerFeatures, name] })}
+                        onCancel={() => setPickingFeature(false)}
+                    />
+                )}
+            </div>
 
             <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
