@@ -87,7 +87,7 @@ const MoveSelector = ({
                         </span>
                         {showHelp && <HelpBtn onClick={() => showHelp('z-moves')} hoverTitle="Z-Move rules" />}
                         <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', display: 'flex', gap: '8px' }}>
-                            <span>8d12 dmg</span><span>·</span><span>Always hits</span><span>·</span>
+                            <span>8d12 dmg</span><span>·</span>
                             <span style={{ color: zMoveUsed ? '#ffcdd2' : 'rgba(255,255,255,0.75)' }}>
                                 {zMoveUsed ? '✓ Used' : '1/day'}
                             </span>
@@ -251,10 +251,11 @@ const MoveSelector = ({
                     const isTeraCrown = move.isTeraCrown;
                     const isTeraMove = move.isTeraMove;
 
+                    // Frequency is shown as an informational badge (below) but never disables the
+                    // move — whether to allow going past 1/day, 3/day, etc. is a table's own call.
                     const isGMaxUsed = isGMax && gMaxMoveUsed;
                     const isZMoveUsed = isZMove && zMoveUsed;
                     const isTeraBlastExhausted = isTeraBlast && teraBlastUsesLeft <= 0;
-                    const isUsed = isGMaxUsed || isZMoveUsed || isTeraBlastExhausted;
 
                     // Border color
                     const borderColor = isGMax ? '#ffd700'
@@ -303,9 +304,8 @@ const MoveSelector = ({
                             key={idx}
                             style={{
                                 display: 'flex', alignItems: 'stretch',
-                                border: `2px solid ${isUsed ? '#88888866' : borderColor}`,
+                                border: `2px solid ${borderColor}`,
                                 borderRadius: '6px', overflow: 'hidden',
-                                opacity: isUsed ? 0.55 : 1,
                                 boxShadow: isGMax && !isGMaxUsed ? `0 0 8px #ffd70066`
                                     : isZMove && !isZMoveUsed ? `0 0 6px #ef535044`
                                     : isTeraMove && !isTeraBlastExhausted ? `0 0 6px ${teraColor}44`
@@ -315,19 +315,18 @@ const MoveSelector = ({
                         >
                             <button
                                 onClick={() => {
-                                    if (isUsed) return;
                                     if (move.isMaxMove || move.isGMaxMove || move.isZMove || move.isTeraMove) { onSelectMove(move); return; }
                                     const gd = gameData?.moves?.[move.name] || {};
                                     const full = { ...gd };
                                     Object.entries(move).forEach(([k, v]) => { if (v !== '' && v != null) full[k] = v; });
                                     onSelectMove(full);
                                 }}
-                                className={!isSelected && !isUsed ? 'move-select-btn' : ''}
+                                className={!isSelected ? 'move-select-btn' : ''}
                                 style={{
                                     flex: 1, padding: '10px',
                                     background: isSelected ? selectedBg : undefined,
                                     color: isSelected ? selectedFg : undefined,
-                                    border: 'none', cursor: isUsed ? 'not-allowed' : 'pointer', textAlign: 'left'
+                                    border: 'none', cursor: 'pointer', textAlign: 'left'
                                 }}
                             >
                                 <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -349,22 +348,13 @@ const MoveSelector = ({
                                         </span>
                                     )}
                                     <span>| {move.isMaxGuard ? 'No Damage' : (damage || 'Status')}</span>
-                                    {!move.isMaxMove && !isGMax && !isZMove && !isTeraMove && (
+                                    {!move.isMaxGuard && (
                                         <span title="PTA3: Roll 1d20 + accuracy bonus against the target's stat value.">
                                             | {accTargetLabel(category)}
                                         </span>
                                     )}
-                                    {!move.isMaxMove && !isGMax && !isZMove && !isTeraMove && frequency && (
+                                    {frequency && (
                                         <span style={{ opacity: 0.7 }}>| {frequency}</span>
-                                    )}
-                                    {((move.isMaxMove && !move.isMaxGuard) || isGMax || isZMove) ? (
-                                        <span style={{ opacity: 0.7 }}>| At-Will, always hits</span>
-                                    ) : null}
-                                    {isTeraBlast && (
-                                        <span style={{ opacity: 0.7 }}>| Always hits</span>
-                                    )}
-                                    {isTeraCrown && (
-                                        <span style={{ opacity: 0.7 }}>| At-Will</span>
                                     )}
                                 </div>
                             </button>

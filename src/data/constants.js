@@ -231,7 +231,7 @@ export const AUTOSAVE_DEBOUNCE_MS = 1000;
 export const AUTOSAVE_INTERVAL_MS = 2 * 60 * 1000;
 
 /**
- * Z-Move table — keyed by type, each dealing 8d12 damage once per battle.
+ * Z-Move table — keyed by type, each dealing 8d12 damage, 1/day.
  */
 export const Z_MOVE_TABLE = {
     Normal:   { name: 'Breakneck Blitz',       range: 'Melee (25ft burst)',        damage: '8d12', category: 'Physical' },

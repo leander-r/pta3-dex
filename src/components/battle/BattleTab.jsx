@@ -300,7 +300,7 @@ const BattleTab = () => {
             const maxMoves = selectedPokemon.moves.reduce((acc, m) => {
                 let maxMove;
                 if (m.category === 'Status') {
-                    maxMove = { name: 'Max Guard', type: 'Normal', category: 'Status', damage: null, frequency: 'At-Will', range: 'Self', isMaxMove: true, isMaxGuard: true, effect: 'Blocks all damage and effects targeting the user until the start of its next turn.' };
+                    maxMove = { name: 'Max Guard', type: 'Normal', category: 'Status', damage: null, frequency: '3/day', range: 'Self', isMaxMove: true, isMaxGuard: true, effect: 'Prevent the next 30 damage you would receive until your next action.' };
                 } else {
                     const entry = MAX_MOVE_TABLE[m.type];
                     maxMove = entry
@@ -312,7 +312,7 @@ const BattleTab = () => {
             }, []);
             if (gMaxData?.gMaxMove) {
                 const gm = gMaxData.gMaxMove;
-                maxMoves.unshift({ name: gm.name, type: gm.type, category: 'Special', damage: gm.damage, frequency: '1/battle', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isGMaxMove: true, isMaxGuard: false, effect: gm.effect });
+                maxMoves.unshift({ name: gm.name, type: gm.type, category: 'Special', damage: gm.damage, frequency: '1/GMAX', range: 'Ranged (80ft, 30ft blast)', isMaxMove: true, isGMaxMove: true, isMaxGuard: false, effect: gm.effect });
             }
             return maxMoves;
         }
@@ -430,9 +430,11 @@ const BattleTab = () => {
 
 
     const handleTeraBlastRoll = () => {
-        if (teraBlastUsesLeft <= 0 || !selectedPokemon) return;
+        if (!selectedPokemon) return;
         rollSpecialMove({ moveName: 'Tera Blast', moveType: selectedPokemon.teraType || 'Normal', category: 'Special', damage: '3d12', effect: '' });
-        setTeraBlastUsesLeft(prev => prev - 1);
+        // Frequency (3/day) is tracked for reference but doesn't block further rolls — clamped
+        // at 0 so the "X/3 left" display doesn't go negative once a table plays past it.
+        setTeraBlastUsesLeft(prev => Math.max(0, prev - 1));
     };
 
     // Base HP from Pokémon data, including mega stat boosts (ignores Dynamax override)
@@ -472,16 +474,15 @@ const BattleTab = () => {
     const rollPokemonMove = () => {
         if (!selectedPokemon || !selectedMove) return;
 
-        // Z-Moves — always hit, 8d12 (or species-specific damage), one-time use
+        // Z-Move — 8d12 (or species-specific damage), 1/day. Frequency is tracked but not
+        // enforced here — a table can decide for itself whether to allow a second use.
         if (selectedMove.isZMove) {
-            if (zMoveUsed) return;
             handleZMoveRoll(selectedMove);
             return;
         }
 
-        // Tera Blast — always hit, 3d12, 3/day
+        // Tera Blast — 3d12, 3/day (tracked, not enforced — see handleTeraBlastRoll).
         if (selectedMove.isTeraBlast) {
-            if (teraBlastUsesLeft <= 0) return;
             handleTeraBlastRoll();
             return;
         }
@@ -668,7 +669,10 @@ const BattleTab = () => {
         const isCrit = accRoll === 20;
         const isHit = isCrit || moveAC === null || (accRoll + atkMod) >= moveAC;
 
-        const [count, sides] = isWeapon ? [2, 6] : [1, 4];
+        // HB1 "Trainer Attacks": Cut/Pound/Tackle are At-Will 2d6 regardless of whether
+        // the trainer is using a blade/club or just throwing themselves into the fight —
+        // the book doesn't have a weaker unarmed tier.
+        const [count, sides] = [2, 6];
         const damageRolls = isHit ? (isCrit ? Array(count).fill(sides) : rollDice(count, sides)) : [];
         const diceTotal = damageRolls.reduce((s, r) => s + r, 0);
         const total = isHit ? diceTotal + atkMod : 0;
@@ -1088,25 +1092,24 @@ const BattleTab = () => {
                             {/* Roll Button */}
                             {(() => {
                                 const m = selectedMove;
-                                const isDisabled = !selectedPokemon || !m
-                                    || (m?.isGMaxMove && gMaxMoveUsed)
-                                    || (m?.isZMove && zMoveUsed)
-                                    || (m?.isTeraBlast && teraBlastUsesLeft <= 0);
+                                // Frequency (1/day, 3/day, 1/GMAX, etc.) is tracked and shown for reference,
+                                // but never blocks the roll — how strictly to enforce it is a table's own call.
+                                const isDisabled = !selectedPokemon || !m;
                                 const bg = !selectedPokemon || !m ? '#ccc'
-                                    : m.isGMaxMove ? (gMaxMoveUsed ? '#ccc' : 'linear-gradient(135deg, #b8860b, #ffd700)')
-                                    : m.isZMove ? (zMoveUsed ? '#ccc' : 'linear-gradient(135deg, #c62828, #e53935)')
-                                    : m.isTeraMove ? (m.isTeraBlast && teraBlastUsesLeft <= 0 ? '#ccc' : `linear-gradient(135deg, ${getTypeColor(selectedPokemon?.teraType || 'Normal')}, ${getTypeColor(selectedPokemon?.teraType || 'Normal')}cc)`)
+                                    : m.isGMaxMove ? 'linear-gradient(135deg, #b8860b, #ffd700)'
+                                    : m.isZMove ? 'linear-gradient(135deg, #c62828, #e53935)'
+                                    : m.isTeraMove ? `linear-gradient(135deg, ${getTypeColor(selectedPokemon?.teraType || 'Normal')}, ${getTypeColor(selectedPokemon?.teraType || 'Normal')}cc)`
                                     : isDynamaxed ? 'linear-gradient(135deg, #4a0080, #9b27af)'
                                     : 'linear-gradient(135deg, #667eea, #764ba2)';
                                 const fg = !selectedPokemon || !m ? '#555'
-                                    : m.isGMaxMove ? (gMaxMoveUsed ? '#555' : '#1a1a00')
+                                    : m.isGMaxMove ? '#1a1a00'
                                     : 'white';
                                 const label = !m ? 'Roll Attack!'
                                     : m.isMaxGuard ? 'Log Max Guard'
-                                    : m.isGMaxMove ? `Roll G-Max! (${m.damage})`
+                                    : m.isGMaxMove ? `Roll G-Max! (${m.damage})${gMaxMoveUsed ? ' — already used' : ''}`
                                     : m.isMaxMove ? 'Roll Max Move! (4d12)'
-                                    : m.isZMove ? `Roll Z-Move! (${m.damage})`
-                                    : m.isTeraBlast ? `Roll Tera Blast! (3d12) — ${teraBlastUsesLeft}/3`
+                                    : m.isZMove ? `Roll Z-Move! (${m.damage})${zMoveUsed ? ' — already used' : ''}`
+                                    : m.isTeraBlast ? `Roll Tera Blast! (3d12) — ${teraBlastUsesLeft}/3 left`
                                     : m.isTeraCrown ? `Roll ${m.name}! (${m.damage})`
                                     : 'Roll Attack!';
                                 return (
@@ -1298,7 +1301,7 @@ const BattleTab = () => {
                                         <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
                                             <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Unarmed Strike</div>
                                             <div>Accuracy: 1d20 +{atkMod} (ATK) vs target DEF</div>
-                                            <div style={{ marginTop: '2px' }}>Damage on hit: 1d4 +{atkMod} (ATK)</div>
+                                            <div style={{ marginTop: '2px' }}>Damage on hit: 2d6 +{atkMod} (ATK)</div>
                                             <div style={{ marginTop: '4px', color: 'var(--text-muted)', fontSize: '12px' }}>Natural 20 = crit (max dice).</div>
                                         </div>
 
