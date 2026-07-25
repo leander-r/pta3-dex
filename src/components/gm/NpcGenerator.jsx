@@ -57,6 +57,10 @@ const NpcGenerator = () => {
     const [tier, setTier] = useState('junior');
     const [trainerClass, setTrainerClass] = useState('Ace Trainer');
     const [level, setLevel] = useState(TIER_DEFAULT_LEVEL.junior);
+    // Once the GM hand-edits the level, tier buttons stop silently overwriting
+    // it — otherwise a misclick on a tier button quietly discards a level they
+    // set on purpose (e.g. a hand-tuned boss).
+    const [levelTouched, setLevelTouched] = useState(false);
     const { GAME_DATA } = useGameData();
     const { showHelp } = useUI();
     const { setNpcs } = useData();
@@ -133,7 +137,7 @@ const NpcGenerator = () => {
                         {TIER_LABELS.map(t => (
                             <button
                                 key={t.id}
-                                onClick={() => { setTier(t.id); setLevel(TIER_DEFAULT_LEVEL[t.id]); }}
+                                onClick={() => { setTier(t.id); if (!levelTouched) setLevel(TIER_DEFAULT_LEVEL[t.id]); }}
                                 title={t.desc}
                                 style={{
                                     padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold',
@@ -181,7 +185,7 @@ const NpcGenerator = () => {
                         type="number" min={0} max={15}
                         aria-label="NPC Level"
                         value={level}
-                        onChange={(e) => setLevel(Math.max(0, Math.min(15, parseInt(e.target.value) || 0)))}
+                        onChange={(e) => { setLevelTouched(true); setLevel(Math.max(0, Math.min(15, parseInt(e.target.value) || 0))); }}
                         style={{ width: '70px', padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 'bold' }}
                     />
                 </div>
@@ -197,16 +201,16 @@ const NpcGenerator = () => {
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <button
-                                onClick={saveAsNpc}
+                                onClick={copyToClipboard}
                                 style={{ padding: '6px 14px', background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
                             >
-                                💾 Save as NPC
+                                📋 Copy
                             </button>
                             <button
-                                onClick={copyToClipboard}
+                                onClick={saveAsNpc}
                                 style={{ padding: '6px 14px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
                             >
-                                📋 Copy
+                                💾 Save as NPC
                             </button>
                         </div>
                     </div>

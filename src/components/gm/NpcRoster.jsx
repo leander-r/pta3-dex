@@ -167,30 +167,33 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
                     onChange={(e) => onUpdate({ name: e.target.value })}
                     style={{ flex: '1 1 160px', minWidth: 0, padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '14px' }}
                 />
-                <select
-                    aria-label="NPC Class"
-                    value={npc.trainerClass || ''}
-                    onChange={(e) => onUpdate({ trainerClass: e.target.value })}
-                    title="Class — controls which class features this NPC has"
-                    style={{
-                        padding: '5px 8px', borderRadius: '10px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold',
-                        background: npc.trainerClass ? '#667eea22' : 'var(--bg-section)',
-                        color: npc.trainerClass ? '#667eea' : 'var(--text-muted)',
-                        border: npc.trainerClass ? '1px solid #667eea55' : '1px solid var(--border-medium)'
-                    }}
-                >
-                    <option value="">No class</option>
-                    <optgroup label="Base Classes">
-                        {Object.entries(GAME_DATA.trainerClasses || {}).filter(([, d]) => d.type === 'base').map(([cls]) => (
-                            <option key={cls} value={cls}>{cls}</option>
-                        ))}
-                    </optgroup>
-                    <optgroup label="Advanced Classes">
-                        {Object.entries(GAME_DATA.trainerClasses || {}).filter(([, d]) => d.type === 'advanced').map(([cls]) => (
-                            <option key={cls} value={cls}>{cls}</option>
-                        ))}
-                    </optgroup>
-                </select>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>
+                    Class
+                    <select
+                        aria-label="NPC Class"
+                        value={npc.trainerClass || ''}
+                        onChange={(e) => onUpdate({ trainerClass: e.target.value })}
+                        title="Class — controls which class features this NPC has"
+                        style={{
+                            padding: '5px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold',
+                            background: npc.trainerClass ? '#667eea22' : 'var(--bg-section)',
+                            color: npc.trainerClass ? '#667eea' : 'var(--text-primary)',
+                            border: npc.trainerClass ? '1px solid #667eea55' : '1px solid var(--border-medium)'
+                        }}
+                    >
+                        <option value="">No class</option>
+                        <optgroup label="Base Classes">
+                            {Object.entries(GAME_DATA.trainerClasses || {}).filter(([, d]) => d.type === 'base').map(([cls]) => (
+                                <option key={cls} value={cls}>{cls}</option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="Advanced Classes">
+                            {Object.entries(GAME_DATA.trainerClasses || {}).filter(([, d]) => d.type === 'advanced').map(([cls]) => (
+                                <option key={cls} value={cls}>{cls}</option>
+                            ))}
+                        </optgroup>
+                    </select>
+                </label>
                 {npc.tier && npc.tier !== 'custom' && (
                     <span style={{ padding: '3px 10px', borderRadius: '10px', background: 'var(--bg-section)', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 'bold' }}>
                         {npc.tier}
@@ -247,7 +250,7 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
 
             {npc.trainerClass && (
                 classFeatures.length > 0 ? (
-                    <details style={{ marginBottom: '10px' }} open>
+                    <details style={{ marginBottom: '10px' }}>
                         <summary style={{ cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>▸ Features up to Level {level} ({classFeatures.length})</summary>
                         <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             {classFeatures.map(([name, f]) => (
@@ -321,6 +324,13 @@ const NpcRoster = () => {
     const { npcs, setNpcs } = useData();
     const { showHelp } = useUI();
     const { showConfirm } = useModal();
+    const [search, setSearch] = useState('');
+
+    const filteredNpcs = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (!term) return npcs;
+        return npcs.filter(n => n.name?.toLowerCase().includes(term) || n.trainerClass?.toLowerCase().includes(term));
+    }, [npcs, search]);
 
     const updateNpc = (id, updates) => {
         setNpcs(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
@@ -376,20 +386,36 @@ const NpcRoster = () => {
                     Saved NPC stat blocks and their Pokémon teams. Generate one from NPC Stats ("💾 Save as NPC") or build one from scratch here.
                 </p>
 
-                <button
-                    onClick={addBlankNpc}
-                    style={{ marginBottom: '14px', padding: '8px 16px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
-                >
-                    ＋ New Blank NPC
-                </button>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                    <button
+                        onClick={addBlankNpc}
+                        style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                    >
+                        ＋ New Blank NPC
+                    </button>
+                    {npcs.length > 3 && (
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="🔍 Search by name or class..."
+                            aria-label="Search NPCs"
+                            style={{ flex: '1 1 200px', minWidth: 0, padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '12px' }}
+                        />
+                    )}
+                </div>
 
                 {npcs.length === 0 ? (
                     <div style={{ padding: '20px', textAlign: 'center', fontSize: '13px', color: 'var(--text-muted)', background: 'var(--input-bg)', borderRadius: '8px' }}>
                         No saved NPCs yet.
                     </div>
+                ) : filteredNpcs.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', fontSize: '13px', color: 'var(--text-muted)', background: 'var(--input-bg)', borderRadius: '8px' }}>
+                        No NPCs match "{search}".
+                    </div>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        {npcs.map(npc => (
+                        {filteredNpcs.map(npc => (
                             <NpcCard
                                 key={npc.id}
                                 npc={npc}

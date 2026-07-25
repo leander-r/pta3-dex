@@ -149,6 +149,8 @@ const AddFromPlayers = ({ trainers, onAdd, combatants }) => (
         {trainers.length === 0 && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No trainers found.</div>}
         {trainers.map(t => {
             const trainerAdded = isAlreadyAdded(combatants, 'trainer', t.id);
+            const party = t.party || [];
+            const allPartyAdded = party.length > 0 && party.every(p => isAlreadyAdded(combatants, 'pokemon', p.id));
             return (
                 <div key={t.id} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -159,10 +161,19 @@ const AddFromPlayers = ({ trainers, onAdd, combatants }) => (
                             style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: trainerAdded ? 'not-allowed' : 'pointer', fontSize: '11px', opacity: trainerAdded ? 0.5 : 1 }}>
                             {trainerAdded ? '✓ Trainer' : '＋ Trainer'}
                         </button>
+                        <button onClick={() => {
+                                if (!trainerAdded) onAdd(trainerToCombatant(t));
+                                party.forEach(p => { if (!isAlreadyAdded(combatants, 'pokemon', p.id)) onAdd(pokemonToCombatant(p, 'pokemon')); });
+                            }}
+                            disabled={party.length === 0 || (trainerAdded && allPartyAdded)}
+                            title={party.length === 0 ? undefined : (trainerAdded && allPartyAdded) ? 'Already in the tracker' : undefined}
+                            style={{ padding: '4px 10px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', cursor: (party.length === 0 || (trainerAdded && allPartyAdded)) ? 'not-allowed' : 'pointer', fontSize: '11px', opacity: (party.length === 0 || (trainerAdded && allPartyAdded)) ? 0.5 : 1 }}>
+                            ＋ Trainer + Party
+                        </button>
                     </div>
-                    {(t.party || []).length > 0 && (
+                    {party.length > 0 && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', paddingLeft: '4px' }}>
-                            {t.party.map(p => {
+                            {party.map(p => {
                                 const added = isAlreadyAdded(combatants, 'pokemon', p.id);
                                 return (
                                     <button key={p.id} onClick={() => onAdd(pokemonToCombatant(p, 'pokemon'))}
@@ -430,6 +441,9 @@ const InitiativeTracker = () => {
                 </h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px' }}>
                     Session scratchpad for turn order. Add combatants from your NPC Roster, player trainers, or a one-off custom entry. Turn order defaults to raw Speed, highest first (PTA3 default rule) — use 🎲 per combatant only if your table prefers the optional "Roll For Initiative" variant (1d20 + Speed). Need a roll that isn't a full move — an opposed check, a reaction, anything ad hoc — without leaving this screen? Use 🎯 Check on any row.
+                </p>
+                <p style={{ fontSize: '11px', color: '#ff9800', background: 'rgba(255,152,0,0.1)', border: '1px solid rgba(255,152,0,0.3)', borderRadius: '6px', padding: '8px 12px', marginBottom: '14px' }}>
+                    ⚠️ Combatants here are snapshots, not live links — damage and HP changes in this tracker do <strong>not</strong> sync back to your saved Trainers, Pokémon, or NPC Roster.
                 </p>
 
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
