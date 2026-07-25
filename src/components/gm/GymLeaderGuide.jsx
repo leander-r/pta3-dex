@@ -5,45 +5,13 @@
 import React from 'react';
 import { useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
+import { GYM_STAT_PASSIVES, GYM_ABILITY_PASSIVES, GYM_TRAINER_FEATURES, ELITE_STAT_PASSIVES, ELITE_ABILITY_PASSIVES } from '../../data/gymPassives.js';
 
 const BADGE_SCALING = [
     { range: '0–1', level: 'Easy',      color: '#4caf50', desc: '1 Pokémon (basic/unevolved). Gym trainers use first-stage Pokémon.' },
     { range: '2–4', level: 'Normal',    color: '#2196f3', desc: '2 Pokémon, one may be fully evolved. Gym trainers avoid fully evolved.' },
     { range: '5–6', level: 'Hard',      color: '#ff9800', desc: '3 Pokémon with special moves/passives. Gym trainers synergize (buffs, heals). GM uses trainer actions.' },
     { range: '7+',  level: 'Dangerous', color: '#f44336', desc: '4–5 Pokémon. Complex sequencing, heavy passives/stats. May use Z-Moves or Terastallization.' },
-];
-
-const GYM_STAT_PASSIVES = [
-    { name: 'Gym Anchor',   effect: '+2 Defense, +2 Special Defense' },
-    { name: 'Gym Blaster',  effect: '+2 Special Attack, +2 Special Defense' },
-    { name: 'Gym Knight',   effect: '+2 Attack, +2 Defense' },
-    { name: 'Gym Striker',  effect: '+3 Attack OR +3 Special Attack' },
-    { name: "Gym Leader's", effect: '+1 Defense, +1 Special Defense' },
-];
-
-const GYM_ABILITY_PASSIVES = [
-    { name: 'Healing Opportunist',   effect: 'First medicine item use each battle can be used before or after your turn in the same round.' },
-    { name: 'Home Field Advantage',  effect: "While battling in your trainer's League Gym, move +10 ft per round." },
-    { name: 'Rallied Gym Defenders', effect: "While adjacent to a gym trainer's Pokémon, +1 Defense and +1 Special Defense." },
-];
-
-const GYM_TRAINER_FEATURES = [
-    { name: "I'll Show You Our True Power!", freq: '1/day', effect: 'Your final Pokémon gets +2 to all stats for 10 minutes.' },
-    { name: "Give it All We've Got!",        freq: '1/day', effect: 'Your Pokémon deals an additional 2d6 damage on one attack.' },
-    { name: "We're Not Done Yet!",           freq: '1/day', effect: 'Your Pokémon takes 10 less damage when hit by one attack.' },
-];
-
-const ELITE_STAT_PASSIVES = [
-    { name: "Elite's",       effect: '+2 Defense, +2 Special Defense, +1 Speed' },
-    { name: 'Elite Striker', effect: '+4 Attack OR +4 Special Attack; +1 Speed' },
-    { name: 'Elite Wall',    effect: '+4 Defense OR +4 Special Defense; +1 Speed' },
-];
-
-const ELITE_ABILITY_PASSIVES = [
-    { name: 'Battle Rush',      effect: 'While above half max HP, move +15 ft per round.' },
-    { name: 'Healing Adept',    effect: 'First medicine item each battle usable before/after turn; also grants +6 temporary HP.' },
-    { name: 'No Faults',        effect: 'First immunity-ignored attack per battle is treated as shielded instead.' },
-    { name: 'Subvert Weakness', effect: 'First super-effective/extremely-effective hit per battle: attacker adds one less damage die.' },
 ];
 
 const PassiveRow = ({ name, effect, freq }) => (

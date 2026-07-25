@@ -9,10 +9,50 @@ import { getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
 import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
 import { HP_MILESTONE_LEVELS } from '../../data/constants.js';
+import { GYM_STAT_PASSIVES, GYM_ABILITY_PASSIVES, ELITE_STAT_PASSIVES, ELITE_ABILITY_PASSIVES } from '../../data/gymPassives.js';
 import toast from '../../utils/toast.js';
 
 const STAT_KEYS = ['atk', 'def', 'satk', 'sdef', 'spd'];
 const STAT_LABELS = { atk: 'ATK', def: 'DEF', satk: 'SATK', sdef: 'SDEF', spd: 'SPD' };
+
+// GMG "Encounter Building" Gym/Elite Four Pokémon passives, offered as tags for an
+// NPC's team so a Gym Leader/Elite Four member's Pokémon can carry them. HB1 "Pokémon
+// Passives" (p.124-125): a Pokémon can't have more than 3 Stat Passives at once (Ability
+// Passives are unlimited) — we only track that cap across passives added here, since we
+// have no way to know whether a species' own book passives already count as Stat Passives.
+const GYM_ELITE_STAT_PASSIVES = [...GYM_STAT_PASSIVES, ...ELITE_STAT_PASSIVES];
+const GYM_ELITE_ABILITY_PASSIVES = [...GYM_ABILITY_PASSIVES, ...ELITE_ABILITY_PASSIVES];
+const GYM_ELITE_PASSIVE_EFFECTS = Object.fromEntries(
+    [...GYM_ELITE_STAT_PASSIVES, ...GYM_ELITE_ABILITY_PASSIVES].map(p => [p.name, p.effect])
+);
+const GYM_ELITE_STAT_PASSIVE_NAMES = new Set(GYM_ELITE_STAT_PASSIVES.map(p => p.name));
+const MAX_STAT_PASSIVES = 3;
+
+const PassivePicker = ({ existing, statPassivesUsed, onAdd, onCancel }) => (
+    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', padding: '6px 8px', background: 'var(--bg-secondary)', borderRadius: '6px', marginTop: '4px' }}>
+        <select
+            aria-label="Add Gym/Elite passive"
+            defaultValue=""
+            onChange={(e) => { if (e.target.value) { onAdd(e.target.value); e.target.value = ''; } }}
+            style={{ flex: '1 1 160px', padding: '4px 6px', borderRadius: '5px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '11px' }}
+        >
+            <option value="" disabled>Add a passive...</option>
+            <optgroup label="Gym/Elite Stat Passives (max 3 total)">
+                {GYM_ELITE_STAT_PASSIVES.filter(p => !existing.includes(p.name)).map(p => (
+                    <option key={p.name} value={p.name} disabled={statPassivesUsed >= MAX_STAT_PASSIVES}>
+                        {p.name} — {p.effect}
+                    </option>
+                ))}
+            </optgroup>
+            <optgroup label="Gym/Elite Ability Passives">
+                {GYM_ELITE_ABILITY_PASSIVES.filter(p => !existing.includes(p.name)).map(p => (
+                    <option key={p.name} value={p.name}>{p.name} — {p.effect}</option>
+                ))}
+            </optgroup>
+        </select>
+        <button onClick={onCancel} style={{ padding: '4px 8px', borderRadius: '5px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', cursor: 'pointer', fontSize: '11px' }}>Done</button>
+    </div>
+);
 
 // PTA3: trainers (NPCs included) get a flat 20 HP + 1d4 rolled at levels 3/7/11.
 // NPC level is a directly-editable field rather than something leveled up one
@@ -107,25 +147,50 @@ const buildTeamPokemon = (speciesData) => ({
     currentDamage: 0
 });
 
-const TeamPokemonRow = ({ poke, onDamage, onHeal, onRemove }) => {
+const TeamPokemonRow = ({ poke, onDamage, onHeal, onRemove, onAddPassive, onRemovePassive }) => {
+    const [pickingPassive, setPickingPassive] = useState(false);
     const actualStats = getActualStats(poke);
     const maxHP = calculatePokemonHP(poke);
     const currentHP = Math.max(0, maxHP - (poke.currentDamage || 0));
     const img = getPokemonDisplayImage(poke);
+    const passives = poke.passives || [];
+    const statPassivesUsed = passives.filter(p => GYM_ELITE_STAT_PASSIVE_NAMES.has(p)).length;
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 8px', borderRadius: '8px', background: 'var(--bg-section)' }}>
-            {img ? <img src={img} alt="" style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} /> : <span style={{ fontSize: '18px' }}>🔴</span>}
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '12px', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{poke.name || poke.species}</div>
-                <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
-                    {(poke.types || []).map(t => (
-                        <span key={t} style={{ padding: '1px 6px', borderRadius: '8px', background: getTypeColor(t), color: getContrastTextColor(getTypeColor(t)), fontSize: '9px', fontWeight: 'bold' }}>{t}</span>
+        <div style={{ padding: '6px 8px', borderRadius: '8px', background: 'var(--bg-section)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {img ? <img src={img} alt="" style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} /> : <span style={{ fontSize: '18px' }}>🔴</span>}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{poke.name || poke.species}</div>
+                    <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
+                        {(poke.types || []).map(t => (
+                            <span key={t} style={{ padding: '1px 6px', borderRadius: '8px', background: getTypeColor(t), color: getContrastTextColor(getTypeColor(t)), fontSize: '9px', fontWeight: 'bold' }}>{t}</span>
+                        ))}
+                    </div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'none' }}>{STAT_KEYS.map(k => `${STAT_LABELS[k]} ${actualStats[k]}`).join(' ')}</div>
+                <HPStepper current={currentHP} max={maxHP} onDamage={onDamage} onHeal={onHeal} />
+                <button onClick={() => setPickingPassive(v => !v)} title="Tag with a Gym/Elite Four passive (GMG Encounter Building)" style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '5px', cursor: 'pointer', fontSize: '11px', padding: '3px 7px', color: 'var(--text-primary)' }}>+ Passive</button>
+                <button onClick={onRemove} title="Remove from team" style={{ background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>✕</button>
+            </div>
+            {passives.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px', paddingLeft: '40px' }}>
+                    {passives.map((name, idx) => (
+                        <span key={`${name}-${idx}`} title={GYM_ELITE_PASSIVE_EFFECTS[name] || undefined}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '10px', background: GYM_ELITE_PASSIVE_EFFECTS[name] ? '#9c27b022' : 'var(--input-bg)', color: GYM_ELITE_PASSIVE_EFFECTS[name] ? '#9c27b0' : 'var(--text-muted)', fontSize: '10px', fontWeight: 'bold', border: '1px solid var(--border-medium)' }}>
+                            {name}
+                            <button onClick={() => onRemovePassive(idx)} title={`Remove ${name}`} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '10px', padding: 0, lineHeight: 1 }}>✕</button>
+                        </span>
                     ))}
                 </div>
-            </div>
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'none' }}>{STAT_KEYS.map(k => `${STAT_LABELS[k]} ${actualStats[k]}`).join(' ')}</div>
-            <HPStepper current={currentHP} max={maxHP} onDamage={onDamage} onHeal={onHeal} />
-            <button onClick={onRemove} title="Remove from team" style={{ background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>✕</button>
+            )}
+            {pickingPassive && (
+                <PassivePicker
+                    existing={passives}
+                    statPassivesUsed={statPassivesUsed}
+                    onAdd={(name) => onAddPassive(name)}
+                    onCancel={() => setPickingPassive(false)}
+                />
+            )}
         </div>
     );
 };
@@ -309,6 +374,8 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
                                 onUpdate({ team: npc.team.map(p => p.id === poke.id ? { ...p, currentDamage: Math.max(0, (p.currentDamage || 0) - v) } : p) });
                             }}
                             onRemove={() => onUpdate({ team: npc.team.filter(p => p.id !== poke.id) })}
+                            onAddPassive={(name) => onUpdate({ team: npc.team.map(p => p.id === poke.id ? { ...p, passives: [...(p.passives || []), name] } : p) })}
+                            onRemovePassive={(idx) => onUpdate({ team: npc.team.map(p => p.id === poke.id ? { ...p, passives: (p.passives || []).filter((_, i) => i !== idx) } : p) })}
                         />
                     ))}
                     {(!npc.team || npc.team.length === 0) && (

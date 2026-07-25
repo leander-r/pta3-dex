@@ -346,6 +346,7 @@ export const HELP_CONTENT = {
                 <p>If the NPC's level has passed 3, 7, or 11, a <strong>🎲 Roll HP</strong> button appears — click it to roll the 1d4 HP bonus for that milestone (same rule as player trainers). Editing the level down trims off rolls that no longer apply.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Team</h4>
                 <p>Use <strong>+ Add Pokémon</strong> to search the Pokédex — stats, types, and moves fill in automatically, same as a player's Pokémon. Track HP with the +/− stepper on each entry.</p>
+                <p>Each team Pokémon can be tagged with <strong>+ Passive</strong> — the Gym/Elite Four passives from the <strong>Gym Guide</strong> tab (Gym Anchor, Elite's, Elite Striker, etc.), for a Gym Leader or Elite Four member's team. Per HB1's Pokémon Passives rule, a Pokémon can't carry more than 3 Stat Passives at once (Ability Passives are unlimited) — the picker enforces that cap for passives added here, though it can't see stat passives a species already has from the Pokédex, so account for those yourself.</p>
                 <p>NPCs are saved with the rest of your data — they're included in exports, imports, and save slots.</p>
             </>
         )
