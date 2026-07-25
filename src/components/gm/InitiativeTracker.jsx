@@ -59,8 +59,13 @@ const pokemonToCombatant = (p, kind = 'pokemon') => {
 
 // Features are gated to the NPC's level (GMG: NPCs get access to what all
 // level-N trainers of their class have — not the whole class feature list).
+// PTA3: trainers (NPCs included) get a flat 20 HP + 1d4 rolled at levels 3/7/11
+// — see the matching hpRolls logic in NpcRoster.jsx.
+const npcMaxHp = (n) => 20 + (n.hpRolls || []).reduce((s, v) => s + (v || 0), 0);
+
 const npcToCombatant = (n, GAME_DATA) => {
     const level = n.level ?? 1;
+    const maxHp = npcMaxHp(n);
     const features = Object.entries(GAME_DATA?.features || {})
         .filter(([, f]) => f.category === n.trainerClass)
         .map(([name, f]) => [name, parseInt((f.prerequisites || '').match(/Level\s+(\d+)/i)?.[1] || 99)])
@@ -70,7 +75,7 @@ const npcToCombatant = (n, GAME_DATA) => {
     return {
         id: newId(), sourceId: n.id, name: n.name, kind: 'npc', level,
         initiative: null, spd: n.stats?.spd ?? 3,
-        hp: { current: Math.max(0, (n.maxHp ?? 20) - (n.currentDamage || 0)), max: n.maxHp ?? 20 },
+        hp: { current: Math.max(0, maxHp - (n.currentDamage || 0)), max: maxHp },
         stats: { ...n.stats }, types: [], moves: [], features,
         avatar: ''
     };

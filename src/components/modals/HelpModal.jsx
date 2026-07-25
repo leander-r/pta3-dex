@@ -332,7 +332,7 @@ export const HELP_CONTENT = {
                     <li><strong>Experienced</strong> — a seasoned trainer.</li>
                     <li><strong>Veteran</strong> — an expert trainer.</li>
                 </ul>
-                <p>Pick a tier and trainer class to see that NPC's 5 stats (all NPCs use the standard 20 HP) and any class features they've unlocked. Use <strong>Copy</strong> to paste the stat block straight into your notes, or <strong>Save as NPC</strong> to keep it in your NPC Roster.</p>
+                <p>Pick a tier, trainer class, and level to see that NPC's 5 stats and any class features they've unlocked. Like player trainers, NPCs are 20 HP base +1d4 rolled at levels 3/7/11 — if the level you pick has passed one of those milestones, the actual roll happens after you save (NPC Roster shows a <strong>🎲 Roll HP</strong> button). Use <strong>Copy</strong> to paste the stat block straight into your notes, or <strong>Save as NPC</strong> to keep it in your NPC Roster.</p>
             </>
         )
     },
@@ -342,7 +342,8 @@ export const HELP_CONTENT = {
             <>
                 <p>Persistent library of NPCs — their stats, features, and Pokémon team — so you don't have to rebuild a recurring rival or gym trainer every session.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Building an NPC</h4>
-                <p>Generate a stat block in <strong>NPC Stats</strong> and hit <strong>Save as NPC</strong>, or start from <strong>+ New Blank NPC</strong> here and set the 5 stats by hand.</p>
+                <p>Generate a stat block in <strong>NPC Stats</strong> and hit <strong>Save as NPC</strong> as a quick template, or start from <strong>+ New Blank NPC</strong> here and set the 5 stats by hand. Either way, the class dropdown next to the name is always editable — pick any of the 7 base or 35 advanced classes (or "No class" for a level-0 NPC with no features) to build things like a Gym Leader or Elite Four member the generator's 3 tiers don't cover.</p>
+                <p>If the NPC's level has passed 3, 7, or 11, a <strong>🎲 Roll HP</strong> button appears — click it to roll the 1d4 HP bonus for that milestone (same rule as player trainers). Editing the level down trims off rolls that no longer apply.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Team</h4>
                 <p>Use <strong>+ Add Pokémon</strong> to search the Pokédex — stats, types, and moves fill in automatically, same as a player's Pokémon. Track HP with the +/− stepper on each entry.</p>
                 <p>NPCs are saved with the rest of your data — they're included in exports, imports, and save slots.</p>

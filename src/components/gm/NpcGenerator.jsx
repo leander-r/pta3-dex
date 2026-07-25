@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { useGameData, useUI, useData } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
+import { HP_MILESTONE_LEVELS } from '../../data/constants.js';
 import toast from '../../utils/toast.js';
 
 const NPC_STATS = {
@@ -73,10 +74,12 @@ const NpcGenerator = () => {
         .sort((a, b) => a[2] - b[2])
         .map(([name, f]) => [name, f]);
 
+    const milestonesAtLevel = HP_MILESTONE_LEVELS.filter(l => l <= level).length;
+
     const copyToClipboard = () => {
         const lines = [
             `NPC Trainer — ${selectedClass} (${tier.charAt(0).toUpperCase() + tier.slice(1)})`,
-            `HP: 20`,
+            milestonesAtLevel > 0 ? `HP: 20 + ${milestonesAtLevel}d4 (roll in NPC Roster)` : `HP: 20`,
             ...STAT_KEYS.map(k => `${STAT_LABELS[k]}: ${stats[k]} (+${Math.floor(stats[k] / 2)})`),
         ];
         navigator.clipboard?.writeText(lines.join('\n')).then(() => {
@@ -97,12 +100,14 @@ const NpcGenerator = () => {
             trainerClass: selectedClass,
             level,
             stats: { ...stats },
-            maxHp: 20,
+            hpRolls: [],
             currentDamage: 0,
             notes: '',
             team: []
         }]);
-        toast.success('Saved to NPC Roster — rename it and add a team there.');
+        toast.success(milestonesAtLevel > 0
+            ? `Saved to NPC Roster — it has ${milestonesAtLevel} pending HP milestone roll${milestonesAtLevel > 1 ? 's' : ''} (Lv ${level}), roll it there.`
+            : 'Saved to NPC Roster — rename it and add a team there.');
     };
 
     return (
@@ -208,7 +213,13 @@ const NpcGenerator = () => {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: '6px', background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)', marginBottom: '10px' }}>
                         <span style={{ fontWeight: 'bold', color: '#4caf50', fontSize: '14px' }}>HP</span>
-                        <span style={{ fontWeight: 'bold', fontSize: '14px' }}>20</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                            20{milestonesAtLevel > 0 && (
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '4px' }}>
+                                    + {milestonesAtLevel}d4 (roll after saving)
+                                </span>
+                            )}
+                        </span>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>

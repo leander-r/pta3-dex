@@ -8,10 +8,18 @@ import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import { getPokemonDisplayImage } from '../../utils/pokemonSprite.js';
 import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 import { getActualStats, calculatePokemonHP } from '../../utils/dataUtils.js';
+import { HP_MILESTONE_LEVELS } from '../../data/constants.js';
 import toast from '../../utils/toast.js';
 
 const STAT_KEYS = ['atk', 'def', 'satk', 'sdef', 'spd'];
 const STAT_LABELS = { atk: 'ATK', def: 'DEF', satk: 'SATK', sdef: 'SDEF', spd: 'SPD' };
+
+// PTA3: trainers (NPCs included) get a flat 20 HP + 1d4 rolled at levels 3/7/11.
+// NPC level is a directly-editable field rather than something leveled up one
+// step at a time, so max HP is always derived from hpRolls instead of a stored
+// stat — see rollNpcMilestoneHP below for how rolls get added/trimmed.
+const npcMaxHp = (npc) => 20 + (npc.hpRolls || []).reduce((s, v) => s + (v || 0), 0);
+const npcMilestonesAtLevel = (level) => HP_MILESTONE_LEVELS.filter(l => l <= level).length;
 
 const hpColor = (current, max) => {
     if (max <= 0) return '#4caf50';
@@ -126,8 +134,18 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
     const { GAME_DATA, pokedex, customSpecies } = useGameData();
     const [pickingSpecies, setPickingSpecies] = useState(false);
 
-    const currentHP = Math.max(0, (npc.maxHp ?? 20) - (npc.currentDamage || 0));
+    const maxHp = npcMaxHp(npc);
+    const currentHP = Math.max(0, maxHp - (npc.currentDamage || 0));
     const level = npc.level ?? 1;
+    const hpRolls = npc.hpRolls || [];
+    const rollsPending = npcMilestonesAtLevel(level) - hpRolls.length;
+
+    const rollMilestoneHP = () => {
+        if (rollsPending <= 0) { toast.warning('No HP milestone rolls pending.'); return; }
+        const roll = 1 + Math.floor(Math.random() * 4);
+        onUpdate({ hpRolls: [...hpRolls, roll] });
+        toast.success(`${npc.name}: HP milestone roll +${roll}!`);
+    };
 
     // Only features this NPC would actually have at its level (GMG: NPCs
     // default to level 1 and get level-1 class features, not the full catalog).
@@ -149,9 +167,33 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
                     onChange={(e) => onUpdate({ name: e.target.value })}
                     style={{ flex: '1 1 160px', minWidth: 0, padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '14px' }}
                 />
-                {npc.trainerClass && (
-                    <span style={{ padding: '3px 10px', borderRadius: '10px', background: '#667eea22', color: '#667eea', fontSize: '11px', fontWeight: 'bold' }}>
-                        {npc.trainerClass}{npc.tier ? ` · ${npc.tier}` : ''}
+                <select
+                    aria-label="NPC Class"
+                    value={npc.trainerClass || ''}
+                    onChange={(e) => onUpdate({ trainerClass: e.target.value })}
+                    title="Class — controls which class features this NPC has"
+                    style={{
+                        padding: '5px 8px', borderRadius: '10px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold',
+                        background: npc.trainerClass ? '#667eea22' : 'var(--bg-section)',
+                        color: npc.trainerClass ? '#667eea' : 'var(--text-muted)',
+                        border: npc.trainerClass ? '1px solid #667eea55' : '1px solid var(--border-medium)'
+                    }}
+                >
+                    <option value="">No class</option>
+                    <optgroup label="Base Classes">
+                        {Object.entries(GAME_DATA.trainerClasses || {}).filter(([, d]) => d.type === 'base').map(([cls]) => (
+                            <option key={cls} value={cls}>{cls}</option>
+                        ))}
+                    </optgroup>
+                    <optgroup label="Advanced Classes">
+                        {Object.entries(GAME_DATA.trainerClasses || {}).filter(([, d]) => d.type === 'advanced').map(([cls]) => (
+                            <option key={cls} value={cls}>{cls}</option>
+                        ))}
+                    </optgroup>
+                </select>
+                {npc.tier && npc.tier !== 'custom' && (
+                    <span style={{ padding: '3px 10px', borderRadius: '10px', background: 'var(--bg-section)', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 'bold' }}>
+                        {npc.tier}
                     </span>
                 )}
                 <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>
@@ -160,17 +202,31 @@ const NpcCard = ({ npc, onUpdate, onDelete, onDuplicate }) => {
                         type="number" min={0} max={15}
                         aria-label="NPC Level"
                         value={level}
-                        onChange={(e) => onUpdate({ level: Math.max(0, Math.min(15, parseInt(e.target.value) || 0)) })}
-                        title="Level — controls which class features this NPC has"
+                        onChange={(e) => {
+                            const newLevel = Math.max(0, Math.min(15, parseInt(e.target.value) || 0));
+                            // Trim any HP rolls that no longer correspond to a milestone at the new level.
+                            const trimmedRolls = hpRolls.slice(0, npcMilestonesAtLevel(newLevel));
+                            onUpdate({ level: newLevel, hpRolls: trimmedRolls });
+                        }}
+                        title="Level — controls which class features this NPC has and how many HP milestone rolls it's owed"
                         style={{ width: '44px', padding: '4px 6px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--bg-section)', color: 'var(--text-primary)', fontSize: '12px', fontWeight: 'bold' }}
                     />
                 </label>
                 <HPStepper
                     current={currentHP}
-                    max={npc.maxHp ?? 20}
-                    onDamage={(v) => onUpdate({ currentDamage: Math.min(npc.maxHp ?? 20, (npc.currentDamage || 0) + v) })}
+                    max={maxHp}
+                    onDamage={(v) => onUpdate({ currentDamage: Math.min(maxHp, (npc.currentDamage || 0) + v) })}
                     onHeal={(v) => onUpdate({ currentDamage: Math.max(0, (npc.currentDamage || 0) - v) })}
                 />
+                {rollsPending > 0 && (
+                    <button
+                        onClick={rollMilestoneHP}
+                        title={`Roll 1d4 HP — ${rollsPending} milestone roll${rollsPending > 1 ? 's' : ''} pending (Lv 3/7/11)`}
+                        style={{ padding: '4px 10px', borderRadius: '6px', border: 'none', background: 'linear-gradient(135deg, #4caf50, #2e7d32)', color: 'white', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap' }}
+                    >
+                        🎲 Roll HP (+{rollsPending})
+                    </button>
+                )}
                 <button onClick={onDuplicate} title="Duplicate NPC" style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', padding: '4px 8px' }}>⧉</button>
                 <button onClick={onDelete} title="Delete NPC" style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', padding: '4px 8px', color: '#f44336' }}>🗑</button>
             </div>
@@ -297,7 +353,7 @@ const NpcRoster = () => {
             trainerClass: '',
             level: 1,
             stats: { atk: 3, def: 3, satk: 3, sdef: 3, spd: 3 },
-            maxHp: 20,
+            hpRolls: [],
             currentDamage: 0,
             notes: '',
             team: []
