@@ -50,12 +50,12 @@ const TrainerSkills = () => {
     const { showDetail } = useModal();
     const currentSkills = trainer.skills || {};
 
-    const handleCycleTalents = (skillName, isPassive) => {
+    const handleCycleTalents = (skillName) => {
         const currentTalents = getSkillTalents(currentSkills, skillName);
-        // Passive skills (Concentration, Constitution): max 1 talent (toggle)
-        // Other skills: 0 → 1 → 2 → 0
-        const maxTalents = isPassive ? 1 : 2;
-        const newTalents = currentTalents >= maxTalents ? 0 : currentTalents + 1;
+        // 0 → 1 → 2 → 0. HB1: passive skills (Concentration, Constitution) are only
+        // invoked by the GM rather than rolled by the player — that's the only thing
+        // that sets them apart, not a lower talent cap.
+        const newTalents = currentTalents >= 2 ? 0 : currentTalents + 1;
 
         setTrainer(prev => {
             const prevSkills = prev.skills || {};
@@ -127,7 +127,7 @@ const TrainerSkills = () => {
             {!collapsed && (
                 <>
                     <p className="section-description">
-                        Click skills to cycle talents (0→1→2). Passive skills max at 1 talent.
+                        Click skills to cycle talents (0→1→2).
                         <br />
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                             Roll: 1d20 + ⌊stat/2⌋ | 1 talent: +2 bonus | 2 talents: +5 bonus
@@ -161,14 +161,13 @@ const TrainerSkills = () => {
                                         const talents = getSkillTalents(currentSkills, skill.name);
                                         const isTrained = talents > 0;
                                         const isPassive = skill.type === 'passive';
-                                        const maxTalents = isPassive ? 1 : 2;
                                         const bonus = getSkillCheckBonus(statValue, talents);
                                         const inClassPool = classPoolSkills.size > 0 && classPoolSkills.has(skill.name);
 
                                         return (
                                             <div
                                                 key={skill.name}
-                                                onClick={() => handleCycleTalents(skill.name, isPassive)}
+                                                onClick={() => handleCycleTalents(skill.name)}
                                                 className={!isTrained ? 'skill-list-item' : ''}
                                                 style={{
                                                     display: 'flex',
@@ -187,11 +186,11 @@ const TrainerSkills = () => {
                                                     fontSize: '12px',
                                                     transition: 'all 0.2s ease'
                                                 }}
-                                                title={`${skill.description}\n\nRoll: 1d20 + ${Math.floor(statValue / 2)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}${isPassive ? '\n\nPassive — invoked by the GM, not rolled. Capped at 1 talent.' : ''}\n\nClick to cycle talents (${talents}/${maxTalents})`}
+                                                title={`${skill.description}\n\nRoll: 1d20 + ${Math.floor(statValue / 2)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}${isPassive ? '\n\nPassive — invoked by the GM, not rolled by the player.' : ''}\n\nClick to cycle talents (${talents}/2)`}
                                             >
                                                 {/* Talent indicator */}
-                                                <span style={{ display: 'flex', gap: '2px', minWidth: isPassive ? '17px' : '30px' }}>
-                                                    {[...Array(maxTalents)].map((_, i) => (
+                                                <span style={{ display: 'flex', gap: '2px', minWidth: '30px' }}>
+                                                    {[...Array(2)].map((_, i) => (
                                                         <span
                                                             key={i}
                                                             style={{
@@ -212,7 +211,7 @@ const TrainerSkills = () => {
                                                 <span style={{ fontWeight: isTrained ? 'bold' : 'normal', flex: 1 }}>
                                                     {skill.name}
                                                     {isPassive && (
-                                                        <span style={{ marginLeft: '4px', fontSize: '10px', opacity: 0.8 }} title="Passive: the GM calls for this check, not the player. Capped at 1 talent.">(Passive)</span>
+                                                        <span style={{ marginLeft: '4px', fontSize: '10px', opacity: 0.8 }} title="Passive: the GM calls for this check, not the player.">(Passive)</span>
                                                     )}
                                                 </span>
 
@@ -229,7 +228,7 @@ const TrainerSkills = () => {
                                                         padding: '2px 6px',
                                                         borderRadius: '4px'
                                                     }}>
-                                                        {isPassive ? 'Passive' : `+${bonus}`}
+                                                        +{bonus}
                                                     </span>
                                                 )}
                                                 <button

@@ -9,19 +9,6 @@ import React, { useState, useMemo } from 'react';
 import { useModal, useTrainerContext, useGameData, useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 
-// Features that modify trainer stats (preserved for display/removal logic)
-const STAT_MODIFYING_FEATURES = {
-    'League Member': { stat: 'sdef', value: 2 },
-    'Study Session': { choices: ['satk', 'sdef'], value: 1, label: 'Choose stat to boost (+1)' },
-    'Workout': { choices: ['atk', 'def', 'spd'], value: 1, label: 'Choose stat to boost (+1)' },
-    'Alacrity': { stat: 'spd', calculated: { baseStat: 'atk', formula: 'halfMod' }, label: 'Adds half ATK modifier to Speed' },
-    'Martial Endurance': { hpBonus: 'half', label: 'Adds (half ATK mod + half DEF mod) × 5 to Max HP' },
-    'Improved Martial Endurance': { hpBonus: 'full', label: 'Adds (ATK mod + DEF mod) × 5 to Max HP', replaces: 'Martial Endurance' },
-    'Mystic Veil': { hpBonus: 'mystic', label: 'Adds DEF modifier × 3 to Max HP' }
-};
-
-const calculateModifier = (stat) => Math.floor((stat || 0) / 2);
-
 const STAT_LABELS = {
     atk: 'Attack', def: 'Defense', satk: 'Sp. Attack', sdef: 'Sp. Defense', spd: 'Speed'
 };
@@ -72,30 +59,12 @@ const TrainerFeatures = () => {
     }, [GAME_DATA.features, classLevels, ownedFeatureNames]);
 
     const handleRemoveCustomFeature = (featureName) => {
-        const featureEntry = currentFeatures.find(f =>
-            (typeof f === 'object' ? f.name : f) === featureName
-        );
-
-        let statReduction = null;
-        if (featureEntry && typeof featureEntry === 'object' && featureEntry.statBoost) {
-            statReduction = featureEntry.statBoost;
-        }
-
-        setTrainer(prev => {
-            const newState = {
-                ...prev,
-                features: (prev.features || []).filter(f =>
-                    (typeof f === 'object' ? f.name : f) !== featureName
-                )
-            };
-            if (statReduction) {
-                newState.stats = {
-                    ...prev.stats,
-                    [statReduction.stat]: Math.max(1, (prev.stats[statReduction.stat] || 3) - statReduction.value)
-                };
-            }
-            return newState;
-        });
+        setTrainer(prev => ({
+            ...prev,
+            features: (prev.features || []).filter(f =>
+                (typeof f === 'object' ? f.name : f) !== featureName
+            )
+        }));
     };
 
     const isCustomFeature = (featureName) => {
@@ -251,24 +220,6 @@ const TrainerFeatures = () => {
                                     onClick={() => featureData && showDetail && showDetail('feature', featureName, featureData)}
                                 >
                                     <span>{featureName}</span>
-                                    {typeof feature === 'object' && feature.statBoost && feature.statBoost.value > 0 && (
-                                        <span style={{ fontSize: '9px', opacity: 0.9, background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '4px' }}>
-                                            +{feature.statBoost.value} {STAT_LABELS[feature.statBoost.stat]}
-                                        </span>
-                                    )}
-                                    {typeof feature === 'object' && feature.hpBonus && (() => {
-                                        const atkMod = calculateModifier(trainer.stats.atk || 3);
-                                        const defMod = calculateModifier(trainer.stats.def || 3);
-                                        let hpBonusValue = 0;
-                                        if (feature.hpBonus === 'full') hpBonusValue = (atkMod + defMod) * 5;
-                                        else if (feature.hpBonus === 'half') hpBonusValue = (Math.floor(atkMod / 2) + Math.floor(defMod / 2)) * 5;
-                                        else if (feature.hpBonus === 'mystic') hpBonusValue = defMod * 3;
-                                        return hpBonusValue > 0 ? (
-                                            <span style={{ fontSize: '9px', opacity: 0.9, background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '4px' }}>
-                                                +{hpBonusValue} Max HP
-                                            </span>
-                                        ) : null;
-                                    })()}
                                     {/* Only custom features can be manually removed */}
                                     {isCustomFeature(featureName) && (
                                         <button

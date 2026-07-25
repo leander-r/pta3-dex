@@ -9,6 +9,7 @@ import { exportSinglePokemon, copyPokemonToClipboard } from '../../utils/exportU
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, usePokemonContext, useUI } from '../../contexts/index.js';
 import { MAX_TOTAL_MOVES } from '../../data/constants.js';
+import { STATUS_CONDITIONS } from '../../data/statusConditions.js';
 import { getPokemonDisplayImage, getPokemonSprite } from '../../utils/pokemonSprite.js';
 
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
@@ -23,23 +24,12 @@ const LOYALTY_INFO = [
 ];
 
 const SPECIAL_FORM_INFO = {
-    alpha:    { label: 'Alpha',    color: '#b71c1c', icon: '🔴', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Alpha Beam/Impact (1/day 5d20) and Alpha Restoration (3/day 1d12 heal). Needs ≤50% HP or Master Ball to capture.' },
+    alpha:    { label: 'Alpha',    color: '#b71c1c', icon: '🔴', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Alpha Beam/Impact (1/day 5d20, recharge turn, −2 Accuracy Check) and Alpha Restoration (3/day 1d12 heal). Needs ≤50% HP or Master Ball to capture.' },
     totem:    { label: 'Totem',    color: '#e65100', icon: '🟠', desc: 'HP ×2, ATK +5, SATK +5, one defense raised to 15. Gains Totemic Power, Totemic Call, and Totemic Guardian (3/day 3d8 heal).' },
     titan:    { label: 'Titan',    color: '#37474f', icon: '⚫', desc: 'HP ×10, size Huge+. Melee attacks become Ranged(15ft Burst); ranged attacks gain 15ft Blast. Cannot be captured normally.' },
     shadow:   { label: 'Shadow',   color: '#311b92', icon: '🌑', desc: 'Shadow Aura: can make Stealth checks; attacks deal +4 damage but lose 4 HP after each hit. Uses Shadow Rush.' },
     purified: { label: 'Purified', color: '#00695c', icon: '🌟', desc: 'Light Aura: when below 20 HP, attacks deal +4 damage. Can use Guiding Light (+5 to Pokémon Handling checks).' },
 };
-
-const STATUS_CONDITIONS = [
-    { key: 'burned',    label: 'Burned',    icon: '🔥', color: '#f44336', desc: 'ATK −2. Takes 2 damage at the end of each round.' },
-    { key: 'frozen',    label: 'Frozen',    icon: '🧊', color: '#42a5f5', desc: 'Cannot use moves. Thaws on a 1/6 roll (1 on d6) at the start of each turn, or when hit by a Fire-type move.' },
-    { key: 'paralyzed', label: 'Paralyzed', icon: '⚡', color: '#ffc107', desc: 'SPD halved. 1/6 chance to fail action each turn (roll 1 on d6).' },
-    { key: 'poisoned',  label: 'Poisoned',  icon: '☠️', color: '#9c27b0', desc: 'Takes poison damage at the end of each round; damage increases by 1 each round (1, 2, 3, ...).' },
-    { key: 'asleep',    label: 'Asleep',    icon: '💤', color: '#607d8b', desc: 'Cannot act. Wakes on a 1/6 roll (1 on d6) at the start of each turn.' },
-    { key: 'confused',  label: 'Confused',  icon: '💫', color: '#ff9800', desc: 'When using a damaging move, roll 1d6: on a 1, the Pokémon hits itself instead.' },
-    { key: 'flinched',  label: 'Flinched',  icon: '😵', color: '#795548', desc: 'Cannot use moves this turn. Wears off at the end of the round.' },
-    { key: 'fainted',   label: 'Fainted',   icon: '✖',  color: '#333',    desc: 'HP reduced to 0. Out of battle until healed.' },
-];
 
 const PokemonCard = ({
     // Pokemon-specific props (must be passed per-card)
@@ -117,6 +107,9 @@ const PokemonCard = ({
     const currentHP = maxHP - (pokemon.currentDamage || 0);
     const stabBonus = useMemo(() => calculateSTAB(), []);
 
+    // HB1 items list: Choice Band/Scarf/Specs also lock you into whatever move you just
+    // used for 3 minutes once you attack — the app only tracks the flat stat bonus below,
+    // not that lock-in (see the tooltip on the held-item chip).
     const HELD_ITEM_BONUSES = {
         'Choice Band': { atk: 2 }, 'Choice Scarf': { spd: 2 }, 'Choice Specs': { satk: 2 },
     };
@@ -1562,14 +1555,12 @@ const PokemonCard = ({
                                         <li>Encouragement after failures</li>
                                         <li>Crafting accessories or items for them</li>
                                     </ul>
-                                    <div style={{ fontWeight: 'bold', margin: '8px 0 4px' }}>Pokémon evolution requires:</div>
-                                    <ul style={{ margin: 0, paddingLeft: '16px', color: 'var(--text-muted)', lineHeight: 1.8 }}>
-                                        <li>Hatched or last evolved more than a week ago</li>
-                                        <li>Loyalty 2 or higher</li>
-                                        <li>Something awesome happened</li>
-                                    </ul>
+                                    <div style={{ fontWeight: 'bold', margin: '8px 0 4px' }}>What pushes a Pokémon to evolve?</div>
+                                    <div style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                                        PHB1 leaves this deliberately open — no fixed checklist. A Pokémon needs a great deal of emotion to urge evolution: sometimes confidence and happiness is enough, other times it's a moment of frustration or anger. A Pokémon with a good loyalty score will often evolve when it's ready with little else needed. It's a GM call in the moment, not a formula.
+                                    </div>
                                     <div style={{ marginTop: '8px', fontStyle: 'italic', fontSize: '11px', color: 'var(--text-muted)' }}>
-                                        Loyalty 5 is GM-awarded for exceptional roleplay moments, not a checklist.
+                                        Loyalty 5 specifically is GM-awarded for exceptional roleplay moments, not a checklist.
                                     </div>
                                 </div>
                             </details>
@@ -2101,7 +2092,7 @@ const PokemonCard = ({
                                         )}
                                         {heldBonus > 0 && (
                                             <span
-                                                title={`${pokemon.heldItem} bonus (remove held item to lose)`}
+                                                title={`${pokemon.heldItem} bonus (remove held item to lose). Also locks you into your last-used move for 3 min once you attack — not enforced here.`}
                                                 style={{
                                                     display: 'inline-flex', alignItems: 'center', gap: '2px',
                                                     padding: '1px 5px', marginTop: '3px',

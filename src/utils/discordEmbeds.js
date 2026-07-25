@@ -22,8 +22,8 @@ const hpFieldValue = (current, max) =>
     `\`\`\`ansi\n${hpBar(current, max)} ${current}/${max}\n\`\`\``;
 
 const STATUS_EMOJI = {
-    burned: '🔥', frozen: '🧊', paralyzed: '⚡', poisoned: '☠️',
-    asleep: '💤', confused: '💫', flinched: '😵', fainted: '✖️',
+    burned: '🔥', frozen: '🧊', paralyzed: '⚡', poisoned: '☠️', toxified: '🧪',
+    asleep: '💤', confused: '💫', infatuated: '💕', cursed: '💀', stunned: '😵‍💫', fainted: '✖️',
 };
 
 export const buildPokemonEmbed = (roll, trainerName) => {

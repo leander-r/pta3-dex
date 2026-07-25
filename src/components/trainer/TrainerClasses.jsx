@@ -56,12 +56,7 @@ const TrainerClasses = () => {
         return skills[skillName] || 0;
     };
 
-    const isSkillMaxed = (skillName) => {
-        const rank = getSkillRank(skillName);
-        const skillData = GAME_DATA.skills?.[skillName];
-        const isPassive = skillData?.type === 'passive';
-        return isPassive ? rank >= 1 : rank >= 2;
-    };
+    const isSkillMaxed = (skillName) => getSkillRank(skillName) >= 2;
 
     // Features granted immediately when a class is taken (Level 1 features)
     const getLevel1Features = (className) => {
@@ -343,7 +338,7 @@ const TrainerClasses = () => {
                     <div style={{ fontSize: '12px', marginBottom: '10px', color: 'var(--text-primary)' }}>
                         Select {getSkillCount(pendingClass)} skill talent{getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:
                         <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginTop: '4px' }}>
-                            1 talent = +2 bonus | 2 talents = +5 bonus | Passive skills cap at 1 talent.
+                            1 talent = +2 bonus | 2 talents = +5 bonus
                         </span>
                         {isSecondaryBaseClass(pendingClass) && (
                             <span style={{ color: '#e65100', fontSize: '11px', display: 'block', marginTop: '4px', fontWeight: '600' }}>
