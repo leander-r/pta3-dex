@@ -42,7 +42,7 @@ const POKECREDIT_PAYOUTS = [
     { category: 'Odd Jobs',           rows: [
         { label: 'Simple labor (per hour)',   value: '5–25 P' },
         { label: 'Skilled labor (per hour)',  value: '25–60 P' },
-        { label: 'Tip: Roll 15+ or well-suited Pokémon', value: 'Upper range of scale' },
+        { label: 'Tip: Roll 15+ or well-suited Pokémon', value: 'Middle of the pay range, at least' },
     ]},
 ];
 
@@ -124,18 +124,18 @@ const RewardTables = () => {
                 </div>
             </div>
 
-            {/* Loyalty Downtime Hours */}
+            {/* Loyalty Progression */}
             <div className="section-card-purple">
-                <h3 className="section-title-purple">💙 Loyalty Progression (Downtime Hours)</h3>
+                <h3 className="section-title-purple">💙 Loyalty Progression</h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                    During downtime, trainers can invest quality time to improve Pokémon loyalty.
+                    Loyalty 0→3 is a downtime-hours commitment (GMG "Downtime"). Loyalty 3→4 and 4→5 come from a separate chapter and aren't measured in hours — 3→4 is a multi-week checklist, and 4→5 has no checklist at all, just sustained roleplay.
                 </p>
                 {[
                     { from: 0, to: 1, hours: '10+ hours (20+ if particularly bad capture)', color: '#b71c1c' },
                     { from: 1, to: 2, hours: '5+ hours', color: '#e65100' },
                     { from: 2, to: 3, hours: '5+ hours of regular play and exercise', color: '#f57f17' },
-                    { from: 3, to: 4, hours: '3+ months minimum — intense personal connection', color: '#2e7d32' },
-                    { from: 4, to: 5, hours: 'Extremely rare — a lifetime bond', color: '#1565c0' },
+                    { from: 3, to: 4, hours: 'Checklist over 3–4 weeks: ~1hr/day, shared goals, an earned honor, unprompted helpfulness, gets along with teammates — usually 3+ months total', color: '#2e7d32' },
+                    { from: 4, to: 5, hours: 'No checklist — GM call from sustained roleplay (e.g. risking harm to protect it). Rare; can take a lifetime.', color: '#1565c0' },
                 ].map(row => (
                     <div key={`${row.from}-${row.to}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 12px', borderRadius: '6px', marginBottom: '6px', borderLeft: `4px solid ${row.color}`, background: `${row.color}11` }}>
                         <span style={{ fontWeight: 'bold', color: row.color, minWidth: '60px', fontSize: '13px' }}>{row.from} → {row.to}</span>

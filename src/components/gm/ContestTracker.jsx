@@ -7,12 +7,22 @@ import { useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
-const CONTEST_TYPES = ['Cool', 'Beautiful', 'Cute', 'Clever', 'Tough'];
+const CONTEST_TYPES = ['Cool', 'Beauty', 'Cute', 'Clever', 'Tough'];
 
 const NPC_RESULTS = [
     { range: [1, 5],   label: 'Novice',             color: '#4caf50', desc: 'Confident but no contest strategy; may lack type-matching moves.' },
     { range: [6, 15],  label: 'Prepared',            color: '#2196f3', desc: 'Knows 2 Star Point categories; plans to earn at least 1.' },
     { range: [16, 20], label: 'Expert Coordinator',  color: '#9c27b0', desc: 'Knows 4 categories; plans to earn 2+ Star Points.' },
+];
+
+// GMG p.34 — a separate table from NPC_RESULTS above: how many/what kind of
+// *additional* judges (beyond the main host judge) show up when players join a
+// contest suddenly.
+const JUDGE_PANEL_RESULTS = [
+    { range: [1, 5],   label: 'Two Basic Judges',       color: '#4caf50', desc: 'Two additional judges who judge based on Contest types and basic categories.' },
+    { range: [6, 15],  label: 'One Basic, One Advanced', color: '#2196f3', desc: 'Two additional judges — one judges basic categories, one judges advanced categories.' },
+    { range: [16, 19], label: 'Mixed Advanced Panel',    color: '#ff9800', desc: 'Two additional judges who judge on a combination of basic and advanced categories.' },
+    { range: [20, 20], label: 'Full Advanced Panel',     color: '#9c27b0', desc: 'Two or three additional judges who judge on advanced categories, or categories they decide privately right when the contest starts.' },
 ];
 
 const ContestTracker = () => {
@@ -23,6 +33,20 @@ const ContestTracker = () => {
     const [heartPoints, setHeartPoints]         = useState([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]);
     const [starPoints, setStarPoints]           = useState([null, null, null]);
     const [npcRoll, setNpcRoll]                 = useState(null);
+    const [judgePanelRoll, setJudgePanelRoll]   = useState(null);
+
+    // GMG: "most contests will have four or five competitors."
+    const addContestant = () => {
+        if (contestants.length >= 5) return;
+        setContestants(prev => [...prev, '']);
+        setHeartPoints(prev => [...prev, [0, 0, 0]]);
+    };
+
+    const removeContestant = () => {
+        if (contestants.length <= 4) return;
+        setContestants(prev => prev.slice(0, -1));
+        setHeartPoints(prev => prev.slice(0, -1));
+    };
 
     const updateHeart = (ci, ji, delta) => {
         setHeartPoints(prev => {
@@ -73,10 +97,18 @@ const ContestTracker = () => {
         toast.info(`NPC d20 = ${r} → ${result?.label}`);
     };
 
+    const rollJudgePanel = () => {
+        const r = Math.floor(Math.random() * 20) + 1;
+        const result = JUDGE_PANEL_RESULTS.find(x => r >= x.range[0] && r <= x.range[1]);
+        setJudgePanelRoll({ roll: r, ...result });
+        toast.info(`Judge panel d20 = ${r} → ${result?.label}`);
+    };
+
     const reset = () => {
-        setHeartPoints([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]);
+        setHeartPoints(contestants.map(() => [0, 0, 0]));
         setStarPoints([null, null, null]);
         setNpcRoll(null);
+        setJudgePanelRoll(null);
         toast.info('Contest reset.');
     };
 
@@ -116,7 +148,17 @@ const ContestTracker = () => {
 
                 {/* Contestants */}
                 <div style={{ marginBottom: '14px' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>Contestants</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                            Contestants
+                            <span style={{ marginLeft: '6px', fontSize: '10px', fontWeight: 'normal', textTransform: 'none', letterSpacing: 0 }}>(GMG: four or five)</span>
+                        </div>
+                        {contestants.length < 5 ? (
+                            <button onClick={addContestant} style={{ padding: '3px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>+ 5th Contestant</button>
+                        ) : (
+                            <button onClick={removeContestant} style={{ padding: '3px 10px', borderRadius: '6px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: '#f44336', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>− Remove 5th</button>
+                        )}
+                    </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                         {contestants.map((name, i) => (
                             <input
@@ -257,6 +299,29 @@ const ContestTracker = () => {
                             <span style={{ fontWeight: 'bold', fontSize: '14px', color: npcRoll.color }}>{npcRoll.label}</span>
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{npcRoll.desc}</div>
+                    </div>
+                )}
+            </div>
+
+            {/* Additional Judges Roll */}
+            <div className="section-card-purple">
+                <h3 className="section-title-purple">🧑‍⚖️ Additional Judges (Impromptu Contest)</h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                    A contest always has 3 judges total. If your players join one suddenly, roll d20 to decide the 2 (or 3) judges beyond the main host judge.
+                </p>
+                <button
+                    onClick={rollJudgePanel}
+                    style={{ padding: '8px 20px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', marginBottom: '12px' }}
+                >
+                    🎲 Roll d20
+                </button>
+                {judgePanelRoll && (
+                    <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'var(--input-bg)', border: `2px solid ${judgePanelRoll.color}44`, borderLeft: `4px solid ${judgePanelRoll.color}` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                            <span style={{ fontWeight: 'bold', fontSize: '20px', color: judgePanelRoll.color }}>{judgePanelRoll.roll}</span>
+                            <span style={{ fontWeight: 'bold', fontSize: '14px', color: judgePanelRoll.color }}>{judgePanelRoll.label}</span>
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{judgePanelRoll.desc}</div>
                     </div>
                 )}
             </div>

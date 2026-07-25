@@ -46,15 +46,18 @@ const HP_MODS = [
 ];
 
 const STATUS_MODS = [
-    { label: 'None',                              mod: 0  },
-    { label: 'Burn / Confusion / Infatuation / Poison', mod: +10 },
-    { label: 'Freeze / Paralysis / Sleep',        mod: +15 },
+    { label: 'None',                                     mod: 0  },
+    { label: 'Burn / Confusion / Infatuation / Poison-Toxin', mod: +10 },
+    { label: 'Freeze / Paralysis / Sleep',               mod: +15 },
 ];
 
+// GMG p.22 — "Combat Initiation" table. The -25 applies when the WILD Pokémon is the
+// one caught off guard ("ambushed and extra guarded" per the book's Lampent example),
+// not when it ambushes the trainer — that's the opposite scenario.
 const INITIATIVE_MODS = [
-    { label: 'Wild ambushed trainer',     mod: -25 },
-    { label: 'Wild initiated combat',     mod:   0 },
-    { label: 'Trainer initiated combat',  mod: +10 },
+    { label: 'Wild Pokémon was ambushed (caught off guard)', mod: -25 },
+    { label: 'Wild Pokémon initiated combat',                mod:   0 },
+    { label: 'Trainer initiated combat (wild unaware)',      mod: +10 },
 ];
 
 const CaptureCalculator = () => {

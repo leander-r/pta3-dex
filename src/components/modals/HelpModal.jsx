@@ -288,7 +288,8 @@ export const HELP_CONTENT = {
                     <li><strong>Encounter Difficulty</strong> — party-size guidance for Easy/Normal/Hard/Dangerous wild fights.</li>
                     <li><strong>Wild Filler Behavior (d20)</strong> — how nearby wild Pokémon react when a battle breaks out.</li>
                     <li><strong>Wild Nature Roller</strong> — randomly rolls one of the 25 natures for a new wild Pokémon.</li>
-                    <li><strong>Special Encounter Forms</strong> — Shiny, Shadow, and Purified variant stats and capture notes.</li>
+                    <li><strong>Special Encounter Forms</strong> — Alpha, Totem, Titan, Shadow, and Purified variant stats and capture notes.</li>
+                    <li><strong>Other Ways to Vary Your Wild Pokémon</strong> — lighter touches (held items, Shiny, size, unique passives/moves) short of a full Special Form.</li>
                     <li><strong>Skill Check DC Scale</strong> — quick DC reference for d20 + talent bonus (+0/+2/+5) checks.</li>
                 </ul>
             </>
@@ -302,7 +303,7 @@ export const HELP_CONTENT = {
                 <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
                     <li><strong>Wild Goods Finder (d100)</strong> — roll to see what a trainer finds foraging in the wild.</li>
                     <li><strong>Pokécredit Reward Tables</strong> — suggested payouts for league battles, gym battles, tournaments, contests, and odd jobs.</li>
-                    <li><strong>Loyalty Progression</strong> — how many downtime hours it typically takes to raise a Pokémon's loyalty by one point.</li>
+                    <li><strong>Loyalty Progression</strong> — downtime hours for Loyalty 0→3; a different, non-hours mechanic (checklist, then pure GM judgment) governs 3→4 and 4→5.</li>
                 </ul>
             </>
         )
@@ -375,13 +376,15 @@ export const HELP_CONTENT = {
         title: 'Contest Tracker',
         body: () => (
             <>
-                <p>Runs a Pokémon Contest from setup through judging.</p>
+                <p>Runs a Pokémon Contest from setup through judging. Add a 5th contestant if you want — the GMG says contests normally run four or five.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Heart Points</h4>
                 <p>Each of the 3 judges scores every contestant; use the grid to track running totals per judge.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Star Points</h4>
-                <p>Award a Star Point to whichever contestant leads a judge's column. If two or more contestants are tied for the lead, no Star Point is awarded for that judge.</p>
+                <p>Award a Star Point to whichever contestant leads a judge's column, using total Heart Points as the tiebreaker. Per the GMG, it's fine — and the norm — for a Star Point (and even first place) to go to multiple still-tied contestants.</p>
                 <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>NPC Roll</h4>
                 <p>Roll d20 to determine an NPC competitor's contest preparedness (Novice / Prepared / Expert Coordinator).</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>Additional Judges</h4>
+                <p>A separate d20 roll for when players join a contest suddenly — decides the makeup of the 2 (or 3) judges beyond the main host judge.</p>
             </>
         )
     },

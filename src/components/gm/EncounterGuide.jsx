@@ -27,7 +27,7 @@ const SPECIAL_FORMS = [
     {
         name: 'Alpha', icon: '🔴', color: '#b71c1c',
         stats: 'HP ×2 | ATK +5 | SATK +5 | One defense raised to 15',
-        moves: 'Alpha Beam (1/day, 5d20) | Alpha Impact (1/day, 5d20) | Alpha Restoration (3/day, heal 1d12)',
+        moves: 'Alpha Beam (1/day, 5d20, recharge turn, −2 Accuracy Check) | Alpha Impact (1/day, 5d20, recharge turn, −2 Accuracy Check) | Alpha Restoration (3/day, heal 1d12)',
         capture: 'Needs ≤50% HP or Master Ball to capture. When caught: gains +1 Atk or SpA and +1 Def or SpD passive.',
     },
     {
@@ -40,12 +40,12 @@ const SPECIAL_FORMS = [
         name: 'Titan', icon: '⚫', color: '#37474f',
         stats: 'HP ×10 | Size at least Huge | Melee attacks become Ranged(15ft Burst) | Ranged attacks gain 15ft Blast',
         moves: 'Normal moves with expanded ranges',
-        capture: 'Cannot be captured normally. Capturable within 3 days of losing its mystical herb supply (shrinks to normal size). When caught: HP +18 (not ×10); must lose one stat passive if it had 4.',
+        capture: "Cannot be captured normally — cut it off from its mystical herb supply; it's capturable 3 days later (having lost at least half its mass; full shrink takes ~1 week). When caught: HP +18 (not ×10), stays one size category above its species average forever, and must lose one stat passive if it had 4.",
     },
     {
         name: 'Shadow', icon: '🌑', color: '#311b92',
         stats: 'No base stat changes (wild state)',
-        moves: 'Shadow Rush (−2 during Accuracy Check). Shadow Aura: +4 damage on every attack hit, then lose 4 HP.',
+        moves: 'Shadow Rush (3/day, 3d10, −2 during Accuracy Check). Shadow Aura: +4 damage on every attack hit, then lose 4 HP.',
         capture: 'Distrustful of new trainers; may undermine trainer. Purifiable via sustained kindness + loyalty milestone → gains Light Aura + Guiding Light.',
     },
     {
@@ -54,6 +54,17 @@ const SPECIAL_FORMS = [
         moves: "Guiding Light: +5 to Pokémon Handling checks (own or trainer's). Light Aura: when below 20 HP, attacks deal +4 damage.",
         capture: 'Result of rehabilitating a Shadow Pokémon. Shadow Rush and Shadow Aura are lost.',
     },
+];
+
+// GMG "Other Ways to Vary Your Wild Pokémon" (p.20-21) — lighter-weight techniques
+// than the full Special Encounter Forms above, for making an ordinary wild Pokémon
+// stand out without building it as an Alpha/Totem/Titan/Shadow/Purified.
+const VARIATION_TECHNIQUES = [
+    { name: 'Held Items', desc: "Give it an item it found — an uncommon berry, or something unusual for the wild like an unused Poké Ball. Pull from the PHB1/PHB2 item lists." },
+    { name: 'Shiny Pokémon', desc: 'Exceedingly rare — identical in abilities, stats, and types to the rest of its species, just a different color (an orange Pikachu, a pink Charizard). Roll a nature for it once captured, same as any other wild.' },
+    { name: 'Size', desc: 'Make it a size category larger or smaller than usual when it would be noticeable. Particularly large ones may even be Totems or Alphas.' },
+    { name: 'Unique Passives', desc: "Swap one of its passives for something else fitting — e.g. giving an Electric-type Static, or an avian Pokémon Keen Eye." },
+    { name: 'Unique Moves', desc: "Pull an attack from the move index to make it stand out, but keep in mind any wild you use this on is one good roll away from being captured." },
 ];
 
 const SKILL_DC_TABLE = [
@@ -166,6 +177,22 @@ const EncounterGuide = () => {
                             <div style={{ fontSize: '12px', marginBottom: '4px' }}><strong>Stats: </strong>{sf.stats}</div>
                             <div style={{ fontSize: '12px', marginBottom: '4px' }}><strong>Special Moves: </strong>{sf.moves}</div>
                             <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}><strong>Capture: </strong>{sf.capture}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Other Ways to Vary Your Wild Pokémon */}
+            <div className="section-card-purple">
+                <h3 className="section-title-purple">🎨 Other Ways to Vary Your Wild Pokémon</h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                    Lighter touches than a full Special Encounter Form, for making an ordinary wild Pokémon memorable.
+                </p>
+                <div style={{ display: 'grid', gap: '6px' }}>
+                    {VARIATION_TECHNIQUES.map(t => (
+                        <div key={t.name} style={{ padding: '8px 12px', borderRadius: '6px', background: 'var(--input-bg)' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: '13px', marginBottom: '2px' }}>{t.name}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t.desc}</div>
                         </div>
                     ))}
                 </div>
