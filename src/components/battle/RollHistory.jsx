@@ -195,7 +195,8 @@ const RollHistory = ({ rollHistory, setRollHistory }) => {
                                 <>
                                     <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
                                         {roll.moveName || 'Attack'}
-                                        {roll.weaponName && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)', marginLeft: '6px' }}>({roll.weaponName})</span>}
+                                        <span style={{ fontWeight: 'normal', color: 'var(--text-muted)', marginLeft: '6px' }}>({roll.moveType || 'Normal'})</span>
+                                        {roll.weaponName && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)', marginLeft: '6px' }}>· {roll.weaponName}</span>}
                                         {roll.isCrit && <span style={{ marginLeft: '8px', color: '#c62828' }}>CRITICAL!</span>}
                                         {!roll.isHit && <span style={{ marginLeft: '8px', color: '#f44336', fontWeight: 'bold' }}>MISS!</span>}
                                     </div>

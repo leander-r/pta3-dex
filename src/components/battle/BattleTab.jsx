@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { getTypeColor } from '../../utils/typeUtils.js';
+import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData, useUI } from '../../contexts/index.js';
@@ -37,6 +37,45 @@ const getPokemonCapabilityStat = (capabilityName) =>
 
 // Convert a CSS hex color string to a Discord integer color
 const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''), 16);
+
+// A trainer-attack option (Unarmed Strike, or one weapon's move), styled to match the
+// move cards in MoveSelector.jsx so Pokémon moves and trainer attacks read as one system.
+const TrainerAttackCard = ({ moveName, moveType, damage, frequency, isSelected, onSelect, subtitle }) => {
+    const typeColor = getTypeColor(moveType);
+    return (
+        <div style={{
+            display: 'flex', alignItems: 'stretch',
+            border: `2px solid ${typeColor}`,
+            borderRadius: '6px', overflow: 'hidden', marginBottom: '8px',
+        }}>
+            <button
+                onClick={onSelect}
+                className={onSelect && !isSelected ? 'move-select-btn' : ''}
+                style={{
+                    flex: 1, padding: '10px',
+                    background: isSelected ? typeColor : undefined,
+                    color: isSelected ? getContrastTextColor(typeColor) : undefined,
+                    border: 'none', cursor: onSelect ? 'pointer' : 'default', textAlign: 'left'
+                }}
+            >
+                <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {moveName}
+                    {subtitle && <span style={{ fontWeight: 'normal', fontSize: '11px', opacity: 0.8 }}>· {subtitle}</span>}
+                </div>
+                <div style={{ fontSize: '12px', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                    <span>{moveType}</span>
+                    <span style={{
+                        padding: '1px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold',
+                        background: 'var(--moves-category-physical-bg)', color: 'var(--moves-category-physical-text)'
+                    }}>Physical</span>
+                    <span>| {damage}</span>
+                    <span title="PTA3: Roll 1d20 + accuracy bonus against the target's stat value.">| vs DEF</span>
+                    {frequency && <span style={{ opacity: 0.7 }}>| {frequency}</span>}
+                </div>
+            </button>
+        </div>
+    );
+};
 
 
 // Collect live battle context to attach to roll entries
@@ -1312,12 +1351,11 @@ const BattleTab = () => {
                                 const atkMod = Math.floor(atkVal / 2);
                                 return (
                                     <>
-                                        <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
-                                            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Unarmed Strike</div>
-                                            <div>Accuracy: 1d20 +{atkMod} (ATK) vs target DEF</div>
-                                            <div style={{ marginTop: '2px' }}>Damage on hit: 2d6 +{atkMod} (ATK)</div>
-                                            <div style={{ marginTop: '4px', color: 'var(--text-muted)', fontSize: '12px' }}>Natural 20 = crit (max dice).</div>
-                                        </div>
+                                        <TrainerAttackCard
+                                            moveName="Unarmed Strike" moveType="Normal"
+                                            damage={`2d6 +${atkMod} (ATK)`} frequency="At-Will"
+                                            isSelected
+                                        />
 
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                             <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea', whiteSpace: 'nowrap' }}>vs DEF:</label>
@@ -1353,7 +1391,6 @@ const BattleTab = () => {
                                     const itemData = GAME_DATA?.items?.[name];
                                     return (itemData?.type || '').toLowerCase() === 'weapon';
                                 });
-                                const wInfo = selectedWeapon ? getWeaponInfo(selectedWeapon) : null;
                                 return (
                                     <>
                                         {equippedWeapons.length === 0 ? (
@@ -1362,27 +1399,19 @@ const BattleTab = () => {
                                                 <button onClick={() => setActiveTab('inventory')} style={{ background: 'none', border: 'none', color: 'var(--color-purple, #667eea)', cursor: 'pointer', padding: 0, fontSize: '13px', textDecoration: 'underline' }}>Go to Inventory →</button>
                                             </div>
                                         ) : (
-                                            <>
-                                                <label style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Select Weapon <span style={{ fontWeight: 'normal', color: 'var(--text-muted)', fontSize: '12px' }}>(free action to switch)</span></label>
-                                                <select
-                                                    value={selectedWeapon}
-                                                    onChange={(e) => setSelectedWeapon(e.target.value)}
-                                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '8px' }}
-                                                >
-                                                    <option value="">Choose a weapon...</option>
-                                                    {equippedWeapons.map(name => (
-                                                        <option key={name} value={name}>{name}</option>
-                                                    ))}
-                                                </select>
-                                            </>
-                                        )}
-
-                                        {wInfo && (
-                                            <div className="skill-info-box" style={{ marginBottom: '12px', padding: '10px', borderRadius: '6px', fontSize: '13px' }}>
-                                                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{wInfo.moveName} <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}>({wInfo.moveType})</span></div>
-                                                <div>Accuracy: 1d20 +{atkMod} (ATK) vs target DEF</div>
-                                                <div style={{ marginTop: '2px' }}>Damage on hit: 2d6 +{atkMod} (ATK)</div>
-                                                <div style={{ marginTop: '4px', color: 'var(--text-muted)', fontSize: '12px' }}>Natural 20 = crit (max dice). At-Will.</div>
+                                            <div style={{ marginBottom: '4px' }}>
+                                                {equippedWeapons.map(name => {
+                                                    const info = getWeaponInfo(name);
+                                                    return (
+                                                        <TrainerAttackCard
+                                                            key={name}
+                                                            moveName={info.moveName} moveType={info.moveType} subtitle={name}
+                                                            damage={`2d6 +${atkMod} (ATK)`} frequency="At-Will"
+                                                            isSelected={selectedWeapon === name}
+                                                            onSelect={() => setSelectedWeapon(name)}
+                                                        />
+                                                    );
+                                                })}
                                             </div>
                                         )}
 
