@@ -193,6 +193,20 @@ const BattleTab = () => {
         if (actor.isNpc && trainerSubmode === 'weapon') setTrainerSubmode('skill');
     }, [actor.isNpc, trainerSubmode]);
 
+    // Keep the weapon selection in sync with what's actually equipped. Without this, unequipping
+    // the selected weapon (e.g. from Inventory) left `selectedWeapon` pointing at a phantom item —
+    // "No weapons equipped" would show, but the stale selection still passed getWeaponInfo() and
+    // left "Roll Weapon Attack!" enabled, letting a trainer roll an attack with a weapon they no
+    // longer had (PHB2 Weapons Master requires actually "holding a weapon").
+    useEffect(() => {
+        const equippedWeaponNames = (trainer.equippedItems || []).filter(name =>
+            (GAME_DATA?.items?.[name]?.type || '').toLowerCase() === 'weapon'
+        );
+        if (selectedWeapon && !equippedWeaponNames.includes(selectedWeapon)) {
+            setSelectedWeapon('');
+        }
+    }, [trainer.equippedItems, GAME_DATA?.items, selectedWeapon]);
+
     // Heal mode always acts on the player's own inventory/party — force the source back
     useEffect(() => {
         if (mode === 'heal' && actorSource === 'npc') setActorSource('player');
