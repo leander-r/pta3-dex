@@ -189,6 +189,7 @@ export const PokemonProvider = ({ children }) => {
                 damage: moveData.damage || newMove.damage || '',
                 range: moveData.range || newMove.range || 'Melee',
                 effect: moveData.effect || newMove.effect || '',
+                description: moveData.description || newMove.description || '',
                 source: newMove.source || 'natural',
                 learnedAtLevel: newMove.level
             };

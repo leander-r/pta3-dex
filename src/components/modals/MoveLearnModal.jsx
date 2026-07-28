@@ -46,7 +46,11 @@ const MoveLearnModal = () => {
         setMoveLearnData(null);
     };
 
-    const moveData = GAME_DATA.moves[moveLearnData.newMove.move] || {};
+    // Fall back to the move's own data (type/category/damage/etc., already fully
+    // populated by addMoveWithSource) when it's not in the official catalog — i.e.
+    // a custom move, which GAME_DATA.moves has no entry for. Mirrors the same
+    // fallback already used for moveDef below.
+    const moveData = GAME_DATA.moves[moveLearnData.newMove.move] || moveLearnData.newMove;
 
     return (
         <div className="modal-overlay" onClick={handleClose} role="presentation">

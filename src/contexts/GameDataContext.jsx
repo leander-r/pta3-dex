@@ -23,6 +23,10 @@ export const GameDataProvider = ({ children }) => {
     const [pokedex, setPokedex] = useState([]);
     // Custom species owned here; DataProvider populates this after loading saved data
     const [customSpecies, setCustomSpecies] = useState([]);
+    // Custom moves — a shared catalog (same shape as GAME_DATA.moves entries) so a
+    // move created for one Pokémon can be taught to any other Pokémon afterward,
+    // not just the one it was invented for. DataProvider persists this too.
+    const [customMoves, setCustomMoves] = useState([]);
     const [pokedexLoading, setPokedexLoading] = useState(true);
     const [pokedexError, setPokedexError] = useState(null);
     const [gameDataLoaded, setGameDataLoaded] = useState(GAME_DATA._loaded || false);
@@ -113,6 +117,10 @@ export const GameDataProvider = ({ children }) => {
         // Custom Species
         customSpecies,
         setCustomSpecies,
+
+        // Custom Moves
+        customMoves,
+        setCustomMoves,
 
         // Move helpers
         getLevelUpMovesForPokemon,

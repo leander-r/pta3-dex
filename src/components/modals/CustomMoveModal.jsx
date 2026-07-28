@@ -5,7 +5,8 @@
 
 import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
-import { useModal, usePokemonContext } from '../../contexts/index.js';
+import { useModal, usePokemonContext, useGameData } from '../../contexts/index.js';
+import { GAME_DATA } from '../../data/configs.js';
 import toast from '../../utils/toast.js';
 
 const TYPE_LIST = [
@@ -24,6 +25,7 @@ const CustomMoveModal = () => {
     // Get from contexts
     const { showCustomMoveModal, setShowCustomMoveModal, customMove, setCustomMove, customMoveForPokemon } = useModal();
     const { party, reserve, updatePokemon } = usePokemonContext();
+    const { customMoves, setCustomMoves } = useGameData();
 
     const handleClose = () => setShowCustomMoveModal(false);
 
@@ -40,12 +42,28 @@ const CustomMoveModal = () => {
         const targetPoke = allPokemon.find(p => p.id === customMoveForPokemon);
         if (!targetPoke) return;
 
-        // Check for duplicate move
+        const name = customMove.name.trim();
+
+        // Block a name collision with an official move — GAME_DATA.moves[name] lookups
+        // happen all over the app (move details, MoveLearnModal, etc.) and always take
+        // priority, so a custom move sharing an official name would be silently masked.
+        if (GAME_DATA?.moves?.[name]) {
+            toast.warning(`"${name}" is already an official move. Pick it from the move browser instead.`);
+            return;
+        }
+        // Block a name collision with an existing custom move too — redefining it here
+        // wouldn't update the shared catalog entry other Pokémon already learned from.
+        if (customMoves.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+            toast.warning(`A custom move named "${name}" already exists. Pick it from the move browser to teach it to this Pokémon.`);
+            return;
+        }
+
+        // Check for duplicate move on the target Pokémon
         const alreadyKnows = targetPoke.moves.some(m =>
-            m.name?.toLowerCase() === customMove.name?.toLowerCase()
+            m.name?.toLowerCase() === name.toLowerCase()
         );
         if (alreadyKnows) {
-            toast.warning(`${targetPoke.name || targetPoke.species} already knows ${customMove.name}!`);
+            toast.warning(`${targetPoke.name || targetPoke.species} already knows ${name}!`);
             return;
         }
 
@@ -55,8 +73,14 @@ const CustomMoveModal = () => {
             return;
         }
 
+        const finalMove = { ...customMove, name };
+
+        // Add to the shared catalog so any other Pokémon can learn this move later,
+        // not just the one it was invented for.
+        setCustomMoves(prev => [...prev, { ...finalMove, id: 'custom-move-' + Date.now() }]);
+
         updatePokemon(customMoveForPokemon, {
-            moves: [...targetPoke.moves, { ...customMove }]
+            moves: [...targetPoke.moves, finalMove]
         });
 
         setShowCustomMoveModal(false);

@@ -56,7 +56,7 @@ const PokemonCard = ({
     onToggleCompare
 }) => {
     // Get shared state from contexts
-    const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
+    const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies, customMoves } = useGameData();
     const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm, openCustomMoveModal } = useModal();
     const { getEvolutionOptions } = usePokemonContext();
     const { showHelp } = useUI();
@@ -209,11 +209,16 @@ const PokemonCard = ({
         return sourceItems.slice(0, 50);
     }, [heldItemSearch, GAME_DATA]);
 
-    // Filter and sort moves for selection
+    // Filter and sort moves for selection — merges the official catalog with the
+    // shared custom-move catalog so a move created for one Pokémon can be taught
+    // to any other Pokémon from this same search/browse panel.
     const filteredMoves = useMemo(() => {
         if (!GAME_DATA?.moves) return [];
 
-        let moves = Object.entries(GAME_DATA.moves);
+        let moves = [
+            ...Object.entries(GAME_DATA.moves),
+            ...(customMoves || []).map(m => [m.name, { ...m, isCustom: true }])
+        ];
 
         // Apply type filter
         if (moveTypeFilter !== 'all') {
@@ -242,7 +247,7 @@ const PokemonCard = ({
         moves.sort((a, b) => a[0].localeCompare(b[0]));
 
         return moves.slice(0, 100);
-    }, [moveSearch, moveTypeFilter, moveCategoryFilter, GAME_DATA]);
+    }, [moveSearch, moveTypeFilter, moveCategoryFilter, GAME_DATA, customMoves]);
 
     // Helper function to add a move to the pool
     const addMoveWithSource = (moveName, moveData, source) => {
@@ -268,6 +273,7 @@ const PokemonCard = ({
                     frequency: moveData.frequency,
                     range: moveData.range,
                     effect: moveData.effect,
+                    description: moveData.description,
                     source: source
                 },
                 currentMoves: pokemon.moves || [],
@@ -287,6 +293,7 @@ const PokemonCard = ({
                 frequency: moveData.frequency,
                 range: moveData.range,
                 effect: moveData.effect,
+                description: moveData.description,
                 source: source
             }]
         });
@@ -2353,6 +2360,19 @@ const PokemonCard = ({
                                                 >
                                                     <div style={{ flex: 1 }}>
                                                         <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{name}</span>
+                                                        {data.isCustom && (
+                                                            <span style={{
+                                                                marginLeft: '6px',
+                                                                fontSize: '9px',
+                                                                color: 'white',
+                                                                background: '#667eea',
+                                                                padding: '1px 4px',
+                                                                borderRadius: '4px',
+                                                                fontWeight: 'bold'
+                                                            }}>
+                                                                Custom
+                                                            </span>
+                                                        )}
                                                         <div className="text-muted" style={{ fontSize: '11px' }}>
                                                             {data.damage || 'Status'} | {data.frequency || 'At-Will'}
                                                         </div>
@@ -2375,7 +2395,7 @@ const PokemonCard = ({
                                                             fontWeight: 'bold'
                                                         }}>{data.category?.charAt(0) || '?'}</span>
                                                         <button
-                                                            onClick={() => addMoveWithSource(name, data, 'species')}
+                                                            onClick={() => addMoveWithSource(name, data, data.isCustom ? 'custom' : 'species')}
                                                             style={{
                                                                 padding: '2px 6px',
                                                                 background: (pokemon.moves?.length || 0) >= MAX_TOTAL_MOVES ? '#ff9800' : '#4caf50',

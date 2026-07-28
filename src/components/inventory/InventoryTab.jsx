@@ -6,6 +6,8 @@ import React, { useState, useMemo } from 'react';
 import { GAME_DATA } from '../../data/configs.js';
 import { useData, useModal, useTrainerContext, usePokemonContext, useUI } from '../../contexts/index.js';
 import { calculatePokemonHP, parseDice, parseHealFormula } from '../../utils/dataUtils.js';
+import { addItemToInventory } from '../../utils/inventoryUtils.js';
+import { EQUIPPABLE_ITEM_TYPES as EQUIPPABLE_TYPES } from '../../data/constants.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
 import toast from '../../utils/toast.js';
 
@@ -132,7 +134,6 @@ const InventoryTab = () => {
         return colors[t] || '#667eea';
     };
 
-    const EQUIPPABLE_TYPES = ['clothing', 'armor', 'weapon', 'accessory'];
     const equippedItems = trainer?.equippedItems || [];
 
     // Filtered inventory (sorting is done via sortInventory action, not here)
@@ -220,29 +221,7 @@ const InventoryTab = () => {
     }, [itemSearch, addItemFilter, addItemSort]);
 
     const handleAddItem = (itemName, itemData = {}, quantity = 1) => {
-        const qty = Math.max(1, parseInt(quantity) || 1);
-        setInventory(prev => {
-            const existingIndex = prev.findIndex(i =>
-                i.name.toLowerCase() === itemName.toLowerCase()
-            );
-
-            if (existingIndex >= 0) {
-                const newInventory = [...prev];
-                newInventory[existingIndex] = {
-                    ...newInventory[existingIndex],
-                    quantity: (newInventory[existingIndex].quantity || 1) + qty
-                };
-                return newInventory;
-            } else {
-                return [...prev, {
-                    name: itemName,
-                    quantity: qty,
-                    type: itemData.type || 'misc',
-                    effect: itemData.effect || '',
-                    price: itemData.price || 0
-                }];
-            }
-        });
+        setInventory(prev => addItemToInventory(prev, itemName, itemData, quantity));
         setAddQuantity(1); // Reset quantity after adding
     };
 

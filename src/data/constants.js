@@ -165,6 +165,11 @@ export const MAX_TOTAL_MOVES = 6;
 export const MAX_ROLL_HISTORY = 50;
 
 /**
+ * Item types that can be equipped from the Trainer tab / Inventory
+ */
+export const EQUIPPABLE_ITEM_TYPES = ['clothing', 'armor', 'weapon', 'accessory'];
+
+/**
  * Flat stat added per combat stage (PTA3: +2 per stage, applies to both + and -)
  */
 export const COMBAT_STAGE_FLAT_PER_STAGE = 2;

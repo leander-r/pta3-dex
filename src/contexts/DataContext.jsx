@@ -38,7 +38,7 @@ export const DataProvider = ({ children }) => {
     const { triggerSaveIndicator } = useUI();
     const { showConfirm } = useModal();
     const { trainers, setTrainers, activeTrainerId, setActiveTrainerId } = useTrainerContext();
-    const { customSpecies, setCustomSpecies, GAME_DATA } = useGameData();
+    const { customSpecies, setCustomSpecies, customMoves, setCustomMoves, GAME_DATA } = useGameData();
 
     // Inventory owned here; shared with PokemonProvider via useData()
     const [inventory, setInventory] = useState([]);
@@ -102,6 +102,7 @@ export const DataProvider = ({ children }) => {
                 activeTrainerId,
                 inventory,
                 customSpecies,
+                customMoves,
                 npcs,
                 lastSaved: new Date().toISOString(),
                 version: '2.1'
@@ -123,7 +124,7 @@ export const DataProvider = ({ children }) => {
             console.error('Error saving data:', error);
             toast.error('Failed to save. Check your browser storage settings.');
         }
-    }, [trainers, activeTrainerId, inventory, customSpecies, npcs, triggerSaveIndicator]);
+    }, [trainers, activeTrainerId, inventory, customSpecies, customMoves, npcs, triggerSaveIndicator]);
 
     // Keep ref current so auto-save effects always call the latest version
     useEffect(() => { saveDataRef.current = saveData; });
@@ -291,6 +292,7 @@ export const DataProvider = ({ children }) => {
                 }
                 setInventory(Array.isArray(migratedData.inventory) ? migratedData.inventory : []);
                 setCustomSpecies(Array.isArray(migratedData.customSpecies) ? migratedData.customSpecies : []);
+                setCustomMoves(Array.isArray(migratedData.customMoves) ? migratedData.customMoves : []);
                 setNpcs(Array.isArray(migratedData.npcs) ? migratedData.npcs : []);
             }
             // Mark data as loaded AFTER loading completes
@@ -310,7 +312,7 @@ export const DataProvider = ({ children }) => {
             // Still enable auto-save on error so user can save their work
             dataLoadedRef.current = true;
         }
-    }, [migrateOldData, GAME_DATA, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs]);
+    }, [migrateOldData, GAME_DATA, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setNpcs]);
 
     // Restore from the rolling auto-backup snapshot
     const restoreAutoBackup = useCallback(() => {
@@ -337,6 +339,7 @@ export const DataProvider = ({ children }) => {
                     }
                     setInventory(Array.isArray(migrated.inventory) ? migrated.inventory : []);
                     setCustomSpecies(Array.isArray(migrated.customSpecies) ? migrated.customSpecies : []);
+                    setCustomMoves(Array.isArray(migrated.customMoves) ? migrated.customMoves : []);
                     setNpcs(Array.isArray(migrated.npcs) ? migrated.npcs : []);
                     toast.success('Auto-backup restored successfully!');
                 } catch (err) {
@@ -345,7 +348,7 @@ export const DataProvider = ({ children }) => {
                 }
             }
         });
-    }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs]);
+    }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setNpcs]);
 
     const loadDemoTrainer = useCallback(() => {
         showConfirm({
@@ -396,6 +399,7 @@ export const DataProvider = ({ children }) => {
                 activeTrainerId,
                 inventory,
                 customSpecies,
+                customMoves,
                 npcs,
                 version: '2.1',
                 _preview: buildPreview()
@@ -414,7 +418,7 @@ export const DataProvider = ({ children }) => {
         } else {
             doSave(slotName);
         }
-    }, [saveSlots, trainers, activeTrainerId, inventory, customSpecies, npcs, buildPreview, persistSlots, showConfirm]);
+    }, [saveSlots, trainers, activeTrainerId, inventory, customSpecies, customMoves, npcs, buildPreview, persistSlots, showConfirm]);
 
     const loadFromSlot = useCallback((index) => {
         const slot = saveSlots[index];
@@ -441,7 +445,7 @@ export const DataProvider = ({ children }) => {
                     if (wasMigrated || wasFeaturesCleaned) {
                         // Persist the migrated version back into the slot so it doesn't re-trigger next time
                         const slots = [...saveSlots];
-                        slots[index] = { ...slot, trainers: migratedData.trainers, inventory: migratedData.inventory, customSpecies: migratedData.customSpecies, npcs: migratedData.npcs };
+                        slots[index] = { ...slot, trainers: migratedData.trainers, inventory: migratedData.inventory, customSpecies: migratedData.customSpecies, customMoves: migratedData.customMoves, npcs: migratedData.npcs };
                         persistSlots(slots);
                     }
 
@@ -454,6 +458,7 @@ export const DataProvider = ({ children }) => {
                     }
                     setInventory(Array.isArray(migratedData.inventory) ? migratedData.inventory : []);
                     setCustomSpecies(Array.isArray(migratedData.customSpecies) ? migratedData.customSpecies : []);
+                    setCustomMoves(Array.isArray(migratedData.customMoves) ? migratedData.customMoves : []);
                     setNpcs(Array.isArray(migratedData.npcs) ? migratedData.npcs : []);
                     if (wasMigrated) toast.info('This slot was migrated to PTA3 format. Please review your trainer stats.');
                     toast.success(`Slot ${index + 1} loaded!`);
@@ -463,7 +468,7 @@ export const DataProvider = ({ children }) => {
                 }
             }
         });
-    }, [saveSlots, showConfirm, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs, migrateOldData, persistSlots, GAME_DATA]);
+    }, [saveSlots, showConfirm, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setNpcs, migrateOldData, persistSlots, GAME_DATA]);
 
     const deleteSlot = useCallback((index) => {
         const slot = saveSlots[index];
@@ -499,6 +504,7 @@ export const DataProvider = ({ children }) => {
             activeTrainerId,
             inventory,
             customSpecies,
+            customMoves,
             npcs,
             exportedAt: new Date().toISOString(),
             version: '2.1',
@@ -521,7 +527,7 @@ export const DataProvider = ({ children }) => {
         a.click();
         URL.revokeObjectURL(url);
         try { localStorage.setItem('pta3-last-backup', Date.now().toString()); } catch {}
-    }, [trainers, activeTrainerId, inventory, customSpecies, npcs]);
+    }, [trainers, activeTrainerId, inventory, customSpecies, customMoves, npcs]);
 
     // Export single trainer (no global inventory — use exportAllData for that)
     const exportSingleTrainer = useCallback((trainerToExport) => {
@@ -595,6 +601,7 @@ export const DataProvider = ({ children }) => {
                     setActiveTrainerId(data.activeTrainerId || migratedTrainers[0]?.id);
                     if (data.inventory) setInventory(data.inventory);
                     if (data.customSpecies) setCustomSpecies(data.customSpecies);
+                    if (Array.isArray(data.customMoves)) setCustomMoves(data.customMoves);
                     if (Array.isArray(data.npcs)) setNpcs(data.npcs);
 
                     const totalMoney = migratedTrainers.reduce((sum, t) => sum + (t.money || 0), 0);
@@ -690,7 +697,7 @@ export const DataProvider = ({ children }) => {
         };
         reader.onerror = () => { isImportingRef.current = false; };
         reader.readAsText(file);
-    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs, showConfirm]);
+    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setNpcs, showConfirm]);
 
     // Export text functions
     const exportTrainerText = useCallback((trainer) => {
@@ -879,7 +886,7 @@ export const DataProvider = ({ children }) => {
         }, AUTOSAVE_DEBOUNCE_MS);
 
         return () => clearTimeout(saveTimeout);
-    }, [trainers, inventory, activeTrainerId, customSpecies, npcs]);
+    }, [trainers, inventory, activeTrainerId, customSpecies, customMoves, npcs]);
 
     // Interval-based auto-save (every 2 minutes, only if changed)
     // No data dependencies — interval should not restart on every data change
