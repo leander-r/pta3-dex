@@ -196,18 +196,18 @@ const CustomMoveModal = () => {
                                 type="text"
                                 value={customMove.range}
                                 onChange={(e) => setCustomMove(prev => ({ ...prev, range: e.target.value }))}
-                                placeholder="e.g., Melee, Ranged 6, Self"
+                                placeholder="e.g., Melee, Ranged(20ft), Self"
                             />
                         </div>
                     </div>
 
                     <div className="form-group">
-                        <label>Effect Tags</label>
+                        <label>Effect</label>
                         <input
                             type="text"
                             value={customMove.effect}
                             onChange={(e) => setCustomMove(prev => ({ ...prev, effect: e.target.value }))}
-                            placeholder="e.g., 1 Target, Burst, Column, Push"
+                            placeholder="e.g., On hit, the target's Speed is -1 for 10 mins."
                         />
                     </div>
 

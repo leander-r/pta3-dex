@@ -57,7 +57,7 @@ const PokemonCard = ({
 }) => {
     // Get shared state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies } = useGameData();
-    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm } = useModal();
+    const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm, openCustomMoveModal } = useModal();
     const { getEvolutionOptions } = usePokemonContext();
     const { showHelp } = useUI();
     const [editTab, setEditTab] = useState('info');
@@ -2176,7 +2176,21 @@ const PokemonCard = ({
                                 }}
                             >
                                 <div>
-                                    <div style={{ fontWeight: 'bold' }}>{move.name}</div>
+                                    <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        {move.name}
+                                        {move.source === 'custom' && (
+                                            <span style={{
+                                                fontSize: '9px',
+                                                color: 'white',
+                                                background: '#667eea',
+                                                padding: '1px 4px',
+                                                borderRadius: '4px',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                Custom
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="text-muted" style={{ fontSize: '12px' }}>
                                         {move.type} | {move.category} | {move.damage || 'Status'}
                                     </div>
@@ -2410,6 +2424,30 @@ const PokemonCard = ({
                                             </div>
                                         )}
                                     </div>
+                                )}
+
+                                {/* Custom Move — only shown while browsing, prefills the name from the search box */}
+                                {showMoveDropdown && (
+                                    <button
+                                        onClick={() => {
+                                            openCustomMoveModal(pokemon.id, moveSearch);
+                                            setMoveSearch('');
+                                        }}
+                                        style={{
+                                            width: '100%',
+                                            marginTop: '6px',
+                                            padding: '6px',
+                                            background: 'none',
+                                            border: '1px dashed #667eea',
+                                            borderRadius: '4px',
+                                            color: '#667eea',
+                                            fontSize: '11px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        + Create Custom Move{moveSearch ? `: "${moveSearch}"` : ''}
+                                    </button>
                                 )}
 
                                 {/* Toggle Button */}

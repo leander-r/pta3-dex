@@ -74,9 +74,29 @@ export const ModalProvider = ({ children }) => {
         range: 'Melee',
         effect: '',
         description: '',
-        source: 'natural'
+        source: 'custom'
     });
     const [customMoveForPokemon, setCustomMoveForPokemon] = useState(null);
+
+    // Opens the Custom Move modal for a given Pokémon, resetting stale field values
+    // left over from the last move that was created (customMove is otherwise shared
+    // context state, so without this reset the form would silently carry over the
+    // previous move's type/category/damage/etc.).
+    const openCustomMoveModal = useCallback((pokemonId, prefillName = '') => {
+        setCustomMove({
+            name: prefillName,
+            type: 'Normal',
+            category: 'Physical',
+            frequency: 'At-Will',
+            damage: '',
+            range: 'Melee',
+            effect: '',
+            description: '',
+            source: 'custom'
+        });
+        setCustomMoveForPokemon(pokemonId);
+        setShowCustomMoveModal(true);
+    }, []);
 
     // Custom Species Modal
     const [showCustomSpeciesModal, setShowCustomSpeciesModal] = useState(false);
@@ -169,6 +189,7 @@ export const ModalProvider = ({ children }) => {
         setCustomMove,
         customMoveForPokemon,
         setCustomMoveForPokemon,
+        openCustomMoveModal,
 
         // Custom Species Modal
         showCustomSpeciesModal,

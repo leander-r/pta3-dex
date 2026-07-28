@@ -67,6 +67,10 @@ const InventoryTab = () => {
     const [showAddItem, setShowAddItem] = useState(false);
     const [itemSearch, setItemSearch] = useState('');
     const [addQuantity, setAddQuantity] = useState(1);
+    // Custom item fields — only relevant when itemSearch matches nothing in the catalog
+    const [customItemType, setCustomItemType] = useState('misc');
+    const [customItemEffect, setCustomItemEffect] = useState('');
+    const [customItemPrice, setCustomItemPrice] = useState('');
     const [inventorySort, setInventorySort] = useState('');
     // New states for add item panel
     const [addItemFilter, setAddItemFilter] = useState('all');
@@ -719,10 +723,8 @@ const InventoryTab = () => {
                             {/* Custom Item */}
                             {itemSearch && !availableItems.some(([name]) => name.toLowerCase() === itemSearch.toLowerCase()) && (
                                 <div
+                                    data-testid="custom-item-panel"
                                     style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
                                         padding: '12px',
                                         background: '#e8f5e9',
                                         borderRadius: '8px',
@@ -730,12 +732,65 @@ const InventoryTab = () => {
                                         border: '2px dashed #4caf50'
                                     }}
                                 >
-                                    <div>
-                                        <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Add Custom: "{itemSearch}"</div>
-                                        <div className="text-muted" style={{ fontSize: '12px' }}>Not in database - will be added as misc item</div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '2px' }}>Add Custom: "{itemSearch}"</div>
+                                    <div className="text-muted" style={{ fontSize: '12px', marginBottom: '10px' }}>
+                                        Not in the database — set it up below, or leave the defaults for a plain misc item.
                                     </div>
+
+                                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                                        <div style={{ flex: '1 1 140px' }}>
+                                            <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>Type</label>
+                                            <select
+                                                value={customItemType}
+                                                onChange={(e) => setCustomItemType(e.target.value)}
+                                                style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '12px', textTransform: 'capitalize' }}
+                                            >
+                                                {/* Merge in the 4 equippable types + misc so this always has options,
+                                                    even before GAME_DATA.items has finished loading */}
+                                                {Array.from(new Set([...availableTypes.filter(t => t !== 'all'), 'misc', ...EQUIPPABLE_TYPES])).sort().map(t => (
+                                                    <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                                                ))}
+                                            </select>
+                                            {EQUIPPABLE_TYPES.includes(customItemType) && (
+                                                <div style={{ fontSize: '10px', color: '#4caf50', marginTop: '2px' }}>✓ Equippable in the Trainer tab</div>
+                                            )}
+                                        </div>
+                                        <div style={{ width: '90px' }}>
+                                            <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>Price (₽)</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={customItemPrice}
+                                                onChange={(e) => setCustomItemPrice(e.target.value)}
+                                                placeholder="0"
+                                                style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '12px', boxSizing: 'border-box' }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginBottom: '10px' }}>
+                                        <label style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>Effect (optional)</label>
+                                        <input
+                                            type="text"
+                                            value={customItemEffect}
+                                            onChange={(e) => setCustomItemEffect(e.target.value)}
+                                            placeholder="e.g., Heals 20 HP when used"
+                                            style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid var(--border-medium)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '12px', boxSizing: 'border-box' }}
+                                        />
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                     <button
-                                        onClick={() => handleAddItem(itemSearch, { type: 'misc' }, addQuantity)}
+                                        onClick={() => {
+                                            handleAddItem(itemSearch, {
+                                                type: customItemType,
+                                                effect: customItemEffect.trim(),
+                                                price: Math.max(0, parseInt(customItemPrice, 10) || 0)
+                                            }, addQuantity);
+                                            setCustomItemType('misc');
+                                            setCustomItemEffect('');
+                                            setCustomItemPrice('');
+                                        }}
                                         style={{
                                             padding: '6px 14px',
                                             background: '#667eea',
@@ -749,6 +804,7 @@ const InventoryTab = () => {
                                     >
                                         +{addQuantity} Custom
                                     </button>
+                                    </div>
                                 </div>
                             )}
 

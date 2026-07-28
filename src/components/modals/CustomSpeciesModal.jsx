@@ -17,6 +17,13 @@ const TYPE_LIST = [
     'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'
 ];
 
+// PTA3 species HP is a fixed Pokédex value with a much wider range than the combat
+// stats — the official dex tops out around 156 for non-legendaries — while
+// ATK/DEF/SATK/SDEF/SPD stay in the low-to-mid 20s (p99 ≈ 16). One shared cap for
+// both would either truncate legitimate HP entries or let combat stats run wild.
+const MAX_SPECIES_HP = 300;
+const MAX_SPECIES_STAT = 30;
+
 const DEFAULT_SPECIES = {
     species: '',
     types: ['Normal'],
@@ -288,9 +295,10 @@ const CustomSpeciesModal = () => {
 
     const updateStat = (stat, value) => {
         const numValue = parseInt(value, 10) || 0;
+        const max = stat === 'hp' ? MAX_SPECIES_HP : MAX_SPECIES_STAT;
         setSpecies(prev => ({
             ...prev,
-            baseStats: { ...prev.baseStats, [stat]: Math.max(1, Math.min(30, numValue)) }
+            baseStats: { ...prev.baseStats, [stat]: Math.max(1, Math.min(max, numValue)) }
         }));
     };
 
@@ -472,7 +480,7 @@ const CustomSpeciesModal = () => {
                             {Object.entries(species.baseStats).map(([stat, value]) => (
                                 <div key={stat} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <span style={{ width: '45px', fontWeight: 'bold', fontSize: '11px', color: statColors[stat], textTransform: 'uppercase' }}>{stat}</span>
-                                    <input type="number" min="1" max="30" value={value} onChange={(e) => updateStat(stat, e.target.value)} style={{ width: '60px', padding: '6px', borderRadius: '4px', border: `2px solid ${statColors[stat]}`, textAlign: 'center', fontWeight: 'bold' }} />
+                                    <input type="number" min="1" max={stat === 'hp' ? MAX_SPECIES_HP : MAX_SPECIES_STAT} value={value} onChange={(e) => updateStat(stat, e.target.value)} style={{ width: '60px', padding: '6px', borderRadius: '4px', border: `2px solid ${statColors[stat]}`, textAlign: 'center', fontWeight: 'bold' }} />
                                 </div>
                             ))}
                         </div>

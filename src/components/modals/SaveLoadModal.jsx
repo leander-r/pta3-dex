@@ -185,6 +185,7 @@ const SlotCard = ({ index, slot, onSave, onLoad, onDelete, onRename }) => {
                 <div>
                     <span style={{ fontWeight: '600' }}>{preview.trainerName}</span>
                     {preview.trainerLevel != null && <span> · Lv. {preview.trainerLevel}</span>}
+                    {preview.honors != null && <span> · {preview.honors} Honors</span>}
                     {preview.money != null && <span> · ₽{preview.money.toLocaleString()}</span>}
                     {preview.trainerCount > 1 && (
                         <span style={{ color: 'var(--text-muted, #888)' }}> · {preview.trainerCount} trainers</span>
@@ -280,6 +281,7 @@ const AutoSaveCard = ({ autoSave, onLoad }) => {
                 <div>
                     <span style={{ fontWeight: '600' }}>{active?.name || 'Trainer'}</span>
                     {active?.level != null && <span> · Lv. {active.level}</span>}
+                    {active?.honors != null && <span> · {active.honors} Honors</span>}
                     {trainers.length > 1 && (
                         <span style={{ color: 'var(--text-muted, #888)' }}> · {trainers.length} trainers</span>
                     )}

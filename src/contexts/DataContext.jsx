@@ -377,6 +377,7 @@ export const DataProvider = ({ children }) => {
         return {
             trainerName: active?.name || 'Trainer',
             trainerLevel: active?.level || 1,
+            honors: active?.honors ?? 0,
             money: active?.money || 0,
             partyCount: active?.party?.length || 0,
             partyNames: (active?.party || []).slice(0, 3).map(p => p.name || p.species || 'Unknown'),
@@ -422,18 +423,39 @@ export const DataProvider = ({ children }) => {
             title: `Load Slot ${index + 1}?`,
             message: `"${slot.slotName}" — Current progress will be replaced. Continue?`,
             confirmLabel: 'Load',
-            onConfirm: () => {
+            onConfirm: async () => {
                 try {
-                    if (slot.trainers && Array.isArray(slot.trainers) && slot.trainers.length > 0) {
-                        const validActiveId = slot.trainers.some(t => t.id === slot.activeTrainerId)
-                            ? slot.activeTrainerId
-                            : slot.trainers[0].id;
-                        setTrainers(slot.trainers);
+                    // Run the same migration pipeline as the main save file. A slot can
+                    // predate a schema change (old stat system, EXP→Honors, etc.) since it's
+                    // just a localStorage snapshot — loading it verbatim would silently
+                    // corrupt the trainer instead of converting it like every other load path.
+                    let migratedData = migrateOldData(slot);
+
+                    const { data: pta3Data, migrated: wasMigrated } = migrateSaveData(migratedData);
+                    if (wasMigrated) migratedData = pta3Data;
+
+                    await gameDataLoadPromise.catch(() => {});
+                    const { data: cleanedData, cleaned: wasFeaturesCleaned } = cleanupLegacyFeatures(migratedData, GAME_DATA?.features || {});
+                    if (wasFeaturesCleaned) migratedData = cleanedData;
+
+                    if (wasMigrated || wasFeaturesCleaned) {
+                        // Persist the migrated version back into the slot so it doesn't re-trigger next time
+                        const slots = [...saveSlots];
+                        slots[index] = { ...slot, trainers: migratedData.trainers, inventory: migratedData.inventory, customSpecies: migratedData.customSpecies, npcs: migratedData.npcs };
+                        persistSlots(slots);
+                    }
+
+                    if (migratedData.trainers && Array.isArray(migratedData.trainers) && migratedData.trainers.length > 0) {
+                        const validActiveId = migratedData.trainers.some(t => t.id === migratedData.activeTrainerId)
+                            ? migratedData.activeTrainerId
+                            : migratedData.trainers[0].id;
+                        setTrainers(migratedData.trainers);
                         setActiveTrainerId(validActiveId);
                     }
-                    setInventory(Array.isArray(slot.inventory) ? slot.inventory : []);
-                    setCustomSpecies(Array.isArray(slot.customSpecies) ? slot.customSpecies : []);
-                    setNpcs(Array.isArray(slot.npcs) ? slot.npcs : []);
+                    setInventory(Array.isArray(migratedData.inventory) ? migratedData.inventory : []);
+                    setCustomSpecies(Array.isArray(migratedData.customSpecies) ? migratedData.customSpecies : []);
+                    setNpcs(Array.isArray(migratedData.npcs) ? migratedData.npcs : []);
+                    if (wasMigrated) toast.info('This slot was migrated to PTA3 format. Please review your trainer stats.');
                     toast.success(`Slot ${index + 1} loaded!`);
                 } catch (err) {
                     console.error('Load slot error:', err);
@@ -441,7 +463,7 @@ export const DataProvider = ({ children }) => {
                 }
             }
         });
-    }, [saveSlots, showConfirm, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs]);
+    }, [saveSlots, showConfirm, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setNpcs, migrateOldData, persistSlots, GAME_DATA]);
 
     const deleteSlot = useCallback((index) => {
         const slot = saveSlots[index];

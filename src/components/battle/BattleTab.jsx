@@ -1386,10 +1386,14 @@ const BattleTab = () => {
                             {trainerSubmode === 'weapon' && (() => {
                                 const atkVal = trainer.stats?.atk || 3;
                                 const atkMod = Math.floor(atkVal / 2);
-                                // Rules: "If you are holding a weapon" — only equipped weapons are usable
+                                // Rules: "If you are holding a weapon" — only equipped weapons are usable.
+                                // Check the official catalog first, then fall back to the inventory item's
+                                // own `type` field so custom/homebrew weapons (never in GAME_DATA.items)
+                                // are recognized too.
                                 const equippedWeapons = (trainer.equippedItems || []).filter(name => {
-                                    const itemData = GAME_DATA?.items?.[name];
-                                    return (itemData?.type || '').toLowerCase() === 'weapon';
+                                    const catalogType = GAME_DATA?.items?.[name]?.type;
+                                    const invType = inventory.find(i => i.name.toLowerCase() === name.toLowerCase())?.type;
+                                    return (catalogType || invType || '').toLowerCase() === 'weapon';
                                 });
                                 return (
                                     <>
