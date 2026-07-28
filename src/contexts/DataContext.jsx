@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
+import { getPokemonBadges } from '../utils/exportUtils.js';
 import { migrateSaveData, cleanupLegacyFeatures } from '../utils/dataMigration.js';
 import { gameDataLoadPromise } from '../data/gameDataLoader.js';
 import { buildEmbed } from '../utils/discordEmbeds.js';
@@ -700,6 +701,9 @@ export const DataProvider = ({ children }) => {
         if (trainer.badges?.length > 0) {
             text += `**Badges:** ${trainer.badges.length}\n`;
         }
+        if (trainer.equippedItems?.length > 0) {
+            text += `**Equipped:** ${trainer.equippedItems.join(', ')}\n`;
+        }
         text += `**Money:** ₽${(trainer.money || 0).toLocaleString()}\n`;
         text += `**━━━━━━━━━━━━━━━━━━━━━**`;
 
@@ -710,11 +714,15 @@ export const DataProvider = ({ children }) => {
         const actualStats = getActualStats(poke);
         const maxHP = calculatePokemonHP(poke);
         const genderSymbol = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : poke.gender === 'genderless' ? '⚪' : '';
+        const badges = getPokemonBadges(poke);
 
         let text = `**━━━━━━ POKÉMON ━━━━━━**\n`;
         text += `**${poke.name}** ${genderSymbol}`;
         if (poke.species && poke.species !== poke.name) {
             text += ` (${poke.species})`;
+        }
+        if (badges.length > 0) {
+            text += ` ${badges.join(' ')}`;
         }
         text += `\n`;
         text += `${(poke.types || []).join('/')} | ${poke.nature} Nature\n`;
@@ -755,7 +763,11 @@ export const DataProvider = ({ children }) => {
 
         text += `📋 **TRAINER INFO**\n`;
         text += `Level ${trainer.level} ${classesDisplay}\n`;
-        text += `💰 ₽${(trainer.money || 0).toLocaleString()} | 🎖️ ${trainer.badges?.length || 0} Badges\n\n`;
+        text += `💰 ₽${(trainer.money || 0).toLocaleString()} | 🎖️ ${trainer.badges?.length || 0} Badges\n`;
+        if (trainer.equippedItems?.length > 0) {
+            text += `🎒 Equipped: ${trainer.equippedItems.join(', ')}\n`;
+        }
+        text += `\n`;
 
         text += `⚔️ **ACTIVE PARTY** (${party.length}/6)\n`;
         text += `─────────────────────────────────\n`;
@@ -769,8 +781,10 @@ export const DataProvider = ({ children }) => {
                 const currentHP = maxHP - (poke.currentDamage || 0);
                 const genderIcon = poke.gender === 'male' ? '♂' : poke.gender === 'female' ? '♀' : '';
                 const typeStr = poke.types?.join('/') || 'Normal';
+                const badges = getPokemonBadges(poke);
+                const badgeSuffix = badges.length > 0 ? ` ${badges.join(' ')}` : '';
 
-                text += `\n**${idx + 1}. ${poke.name || poke.species || 'Unknown'}** ${genderIcon}\n`;
+                text += `\n**${idx + 1}. ${poke.name || poke.species || 'Unknown'}** ${genderIcon}${badgeSuffix}\n`;
                 text += `   ${typeStr} | HP: ${currentHP}/${maxHP}\n`;
                 text += `   ATK:${actualStats.atk} DEF:${actualStats.def} SATK:${actualStats.satk} SDEF:${actualStats.sdef} SPD:${actualStats.spd}\n`;
 

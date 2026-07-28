@@ -8,7 +8,7 @@ import { useTrainerContext, useData, useUI, useModal } from '../../contexts/inde
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import toast from '../../utils/toast.js';
 
-const MenuItem = ({ id, icon, label, onClick, danger, disabled, disabledReason, hoveredItem, setHoveredItem, title }) => (
+const MenuItem = ({ id, icon, label, subtitle, onClick, danger, disabled, disabledReason, hoveredItem, setHoveredItem, title }) => (
     <button
         onClick={() => {
             if (disabled) {
@@ -18,7 +18,7 @@ const MenuItem = ({ id, icon, label, onClick, danger, disabled, disabledReason, 
             onClick();
         }}
         aria-disabled={disabled}
-        title={title}
+        title={title || subtitle}
         onMouseEnter={() => setHoveredItem(id)}
         onMouseLeave={() => setHoveredItem(null)}
         onTouchStart={() => setHoveredItem(id)}
@@ -26,14 +26,14 @@ const MenuItem = ({ id, icon, label, onClick, danger, disabled, disabledReason, 
         className={`header-menu-item ${hoveredItem === id ? 'hovered' : ''} ${danger ? 'danger' : ''}`}
         style={{
             width: '100%',
-            padding: '14px 18px',
+            padding: subtitle ? '10px 18px' : '14px 18px',
             border: 'none',
             textAlign: 'left',
             cursor: disabled ? 'not-allowed' : 'pointer',
             fontSize: '14px',
             fontWeight: 600,
             display: 'flex',
-            alignItems: 'center',
+            alignItems: subtitle ? 'flex-start' : 'center',
             gap: '12px',
             opacity: disabled ? 0.5 : 1,
             transition: 'all 0.15s ease',
@@ -46,10 +46,33 @@ const MenuItem = ({ id, icon, label, onClick, danger, disabled, disabledReason, 
             width: '20px',
             display: 'flex',
             justifyContent: 'center',
+            marginTop: subtitle ? '2px' : 0,
+            flexShrink: 0,
             color: hoveredItem === id && !danger ? '#f5a623' : 'inherit'
         }}>{icon}</span>
-        <span>{label}</span>
+        <span style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+            <span>{label}</span>
+            {subtitle && (
+                <span style={{ fontSize: '11px', fontWeight: 500, opacity: 0.65, lineHeight: 1.3, whiteSpace: 'normal' }}>
+                    {subtitle}
+                </span>
+            )}
+        </span>
     </button>
+);
+
+/** Small uppercase micro-header for grouping related menu items, e.g. "Backup & Sharing" */
+const GroupLabel = ({ children }) => (
+    <div style={{
+        padding: '6px 18px 2px',
+        fontSize: '10px',
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '0.6px',
+        opacity: 0.5
+    }}>
+        {children}
+    </div>
 );
 
 /**
@@ -419,6 +442,7 @@ const Header = () => {
 
                             {/* Trainer Section */}
                             <div style={{ padding: '8px 0' }}>
+                                <GroupLabel>Trainer</GroupLabel>
                                 <MenuItem {...menuItemProps}
                                     id="new"
                                     icon={
@@ -453,6 +477,7 @@ const Header = () => {
 
                             {/* Data Section */}
                             <div style={{ padding: '8px 0' }}>
+                                <GroupLabel>Backup &amp; Sharing</GroupLabel>
                                 <MenuItem {...menuItemProps}
                                     id="export-one"
                                     icon={
@@ -463,6 +488,7 @@ const Header = () => {
                                         </svg>
                                     }
                                     label="Export Trainer JSON"
+                                    subtitle="Back up just this trainer, their Pokémon, and the shared inventory"
                                     onClick={() => {
                                         exportSingleTrainer(trainer);
                                         setShowCharacterMenu(false);
@@ -478,11 +504,68 @@ const Header = () => {
                                         </svg>
                                     }
                                     label="Export All Data"
+                                    subtitle="Back up every trainer you have, in one file"
                                     onClick={() => {
                                         exportAllData();
                                         setShowCharacterMenu(false);
                                     }}
                                 />
+                                <label
+                                    onMouseEnter={() => setHoveredItem('import')}
+                                    onMouseLeave={() => setHoveredItem(null)}
+                                    onTouchStart={() => setHoveredItem('import')}
+                                    onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
+                                    className={`header-menu-item ${hoveredItem === 'import' ? 'hovered' : ''}`}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 18px',
+                                        border: 'none',
+                                        textAlign: 'left',
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        fontWeight: 600,
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: '12px',
+                                        transition: 'all 0.15s ease',
+                                        boxSizing: 'border-box',
+                                        borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent',
+                                        WebkitTapHighlightColor: 'transparent',
+                                        touchAction: 'manipulation'
+                                    }}
+                                >
+                                    <span style={{
+                                        width: '20px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        marginTop: '2px',
+                                        flexShrink: 0,
+                                        color: hoveredItem === 'import' ? '#f5a623' : 'inherit'
+                                    }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                    </span>
+                                    <span style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                                        <span>Import Data</span>
+                                        <span style={{ fontSize: '11px', fontWeight: 500, opacity: 0.65, lineHeight: 1.3 }}>
+                                            Load a .json file exported from this app — trainer or full backup
+                                        </span>
+                                    </span>
+                                    <input
+                                        type="file"
+                                        accept=".json"
+                                        onChange={(e) => {
+                                            if (e.target.files[0]) {
+                                                importData(e.target.files[0]);
+                                                setShowCharacterMenu(false);
+                                            }
+                                        }}
+                                        style={{ display: 'none' }}
+                                    />
+                                </label>
                                 <MenuItem {...menuItemProps}
                                     id="restore-backup"
                                     icon={
@@ -492,6 +575,7 @@ const Header = () => {
                                         </svg>
                                     }
                                     label="Restore Auto-Backup"
+                                    subtitle="Revert to the snapshot taken right before your last save"
                                     onClick={() => {
                                         restoreAutoBackup();
                                         setShowCharacterMenu(false);
@@ -505,66 +589,19 @@ const Header = () => {
                                         </svg>
                                     }
                                     label="Load Example Trainer"
+                                    subtitle="Add a pre-built trainer & team to explore the app"
                                     onClick={() => {
                                         loadDemoTrainer();
                                         setShowCharacterMenu(false);
                                     }}
                                 />
-                                <label
-                                    onMouseEnter={() => setHoveredItem('import')}
-                                    onMouseLeave={() => setHoveredItem(null)}
-                                    onTouchStart={() => setHoveredItem('import')}
-                                    onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
-                                    className={`header-menu-item ${hoveredItem === 'import' ? 'hovered' : ''}`}
-                                    style={{
-                                        width: '100%',
-                                        padding: '14px 18px',
-                                        border: 'none',
-                                        textAlign: 'left',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        fontWeight: 600,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '12px',
-                                        transition: 'all 0.15s ease',
-                                        boxSizing: 'border-box',
-                                        borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent',
-                                        WebkitTapHighlightColor: 'transparent',
-                                        touchAction: 'manipulation'
-                                    }}
-                                >
-                                    <span style={{
-                                        width: '20px',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        color: hoveredItem === 'import' ? '#f5a623' : 'inherit'
-                                    }}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                            <polyline points="17 8 12 3 7 8"></polyline>
-                                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                                        </svg>
-                                    </span>
-                                    <span>Import Data</span>
-                                    <input
-                                        type="file"
-                                        accept=".json"
-                                        onChange={(e) => {
-                                            if (e.target.files[0]) {
-                                                importData(e.target.files[0]);
-                                                setShowCharacterMenu(false);
-                                            }
-                                        }}
-                                        style={{ display: 'none' }}
-                                    />
-                                </label>
                             </div>
 
                             <hr style={{ margin: '0 12px', border: 'none', borderTop: '1px solid #ffc966' }} />
 
                             {/* Preferences */}
                             <div style={{ padding: '8px 0' }}>
+                                <GroupLabel>Appearance</GroupLabel>
                                 <MenuItem {...menuItemProps}
                                     id="theme"
                                     icon={theme === 'light' ? (
@@ -612,6 +649,7 @@ const Header = () => {
 
                             {/* Danger Zone */}
                             <div style={{ padding: '8px 0' }}>
+                                <GroupLabel>Danger Zone</GroupLabel>
                                 <MenuItem {...menuItemProps}
                                     id="archive"
                                     icon={

@@ -12,6 +12,7 @@ import { getActualStats, calculatePokemonHP, calculateSTAB } from '../../utils/d
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useModal, useTrainerContext, usePokemonContext, useData } from '../../contexts/index.js';
 import { GAME_DATA } from '../../data/configs.js';
+import { SPECIAL_FORM_INFO } from '../../data/specialForms.js';
 import PokemonSpritePicker from '../battle/PokemonSpritePicker.jsx';
 
 // ============================================================
@@ -176,6 +177,36 @@ const getFrequencyAbbr = (frequency) => {
     // Handle "Center" or other
     if (frequency.toLowerCase() === 'center') return 'CTR';
     return frequency.length > 4 ? frequency.substring(0, 3) : frequency;
+};
+
+/** Row of small pills for shiny / Tera type / special form (Alpha, Totem, Titan, Shadow, Purified) */
+const PokemonStatusBadges = ({ poke, compact }) => {
+    const badges = [];
+    if (poke.isShiny) badges.push({ key: 'shiny', text: compact ? '✨' : '✨ Shiny', bg: 'linear-gradient(135deg, #f9a825, #fdd835)', color: '#333' });
+    if (poke.teraType) badges.push({ key: 'tera', text: compact ? '💠' : `💠 Tera: ${poke.teraType}`, bg: 'rgba(100,181,246,0.35)', color: '#fff' });
+    if (poke.specialForm && SPECIAL_FORM_INFO[poke.specialForm]) {
+        const sf = SPECIAL_FORM_INFO[poke.specialForm];
+        badges.push({ key: 'form', text: compact ? sf.icon : `${sf.icon} ${sf.label}`, bg: sf.color, color: '#fff' });
+    }
+    if (badges.length === 0) return null;
+    return (
+        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {badges.map(b => (
+                <span key={b.key} title={b.text} style={{
+                    background: b.bg,
+                    color: b.color,
+                    fontSize: compact ? '11px' : '10px',
+                    fontWeight: 700,
+                    padding: compact ? '1px 5px' : '2px 8px',
+                    borderRadius: '10px',
+                    whiteSpace: 'nowrap',
+                    border: '1px solid rgba(255,255,255,0.3)'
+                }}>
+                    {b.text}
+                </span>
+            ))}
+        </div>
+    );
 };
 
 /**
@@ -374,6 +405,7 @@ const CardExportModal = () => {
                         className="btn btn-secondary"
                         onClick={handleCopyText}
                         disabled={cardType === 'pokemon' && !selectedCardPokemon}
+                        title="Copy a Discord-ready text version of this card to your clipboard"
                     >
                         📋 Copy Text
                     </button>
@@ -381,6 +413,7 @@ const CardExportModal = () => {
                         className="btn btn-primary"
                         onClick={handleDownloadImage}
                         disabled={cardType === 'pokemon' && !selectedCardPokemon}
+                        title="Save this card as a PNG image you can share anywhere"
                     >
                         📷 Download Image
                     </button>
@@ -484,7 +517,7 @@ const TrainerCard = ({ trainer, pokemon }) => (
                     fontSize: '13px',
                     fontWeight: 600
                 }}>
-                    Level {trainer.level} • {(trainer.classes && trainer.classes.length > 0) ? trainer.classes.slice(0, 2).join(' / ') : 'Trainer'}
+                    Level {trainer.level} • {(trainer.classes && trainer.classes.length > 0) ? trainer.classes.slice(0, 2).join(' / ') : 'Trainer'} • {trainer.honors ?? 0} Honors
                 </div>
             </div>
         </div>
@@ -561,6 +594,24 @@ const TrainerCard = ({ trainer, pokemon }) => (
                                 />
                             ))
                     }
+                </div>
+            </div>
+        )}
+
+        {/* Equipped Items - Pill badges */}
+        {trainer.equippedItems?.length > 0 && (
+            <div style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
+                <SectionHeader label="Equipped" />
+                <div style={{
+                    background: 'rgba(0,0,0,0.15)',
+                    padding: '8px 8px 6px',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    flexWrap: 'wrap'
+                }}>
+                    {trainer.equippedItems.map((item, i) => (
+                        <PillTag key={i} text={`🎒 ${item}`} color="rgba(255,255,255,0.12)" />
+                    ))}
                 </div>
             </div>
         )}
@@ -854,6 +905,7 @@ const TeamPokemonSlot = ({ poke, idx }) => {
                         </span>
                     ))}
                 </div>
+                <PokemonStatusBadges poke={poke} compact />
             </div>
 
             {/* Right: Info */}
@@ -1130,6 +1182,9 @@ const PokemonCard = ({ poke }) => {
                                 {type}
                             </span>
                         ))}
+                    </div>
+                    <div style={{ marginTop: '8px' }}>
+                        <PokemonStatusBadges poke={poke} />
                     </div>
                 </div>
             </div>

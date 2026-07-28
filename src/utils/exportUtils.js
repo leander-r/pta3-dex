@@ -3,138 +3,26 @@
 // ============================================================
 
 import { getActualStats, calculatePokemonHP } from './dataUtils.js';
+import { SPECIAL_FORM_INFO, VALID_SPECIAL_FORMS } from '../data/specialForms.js';
 import toast from './toast.js';
 
 const getGenderSymbol = (gender) =>
     gender === 'male' ? '♂' : gender === 'female' ? '♀' : gender === 'genderless' ? '⚪' : '';
 
 /**
- * Export trainer data as formatted text for Discord/sharing
+ * Short "✨ Shiny" / "💠 Tera: Fire" / "🔴 Alpha" tags for a Pokémon.
+ * Shared by DataContext's text exports and the print sheet so newer PTA3/GMG
+ * fields (shiny, Terastallization, special forms) show up everywhere a
+ * Pokémon is exported, not just its own card.
  */
-export const exportTrainerText = (trainer) => {
-    // PTA3: 5 stats, no HP stat
-    const maxHP = (trainer.maxHp ?? 20) + (trainer.hpRolls || []).reduce((s, v) => s + v, 0);
-    const genderSymbol = getGenderSymbol(trainer.gender);
-    const classesDisplay = (trainer.classes && trainer.classes.length > 0) ? trainer.classes.join(' / ') : 'Trainer';
-    const honors = trainer.honors ?? 0;
-
-    let text = `**━━━━━━ TRAINER CARD ━━━━━━**\n`;
-    text += `**${trainer.name || 'Unnamed'}** ${genderSymbol}\n`;
-    text += `Level ${trainer.level} ${classesDisplay} · ${honors} Honors\n\n`;
-    text += `**Stats** (Max HP: ${maxHP})\n`;
-    text += `ATK: ${trainer.stats.atk ?? 0} | DEF: ${trainer.stats.def ?? 0} | SATK: ${trainer.stats.satk ?? 0}\n`;
-    text += `SDEF: ${trainer.stats.sdef ?? 0} | SPD: ${trainer.stats.spd ?? 0}\n\n`;
-    
-    if (trainer.features.length > 0) {
-        const featureNames = trainer.features.map(f => typeof f === 'object' ? (f.name || 'Unknown') : f).filter(Boolean);
-        text += `**Features:** ${featureNames.join(', ')}\n`;
+export const getPokemonBadges = (poke) => {
+    const badges = [];
+    if (poke.isShiny) badges.push('✨ Shiny');
+    if (poke.teraType) badges.push(`💠 Tera: ${poke.teraType}`);
+    if (poke.specialForm && SPECIAL_FORM_INFO[poke.specialForm]) {
+        badges.push(`${SPECIAL_FORM_INFO[poke.specialForm].icon} ${SPECIAL_FORM_INFO[poke.specialForm].label}`);
     }
-    // Handle both legacy array format and new object format for skills
-    const skillsList = Array.isArray(trainer.skills)
-        ? trainer.skills
-        : Object.entries(trainer.skills || {})
-            .filter(([_, rank]) => rank > 0)
-            .map(([name, rank]) => rank === 2 ? `${name} (★★)` : name);
-    if (skillsList.length > 0) {
-        text += `**Skills:** ${skillsList.join(', ')}\n`;
-    }
-    if (trainer.badges?.length > 0) {
-        text += `**Badges:** ${trainer.badges.length}\n`;
-    }
-    text += `**Money:** ₽${(trainer.money || 0).toLocaleString()}\n`;
-    text += `**━━━━━━━━━━━━━━━━━━━━━**`;
-    
-    return text;
-};
-
-/**
- * Export Pokemon data as formatted text for Discord/sharing
- */
-export const exportPokemonText = (poke) => {
-    const actualStats = getActualStats(poke);
-    const maxHP = calculatePokemonHP(poke);
-    const genderSymbol = getGenderSymbol(poke.gender);
-    
-    let text = `**━━━━━━ POKÉMON ━━━━━━**\n`;
-    text += `**${poke.name}** ${genderSymbol}`;
-    if (poke.species && poke.species !== poke.name) {
-        text += ` (${poke.species})`;
-    }
-    text += `\n`;
-    text += `${(poke.types || []).join('/') || 'Normal'} | ${poke.nature || 'Hardy'} Nature\n`;
-    
-    // Build abilities list
-    const abilities = [poke.ability, poke.ability2, poke.ability3].filter(a => a);
-    text += `**Abilities:** ${abilities.length > 0 ? abilities.join(', ') : 'None'}\n`;
-    
-    // Build capabilities list
-    const skills = (poke.pokemonSkills || []);
-    if (skills.length > 0) {
-        const skillsStr = skills.map(s => s.value ? `${s.name} ${s.value}` : s.name).join(', ');
-        text += `**Capabilities:** ${skillsStr}\n`;
-    }
-    text += `\n`;
-    
-    text += `**Stats** (Max HP: ${maxHP})\n`;
-    text += `HP: ${actualStats.hp} | ATK: ${actualStats.atk} | DEF: ${actualStats.def}\n`;
-    text += `SATK: ${actualStats.satk} | SDEF: ${actualStats.sdef} | SPD: ${actualStats.spd}\n\n`;
-    
-    if (poke.moves.length > 0) {
-        text += `**Moves:**\n`;
-        poke.moves.forEach(move => {
-            text += `• ${move.name} (${move.type}) - ${move.damage || 'Status'} [${move.frequency}]\n`;
-        });
-    }
-    
-    text += `**━━━━━━━━━━━━━━━━━━━━━**`;
-    
-    return text;
-};
-
-/**
- * Export Team data as formatted text for Discord/sharing
- */
-export const exportTeamText = (trainer, party) => {
-    const genderSymbol = getGenderSymbol(trainer.gender);
-    const classesDisplay = (trainer.classes && trainer.classes.length > 0) ? trainer.classes.join(' / ') : 'Trainer';
-
-    let text = `**╔══════════════════════════════════════╗**\n`;
-    text += `**║     ${trainer.name || 'Unnamed'} ${genderSymbol} - TEAM CARD     ║**\n`;
-    text += `**╚══════════════════════════════════════╝**\n\n`;
-    
-    text += `📋 **TRAINER INFO**\n`;
-    text += `Level ${trainer.level} ${classesDisplay}\n`;
-    text += `💰 ₽${(trainer.money || 0).toLocaleString()} | 🎖️ ${trainer.badges?.length || 0} Badges\n\n`;
-    
-    text += `⚔️ **ACTIVE PARTY** (${party.length}/6)\n`;
-    text += `─────────────────────────────────\n`;
-    
-    if (party.length === 0) {
-        text += `(No Pokémon in party)\n`;
-    } else {
-        party.forEach((poke, idx) => {
-            const actualStats = getActualStats(poke);
-            const maxHP = calculatePokemonHP(poke);
-            const currentHP = maxHP - (poke.currentDamage || 0);
-            const genderIcon = getGenderSymbol(poke.gender);
-            const typeStr = poke.types?.join('/') || 'Normal';
-            
-            text += `\n**${idx + 1}. ${poke.name || poke.species || 'Unknown'}** ${genderIcon}\n`;
-            text += `   ${typeStr} | HP: ${currentHP}/${maxHP}\n`;
-            text += `   ATK:${actualStats.atk} DEF:${actualStats.def} SATK:${actualStats.satk} SDEF:${actualStats.sdef} SPD:${actualStats.spd}\n`;
-            
-            // Show moves (max 4)
-            if (poke.moves && poke.moves.length > 0) {
-                const moveNames = poke.moves.slice(0, 4).map(m => m.name).join(', ');
-                text += `   Moves: ${moveNames}\n`;
-            }
-        });
-    }
-    
-    text += `\n─────────────────────────────────\n`;
-    text += `📅 ${new Date().toLocaleDateString()} | P:TA Character Manager`;
-    
-    return text;
+    return badges;
 };
 
 /**
@@ -278,74 +166,6 @@ const captureCard = async (card, filename) => {
 };
 
 /**
- * Export all data as JSON file
- */
-export const exportAllData = (trainers, activeTrainerId, inventory) => {
-    const exportData = {
-        trainers,
-        activeTrainerId,
-        inventory,
-        exportedAt: new Date().toISOString(),
-        version: '2.1',
-        _m: { c: 'leander_rsr', h: '6c65616e6465725f727372' },
-        // Include summary for user reference
-        _summary: {
-            trainerCount: trainers.length,
-            trainerNames: trainers.map(t => t.name || 'Unnamed').join(', '),
-            totalMoney: trainers.reduce((sum, t) => sum + (t.money || 0), 0),
-            inventoryItemCount: inventory.length,
-            totalPokemon: trainers.reduce((sum, t) => sum + (t.party?.length || 0) + (t.reserve?.length || 0), 0)
-        }
-    };
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pta-all-trainers-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-};
-
-/**
- * Export single trainer
- */
-export const exportSingleTrainer = (trainerToExport, inventory) => {
-    const exportData = {
-        trainer: {
-            ...trainerToExport,
-            // Ensure money is explicitly included
-            money: trainerToExport.money || 0,
-            // Ensure party and reserve are included
-            party: trainerToExport.party || [],
-            reserve: trainerToExport.reserve || []
-        },
-        pokemon: [...(trainerToExport.party || []), ...(trainerToExport.reserve || [])], // Legacy compatibility
-        inventory: inventory, // Include shared inventory
-        exportedAt: new Date().toISOString(),
-        version: '1.1',
-        _m: { c: 'leander_rsr', h: '6c65616e6465725f727372' },
-        // Include summary for user reference
-        _summary: {
-            trainerName: trainerToExport.name || 'Unnamed',
-            trainerLevel: trainerToExport.level || 0,
-            money: trainerToExport.money || 0,
-            partyCount: (trainerToExport.party || []).length,
-            reserveCount: (trainerToExport.reserve || []).length,
-            inventoryItemCount: inventory.length
-        }
-    };
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${trainerToExport.name || 'trainer'}-pta-data.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-};
-
-/**
  * Export single Pokemon as JSON for trading/sharing
  */
 export const exportSinglePokemon = (pokemon) => {
@@ -401,7 +221,12 @@ const IMPORT_LIMITS = {
     MAX_ABILITIES: 5, // Max abilities
     MAX_SKILLS: 20, // Max Pokemon skills
 
-    MAX_STAT: 50, // Max base stat value
+    // PTA3 gives species a fixed stat block straight from the Pokédex rather than
+    // a small 1-14 allocation, so ATK/DEF/SATK/SDEF/SPD and HP need very different
+    // ceilings: non-HP stats top out in the low 20s (pokedex.min.json p99 ≈ 16),
+    // while HP legitimately reaches the thousands for raid-boss/Titan-tier entries.
+    MAX_STAT: 30, // Max ATK/DEF/SATK/SDEF/SPD value
+    MAX_HP_STAT: 5000, // Max HP value
 };
 
 /**
@@ -470,14 +295,15 @@ const clampNumber = (value, min, max, defaultValue = min) => {
 };
 
 /**
- * Validate a stats object
+ * Validate a stats object. HP is clamped against its own (much higher) ceiling
+ * since PTA3 species HP is a fixed Pokédex value, not a small allocated stat.
  */
-const validateStats = (stats, maxValue) => {
+const validateStats = (stats, maxValue, maxHp = maxValue) => {
     const defaultStats = { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 };
     if (!stats || typeof stats !== 'object') return defaultStats;
 
     return {
-        hp: clampNumber(stats.hp, 1, maxValue, 10),
+        hp: clampNumber(stats.hp, 1, maxHp, 10),
         atk: clampNumber(stats.atk, 1, maxValue, 10),
         def: clampNumber(stats.def, 1, maxValue, 10),
         satk: clampNumber(stats.satk, 1, maxValue, 10),
@@ -640,6 +466,11 @@ export const importSinglePokemon = (jsonData) => {
         // Validate nature (allows homebrew natures)
         const nature = sanitizeNature(pokemon.nature);
 
+        // Validate special form (Alpha/Totem/Titan/Shadow/Purified) against the known list —
+        // this drives game logic (stat/damage adjustments), so no homebrew passthrough here.
+        const specialForm = VALID_SPECIAL_FORMS.includes(pokemon.specialForm) ? pokemon.specialForm : null;
+        const specialFormDefStat = ['def', 'sdef'].includes(pokemon.specialFormDefStat) ? pokemon.specialFormDefStat : 'def';
+
         // Create a new Pokemon with sanitized data and a fresh ID
         const importedPokemon = {
             id: Date.now() + Math.random(),
@@ -653,7 +484,7 @@ export const importSinglePokemon = (jsonData) => {
             ability2: sanitizeString(pokemon.ability2 || '', 50),
             ability3: sanitizeString(pokemon.ability3 || '', 50),
             moves,
-            baseStats: validateStats(pokemon.baseStats, IMPORT_LIMITS.MAX_STAT),
+            baseStats: validateStats(pokemon.baseStats, IMPORT_LIMITS.MAX_STAT, IMPORT_LIMITS.MAX_HP_STAT),
             currentDamage: clampNumber(pokemon.currentDamage, 0, 9999, 0),
             gender,
             avatar: validateAvatar(pokemon.avatar),
@@ -661,6 +492,10 @@ export const importSinglePokemon = (jsonData) => {
             regionalForm: pokemon.regionalForm ? sanitizeString(String(pokemon.regionalForm), 30) : null,
             heldItem: sanitizeString(pokemon.heldItem || '', 50),
             notes: sanitizeString(pokemon.notes || '', IMPORT_LIMITS.MAX_NOTES_LENGTH),
+            isShiny: pokemon.isShiny === true,
+            teraType: pokemon.teraType ? sanitizeType(pokemon.teraType) : '',
+            specialForm,
+            specialFormDefStat,
             // These will be regenerated based on species data
             availableAbilities: [],
             availableLevelUpMoves: []
@@ -708,6 +543,8 @@ export const generatePrintSheetHTML = (trainer, party) => {
         .filter(Boolean).join(', ') || '—';
 
     const badgeCount = trainer.badges?.length || 0;
+    const honors = trainer.honors ?? 0;
+    const equippedList = (trainer.equippedItems || []).join(', ') || '—';
 
     const partyCards = (party || []).map(poke => {
         const sp = poke.species && poke.species !== poke.name ? ` (${poke.species})` : '';
@@ -717,12 +554,16 @@ export const generatePrintSheetHTML = (trainer, party) => {
         const movesRows = (poke.moves || []).map(m =>
             `<tr><td>${m.name || '?'}</td><td>${m.type || '?'}</td><td>${m.category || '?'}</td><td>${m.damage || '—'}</td><td>${m.frequency || '—'}</td></tr>`
         ).join('') || '<tr><td colspan="5" style="color:#999;">No moves</td></tr>';
+        const badges = getPokemonBadges(poke);
+        const badgesHtml = badges.length > 0
+            ? `<span class="poke-badges">${badges.map(b => `<span class="badge-pill">${b}</span>`).join('')}</span>`
+            : '';
 
         return `
         <div class="poke-card">
             <div class="poke-header">
                 <strong>${poke.name || poke.species || 'Unknown'}${sp}</strong>
-                <span>${types} · Max HP: ${pokeMaxHP}</span>
+                <span>${types} · Max HP: ${pokeMaxHP}${badgesHtml}</span>
             </div>
             <p style="margin:4px 0;font-size:12px;"><strong>Nature:</strong> ${poke.nature || 'Hardy'} &nbsp; <strong>Abilities:</strong> ${abilities}</p>
             ${statTable(poke.baseStats)}
@@ -799,6 +640,8 @@ export const generatePrintSheetHTML = (trainer, party) => {
     .poke-header strong { font-size: 15px; }
     .poke-header span { font-size: 12px; color: #555; }
     .badge-count { display: inline-block; background: #f5a623; color: #fff; border-radius: 12px; padding: 1px 10px; font-weight: 700; font-size: 12px; }
+    .poke-badges { display: inline-flex; gap: 4px; margin-left: 6px; }
+    .badge-pill { display: inline-block; background: #eee; border: 1px solid #ccc; border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 600; color: #333; white-space: nowrap; }
     @media print {
         body { font-size: 12px; }
         .page { padding: 10mm; max-width: 100%; }
@@ -812,7 +655,7 @@ export const generatePrintSheetHTML = (trainer, party) => {
 
     <div class="trainer-header">
         <h1>${trainer.name || 'Unnamed'} ${genderSymbol}</h1>
-        <div class="trainer-meta">Level ${trainer.level ?? 0} ${classesDisplay}</div>
+        <div class="trainer-meta">Level ${trainer.level ?? 0} ${classesDisplay} · ${honors} Honors</div>
     </div>
 
     <h2>Trainer Stats</h2>
@@ -830,6 +673,9 @@ export const generatePrintSheetHTML = (trainer, party) => {
 
     <h2>Skills</h2>
     <p>${skillsList}</p>
+
+    <h2>Equipped Items</h2>
+    <p>${equippedList}</p>
 
     <h2>Party (${(party || []).length}/6)</h2>
     ${partyCards || '<p style="color:#999;">No Pokémon in party.</p>'}

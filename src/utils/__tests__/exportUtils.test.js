@@ -44,17 +44,49 @@ describe('importSinglePokemon', () => {
         expect(result.name).not.toContain('<b>');
     });
 
-    it('clamps base stats above MAX_STAT (50) to 50', () => {
+    it('clamps non-HP stats to MAX_STAT (30) but leaves realistic species HP untouched', () => {
+        // PTA3 species HP is a fixed Pokédex value (e.g. Snorlax 96) that routinely
+        // exceeds the 1-23ish range of ATK/DEF/SATK/SDEF/SPD, so HP needs its own ceiling.
         const data = {
             ...validPokemonData,
             pokemon: {
                 ...validPokemonData.pokemon,
-                baseStats: { hp: 999, atk: 999, def: 999, satk: 999, sdef: 999, spd: 999 },
+                baseStats: { hp: 96, atk: 999, def: 999, satk: 999, sdef: 999, spd: 999 },
             },
         };
         const result = importSinglePokemon(data);
-        expect(result.baseStats.hp).toBe(50);
-        expect(result.baseStats.atk).toBe(50);
+        expect(result.baseStats.hp).toBe(96);
+        expect(result.baseStats.atk).toBe(30);
+    });
+
+    it('clamps extreme HP to MAX_HP_STAT (5000)', () => {
+        const data = {
+            ...validPokemonData,
+            pokemon: { ...validPokemonData.pokemon, baseStats: { hp: 999999, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 } },
+        };
+        const result = importSinglePokemon(data);
+        expect(result.baseStats.hp).toBe(5000);
+    });
+
+    it('preserves isShiny, teraType, and a valid specialForm on import', () => {
+        const data = {
+            ...validPokemonData,
+            pokemon: { ...validPokemonData.pokemon, isShiny: true, teraType: 'Water', specialForm: 'alpha', specialFormDefStat: 'sdef' },
+        };
+        const result = importSinglePokemon(data);
+        expect(result.isShiny).toBe(true);
+        expect(result.teraType).toBe('Water');
+        expect(result.specialForm).toBe('alpha');
+        expect(result.specialFormDefStat).toBe('sdef');
+    });
+
+    it('rejects an unknown specialForm value', () => {
+        const data = {
+            ...validPokemonData,
+            pokemon: { ...validPokemonData.pokemon, specialForm: 'not-a-real-form' },
+        };
+        const result = importSinglePokemon(data);
+        expect(result.specialForm).toBeNull();
     });
 
     it('returns null for missing required type field', () => {
