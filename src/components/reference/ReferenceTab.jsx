@@ -15,6 +15,7 @@ import AbilitiesSection from './AbilitiesSection.jsx';
 import HonorThresholdsSection from './ExpChartSection.jsx';
 import GameRulesSection from './GameRulesSection.jsx';
 import PokedexSection from './PokedexSection.jsx';
+import CustomContentSection from './CustomContentSection.jsx';
 
 /**
  * ReferenceTab - Quick reference database browser
@@ -31,7 +32,8 @@ const ReferenceTab = () => {
         { id: 'moves', label: 'Moves Database' },
         { id: 'abilities', label: 'Abilities' },
         { id: 'rules', label: 'Game Rules' },
-        { id: 'honors', label: 'Honor Thresholds' }
+        { id: 'honors', label: 'Honor Thresholds' },
+        { id: 'custom', label: 'Custom Content' }
     ];
 
     return (
@@ -67,6 +69,7 @@ const ReferenceTab = () => {
             {activeSection === 'abilities' && <AbilitiesSection />}
             {activeSection === 'rules' && <GameRulesSection />}
             {activeSection === 'honors' && <HonorThresholdsSection />}
+            {activeSection === 'custom' && <CustomContentSection />}
         </div>
     );
 };

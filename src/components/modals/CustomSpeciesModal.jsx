@@ -212,7 +212,10 @@ const CustomSpeciesModal = () => {
             setCustomSpecies([...customSpecies, cleanedSpecies]);
         }
 
-        handleClose();
+        // Close directly — handleClose() re-runs the "unsaved changes?" heuristic
+        // against the species state we just successfully saved, which would always
+        // be truthy here and pop a bogus "Discard new species?" prompt right after save.
+        doClose();
     };
 
     const handleEditSpecies = (index) => {
