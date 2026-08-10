@@ -21,6 +21,8 @@ export const DEFAULT_TRAINER = {
     avatar: '',
     level: 0,
     honors: 0,             // Replaces experience; honors = gym badges, ribbons, etc.
+    origin: '',                // Trainer Origin (HB1 pp. 90-99), e.g. 'Academic', 'Backpacker'
+    originSkills: [],           // Skill talents granted by the chosen Origin
     classes: [],
     stats: { atk: 3, def: 3, satk: 3, sdef: 3, spd: 3 },  // 5 stats, 1-10 scale, mid-range default
     maxHp: 20,             // Fixed base HP; increases via rolls at milestone levels

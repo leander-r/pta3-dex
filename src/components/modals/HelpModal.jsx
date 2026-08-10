@@ -38,6 +38,21 @@ export const HELP_CONTENT = {
             </>
         )
     },
+    'origin': {
+        title: 'Trainer Origin',
+        body: () => (
+            <>
+                <p>Your <strong>Origin</strong> (HB1 pp. 90-99) is the life you lived before becoming a trainer — Academic, Athlete, Doctor, Grunt, and 11 others. It's chosen once at character creation, alongside your class.</p>
+                <h4 style={{ margin: '14px 0 6px', fontSize: '13px', color: 'var(--text-secondary)' }}>What it grants</h4>
+                <ul style={{ paddingLeft: '18px', margin: '0 0 10px', lineHeight: '1.8' }}>
+                    <li><strong>2-3 skill talents</strong> from the origin's skill list</li>
+                    <li>One free <strong>Origin Feature</strong> (added to your Features list)</li>
+                </ul>
+                <p>Starting lifestyle, credits, equipment, and Pokémon are shown as reference text — apply those to your inventory/roster yourself, since they're one-time chargen choices rather than ongoing state.</p>
+                <p>Changing your Origin removes its granted skills and feature and lets you pick a new one.</p>
+            </>
+        )
+    },
     'move-slots': {
         title: 'Move Slots',
         body: () => (

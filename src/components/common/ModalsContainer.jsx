@@ -11,6 +11,7 @@ const HelpModal           = lazy(() => import('../modals/HelpModal.jsx'));
 const CustomFeatureModal  = lazy(() => import('../modals/CustomFeatureModal.jsx'));
 const CustomMoveModal    = lazy(() => import('../modals/CustomMoveModal.jsx'));
 const CustomSpeciesModal = lazy(() => import('../modals/CustomSpeciesModal.jsx'));
+const CustomOriginModal  = lazy(() => import('../modals/CustomOriginModal.jsx'));
 const MoveLearnModal     = lazy(() => import('../modals/MoveLearnModal.jsx'));
 const RegionalFormModal  = lazy(() => import('../modals/RegionalFormModal.jsx'));
 const CardExportModal    = lazy(() => import('../modals/CardExportModal.jsx'));
@@ -32,6 +33,7 @@ const ModalsContainer = () => (
         <CustomFeatureModal />
         <CustomMoveModal />
         <CustomSpeciesModal />
+        <CustomOriginModal />
         <MoveLearnModal />
         <RegionalFormModal />
         <CardExportModal />

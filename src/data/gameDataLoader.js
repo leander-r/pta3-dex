@@ -122,6 +122,7 @@ export const loadGameDataFromGitHub = async () => {
         if (data.natures) GAME_DATA.natures = data.natures;
         if (data.pokemonSkills) GAME_DATA.pokemonSkills = data.pokemonSkills;
         if (data.trainerClasses) GAME_DATA.trainerClasses = data.trainerClasses;
+        if (data.origins) GAME_DATA.origins = data.origins;
         if (data.features) GAME_DATA.features = data.features;
         if (data.moves) GAME_DATA.moves = data.moves;
         if (data.abilities) GAME_DATA.abilities = data.abilities;

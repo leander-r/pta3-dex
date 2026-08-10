@@ -27,6 +27,9 @@ export const GameDataProvider = ({ children }) => {
     // move created for one Pokémon can be taught to any other Pokémon afterward,
     // not just the one it was invented for. DataProvider persists this too.
     const [customMoves, setCustomMoves] = useState([]);
+    // Custom Origins — a shared catalog (same shape as GAME_DATA.origins entries),
+    // usable by any trainer, not just the one it was invented for. DataProvider persists this too.
+    const [customOrigins, setCustomOrigins] = useState([]);
     const [pokedexLoading, setPokedexLoading] = useState(true);
     const [pokedexError, setPokedexError] = useState(null);
     const [gameDataLoaded, setGameDataLoaded] = useState(GAME_DATA._loaded || false);
@@ -121,6 +124,10 @@ export const GameDataProvider = ({ children }) => {
         // Custom Moves
         customMoves,
         setCustomMoves,
+
+        // Custom Origins
+        customOrigins,
+        setCustomOrigins,
 
         // Move helpers
         getLevelUpMovesForPokemon,

@@ -6,6 +6,7 @@
 import React from 'react';
 import TrainerProfile from './TrainerProfile.jsx';
 import TrainerStats from './TrainerStats.jsx';
+import TrainerOrigin from './TrainerOrigin.jsx';
 import TrainerClasses from './TrainerClasses.jsx';
 import TrainerFeatures from './TrainerFeatures.jsx';
 import TrainerSkills from './TrainerSkills.jsx';
@@ -25,6 +26,7 @@ const TrainerTab = () => {
             <div className="trainer-layout__data">
                 <TrainerEquipment />
                 <TrainerStats />
+                <TrainerOrigin />
                 <TrainerClasses />
                 <TrainerSkills />
                 <TrainerFeatures />

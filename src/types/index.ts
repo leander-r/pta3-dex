@@ -51,6 +51,8 @@ export interface Trainer {
   avatar: string;
   level: number;
   honors: number;
+  origin?: string;
+  originSkills?: string[];
   maxHp: number;
   hpRolls: number[];
   classes: string[];

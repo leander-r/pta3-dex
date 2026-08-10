@@ -207,6 +207,132 @@ export let GAME_DATA = {
         'Rain Waker':     { type: 'advanced', parentClass: 'Psychic',      description: 'Commands water and weather patterns.',                            skillPool: ['Concentration', 'Perform'] }
     },
 
+    // 15 Trainer Origins (HB1 pp. 90-99) — structural data only (skill talents,
+    // flavor text). Feature effect text lives in GAME_DATA.features (loaded remotely).
+    origins: {
+        'Academic': {
+            lifestyle: 'Difficult',
+            savings: '12,500 credits',
+            startingEquipment: "Studious Pack or Dig Kit, Traveler's Pack, 6 Basic Balls, Potion, Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to two common first stage pet Pokémon.',
+            skillTalents: [{ chooseN: 3, pool: ['Concentration', 'History', 'Investigate', 'Nature', 'Perception', 'Programming'] }],
+            feature: 'Academic Specialty'
+        },
+        'Artist / Entertainer': {
+            lifestyle: 'Comfortable',
+            savings: '75,000 credits',
+            startingEquipment: "Choose one of (Drawing Kit, Camera Bag, Make Up Kit, Sewing Kit, or Groomer's Kit), Traveler's Pack, 3 Basic Balls, 1 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to one first or second stage uncommon or common Pokémon you worked with to entertain others.',
+            skillTalents: [{ fixed: ['Perform'] }, { chooseN: 1, pool: ['Bluff/Deception', 'Concentration', 'Diplomacy/Persuasion', 'History', 'Insight'] }],
+            feature: 'Beautiful World'
+        },
+        'Athlete': {
+            lifestyle: 'Comfortable',
+            savings: '75,000 credits',
+            startingEquipment: "Trainer's Pack, Traveler's Pack, 2 Basic Balls, 3 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to one uncommon first or second stage Pokémon you worked with to train yourself as an athlete.',
+            skillTalents: [{ chooseN: 1, pool: ['Acrobatics', 'Athletics'] }, { chooseN: 1, pool: ['Concentration', 'Constitution', 'Sleight of Hand'] }],
+            feature: 'Athleticism'
+        },
+        'Backpacker': {
+            lifestyle: 'Difficult',
+            savings: '7,500 credits',
+            startingEquipment: "Traveler's Pack, Dig Kit, Fishing Kit, 2 Basic Balls, 3 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to two common first stage pet Pokémon you traveled with.',
+            skillTalents: [{ chooseN: 3, pool: ['Athletics', 'Constitution', 'Nature', 'Perception', 'Pokémon Handling', 'Stealth'] }],
+            feature: 'Wandering Road'
+        },
+        'Doctor': {
+            lifestyle: 'Comfortable',
+            savings: '75,000 credits',
+            startingEquipment: 'Medical Field Kit or Portable Chemistry Set, 3 Basic Balls, 6 Potion Water.',
+            startingPokemon: 'One starter Pokémon, up to two uncommon or common first stage pet Pokémon.',
+            skillTalents: [{ fixed: ['Medicine'] }, { chooseN: 1, pool: ['Concentration', 'Diplomacy/Persuasion', 'Insight', 'Sleight of Hand'] }],
+            feature: 'Good Doctor'
+        },
+        'Grunt': {
+            lifestyle: 'Difficult',
+            savings: '10,000 credits',
+            startingEquipment: "Choose one of (Basic Tool Kit, Dig Kit, Miscreant's Pack), 6 Basic Balls.",
+            startingPokemon: 'Up to two common first or second stage Pokémon you worked with in your criminal history, and up to two uncommon first or second stage Pokémon you worked with in your criminal history.',
+            skillTalents: [{ chooseN: 3, pool: ['Bluff/Deception', 'Diplomacy/Persuasion', 'Insight', 'Programming', 'Sleight of Hand', 'Stealth'] }],
+            feature: 'Criminal Talent'
+        },
+        'Gym Trainer': {
+            lifestyle: 'Modest',
+            savings: '20,000 credits',
+            startingEquipment: "Trainer's Pack, Traveler's Pack, 6 Basic Balls, 3 Potions, 1 Potion Water.",
+            startingPokemon: 'Up to two uncommon first or second stage Pokémon you worked with in your gym, up to one rare first or second stage Pokémon you worked with in your gym. All of your starting Pokémon should share a type, family, or theme.',
+            skillTalents: [{ chooseN: 2, pool: ['Concentration', 'Diplomacy/Persuasion', 'History', 'Insight', 'Perception', 'Pokémon Handling'] }],
+            feature: 'Strategy Insider'
+        },
+        'Laborer': {
+            lifestyle: 'Modest',
+            savings: '35,000 credits',
+            startingEquipment: "Basic Tool Kit, Traveler's Pack, 6 Basic Balls, 3 Potions, 3 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to one common first stage pet Pokémon, up to one uncommon first or second stage Pokémon who you worked with.',
+            skillTalents: [{ chooseN: 2, pool: ['Athletics', 'Constitution', 'Engineering/Operation', 'Nature', 'Perception', 'Pokémon Handling'] }],
+            feature: 'Honest Work'
+        },
+        'Rangers and Law Enforcement': {
+            lifestyle: 'Modest',
+            savings: '40,000 credits',
+            startingEquipment: "Styler (Ranger only/optional), Traveler's Pack, 2 Basic Balls, 3 Potions, 2 Full Heal, 3 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to one uncommon first or second stage Pokémon who you worked with.',
+            skillTalents: [{ chooseN: 2, pool: ['Concentration', 'Constitution', 'Diplomacy/Persuasion', 'Investigate', 'Nature', 'Stealth'] }],
+            feature: 'Serve and Protect',
+            note: 'Special: If you take this origin but choose not to gain its skill talents, lifestyle, or feature, you may instead take another origin and still qualify for the Ranger base class.'
+        },
+        'Raring to Go': {
+            lifestyle: 'Special',
+            savings: '7,500 credits',
+            startingEquipment: "Traveler's Pack, Mess Kit, 6 Basic Balls, Folding Bike.",
+            startingPokemon: 'One starter Pokémon, up to one common first stage pet Pokémon.',
+            skillTalents: [{ chooseN: 1, pool: ['Athletics', 'Concentration', 'Constitution', 'Engineering/Operation', 'History', 'Investigate', 'Medicine', 'Nature', 'Programming', 'Bluff/Deception', 'Diplomacy/Persuasion', 'Insight', 'Perception', 'Perform', 'Pokémon Handling', 'Acrobatics', 'Sleight of Hand', 'Stealth'] }],
+            feature: 'I Want to Be the Very Best'
+        },
+        'Salaryperson': {
+            lifestyle: 'Comfortable',
+            savings: '60,000 credits',
+            startingEquipment: "Choose one of (Studious Pack, Drawing Kit, Camera Bag), Traveler's Pack, 6 Basic Balls.",
+            startingPokemon: 'One starter Pokémon, up to two common first stage pet Pokémon.',
+            skillTalents: [{ chooseN: 2, pool: ['Concentration', 'Diplomacy/Persuasion', 'History', 'Insight', 'Perform', 'Programming'] }],
+            feature: 'Nine to Five'
+        },
+        'Service Industry': {
+            lifestyle: 'Difficult',
+            savings: '15,000 credits',
+            startingEquipment: "Choose one of (Studious Pack, Trainer's Pack, Miscreant's Pack, Cooking Kit, Sewing Kit, Make Up Kit, Drawing Kit), Traveler's Pack, 6 Basic Balls, 1 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to three common first stage pet Pokémon.',
+            skillTalents: [{ chooseN: 3, pool: ['Bluff/Deception', 'Concentration', 'Constitution', 'Diplomacy/Persuasion', 'Insight', 'Investigate', 'Perform'] }],
+            feature: 'Have a Good Day'
+        },
+        'Spiritualist': {
+            lifestyle: 'Difficult',
+            savings: '10,000 credits',
+            startingEquipment: "Traveler's Pack, Spiritualist's Pack, Mess Kit, 4 Basic Balls, 6 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to two common first stage pet Pokémon, up to one uncommon first stage pet Pokémon.',
+            skillTalents: [{ chooseN: 3, pool: ['Concentration', 'Diplomacy/Persuasion', 'History', 'Insight', 'Medicine', 'Nature', 'Pokémon Handling'] }],
+            feature: 'Spiritual Guidance'
+        },
+        'Technician': {
+            lifestyle: 'Comfortable',
+            savings: '60,000 credits',
+            startingEquipment: "Engineer's Tool Kit or Poke Ball Smith Kit, Traveler's Pack, 6 Basic Balls, 2 Potions, 2 Potion Water.",
+            startingPokemon: 'One starter Pokémon, up to one common first stage pet Pokémon, up to one uncommon first stage Pokémon you worked with.',
+            skillTalents: [{ chooseN: 2, pool: ['Concentration', 'Engineering/Operation', 'Investigate', 'Programming', 'Sleight of Hand'] }],
+            feature: 'Technical Know-How'
+        },
+        'Trust Funded': {
+            lifestyle: 'Wealthy',
+            savings: '400,000 credits',
+            startingEquipment: 'Anything you want, short of rare or unique items (Master Ball, Mega Stones, Dynamax Bands, etc.).',
+            startingPokemon: 'Up to two rare first stage pet Pokémon.',
+            skillTalents: [],
+            feature: 'Big Bucks'
+        }
+    },
+
     // Minimal features
     features: {},
 

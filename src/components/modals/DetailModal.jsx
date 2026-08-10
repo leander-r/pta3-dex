@@ -387,6 +387,12 @@ const FeatureDetails = ({ data, name }) => {
                 </InfoBox>
             )}
 
+            {data.choices && data.choices.length > 0 && (
+                <InfoBox label="Suggested Choices" icon="📋" variant="default">
+                    {data.choices.join(', ')}
+                </InfoBox>
+            )}
+
             {data.description && !data.effect && (
                 <InfoBox label="Description" icon="📖" variant="default">
                     {data.description}

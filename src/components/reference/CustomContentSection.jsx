@@ -74,8 +74,8 @@ const SectionHeading = ({ children, count, onCreate, createLabel, createDisabled
  * custom move), DataContext for inventory, UIContext to jump to a Pokémon.
  */
 const CustomContentSection = () => {
-    const { customSpecies, setCustomSpecies, customMoves, setCustomMoves } = useGameData();
-    const { showConfirm, setShowCustomSpeciesModal, setEditingCustomSpeciesId, openCustomMoveModal } = useModal();
+    const { customSpecies, setCustomSpecies, customMoves, setCustomMoves, customOrigins, setCustomOrigins } = useGameData();
+    const { showConfirm, setShowCustomSpeciesModal, setEditingCustomSpeciesId, openCustomMoveModal, setShowCustomOriginModal, setEditingCustomOriginId } = useModal();
     const { trainers, setActiveTrainerId } = useTrainerContext();
     const { inventory, setInventory } = useData();
     const { setActiveTab, setEditingPokemon } = useUI();
@@ -102,7 +102,7 @@ const CustomContentSection = () => {
         return (inventory || []).filter(item => !officialNames.has((item.name || '').toLowerCase()));
     }, [inventory]);
 
-    const totalCount = customSpecies.length + customMoves.length + customItems.length;
+    const totalCount = customSpecies.length + customMoves.length + customItems.length + customOrigins.length;
 
     // ── Species actions ──
     const handleDeleteSpecies = (sp) => {
@@ -161,6 +161,32 @@ const CustomContentSection = () => {
         setEditingPokemon(pokemonId);
     };
 
+    // ── Origin actions ──
+    const trainersUsingOrigin = (originName) => (trainers || []).filter(t => t.origin === originName);
+    const handleNewOrigin = () => {
+        setEditingCustomOriginId(null);
+        setShowCustomOriginModal(true);
+    };
+    const handleEditOrigin = (origin) => {
+        setEditingCustomOriginId(origin.id);
+        setShowCustomOriginModal(true);
+    };
+    const handleDeleteOrigin = (origin) => {
+        const users = trainersUsingOrigin(origin.name);
+        showConfirm({
+            title: 'Delete Custom Origin',
+            message: users.length > 0
+                ? `Delete "${origin.name}"? ${users.length} trainer(s) currently have it selected (${users.map(t => t.name || 'Unnamed').join(', ')}) — they'll keep their granted skills/feature, but the Origin entry itself won't be selectable anymore.`
+                : `Delete custom Origin "${origin.name}"?`,
+            danger: true,
+            onConfirm: () => setCustomOrigins(prev => prev.filter(o => o.id !== origin.id))
+        });
+    };
+    const jumpToTrainer = (trainerId) => {
+        setActiveTrainerId(trainerId);
+        setActiveTab('trainer');
+    };
+
     if (totalCount === 0) {
         return (
             <div data-testid="custom-content-section">
@@ -182,6 +208,7 @@ const CustomContentSection = () => {
                         >
                             + New Move
                         </button>
+                        <button style={{ ...ACTION_BTN, background: '#4caf50', padding: '8px 16px', fontSize: '13px' }} onClick={handleNewOrigin}>+ New Origin</button>
                     </div>
                     {showMovePicker && (
                         <MovePokemonPicker entries={allPokemonEntries} onPick={handlePickPokemonForNewMove} onCancel={() => setShowMovePicker(false)} />
@@ -196,7 +223,7 @@ const CustomContentSection = () => {
         <div data-testid="custom-content-section">
             <h3 style={{ marginBottom: '4px' }}>Custom Content</h3>
             <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                {customSpecies.length} species · {customMoves.length} moves · {customItems.length} items
+                {customSpecies.length} species · {customMoves.length} moves · {customItems.length} items · {customOrigins.length} origins
             </div>
 
             {/* ── Custom Species ── */}
@@ -334,6 +361,58 @@ const CustomContentSection = () => {
                                         </button>
                                     )}
                                     <button style={{ ...ACTION_BTN, background: '#f44336' }} onClick={() => handleDeleteMove(move)}>Delete</button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* ── Custom Origins ── */}
+            <SectionHeading count={customOrigins.length} onCreate={handleNewOrigin} createLabel="+ New Origin">Origins</SectionHeading>
+            {customOrigins.length === 0 ? (
+                <EmptyRow>No custom Origins yet.</EmptyRow>
+            ) : (
+                <div style={{ display: 'grid', gap: '8px' }}>
+                    {customOrigins.map(origin => {
+                        const users = trainersUsingOrigin(origin.name);
+                        const skillCount = (origin.skillTalents || []).reduce((sum, g) => sum + (g.fixed?.length || g.chooseN || 0), 0);
+                        return (
+                            <div
+                                key={origin.id}
+                                style={{
+                                    padding: '10px 12px',
+                                    background: 'var(--moves-card-bg, var(--bg-secondary))',
+                                    borderRadius: '8px',
+                                    borderLeft: '4px solid #667eea',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    flexWrap: 'wrap'
+                                }}
+                            >
+                                <div style={{ minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                        <strong style={{ fontSize: '14px' }}>{origin.name}</strong>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                            {skillCount} skill talent{skillCount !== 1 ? 's' : ''}{origin.feature ? ` · ${origin.feature.name}` : ''}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                        {users.length === 0
+                                            ? 'Not selected by any trainer yet'
+                                            : `Selected by: ${users.slice(0, 3).map(t => t.name || 'Unnamed').join(', ')}${users.length > 3 ? ` +${users.length - 3} more` : ''}`}
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                                    {users.length > 0 && (
+                                        <button style={{ ...ACTION_BTN, background: '#667eea' }} onClick={() => jumpToTrainer(users[0].id)}>
+                                            View →
+                                        </button>
+                                    )}
+                                    <button style={{ ...ACTION_BTN, background: '#667eea' }} onClick={() => handleEditOrigin(origin)}>Edit</button>
+                                    <button style={{ ...ACTION_BTN, background: '#f44336' }} onClick={() => handleDeleteOrigin(origin)}>Delete</button>
                                 </div>
                             </div>
                         );
