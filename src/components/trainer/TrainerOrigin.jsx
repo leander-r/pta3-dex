@@ -85,9 +85,13 @@ const TrainerOrigin = () => {
 
     const groups = pendingData?.skillTalents || [];
     const allFixedSkills = groups.flatMap(g => g.fixed || []);
+    // If every skill in a choice pool is already Talented at rank 2 (e.g. from a Class taken
+    // earlier), requiring the full chooseN would soft-lock Confirm forever — cap the
+    // requirement at how many are actually still pickable instead.
+    const requiredForGroup = (g) => Math.min(g.chooseN || 0, (g.pool || []).filter(s => !isSkillMaxed(s)).length);
     const readyToConfirm = groups.every((g, i) => {
         if (g.fixed) return true;
-        return (selectedByGroup[i] || []).length >= (g.chooseN || 0);
+        return (selectedByGroup[i] || []).length >= requiredForGroup(g);
     });
 
     const handleConfirm = () => {
@@ -97,6 +101,19 @@ const TrainerOrigin = () => {
             ...allFixedSkills,
             ...groups.flatMap((g, i) => g.fixed ? [] : (selectedByGroup[i] || []))
         ];
+
+        // Only skills the Origin actually raises a rank on count as "granted" — e.g. a fixed
+        // skill already maxed out by a Class beforehand is a no-op, and must NOT be tracked in
+        // originSkills, or removing the Origin later would wrongly strip a rank that came from
+        // the Class instead. Simulated here (not inside setTrainer) so the count is available
+        // immediately for the toast and for the originSkills value written below.
+        const simulatedRanks = {};
+        const grantedSkills = chosenSkills.filter(skill => {
+            const rank = simulatedRanks[skill] ?? getSkillRank(skill);
+            if (rank >= 2) return false;
+            simulatedRanks[skill] = rank + 1;
+            return true;
+        });
 
         const existingFeatureNames = new Set(
             (trainer.features || []).map(f => typeof f === 'object' ? f.name : f)
@@ -116,27 +133,32 @@ const TrainerOrigin = () => {
                 prevSkills = prevSkills.reduce((acc, s) => { acc[s] = (acc[s] || 0) + 1; return acc; }, {});
             }
             const updatedSkills = { ...prevSkills };
-            chosenSkills.forEach(skill => {
-                const rank = updatedSkills[skill] || 0;
-                if (rank < 2) updatedSkills[skill] = rank + 1;
+            grantedSkills.forEach(skill => {
+                updatedSkills[skill] = (updatedSkills[skill] || 0) + 1;
             });
 
             return {
                 ...prev,
                 origin: pendingOrigin,
-                originSkills: chosenSkills,
+                originSkills: grantedSkills,
+                // Tracks whether THIS Origin is what added the feature, vs. the trainer
+                // already having it (e.g. from a Class) — see doRemoveOrigin below.
+                originFeatureGranted: !!featureToGrant,
                 skills: updatedSkills,
                 features: featureToGrant ? [...(prev.features || []), featureToGrant] : (prev.features || [])
             };
         });
 
-        toast.success(`${pendingOrigin} set as Origin! Gained ${chosenSkills.length} skill talent${chosenSkills.length !== 1 ? 's' : ''}${grantFeature ? ` and the ${pendingFeatureInfo.name} feature` : ''}.`);
+        toast.success(`${pendingOrigin} set as Origin! Gained ${grantedSkills.length} skill talent${grantedSkills.length !== 1 ? 's' : ''}${grantFeature ? ` and the ${pendingFeatureInfo.name} feature` : ''}.`);
         setPendingOrigin(null);
         setSelectedByGroup({});
     };
 
     const doRemoveOrigin = () => {
-        const featureName = currentFeatureInfo?.name;
+        // Only strip the feature if THIS Origin is what granted it — if the trainer already
+        // had it from a Class (originFeatureGranted was false at confirm time), it's not
+        // the Origin's to take back.
+        const featureName = trainer.originFeatureGranted ? currentFeatureInfo?.name : null;
         const skillsToRemove = trainer.originSkills || [];
 
         setTrainer(prev => {
@@ -156,8 +178,11 @@ const TrainerOrigin = () => {
                 ...prev,
                 origin: '',
                 originSkills: [],
+                originFeatureGranted: false,
                 skills: updatedSkills,
-                features: (prev.features || []).filter(f => (typeof f === 'object' ? f.name : f) !== featureName)
+                features: featureName
+                    ? (prev.features || []).filter(f => (typeof f === 'object' ? f.name : f) !== featureName)
+                    : (prev.features || [])
             };
         });
     };
@@ -173,7 +198,10 @@ const TrainerOrigin = () => {
 
     const renderGroupLabel = (g) => {
         if (g.fixed) return `Automatic: ${g.fixed.join(', ')}`;
-        return `Choose ${g.chooseN}:`;
+        const required = requiredForGroup(g);
+        return required < (g.chooseN || 0)
+            ? `Choose ${required} (already Talented in the rest):`
+            : `Choose ${g.chooseN}:`;
     };
 
     return (
