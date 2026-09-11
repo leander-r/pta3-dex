@@ -211,8 +211,7 @@ const TrainerStats = () => {
                                     {(() => {
                                         const atMin = val <= 1;
                                         const levelLocked = (trainer.levelStatAllocations || []).includes(stat.key) &&
-                                            (trainer.levelStatPoints || 0) > 0 &&
-                                            (trainer.statPoints || 0) === 0;
+                                            (trainer.levelStatPoints || 0) > 0;
                                         const atMax = val >= 10 || levelLocked;
                                         const decReason = atMin ? `${stat.label} is at minimum (1)` : null;
                                         const incReason = val >= 10 ? `${stat.label} is at maximum (10)`
