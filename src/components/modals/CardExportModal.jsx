@@ -552,7 +552,7 @@ const TrainerCard = ({ trainer, pokemon }) => (
         </div>
 
         {/* Features - Pill badges */}
-        {trainer.features.length > 0 && (
+        {(trainer.features || []).length > 0 && (
             <div style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
                 <SectionHeader label="Features" />
                 <div style={{
@@ -562,7 +562,7 @@ const TrainerCard = ({ trainer, pokemon }) => (
                     display: 'flex',
                     flexWrap: 'wrap'
                 }}>
-                    {trainer.features.map((f, i) => (
+                    {(trainer.features || []).map((f, i) => (
                         <PillTag key={i} text={typeof f === 'object' ? f.name : f} color="rgba(255,255,255,0.12)" />
                     ))}
                 </div>

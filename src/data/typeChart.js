@@ -62,11 +62,16 @@ export const getCombinedTypeEffectiveness = (types) => {
         const effectiveness = TYPE_CHART[defType];
         if (!effectiveness) return;
 
+        // Use ?? rather than || here: an already-applied immunity leaves multipliers[t] at 0,
+        // which is falsy but must stay 0 — "cannot hit the target, regardless of a target's
+        // other types" (gmg_raw.txt) means no later weak/resist entry may undo it. This bit
+        // players like Ground/Flying Gligar: Ground's Electric immunity was getting reset back
+        // up to a 2x weakness by Flying's own weak-to-Electric entry processed afterward.
         effectiveness.weak.forEach(t => {
-            multipliers[t] = (multipliers[t] || 1) * 2;
+            multipliers[t] = (multipliers[t] ?? 1) * 2;
         });
         effectiveness.resist.forEach(t => {
-            multipliers[t] = (multipliers[t] || 1) * 0.5;
+            multipliers[t] = (multipliers[t] ?? 1) * 0.5;
         });
         effectiveness.immune.forEach(t => {
             multipliers[t] = 0;
