@@ -105,8 +105,9 @@ const CustomOriginModal = () => {
             toast.warning('Origin name is required!');
             return;
         }
-        if (GAME_DATA.origins?.[name]) {
-            toast.warning(`"${name}" is already an official Origin. Choose a different name.`);
+        const officialMatch = Object.keys(GAME_DATA.origins || {}).find(n => n.toLowerCase() === name.toLowerCase());
+        if (officialMatch) {
+            toast.warning(`"${officialMatch}" is already an official Origin. Choose a different name.`);
             return;
         }
         const collisionIndex = customOrigins.findIndex((o, i) =>

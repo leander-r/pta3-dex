@@ -5,7 +5,7 @@
 // daily bonus tracking.
 
 import React, { useState, useMemo } from 'react';
-import { useTrainerContext, useModal, useUI } from '../../contexts/index.js';
+import { useTrainerContext, useModal, useUI, useData } from '../../contexts/index.js';
 import { useGameData } from '../../contexts/GameDataContext.jsx';
 
 const TYPE_COLORS = {
@@ -47,6 +47,7 @@ const ARMOR_CHIP = {
 const TrainerEquipment = () => {
     const { trainer, equipItem, unequipItem, markBonusUsed, resetDailyBonus } = useTrainerContext();
     const { GAME_DATA } = useGameData();
+    const { inventory } = useData();
     const { showDetail } = useModal();
     const { showHelp } = useUI();
     const [collapsed, setCollapsed] = useState(true);
@@ -55,8 +56,17 @@ const TrainerEquipment = () => {
     const equippedItems = trainer.equippedItems || [];
     const dailyBonusUsed = trainer.dailyBonusUsed || '';
 
-    // All available inventory items that are equippable and not yet equipped
-    const allItems = GAME_DATA?.items || {};
+    // All available equippable items — the official catalog plus any custom items defined
+    // directly on the inventory (a custom item can be equipped from the Inventory tab, which
+    // reads the item's own `.type` field with no official-catalog check, so a lookup that only
+    // consulted GAME_DATA.items would silently drop it from every group here once equipped).
+    const allItems = useMemo(() => {
+        const merged = { ...(GAME_DATA?.items || {}) };
+        (inventory || []).forEach(item => {
+            if (item?.name && !merged[item.name]) merged[item.name] = item;
+        });
+        return merged;
+    }, [GAME_DATA, inventory]);
     const equippableNotEquipped = useMemo(() =>
         Object.entries(allItems)
             .filter(([name, data]) => EQUIPPABLE_TYPES.includes(data?.type) && !equippedItems.includes(name))

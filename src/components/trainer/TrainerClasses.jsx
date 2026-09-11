@@ -58,6 +58,14 @@ const TrainerClasses = () => {
 
     const isSkillMaxed = (skillName) => getSkillRank(skillName) >= 2;
 
+    // Cap the required pick count to however many pool skills are actually still pickable —
+    // otherwise a class whose entire skill pool is already Talented elsewhere (reachable since
+    // classes/Origins can share pools) could never reach the required count, permanently
+    // soft-locking Confirm with no way out but Cancel. Same fix already applied to Origin's
+    // chooseN groups via requiredForGroup.
+    const requiredSkillCount = (className) =>
+        Math.min(getSkillCount(className), getClassSkillPool(className).filter(s => !isSkillMaxed(s)).length);
+
     // Features granted immediately when a class is taken (Level 1 features)
     const getLevel1Features = (className) => {
         return Object.entries(GAME_DATA.features || {})
@@ -148,7 +156,7 @@ const TrainerClasses = () => {
     };
 
     const handleToggleSkillSelection = (skillName) => {
-        const maxSkills = getSkillCount(pendingClass);
+        const maxSkills = requiredSkillCount(pendingClass);
         if (selectedClassSkills.includes(skillName)) {
             setSelectedClassSkills(prev => prev.filter(s => s !== skillName));
         } else if (selectedClassSkills.length < maxSkills) {
@@ -336,7 +344,9 @@ const TrainerClasses = () => {
                         </span>
                     </div>
                     <div style={{ fontSize: '12px', marginBottom: '10px', color: 'var(--text-primary)' }}>
-                        Select {getSkillCount(pendingClass)} skill talent{getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:
+                        {requiredSkillCount(pendingClass) < getSkillCount(pendingClass)
+                            ? `Select ${requiredSkillCount(pendingClass)} skill talent${requiredSkillCount(pendingClass) !== 1 ? 's' : ''} (already Talented in the rest of the pool):`
+                            : `Select ${getSkillCount(pendingClass)} skill talent${getSkillCount(pendingClass) > 1 ? 's' : ''} from the class skill pool:`}
                         <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginTop: '4px' }}>
                             1 talent = +2 bonus | 2 talents = +5 bonus
                         </span>
@@ -377,19 +387,19 @@ const TrainerClasses = () => {
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <button
                             onClick={handleConfirmClass}
-                            disabled={selectedClassSkills.length < getSkillCount(pendingClass)}
+                            disabled={selectedClassSkills.length < requiredSkillCount(pendingClass)}
                             style={{
                                 flex: 1,
                                 padding: '10px',
-                                background: selectedClassSkills.length >= getSkillCount(pendingClass) ? 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))' : '#ccc',
+                                background: selectedClassSkills.length >= requiredSkillCount(pendingClass) ? 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))' : '#ccc',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '6px',
-                                cursor: selectedClassSkills.length >= getSkillCount(pendingClass) ? 'pointer' : 'not-allowed',
+                                cursor: selectedClassSkills.length >= requiredSkillCount(pendingClass) ? 'pointer' : 'not-allowed',
                                 fontWeight: 'bold'
                             }}
                         >
-                            Confirm ({selectedClassSkills.length}/{getSkillCount(pendingClass)} selected)
+                            Confirm ({selectedClassSkills.length}/{requiredSkillCount(pendingClass)} selected)
                         </button>
                         <button
                             onClick={handleCancelClass}
