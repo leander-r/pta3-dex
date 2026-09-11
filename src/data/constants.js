@@ -28,7 +28,10 @@ export const DEFAULT_TRAINER = {
     stats: { atk: 3, def: 3, satk: 3, sdef: 3, spd: 3 },  // 5 stats, 1-10 scale, mid-range default
     maxHp: 20,             // Fixed base HP; increases via rolls at milestone levels
     hpRolls: [],           // 1d4 results added at levels 3, 7, 11
-    statPoints: 25,        // Character creation points (point-buy budget)
+    // Character creation points remaining (HB1 Point Buy In: absolute cost table, 25-pt budget).
+    // The default stat spread above (3/3/3/3/3) already costs 5×3=15 of that 25-pt budget under
+    // the RAW cost table, so only 25-15=10 points start out unspent — NOT the full 25.
+    statPoints: 10,
     levelStatPoints: 0,    // Level-up stat points (no cap)
     levelStatAllocations: [],  // Stats already raised with level points in current batch (enforces "two different stats" rule)
     classLevels: {},           // Per-class level tracker: { 'Ace Trainer': 3, 'Stat Ace': 1 }

@@ -10,7 +10,6 @@ import {
     DEFAULT_TRAINER,
     BASE_STAT_VALUE,
     CREATION_STAT_CAP,
-    CREATION_STAT_POINTS,
     MAX_PARTY_SIZE,
     MAX_TRAINER_LEVEL,
     MAX_FEATURE_DROPS,
@@ -18,19 +17,12 @@ import {
     CLASS_3_MIN_LEVEL,
     CLASS_4_MIN_LEVEL,
     HONOR_THRESHOLDS,
-    HP_MILESTONE_LEVELS,
-    POINT_BUY_COSTS
+    HP_MILESTONE_LEVELS
 } from '../data/constants.js';
+import { getPointBuyCost } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
 import { useModal } from './ModalContext.jsx';
-
-// ── Pure helper ─────────────────────────────────────────────
-// PTA3 point-buy: cumulative creation cost from 1 to value.
-// Only used for the character-creation pool; level-up uses flat 1-per-+1.
-function getCumulativeCost(value) {
-    return POINT_BUY_COSTS[Math.min(value, 6)] || (value > 6 ? POINT_BUY_COSTS[6] + (value - 6) : 0);
-}
 
 // Returns { creationDelta, levelDelta } (negative = spend, positive = refund).
 // Returns null when the move is impossible (not enough points).
@@ -41,7 +33,7 @@ function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
     if (newValue > oldValue) {
         // Spending: try creation-point-buy first (only within creation cap)
         if (newValue <= CREATION_STAT_CAP) {
-            const creationCost = getCumulativeCost(newValue) - getCumulativeCost(oldValue);
+            const creationCost = getPointBuyCost(newValue) - getPointBuyCost(oldValue);
             if (creationPoints >= creationCost) {
                 return { creationDelta: -creationCost, levelDelta: 0 };
             }
@@ -53,7 +45,7 @@ function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
     } else {
         // Refunding (stat reduced via − button)
         if (oldValue <= CREATION_STAT_CAP) {
-            const creationRefund = getCumulativeCost(oldValue) - getCumulativeCost(newValue);
+            const creationRefund = getPointBuyCost(oldValue) - getPointBuyCost(newValue);
             return { creationDelta: creationRefund, levelDelta: 0 };
         }
         return { creationDelta: 0, levelDelta: oldValue - newValue };
@@ -261,7 +253,15 @@ export const TrainerProvider = ({ children }) => {
 
         const levelPoints = trainer.levelStatPoints || 0;
         const allocation = allocateStatPoints(oldValue, newValue, trainer.statPoints || 0, levelPoints);
-        if (!allocation) return;
+        if (!allocation) {
+            if (newValue > oldValue) {
+                const cost = newValue <= CREATION_STAT_CAP
+                    ? getPointBuyCost(newValue) - getPointBuyCost(oldValue)
+                    : newValue - oldValue;
+                toast.warning(`Not enough points: raising this stat to ${newValue} costs ${cost}, but you only have ${(trainer.statPoints || 0) + levelPoints} available.`);
+            }
+            return;
+        }
 
         const allocations = trainer.levelStatAllocations || [];
 
@@ -343,20 +343,19 @@ export const TrainerProvider = ({ children }) => {
             return;
         }
 
-        // Creation checklist for level 0 → 1
+        // Creation checklist for level 0 → 1.
+        // Note: unspent Creation points are NOT a hard gate — the point-buy cost table's
+        // jumps (e.g. 3→4 costs 3, not 1) mean some legitimate stat spreads can never land on
+        // exactly 0 remaining, and HB1 caps the budget at 25 without mandating every point be spent.
         if (trainer.level === 0) {
             const creationPointsRemaining = trainer.statPoints || 0;
             const hasClass = (trainer.classes || []).length > 0;
-            const issues = [];
-            if (creationPointsRemaining > 0) {
-                issues.push(`• Spend all ${CREATION_STAT_POINTS} Creation stat points (${creationPointsRemaining} remaining)`);
-            }
             if (!hasClass) {
-                issues.push('• Pick your first Trainer Class');
-            }
-            if (issues.length > 0) {
-                toast.warning(`Before becoming Level 1, you must complete character creation:\n${issues.join('\n')}`);
+                toast.warning('Before becoming Level 1, you must pick your first Trainer Class.');
                 return;
+            }
+            if (creationPointsRemaining > 0) {
+                toast.info(`Heads up: you have ${creationPointsRemaining} unspent Creation stat point${creationPointsRemaining !== 1 ? 's' : ''} — they're lost once you level up.`);
             }
         } else {
             // For levels 1+, require the honors threshold to be met

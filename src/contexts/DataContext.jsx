@@ -7,7 +7,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
 import { getPokemonBadges } from '../utils/exportUtils.js';
-import { migrateSaveData, cleanupLegacyFeatures } from '../utils/dataMigration.js';
+import { migrateSaveData, cleanupLegacyFeatures, fixStatPointAccounting } from '../utils/dataMigration.js';
 import { gameDataLoadPromise } from '../data/gameDataLoader.js';
 import { buildEmbed } from '../utils/discordEmbeds.js';
 import toast from '../utils/toast.js';
@@ -283,6 +283,15 @@ export const DataProvider = ({ children }) => {
                     } catch {}
                 }
 
+                // Step 4: Fix stat-point accounting for trainers still mid-creation (Level 0)
+                const { data: statFixedData, fixed: wasStatFixed } = fixStatPointAccounting(migratedData);
+                if (wasStatFixed) {
+                    migratedData = statFixedData;
+                    try {
+                        safeLocalStorageSet('pta3-save-data', statFixedData);
+                    } catch {}
+                }
+
                 if (migratedData.trainers && Array.isArray(migratedData.trainers) && migratedData.trainers.length > 0) {
                     // Validate activeTrainerId exists in trainers array, otherwise use first trainer
                     const validActiveId = migratedData.trainers.some(t => t.id === migratedData.activeTrainerId)
@@ -446,7 +455,10 @@ export const DataProvider = ({ children }) => {
                     const { data: cleanedData, cleaned: wasFeaturesCleaned } = cleanupLegacyFeatures(migratedData, GAME_DATA?.features || {});
                     if (wasFeaturesCleaned) migratedData = cleanedData;
 
-                    if (wasMigrated || wasFeaturesCleaned) {
+                    const { data: statFixedData, fixed: wasStatFixed } = fixStatPointAccounting(migratedData);
+                    if (wasStatFixed) migratedData = statFixedData;
+
+                    if (wasMigrated || wasFeaturesCleaned || wasStatFixed) {
                         // Persist the migrated version back into the slot so it doesn't re-trigger next time
                         const slots = [...saveSlots];
                         slots[index] = { ...slot, trainers: migratedData.trainers, inventory: migratedData.inventory, customSpecies: migratedData.customSpecies, customMoves: migratedData.customMoves, customOrigins: migratedData.customOrigins, npcs: migratedData.npcs };

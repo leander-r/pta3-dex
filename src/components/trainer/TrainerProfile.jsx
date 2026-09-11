@@ -102,11 +102,14 @@ const TrainerProfile = () => {
     const milestonesReached = HP_MILESTONE_LEVELS.filter(l => l <= trainer.level).length;
     const hpRollsPending = milestonesReached - (trainer.hpRolls || []).length;
     const statPointsPending = trainer.levelStatPoints || 0;
+    // Note: unspent Creation points don't block Level 1 — the point-buy cost table's jumps
+    // mean some legitimate stat spreads can never land on exactly 0 remaining (HB1 caps the
+    // budget at 25, it doesn't require spending every last point).
     const canLevelUp = isLevel0
-        ? (creationPointsRemaining === 0 && hasClass)
+        ? hasClass
         : honorsMet && hpRollsPending === 0 && statPointsPending === 0;
     const levelUpTitle = isLevel0
-        ? (!canLevelUp ? 'Complete character creation first' : 'Become Level 1')
+        ? (!canLevelUp ? 'Pick your first Trainer Class first' : 'Become Level 1')
         : atMaxLevel
             ? 'Maximum level reached'
             : hpRollsPending > 0
@@ -248,9 +251,12 @@ const TrainerProfile = () => {
                     <div style={{ fontWeight: 'bold', marginBottom: '6px', color: 'var(--warning-text, #e65100)' }}>
                         Character Creation — allocate stats, pick a class, then level up!
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', color: creationPointsRemaining === 0 ? '#2e7d32' : '#c62828' }}>
-                        <span>{creationPointsRemaining === 0 ? '✓' : '○'}</span>
-                        <span>Spend all {CREATION_STAT_POINTS} Creation points ({CREATION_STAT_POINTS - creationPointsRemaining}/{CREATION_STAT_POINTS})</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', color: creationPointsRemaining === 0 ? '#2e7d32' : 'var(--text-muted)' }}>
+                        <span>{creationPointsRemaining === 0 ? '✓' : 'ℹ'}</span>
+                        <span>
+                            Creation points spent: {CREATION_STAT_POINTS - creationPointsRemaining}/{CREATION_STAT_POINTS}
+                            {creationPointsRemaining > 0 && ' (optional — unspent points are lost on level up)'}
+                        </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: hasClass ? '#2e7d32' : '#c62828' }}>
                         <span>{hasClass ? '✓' : '○'}</span>

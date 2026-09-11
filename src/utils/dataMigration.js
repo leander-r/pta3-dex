@@ -2,6 +2,9 @@
 // Data Migration — Old PTA format → PTA3 format
 // ============================================================
 
+import { getPointBuyCost } from './dataUtils.js';
+import { CREATION_STAT_POINTS } from '../data/constants.js';
+
 /**
  * Detect if a save contains old-format trainer data (pre-PTA3).
  * Old format has stats.hp on trainers.
@@ -126,6 +129,34 @@ export const cleanupLegacyFeatures = (data, knownFeatures = {}) => {
     });
     if (!anyChanged) return { data, cleaned: false };
     return { data: { ...data, trainers }, cleaned: true };
+};
+
+/**
+ * Fix a stat-point accounting bug: trainers created before this fix had `statPoints`
+ * tracked as a delta off the default (3/3/3/3/3) stat spread without ever charging for
+ * that starting spread itself, so the pool didn't match the HB1 Point Buy In table's
+ * absolute costs. This recomputes `statPoints` from the trainer's current stats using
+ * the correct absolute formula. Only touches trainers still at Level 0 (mid-creation) —
+ * once a trainer has leveled past creation, its stored value is inert and left alone.
+ * Idempotent and safe to run on every load.
+ *
+ * @param {Object} data - Full save payload (trainers, activeTrainerId, inventory, …)
+ * @returns {{ data: Object, fixed: boolean }}
+ */
+export const fixStatPointAccounting = (data) => {
+    if (!data?.trainers) return { data, fixed: false };
+    let anyChanged = false;
+    const trainers = data.trainers.map(trainer => {
+        if (trainer.level !== 0 || !trainer.stats) return trainer;
+        const spent = ['atk', 'def', 'satk', 'sdef', 'spd']
+            .reduce((sum, key) => sum + getPointBuyCost(trainer.stats[key] || 1), 0);
+        const correctRemaining = Math.max(0, CREATION_STAT_POINTS - spent);
+        if (correctRemaining === trainer.statPoints) return trainer;
+        anyChanged = true;
+        return { ...trainer, statPoints: correctRemaining };
+    });
+    if (!anyChanged) return { data, fixed: false };
+    return { data: { ...data, trainers }, fixed: true };
 };
 
 /**

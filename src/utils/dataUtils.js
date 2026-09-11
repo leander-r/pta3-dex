@@ -3,12 +3,22 @@
 // ============================================================
 
 import { GAME_DATA } from '../data/configs.js';
-import { COMBAT_STAGE_FLAT_PER_STAGE, STAB_BONUS } from '../data/constants.js';
+import { COMBAT_STAGE_FLAT_PER_STAGE, STAB_BONUS, POINT_BUY_COSTS } from '../data/constants.js';
 
 /**
  * Calculate stat modifier (PTA3: ⌊stat / 2⌋)
  */
 export const calcModifier = (stat) => Math.floor((stat || 0) / 2);
+
+/**
+ * PTA3 point-buy: absolute cost (from a true zero baseline) to have a stat at `value`.
+ * HB1 "Point Buy In" table: 1→1, 2→2, 3→3, 4→6, 5→8, 6→11 pts, extending flat beyond 6.
+ * This is the RAW cost table itself — it is NOT a discount off some free starting value.
+ */
+export const getPointBuyCost = (value) => {
+    if (value <= 0) return 0;
+    return POINT_BUY_COSTS[Math.min(value, 6)] + Math.max(0, value - 6);
+};
 
 /**
  * Format number with commas
