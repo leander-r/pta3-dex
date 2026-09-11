@@ -167,6 +167,45 @@ export const buildTrainerSkillEmbed = (roll, trainerName) => {
     };
 };
 
+export const buildTrainerAttackEmbed = (roll, trainerName) => {
+    const hit  = roll.isHit;
+    const crit = roll.isCrit;
+
+    const icon  = !hit ? '❌' : crit ? '💥' : '🥊';
+    const suffix = crit ? ' — CRITICAL HIT!' : '';
+    const label = roll.weaponName ? `${roll.moveName} (${roll.weaponName})` : (roll.moveName || 'Unarmed Strike');
+    const title = `${icon} ${trainerName || 'Trainer'} used ${label}!${suffix}`;
+    const color = !hit ? 0x95A5A6 : crit ? 0xFF6F00 : 0xF5A623;
+
+    const acTarget = roll.moveAC != null ? `vs AC ${roll.moveAC}` : '(no target set)';
+    const modStr = roll.accModifier
+        ? ` ${roll.accModifier > 0 ? '+' : ''}${roll.accModifier} = ${roll.modifiedAccRoll}`
+        : '';
+    const description = hit
+        ? `✅ Hit · Roll ${roll.accRoll}${modStr} ${acTarget}${roll.total ? ` · **${roll.total} damage**` : ''}`
+        : `✗ Miss · Roll ${roll.accRoll}${modStr} ${acTarget}`;
+
+    const fields = [];
+    if (hit && roll.dice) {
+        const parts = [`[${(roll.rolls || []).join(', ')}] = ${roll.diceTotal}`];
+        if (roll.atkMod) parts.push(`${roll.atkMod} (ATK)`);
+        fields.push({
+            name: crit ? '🎲 Damage (Crit — max dice value)' : '🎲 Damage',
+            value: `${roll.dice}: ${parts.join(' + ')} = **${roll.total}**`,
+            inline: false,
+        });
+    }
+
+    return {
+        author: { name: trainerName },
+        title,
+        description,
+        color,
+        fields,
+        timestamp: new Date().toISOString(),
+    };
+};
+
 export const buildHealEmbed = (roll, trainerName) => {
     let description = `**+${roll.amount} HP** healed`;
     if (roll.rolls?.length > 0) {
@@ -254,8 +293,9 @@ export const buildQuickCheckEmbed = (roll, actorName) => {
 };
 
 export const buildEmbed = (roll, trainerName) => {
-    if (roll.type === 'pokemon')       return buildPokemonEmbed(roll, trainerName);
-    if (roll.type === 'trainer_skill') return buildTrainerSkillEmbed(roll, trainerName);
+    if (roll.type === 'pokemon')        return buildPokemonEmbed(roll, trainerName);
+    if (roll.type === 'trainer_skill')  return buildTrainerSkillEmbed(roll, trainerName);
+    if (roll.type === 'trainer_attack') return buildTrainerAttackEmbed(roll, trainerName);
     if (roll.type === 'pokemon_skill') return buildPokemonSkillEmbed(roll, trainerName);
     if (roll.type === 'heal')          return buildHealEmbed(roll, trainerName);
     if (roll.type === 'custom')        return buildCustomEmbed(roll, trainerName);

@@ -425,8 +425,12 @@ const BattleTab = () => {
         setZMoveActive(false);
         const base = getPokemonBaseHP(selectedPokemon);
         const newMax = base.max * 5;
+        // Preserve proportional HP on activation, mirroring handleDynamaxRevert — Dynamaxing
+        // isn't a heal, so a Pokémon at 10/50 HP should become 50/250, not jump to full.
+        const ratio = base.max > 0 ? base.current / base.max : 1;
+        const current = Math.max(0, Math.floor(newMax * ratio));
         setPreDynamaxMaxHp(base.max);
-        setPokemonHP({ current: newMax, max: newMax });
+        setPokemonHP({ current, max: newMax });
         setIsDynamaxed(true);
     };
 
@@ -447,13 +451,31 @@ const BattleTab = () => {
     const handleTerastallize = () => { setZMoveActive(false); setSelectedMove(null); setIsTerastallized(true); };
     const handleTeraRevert = () => setIsTerastallized(false);
 
-    // Roll a special mechanic move (Z-Move, G-Max, Tera Blast) into roll history
-    const rollSpecialMove = ({ moveName, moveType, category, damage, effect }) => {
+    // Roll a special mechanic move (Z-Move, G-Max, Tera Blast) into roll history.
+    // PTA3's general damage formula is "Dice + modifier + STAB + type bonus" for every
+    // Physical/Special attack (GameRulesSection.jsx) — nothing exempts these from it, and
+    // Tera Blast's own text is explicit: "you may use your Attack stat instead of your
+    // Special Attack stat when rolling to hit and calculating damage" (gmg_raw.txt ~12928-12932).
+    // statKey: 'atk' | 'satk' | 'higher' (Tera Blast — pick whichever is currently higher).
+    const rollSpecialMove = ({ moveName, moveType, category, damage, effect, statKey: statKeyOverride, forceStab }) => {
         if (!selectedPokemon) return;
         const diceData = parseDice(damage);
         if (diceData.count === 0) return;
+
+        const actualStats = getStatsWithMega(selectedPokemon);
+        let statKey = statKeyOverride || (category === 'Physical' ? 'atk' : 'satk');
+        if (statKey === 'higher') {
+            const atkAdj = applyCombatStage(actualStats.atk || 0, combatStages.atk || 0);
+            const satkAdj = applyCombatStage(actualStats.satk || 0, combatStages.satk || 0);
+            statKey = atkAdj >= satkAdj ? 'atk' : 'satk';
+        }
+        const adjustedStat = applyCombatStage(actualStats[statKey] || 0, combatStages[statKey] || 0);
+        const statMod = Math.floor(adjustedStat / 2);
+        const stabBonus = (applyStab && (forceStab || selectedPokemon.types?.includes(moveType))) ? calculateSTAB() : 0;
+
         const rolls = rollDice(diceData.count, diceData.sides);
-        const total = rolls.reduce((s, r) => s + r, 0) + diceData.bonus;
+        const diceTotal = rolls.reduce((s, r) => s + r, 0);
+        const total = diceTotal + diceData.bonus + statMod + stabBonus;
         const hp = getActivePokemonHP(selectedPokemon);
         addToHistory(buildPokemonRollEntry({
             pokemon: selectedPokemon.name || selectedPokemon.species,
@@ -461,7 +483,7 @@ const BattleTab = () => {
             accRoll: 20, accModifier: 0, modifiedAccRoll: 20, moveAC: null, acWasOverridden: false,
             isHit: true, isCrit: false, isStatus: false,
             dice: `${diceData.count}d${diceData.sides}`,
-            rolls, diceTotal: total, statBonus: 0, stabBonus: 0, total,
+            rolls, diceTotal, diceBonus: diceData.bonus, statBonus: statMod, stabBonus, total,
             typeColor: 0,
             attackerCurrentHP: hp.current, attackerMaxHP: hp.max,
             pokemonSpriteUrl: getPokemonSprite(selectedPokemon),
@@ -484,7 +506,10 @@ const BattleTab = () => {
 
     const handleTeraBlastRoll = () => {
         if (!selectedPokemon) return;
-        rollSpecialMove({ moveName: 'Tera Blast', moveType: selectedPokemon.teraType || 'Normal', category: 'Special', damage: '3d12', effect: '' });
+        // RAW: "you may use your Attack stat instead of your Special Attack stat" — auto-picking
+        // whichever is currently higher matches a rational trainer's choice under that option.
+        // Its type always matches the Terastallized type, so STAB always applies (forceStab).
+        rollSpecialMove({ moveName: 'Tera Blast', moveType: selectedPokemon.teraType || 'Normal', category: 'Special', damage: '3d12', effect: '', statKey: 'higher', forceStab: true });
         // Frequency (3/day) is tracked for reference but doesn't block further rolls — clamped
         // at 0 so the "X/3 left" display doesn't go negative once a table plays past it.
         setTeraBlastUsesLeft(prev => Math.max(0, prev - 1));

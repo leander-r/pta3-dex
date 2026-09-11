@@ -29,7 +29,14 @@ import { useModal } from './ModalContext.jsx';
 //
 // Creation points use the point-buy cost table (spending 3→4 costs 3 pts, etc.).
 // Level points (granted at milestone levels 3/7/11) are always flat: 1 pt = +1 stat.
-function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
+//
+// isLevelFunded: whether the stat's current value was reached using a level-up point (per
+// levelStatAllocations) rather than a creation point. Refunds must return points to whichever
+// pool actually paid for them — otherwise lowering a level-point-funded stat back down would
+// run through the point-buy cost table and mint creation points that were never spent (e.g.
+// raise 3→4 with a level point, lower 4→3, and get +3 creation points for a 1-point level
+// refund — a free currency exchange between two pools that must stay separate).
+function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints, isLevelFunded) {
     if (newValue > oldValue) {
         // Spending: try creation-point-buy first (only within creation cap)
         if (newValue <= CREATION_STAT_CAP) {
@@ -44,6 +51,9 @@ function allocateStatPoints(oldValue, newValue, creationPoints, levelPoints) {
         return { creationDelta: 0, levelDelta: -flatCost };
     } else {
         // Refunding (stat reduced via − button)
+        if (isLevelFunded) {
+            return { creationDelta: 0, levelDelta: oldValue - newValue };
+        }
         if (oldValue <= CREATION_STAT_CAP) {
             const creationRefund = getPointBuyCost(oldValue) - getPointBuyCost(newValue);
             return { creationDelta: creationRefund, levelDelta: 0 };
@@ -252,7 +262,8 @@ export const TrainerProvider = ({ children }) => {
         if (newValue < BASE_STAT_VALUE || newValue === oldValue) return;
 
         const levelPoints = trainer.levelStatPoints || 0;
-        const allocation = allocateStatPoints(oldValue, newValue, trainer.statPoints || 0, levelPoints);
+        const allocations = trainer.levelStatAllocations || [];
+        const allocation = allocateStatPoints(oldValue, newValue, trainer.statPoints || 0, levelPoints, allocations.includes(stat));
         if (!allocation) {
             if (newValue > oldValue) {
                 const cost = newValue <= CREATION_STAT_CAP
@@ -262,8 +273,6 @@ export const TrainerProvider = ({ children }) => {
             }
             return;
         }
-
-        const allocations = trainer.levelStatAllocations || [];
 
         // PTA3 rule: at each milestone, the two increases must go to different stats
         if (allocation.levelDelta < 0 && allocations.includes(stat)) {
@@ -505,7 +514,8 @@ export const TrainerProvider = ({ children }) => {
                 '• All classes removed\n' +
                 '• All features removed\n' +
                 '• All skills removed\n' +
-                '• 25 creation stat points restored\n' +
+                `• ${DEFAULT_TRAINER.statPoints} creation stat points restored\n` +
+                `• Feature drops used (${trainer.featureDropsUsed || 0}/${MAX_FEATURE_DROPS}) carry over — they're a per-career limit, not reset by a respec\n` +
                 '✓ Your Pokémon and notes will be KEPT!\n\n' +
                 'Are you sure you want to respec?',
             confirmLabel: 'Respec',

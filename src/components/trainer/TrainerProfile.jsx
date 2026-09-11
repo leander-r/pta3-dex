@@ -361,8 +361,9 @@ const TrainerProfile = () => {
                 <span style={{ fontWeight: 'bold', color: '#5d4e00', fontSize: '16px' }}>₽</span>
                 <input
                     type="number"
+                    min="0"
                     value={trainer.money || 0}
-                    onChange={(e) => setTrainer(prev => ({ ...prev, money: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) => setTrainer(prev => ({ ...prev, money: Math.max(0, parseInt(e.target.value) || 0) }))}
                     style={{
                         flex: 1,
                         padding: '3px 6px',

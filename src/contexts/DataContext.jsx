@@ -90,9 +90,19 @@ export const DataProvider = ({ children }) => {
     // Save data to storage
     const saveData = useCallback(async (isAuto = false) => {
         try {
-            // Auto-backup: snapshot the previous save before overwriting
+            // Auto-backup: snapshot the previous save before overwriting. When cloud storage
+            // is active, the previous save lives in window.storage, not localStorage — reading
+            // localStorage unconditionally here silently froze the backup on whatever was last
+            // written before cloud storage took over, making restoreAutoBackup useless for
+            // cloud-storage users.
             try {
-                const prev = localStorage.getItem('pta3-save-data');
+                let prev;
+                if (window.storage) {
+                    const result = await window.storage.get('pta3-save-data');
+                    prev = result?.value;
+                } else {
+                    prev = localStorage.getItem('pta3-save-data');
+                }
                 if (prev) localStorage.setItem('pta3-auto-backup', prev);
             } catch {}
 
@@ -608,26 +618,56 @@ export const DataProvider = ({ children }) => {
                 };
 
                 if (data.trainers) {
-                    const migratedTrainers = data.trainers.map(t => ({
+                    // Run the same migration pipeline as loadData/loadFromSlot — a multi-trainer
+                    // import file can predate a schema change (old stat system, EXP→Honors, the
+                    // point-buy accounting fix, etc.) just like a save slot can.
+                    let migratedData = data;
+                    const { data: pta3Data, migrated: wasMigrated } = migrateSaveData(migratedData);
+                    if (wasMigrated) migratedData = pta3Data;
+                    const { data: cleanedData, cleaned: wasFeaturesCleaned } = cleanupLegacyFeatures(migratedData, GAME_DATA?.features || {});
+                    if (wasFeaturesCleaned) migratedData = cleanedData;
+                    const { data: statFixedData, fixed: wasStatFixed } = fixStatPointAccounting(migratedData);
+                    if (wasStatFixed) migratedData = statFixedData;
+
+                    const migratedTrainers = migratedData.trainers.map(t => ({
                         ...t,
                         money: t.money || 0,
                         party: t.party || t.pokemon?.slice(0, 6) || [],
                         reserve: t.reserve || t.pokemon?.slice(6) || [],
                         skills: migrateSkills(t.skills)
                     }));
-                    setTrainers(migratedTrainers);
-                    setActiveTrainerId(data.activeTrainerId || migratedTrainers[0]?.id);
-                    if (data.inventory) setInventory(data.inventory);
-                    if (data.customSpecies) setCustomSpecies(data.customSpecies);
-                    if (Array.isArray(data.customMoves)) setCustomMoves(data.customMoves);
-                    if (Array.isArray(data.customOrigins)) setCustomOrigins(data.customOrigins);
-                    if (Array.isArray(data.npcs)) setNpcs(data.npcs);
-
-                    const totalMoney = migratedTrainers.reduce((sum, t) => sum + (t.money || 0), 0);
                     const totalPokemon = migratedTrainers.reduce((sum, t) => sum + (t.party?.length || 0) + (t.reserve?.length || 0), 0);
-                    const inventoryCount = data.inventory?.length || 0;
+                    const inventoryCount = migratedData.inventory?.length || 0;
 
-                    toast.success(`Data imported successfully!\n${migratedTrainers.length} trainer(s), ${totalPokemon} Pokemon, ${inventoryCount} item(s)`);
+                    const applyTrainersImport = (mode) => {
+                        setTrainers(mode === 'add' ? prev => [...prev, ...migratedTrainers] : migratedTrainers);
+                        setActiveTrainerId(migratedData.activeTrainerId || migratedTrainers[0]?.id);
+                        if (migratedData.inventory) setInventory(migratedData.inventory);
+                        if (migratedData.customSpecies) setCustomSpecies(migratedData.customSpecies);
+                        if (Array.isArray(migratedData.customMoves)) setCustomMoves(migratedData.customMoves);
+                        if (Array.isArray(migratedData.customOrigins)) setCustomOrigins(migratedData.customOrigins);
+                        if (Array.isArray(migratedData.npcs)) setNpcs(migratedData.npcs);
+
+                        if (wasMigrated) toast.info('This file was migrated to PTA3 format. Please review your trainer stats.');
+                        toast.success(`Data imported successfully!\n${migratedTrainers.length} trainer(s), ${totalPokemon} Pokemon, ${inventoryCount} item(s)`);
+                    };
+
+                    // Unlike a single-trainer import, this file can silently wipe every existing
+                    // trainer at once — confirm first, mirroring the single-trainer import's own
+                    // Add-as-New / Replace-All choice below.
+                    if (trainers.length > 0 && trainers[0].name) {
+                        showConfirm({
+                            title: 'Import All Trainers',
+                            message: `This file contains ${migratedTrainers.length} trainer(s). You have existing trainers — how would you like to import?`,
+                            confirmLabel: 'Add as New',
+                            cancelLabel: 'Replace All',
+                            danger: true,
+                            onConfirm: () => applyTrainersImport('add'),
+                            onCancel: () => applyTrainersImport('replace')
+                        });
+                    } else {
+                        applyTrainersImport('replace');
+                    }
                 } else if (data.trainer) {
                     let trainerData = data.trainer;
 
@@ -716,7 +756,7 @@ export const DataProvider = ({ children }) => {
         };
         reader.onerror = () => { isImportingRef.current = false; };
         reader.readAsText(file);
-    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setNpcs, showConfirm]);
+    }, [trainers, inventory, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setNpcs, showConfirm, GAME_DATA]);
 
     // Export text functions
     const exportTrainerText = useCallback((trainer) => {

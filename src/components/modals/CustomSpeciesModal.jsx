@@ -75,7 +75,7 @@ const EVOLUTION_STONES = [
 const CustomSpeciesModal = () => {
     // Get state from contexts
     const { showCustomSpeciesModal, setShowCustomSpeciesModal, editingCustomSpeciesId, setEditingCustomSpeciesId, showConfirm } = useModal();
-    const { customSpecies, setCustomSpecies } = useGameData();
+    const { customSpecies, setCustomSpecies, pokedex } = useGameData();
 
     const [species, setSpecies] = useState({ ...DEFAULT_SPECIES });
     const [editingIndex, setEditingIndex] = useState(null);
@@ -186,6 +186,18 @@ const CustomSpeciesModal = () => {
     const handleSaveSpecies = () => {
         if (!species.species.trim()) {
             toast.warning('Species name is required!');
+            return;
+        }
+
+        // Block a name collision with an official Pokédex entry — species lookups by name
+        // happen all over the app (species picker, stat/move lookups, etc.) and always
+        // resolve to the official entry first, so a custom species sharing that name would
+        // be silently masked and its data never actually used.
+        const officialMatch = (pokedex || []).some(p =>
+            p.species?.toLowerCase() === species.species.trim().toLowerCase()
+        );
+        if (officialMatch) {
+            toast.warning(`"${species.species.trim()}" is already an official Pokédex species. To make a variant of it, give it a distinguishing name — e.g. "${species.species.trim()} (Shadow)" — the same way official regional forms are named.`);
             return;
         }
 

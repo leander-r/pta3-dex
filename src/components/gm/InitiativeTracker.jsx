@@ -401,6 +401,17 @@ const InitiativeTracker = () => {
 
     const clearRolls = () => setCombatants(prev => prev.map(c => ({ ...c, initiative: null })));
 
+    // currentTurn is a raw index into the sorted turn order. Removing a combatant shrinks
+    // and re-indexes that list, so without adjustment the same numeric index can silently
+    // point at a different combatant after the removal (e.g. removing 2nd of 4 leaves index
+    // 2 pointing at what was the 4th combatant instead of the 3rd).
+    const removeCombatant = (id) => {
+        const removedIndex = sorted.findIndex(c => c.id === id);
+        setCombatants(prev => prev.filter(c => c.id !== id));
+        if (removedIndex === -1) return;
+        setCurrentTurn(prev => (removedIndex < prev ? Math.max(0, prev - 1) : prev));
+    };
+
     const handleQuickRoll = (result) => {
         setRecentRolls(prev => [result, ...prev].slice(0, 8));
         if (sendToDiscord) sendToDiscord({ type: 'quick_check', ...result }, result.combatantName);
@@ -500,7 +511,7 @@ const InitiativeTracker = () => {
                             isActive={idx === activeIndex}
                             onRoll={() => rollOne(c.id)}
                             onHpChange={(val) => setCombatants(prev => prev.map(x => x.id === c.id ? { ...x, hp: { ...x.hp, current: val } } : x))}
-                            onRemove={() => setCombatants(prev => prev.filter(x => x.id !== c.id))}
+                            onRemove={() => removeCombatant(c.id)}
                             onQuickRoll={handleQuickRoll}
                         />
                     ))}
