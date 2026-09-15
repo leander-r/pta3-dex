@@ -15,7 +15,7 @@ const HonorThresholdsSection = () => {
         if (level === CLASS_2_MIN_LEVEL) notes.push('2nd class');
         if (level === CLASS_3_MIN_LEVEL) notes.push('3rd class');
         if (level === CLASS_4_MIN_LEVEL) notes.push('4th class');
-        if (HP_MILESTONE_LEVELS.includes(level)) notes.push('HP roll (1d4)');
+        if (HP_MILESTONE_LEVELS.includes(level)) notes.push('+1 to 2 different stats', 'HP roll (1d4)');
         return notes.join(', ');
     };
 
@@ -24,8 +24,8 @@ const HonorThresholdsSection = () => {
             <h3>Trainer Level — Honor Thresholds</h3>
             <p style={{ marginBottom: '15px', fontSize: '13px', color: 'var(--text-muted)' }}>
                 Trainers level up by earning <strong>Honors</strong> (Gym Badges, Contest Ribbons, story milestones, etc.).
-                Each level grants <strong>+2 stat points</strong>. HP milestone rolls (1d4) occur at levels 3, 7, and 11.
-                New class slots unlock at levels 3, 7, and 11.
+                Stat increases only happen at levels 3, 7, and 11 — each of those milestones grants <strong>+1 to two different stats</strong>.
+                Leveling up at any other level grants no new stat points. HP milestone rolls (1d4) and new class slots also occur at levels 3, 7, and 11.
             </p>
 
             <div style={{ overflowX: 'auto' }}>
@@ -60,7 +60,7 @@ const HonorThresholdsSection = () => {
                                         {honors}
                                     </td>
                                     <td style={{ padding: '8px', textAlign: 'center', color: '#4caf50', fontWeight: 'bold' }}>
-                                        {level === 0 ? '—' : '+2'}
+                                        {HP_MILESTONE_LEVELS.includes(level) ? '+2' : '—'}
                                     </td>
                                     <td style={{ padding: '8px', fontSize: '12px', color: isSpecial ? 'var(--color-purple)' : 'var(--text-muted)' }}>
                                         {notes || '—'}
@@ -81,7 +81,7 @@ const HonorThresholdsSection = () => {
                     </div>
                     <div style={{ padding: '10px', background: 'var(--bg-primary)', borderRadius: '6px' }}>
                         <div style={{ fontWeight: 'bold', color: 'var(--color-purple)' }}>Stat Points</div>
-                        <div>+2 per level, up to +28 total</div>
+                        <div>+2 only at Lv 3, 7, 11 (max +6 total)</div>
                     </div>
                     <div style={{ padding: '10px', background: 'var(--bg-primary)', borderRadius: '6px' }}>
                         <div style={{ fontWeight: 'bold', color: 'var(--color-purple)' }}>HP Milestones</div>
