@@ -11,4 +11,7 @@
   <circle cx="50" cy="50" r="13" fill="#ffffff" stroke="#212121" stroke-width="4"/>
   <!-- Inner button dot -->
   <circle cx="50" cy="50" r="6" fill="#bdbdbd"/>
+  <!-- PTA3 edition badge -->
+  <circle cx="78" cy="22" r="18" fill="#667eea" stroke="#212121" stroke-width="3"/>
+  <text x="78" y="29" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">3</text>
 </svg>

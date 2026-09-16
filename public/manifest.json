@@ -1,7 +1,7 @@
 {
-  "name": "PTA Dex",
-  "short_name": "PTA Dex",
-  "description": "Pokémon Tabletop Adventures Character Manager",
+  "name": "PTA3 Dex",
+  "short_name": "PTA3 Dex",
+  "description": "Pokémon Tabletop Adventures 3rd Edition Character Manager",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
