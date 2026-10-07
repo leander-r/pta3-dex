@@ -78,6 +78,8 @@ export const calculateSTAB = (_level) => STAB_BONUS;
 
 /**
  * Get actual Pokémon stats with nature modifier applied (PTA3: ±1 nature, no addedStats)
+ * Also layers on any permanent manual stat bonus (e.g. Breeder's Natural Edge, Evolver's
+ * Peak Form) — these never affect HP per RAW.
  */
 export const getActualStats = (pokemon) => {
     if (!pokemon) return { hp: 1, atk: 1, def: 1, satk: 1, sdef: 1, spd: 1 };
@@ -85,7 +87,14 @@ export const getActualStats = (pokemon) => {
     const base = pokemon.baseStats || { hp: 30, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 };
 
     // Apply nature modifications (±1, PTA3 rules)
-    return applyNature(base, pokemon.nature);
+    const withNature = applyNature(base, pokemon.nature);
+
+    const bonuses = pokemon.statBonuses || {};
+    const result = { ...withNature };
+    for (const stat of ['atk', 'def', 'satk', 'sdef', 'spd']) {
+        result[stat] = (result[stat] || 0) + (bonuses[stat] || 0);
+    }
+    return result;
 };
 
 /**

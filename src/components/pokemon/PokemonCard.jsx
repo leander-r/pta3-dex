@@ -108,6 +108,7 @@ const PokemonCard = ({
     };
     const tempBoosts = pokemon.tempStatBoosts || {};
     const heldBonuses = HELD_ITEM_BONUSES[pokemon.heldItem] || {};
+    const permBonuses = pokemon.statBonuses || {};
     const hasAnyTempBoost = Object.values(tempBoosts).some(v => v > 0);
 
     const primaryType = pokemon.types?.[0] || 'Normal';
@@ -2103,6 +2104,28 @@ const PokemonCard = ({
                                             >
                                                 +{heldBonus} 🎒
                                             </span>
+                                        )}
+                                        {stat !== 'hp' && (
+                                            <div
+                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px' }}
+                                                title="Permanent stat bonus from a class feature or GM ruling (e.g. Breeder's Natural Edge, Evolver's Peak Form) — entered manually."
+                                            >
+                                                <button
+                                                    onClick={() => updatePokemon({ statBonuses: { ...permBonuses, [stat]: Math.max(-6, (permBonuses[stat] || 0) - 1) } })}
+                                                    disabled={(permBonuses[stat] || 0) <= -6}
+                                                    style={{ padding: '0 5px', fontSize: '11px', background: 'none', color: '#8e24aa', border: '1px solid #8e24aa66', borderRadius: '4px', cursor: 'pointer', opacity: (permBonuses[stat] || 0) <= -6 ? 0.4 : 1 }}
+                                                    aria-label={`Decrease ${stat.toUpperCase()} permanent bonus`}
+                                                >−</button>
+                                                <span style={{ fontSize: '11px', color: '#8e24aa', fontWeight: 'bold', minWidth: '30px' }}>
+                                                    {(permBonuses[stat] || 0) >= 0 ? '+' : ''}{permBonuses[stat] || 0} 🔧
+                                                </span>
+                                                <button
+                                                    onClick={() => updatePokemon({ statBonuses: { ...permBonuses, [stat]: Math.min(6, (permBonuses[stat] || 0) + 1) } })}
+                                                    disabled={(permBonuses[stat] || 0) >= 6}
+                                                    style={{ padding: '0 5px', fontSize: '11px', background: 'none', color: '#8e24aa', border: '1px solid #8e24aa66', borderRadius: '4px', cursor: 'pointer', opacity: (permBonuses[stat] || 0) >= 6 ? 0.4 : 1 }}
+                                                    aria-label={`Increase ${stat.toUpperCase()} permanent bonus`}
+                                                >+</button>
+                                            </div>
                                         )}
                                     </div>
                                 );

@@ -7,6 +7,7 @@ import {
     applyNature,
     calculatePokemonHP,
     calculateSTAB,
+    getActualStats,
 } from '../dataUtils.js';
 
 describe('calcModifier', () => {
@@ -129,6 +130,37 @@ describe('calculatePokemonHP', () => {
 
     it('returns 0 for null input', () => {
         expect(calculatePokemonHP(null)).toBe(0);
+    });
+});
+
+describe('getActualStats', () => {
+    it('stacks a permanent statBonus on top of the nature-adjusted stat', () => {
+        const pokemon = {
+            baseStats: { hp: 30, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 },
+            nature: 'Adamant', // +1 atk, -1 satk
+            statBonuses: { atk: 2, def: 0, satk: 0, sdef: 0, spd: 0 },
+        };
+        const result = getActualStats(pokemon);
+        expect(result.atk).toBe(8); // 5 base + 1 nature + 2 bonus
+        expect(result.satk).toBe(4); // 5 base - 1 nature, no bonus
+    });
+
+    it('defaults statBonuses to no-op when absent', () => {
+        const pokemon = {
+            baseStats: { hp: 30, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 },
+            nature: 'Hardy',
+        };
+        const result = getActualStats(pokemon);
+        expect(result).toEqual(pokemon.baseStats);
+    });
+
+    it('never applies a statBonus to HP', () => {
+        const pokemon = {
+            baseStats: { hp: 30, atk: 5, def: 5, satk: 5, sdef: 5, spd: 5 },
+            nature: 'Hardy',
+            statBonuses: { atk: 0, def: 0, satk: 0, sdef: 0, spd: 0, hp: 99 },
+        };
+        expect(getActualStats(pokemon).hp).toBe(30);
     });
 });
 

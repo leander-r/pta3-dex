@@ -37,6 +37,7 @@ export interface Pokemon {
   nature: string;
   ability: string;
   baseStats: BaseStats;
+  statBonuses?: { atk: number; def: number; satk: number; sdef: number; spd: number };
   moves: Move[];
   notes: string;
   loyalty: number;

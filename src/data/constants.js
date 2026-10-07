@@ -78,6 +78,7 @@ export const DEFAULT_POKEMON = {
     loyalty: 2,
     heldItem: '',
     tempStatBoosts: {},     // Temporary stat boosts from X items / battle berries; keyed by stat
+    statBonuses: { atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 }, // Permanent manual bonuses (e.g. Breeder's Natural Edge, Evolver's Peak Form)
     specialForm: null,      // null | 'alpha' | 'totem' | 'titan' — special encounter form
     specialFormDefStat: 'def', // Which defense is raised to 15 in Alpha/Totem form
     teraType: '',  // Tera Type: stored permanently on Pokémon (like nature/ability)

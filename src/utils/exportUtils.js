@@ -185,6 +185,7 @@ export const exportSinglePokemon = (pokemon) => {
             abilities: pokemon.abilities || [],
             moves: pokemon.moves || [],
             baseStats: pokemon.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 },
+            statBonuses: pokemon.statBonuses || { atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 },
             currentDamage: pokemon.currentDamage || 0,
             gender: pokemon.gender || '',
             avatar: pokemon.avatar || ''
@@ -309,6 +310,23 @@ const validateStats = (stats, maxValue, maxHp = maxValue) => {
         satk: clampNumber(stats.satk, 1, maxValue, 10),
         sdef: clampNumber(stats.sdef, 1, maxValue, 10),
         spd: clampNumber(stats.spd, 1, maxValue, 10)
+    };
+};
+
+/**
+ * Validate a permanent stat bonus object (e.g. Breeder's Natural Edge, Evolver's Peak Form).
+ * Never includes HP — those features don't touch it.
+ */
+const validateStatBonuses = (bonuses) => {
+    const defaults = { atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 };
+    if (!bonuses || typeof bonuses !== 'object') return defaults;
+
+    return {
+        atk: clampNumber(bonuses.atk, -10, 10, 0),
+        def: clampNumber(bonuses.def, -10, 10, 0),
+        satk: clampNumber(bonuses.satk, -10, 10, 0),
+        sdef: clampNumber(bonuses.sdef, -10, 10, 0),
+        spd: clampNumber(bonuses.spd, -10, 10, 0)
     };
 };
 
@@ -485,6 +503,7 @@ export const importSinglePokemon = (jsonData) => {
             ability3: sanitizeString(pokemon.ability3 || '', 50),
             moves,
             baseStats: validateStats(pokemon.baseStats, IMPORT_LIMITS.MAX_STAT, IMPORT_LIMITS.MAX_HP_STAT),
+            statBonuses: validateStatBonuses(pokemon.statBonuses),
             currentDamage: clampNumber(pokemon.currentDamage, 0, 9999, 0),
             gender,
             avatar: validateAvatar(pokemon.avatar),
@@ -566,7 +585,7 @@ export const generatePrintSheetHTML = (trainer, party) => {
                 <span>${types} · Max HP: ${pokeMaxHP}${badgesHtml}</span>
             </div>
             <p style="margin:4px 0;font-size:12px;"><strong>Nature:</strong> ${poke.nature || 'Hardy'} &nbsp; <strong>Abilities:</strong> ${abilities}</p>
-            ${statTable(poke.baseStats)}
+            ${statTable(getActualStats(poke))}
             <table class="move-table">
                 <thead><tr><th>Move</th><th>Type</th><th>Cat.</th><th>Damage</th><th>Frequency</th></tr></thead>
                 <tbody>${movesRows}</tbody>

@@ -148,7 +148,8 @@ export const PokemonProvider = ({ children }) => {
             moves: [],
             skills: [],
             notes: '',
-            loyalty: 2
+            loyalty: 2,
+            statBonuses: { atk: 0, def: 0, satk: 0, sdef: 0, spd: 0 }
         };
 
         if (pokemonView === 'party' && partyRef.current.length < MAX_PARTY_SIZE) {
