@@ -538,6 +538,17 @@
         .nav-button .nav-icon {
             font-size: 1.1em;
             transition: transform var(--transition-normal);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Icons size off the wrapper's font-size (em), so existing desktop vs.
+           mobile-bottom-bar .nav-icon font-size rules keep working unchanged. */
+        .nav-icon svg {
+            width: 1em;
+            height: 1em;
+            display: block;
         }
 
         .nav-button:hover .nav-icon {
@@ -547,6 +558,59 @@
         /* Mobile-only label — hidden on desktop, shown in bottom bar via media query */
         .nav-mobile-label {
             display: none;
+        }
+
+        /* "More" overflow trigger — only meaningful in the mobile bottom bar;
+           the desktop sidebar has room to show every tab directly. */
+        .nav-more-button {
+            display: none;
+        }
+
+        .nav-more-popover {
+            position: fixed;
+            right: 10px;
+            bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+            background: var(--poke-white);
+            border: 2px solid var(--poke-orange-light);
+            border-radius: 12px;
+            box-shadow: 0 -4px 20px var(--poke-shadow);
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 201;
+            min-width: 170px;
+            animation: fadeIn 0.15s ease-out;
+        }
+
+        .nav-more-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .nav-more-item .nav-icon {
+            font-size: 1.2em;
+        }
+
+        .nav-more-item:hover,
+        .nav-more-item:focus-visible {
+            background: var(--poke-orange-light);
+        }
+
+        .nav-more-item.active {
+            background: linear-gradient(135deg, var(--poke-orange) 0%, var(--poke-orange-dark) 100%);
+            color: white;
         }
 
         .stat-grid {
@@ -3097,6 +3161,15 @@
                 display: block;
             }
 
+            /* Bottom bar only has room for ~5-6 slots: show the primary tabs
+               directly and collapse the rest (Notes, GM Tools) into "More". */
+            .nav-secondary {
+                display: none;
+            }
+            .nav-more-button {
+                display: flex;
+            }
+
             /* Hide onboarding checklist and divider — no room in bottom bar.
                (Reachable instead via Header's "Getting Started" / "Help Topics"
                menu items, which are not part of this bottom nav bar.) */
@@ -3893,6 +3966,16 @@
         [data-theme="dark"] .nav-button.active {
             background: linear-gradient(135deg, var(--poke-orange) 0%, var(--poke-orange-dark) 100%);
             color: white;
+        }
+
+        [data-theme="dark"] .nav-more-popover {
+            background: var(--poke-cream);
+            border-color: var(--poke-orange-dark);
+        }
+
+        [data-theme="dark"] .nav-more-item:hover,
+        [data-theme="dark"] .nav-more-item:focus-visible {
+            background: var(--bg-light);
         }
 
         [data-theme="dark"] .section-card,
@@ -5107,6 +5190,21 @@
         [data-theme="dark"] .header-dropdown-menu {
             background: var(--poke-cream) !important;
             border-color: #c47f15 !important;
+        }
+
+        /* Character/Account menu uses the app's existing identity accent
+           (same purple as TrainerProfile/TrainerClasses/TrainerOrigin) instead
+           of the Data & Export menu's orange, so the two are easy to tell apart. */
+        [data-theme="dark"] .header-dropdown-menu.menu-account {
+            border-color: var(--color-purple-dark) !important;
+        }
+
+        .header-dropdown-menu.menu-account .header-menu-item.hovered {
+            background: #eef0fd;
+        }
+
+        [data-theme="dark"] .header-dropdown-menu.menu-account .header-menu-item.hovered {
+            background: #2a2a40 !important;
         }
 
         .header-menu-item {

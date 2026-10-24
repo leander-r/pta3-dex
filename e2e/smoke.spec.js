@@ -28,7 +28,9 @@ test.beforeEach(async ({ page }) => {
 test('app shell renders header and navigation', async ({ page }) => {
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('[role="navigation"]')).toBeVisible();
-    await expect(page.locator('.nav-button')).toHaveCount(10);
+    // 7 nav tabs + 1 mobile-only "More" overflow trigger. Actions (save/load,
+    // export, print) live in the header's menus, not the nav.
+    await expect(page.locator('.nav-button')).toHaveCount(8);
 });
 
 test('trainer tab is active by default', async ({ page }) => {
@@ -65,15 +67,15 @@ test('theme toggle switches between light and dark', async ({ page }) => {
     const html         = page.locator('html');
     const initialTheme = await html.getAttribute('data-theme');
 
-    // Theme toggle is now inside the hamburger menu
-    await page.locator('[aria-label="Open menu"]').click();
+    // Theme toggle lives in the Character & Account menu
+    await page.locator('[aria-label="Open Character & Account menu"]').click();
     await page.locator('.header-menu-item', { hasText: /mode/i }).click();
 
     const newTheme = await html.getAttribute('data-theme');
     expect(newTheme).not.toBe(initialTheme);
 
     // Toggle back
-    await page.locator('[aria-label="Open menu"]').click();
+    await page.locator('[aria-label="Open Character & Account menu"]').click();
     await page.locator('.header-menu-item', { hasText: /mode/i }).click();
     await expect(html).toHaveAttribute('data-theme', initialTheme);
 });

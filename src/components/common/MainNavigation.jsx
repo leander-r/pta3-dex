@@ -1,95 +1,105 @@
 // ============================================================
 // Main Navigation Component
 // ============================================================
-// Sidebar navigation extracted from App.jsx
+// Sidebar / bottom-bar navigation. Holds ONLY navigation tabs —
+// actions (save/load, export, print) live in the header menus.
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { TABS } from '../../data/constants.js';
-import { useModal } from '../../contexts/index.js';
-import { useTrainerContext } from '../../contexts/TrainerContext.jsx';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
+import { IconPerson, IconPokeball, IconBag, IconDice, IconBook, IconFileText, IconMap, IconKebab } from './NavIcons.jsx';
 
+// `primary: true` tabs get a permanent slot in the mobile bottom bar.
+// The rest collapse into the "More" overflow popover on mobile (desktop
+// sidebar always shows every tab — there's room).
 const NAV_ITEMS = [
-    { tab: TABS.TRAINER,   icon: '👤', label: 'Trainer',        mobileLabel: 'Trainer' },
-    { tab: TABS.POKEMON,   icon: '🎮', label: 'Pokémon Team',   mobileLabel: 'Pokémon' },
-    { tab: TABS.INVENTORY, icon: '🎒', label: 'Inventory',      mobileLabel: 'Items'   },
-    { tab: TABS.BATTLE,    icon: '🎲', label: 'Dice Roller',    mobileLabel: 'Battle'  },
-    { tab: TABS.REFERENCE, icon: '📚', label: 'Quick Reference', mobileLabel: 'Refs'   },
-    { tab: TABS.NOTES,     icon: '📝', label: 'Campaign Notes', mobileLabel: 'Notes'   },
-    { tab: TABS.GM,        icon: '🗺️', label: 'GM Tools',       mobileLabel: 'GM'      },
+    { tab: TABS.TRAINER,   icon: IconPerson,   label: 'Trainer',         mobileLabel: 'Trainer', primary: true },
+    { tab: TABS.POKEMON,   icon: IconPokeball, label: 'Pokémon Team',    mobileLabel: 'Pokémon', primary: true },
+    { tab: TABS.INVENTORY, icon: IconBag,       label: 'Inventory',       mobileLabel: 'Items',   primary: true },
+    { tab: TABS.BATTLE,    icon: IconDice,      label: 'Dice Roller',     mobileLabel: 'Battle',  primary: true },
+    { tab: TABS.REFERENCE, icon: IconBook,      label: 'Quick Reference', mobileLabel: 'Refs',    primary: true },
+    { tab: TABS.NOTES,     icon: IconFileText,  label: 'Campaign Notes',  mobileLabel: 'Notes',   primary: false },
+    { tab: TABS.GM,        icon: IconMap,       label: 'GM Tools',        mobileLabel: 'GM',      primary: false },
 ];
 
+const SECONDARY_ITEMS = NAV_ITEMS.filter(i => !i.primary);
 
 const MainNavigation = ({ activeTab, setActiveTab }) => {
-    const { openSaveLoadModal, setShowCardModal, openPrintSheet } = useModal();
-    const { trainer } = useTrainerContext();
     const { steps, allDone, dismissed, dismiss } = useOnboarding();
+    const [showMore, setShowMore] = useState(false);
+    const moreRef = useRef(null);
 
     const showChecklist = !dismissed && !allDone;
     const showAllDone   = !dismissed && allDone;
 
+    // Close the overflow popover on outside click/tap or Escape
+    useEffect(() => {
+        if (!showMore) return;
+        const handleOutside = (e) => {
+            if (moreRef.current && !moreRef.current.contains(e.target)) setShowMore(false);
+        };
+        const handleKey = (e) => { if (e.key === 'Escape') setShowMore(false); };
+        document.addEventListener('mousedown', handleOutside);
+        document.addEventListener('touchstart', handleOutside, { passive: true });
+        document.addEventListener('keydown', handleKey);
+        return () => {
+            document.removeEventListener('mousedown', handleOutside);
+            document.removeEventListener('touchstart', handleOutside);
+            document.removeEventListener('keydown', handleKey);
+        };
+    }, [showMore]);
+
     return (
         <div className="sidebar" role="navigation" aria-label="Main navigation">
-            {NAV_ITEMS.map(({ tab, icon, label, mobileLabel }) => (
+            {NAV_ITEMS.map(({ tab, icon: Icon, label, mobileLabel, primary }) => (
                 <button
                     key={tab}
-                    className={`nav-button ${activeTab === tab ? 'active' : ''}`}
+                    className={`nav-button ${activeTab === tab ? 'active' : ''} ${primary ? '' : 'nav-secondary'}`}
                     onClick={() => setActiveTab(tab)}
                     aria-current={activeTab === tab ? 'page' : undefined}
                     aria-label={label}
                 >
-                    <span className="nav-icon">{icon}</span>
+                    <span className="nav-icon"><Icon /></span>
                     <span className="nav-label">{label}</span>
                     <span className="nav-mobile-label">{mobileLabel}</span>
                 </button>
             ))}
 
-            <div className="nav-divider" style={{ height: '1px', background: 'var(--border-light)', margin: '8px 0' }} />
-
-            <button
-                className="nav-button nav-saveload"
-                onClick={openSaveLoadModal}
-                title="Save or load a game state snapshot"
-                aria-label="Open save and load menu"
-            >
-                <span className="nav-icon">💾</span>
-                <span className="nav-label">Save / Load</span>
-                <span className="nav-mobile-label">Save</span>
-            </button>
-
-            {/* Export section — hidden on mobile (bottom bar has no room) */}
-            <div className="nav-checklist" style={{ margin: '8px 0 0' }}>
-                <div style={{ height: '1px', background: 'var(--border-light)', margin: '0 8px 6px' }} />
-                <div style={{
-                    padding: '2px 10px 4px',
-                    fontSize: '10px', fontWeight: 800,
-                    color: 'var(--text-muted)',
-                    textTransform: 'uppercase', letterSpacing: '0.8px'
-                }}>
-                    Share &amp; Export
-                </div>
+            {/* Mobile-only overflow trigger — hidden on desktop via CSS since the
+                sidebar has room to show every tab directly. `display:contents` keeps
+                the button (and popover) as direct flex children of .sidebar on mobile. */}
+            <div style={{ display: 'contents' }} ref={moreRef}>
                 <button
-                    className="nav-button"
-                    onClick={() => setShowCardModal(true)}
-                    title={`Export trainer and Pokémon cards for ${trainer?.name || 'trainer'}`}
-                    style={{ marginBottom: '2px' }}
+                    className="nav-button nav-more-button"
+                    onClick={() => setShowMore(p => !p)}
+                    aria-expanded={showMore}
+                    aria-haspopup="true"
+                    aria-label="More navigation options"
                 >
-                    <span className="nav-icon">🃏</span>
-                    <span className="nav-label">Export Cards</span>
-                    <span className="nav-mobile-label">Cards</span>
+                    <span className="nav-icon"><IconKebab /></span>
+                    <span className="nav-label">More</span>
+                    <span className="nav-mobile-label">More</span>
                 </button>
-                <button
-                    className="nav-button"
-                    onClick={openPrintSheet}
-                    title="Print or save a character sheet as PDF"
-                >
-                    <span className="nav-icon">🖨️</span>
-                    <span className="nav-label">Print Sheet</span>
-                    <span className="nav-mobile-label">Print</span>
-                </button>
+
+                {showMore && (
+                    <div className="nav-more-popover" role="menu">
+                        {SECONDARY_ITEMS.map(({ tab, icon: Icon, label }) => (
+                            <button
+                                key={tab}
+                                role="menuitem"
+                                className={`nav-more-item ${activeTab === tab ? 'active' : ''}`}
+                                onClick={() => { setActiveTab(tab); setShowMore(false); }}
+                            >
+                                <span className="nav-icon"><Icon /></span>
+                                <span>{label}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/* Onboarding checklist — hidden on mobile (bottom bar has no room) */}
+            {/* Onboarding checklist — hidden on mobile (bottom bar has no room).
+                Reachable instead via Header's "Getting Started" / "Help Topics" menu items. */}
             {showChecklist && (
                 <div className="nav-checklist" style={{
                     margin: '10px 8px 0',
@@ -181,7 +191,7 @@ const MainNavigation = ({ activeTab, setActiveTab }) => {
                         fontSize: '12px',
                         lineHeight: '1.5'
                     }}>
-                        ⓘ Auto-saves every minute. Use Save/Load for snapshots.
+                        ⓘ Auto-saves every minute. Use the header's Data &amp; Export menu for snapshots.
                     </div>
                 </div>
             )}
