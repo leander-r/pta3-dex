@@ -2972,7 +2972,20 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
         }
-        
+
+        /* Pokémon roster: compact tile grid, Android app-icon density */
+        .pokemon-roster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        /* The decorative separator line assumes vertical stacking; it looks
+           broken floating under tiles that sit mid-row in a grid */
+        .pokemon-roster-grid .pokemon-card::after {
+            display: none;
+        }
+
         /* Trainer stats grid - 2 columns on mobile */
         .trainer-stats-grid {
             gap: 10px;
@@ -3445,7 +3458,12 @@
             .pokemon-list .pokemon-card::after {
                 display: none;
             }
-            
+
+            .pokemon-roster-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
             .pokemon-name {
                 font-size: 16px;
             }
@@ -3576,7 +3594,13 @@
             body {
                 padding: 5px;
             }
-            
+
+            /* 2-column floor so the roster keeps an app-icon grid feel on phones */
+            .pokemon-roster-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px;
+            }
+
             .header {
                 padding: 10px 12px;
             }
@@ -3692,16 +3716,6 @@
                 font-size: 11px;
             }
 
-            /* Collapsed quick-action buttons: icon only, no text label */
-            .quick-action-btn span {
-                display: none;
-            }
-
-            .quick-action-btn {
-                min-width: 30px;
-                justify-content: center;
-            }
-
             /* Level/EXP/Nature: 2-col grid, EXP spans full width */
             .pokemon-info-grid {
                 grid-template-columns: 1fr 1fr;
@@ -3722,6 +3736,11 @@
             /* Reclaim 8px of horizontal space — every pixel counts */
             .content-area {
                 padding: 8px 8px calc(72px + env(safe-area-inset-bottom, 0px)) 8px;
+            }
+
+            .pokemon-roster-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 6px;
             }
 
             /* Header — keep trainer selector from overflowing */
@@ -4269,6 +4288,23 @@
             padding: 15px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 150px;
+            /* Base .pokemon-card sets overflow:hidden to clip the ::before top
+               bar to the rounded corners; the tile's overflow menu popover
+               needs to escape the card bounds, so it must be visible here */
+            overflow: visible;
+        }
+
+        .pokemon-tile-menu-item:hover {
+            background: var(--collapsed-btn-bg);
+        }
+
+        .pokemon-tile-menu-item:disabled {
+            cursor: not-allowed;
         }
 
         .pokemon-card-expanded {

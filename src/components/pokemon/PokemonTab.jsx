@@ -799,7 +799,7 @@ const PokemonTab = () => {
                     )}
                 </div>
             ) : (
-                <div style={{ display: 'grid', gap: '15px' }}>
+                <div className="pokemon-roster-grid">
                     {filteredList.map((pokemon) => {
                         // Use actual position in unfiltered list for move up/down
                         const actualIndex = currentList.findIndex(p => p.id === pokemon.id);
