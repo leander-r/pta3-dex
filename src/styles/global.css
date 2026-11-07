@@ -3001,6 +3001,10 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             border: 1px solid var(--border-light, #e0e0e0);
             font-family: inherit;
+            /* Tiles are sometimes a <button> (Loyalty/Special Form pickers, Inventory
+               tiles) — without this, the UA button color (near-black) wins over the
+               inherited theme text color, which is invisible on a dark-mode tile. */
+            color: inherit;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -3030,6 +3034,7 @@
             padding: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             font-family: inherit;
+            color: inherit;
             display: flex;
             flex-direction: column;
             align-items: center;
