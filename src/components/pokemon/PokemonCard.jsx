@@ -1246,26 +1246,26 @@ const PokemonCard = ({
                             </div>
                         </div>
 
-                        {/* Nature & Gender */}
-                        <div className="pokemon-info-grid">
-                            <div>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Nature</label>
+                        {/* Nature / Gender / Tera Type */}
+                        <div className="detail-tile-grid" style={{ marginBottom: '15px' }}>
+                            <div className="detail-tile" style={{ borderTop: '3px solid #667eea', alignItems: 'stretch' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Nature</label>
                                 <select
                                     value={pokemon.nature || 'Hardy'}
                                     onChange={(e) => updatePokemon({ nature: e.target.value })}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
                                 >
                                     {Object.keys(GAME_DATA.natures || {}).map(nature => (
                                         <option key={nature} value={nature}>{nature}</option>
                                     ))}
                                 </select>
                             </div>
-                            <div>
-                                <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Gender</label>
+                            <div className="detail-tile" style={{ borderTop: '3px solid #667eea', alignItems: 'stretch' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Gender</label>
                                 <select
                                     value={pokemon.gender || ''}
                                     onChange={(e) => updatePokemon({ gender: e.target.value })}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
                                 >
                                     <option value="">Unknown</option>
                                     <option value="male">Male ♂</option>
@@ -1273,57 +1273,57 @@ const PokemonCard = ({
                                     <option value="genderless">Genderless ⚪</option>
                                 </select>
                             </div>
-                        </div>
-
-                        {/* Appearance (Shiny toggle) */}
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>Appearance</label>
-                            <button
-                                onClick={() => updatePokemon({ isShiny: !pokemon.isShiny })}
-                                style={{
-                                    padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
-                                    background: pokemon.isShiny ? 'linear-gradient(135deg, #f9a825, #fdd835)' : 'var(--input-bg)',
-                                    color: pokemon.isShiny ? '#333' : 'var(--text-muted)',
-                                    border: pokemon.isShiny ? '2px solid #f9a825' : '1px solid var(--border-medium)'
-                                }}
-                            >✨ {pokemon.isShiny ? 'Shiny' : 'Normal'}</button>
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '8px' }}>Cosmetic only — no stat difference</span>
-                        </div>
-
-                        {/* Tera Type */}
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '4px', display: 'block' }}>Tera Type</label>
-                            <select
-                                value={pokemon.teraType || ''}
-                                onChange={(e) => updatePokemon({ teraType: e.target.value })}
-                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                            >
-                                <option value="">None</option>
-                                {['Normal','Fire','Water','Electric','Grass','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'].map(t => (
-                                    <option key={t} value={t}>{t}</option>
-                                ))}
-                            </select>
+                            <div className="detail-tile" style={{ borderTop: '3px solid #667eea', alignItems: 'stretch' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Tera Type</label>
+                                <select
+                                    value={pokemon.teraType || ''}
+                                    onChange={(e) => updatePokemon({ teraType: e.target.value })}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                >
+                                    <option value="">None</option>
+                                    {['Normal','Fire','Water','Electric','Grass','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'].map(t => (
+                                        <option key={t} value={t}>{t}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="detail-tile" style={{ borderTop: '3px solid #f9a825' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Appearance</label>
+                                <button
+                                    onClick={() => updatePokemon({ isShiny: !pokemon.isShiny })}
+                                    style={{
+                                        padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                        background: pokemon.isShiny ? 'linear-gradient(135deg, #f9a825, #fdd835)' : 'var(--input-bg)',
+                                        color: pokemon.isShiny ? '#333' : 'var(--text-muted)',
+                                        border: pokemon.isShiny ? '2px solid #f9a825' : '1px solid var(--border-medium)'
+                                    }}
+                                >✨ {pokemon.isShiny ? 'Shiny' : 'Normal'}</button>
+                                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Cosmetic only</span>
+                            </div>
                         </div>
 
                         {/* Loyalty */}
                         <div style={{ marginBottom: '15px' }}>
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '6px', display: 'block' }}>Loyalty</label>
-                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                            <div className="detail-tile-grid">
                                 {LOYALTY_INFO.map(info => {
                                     const current = pokemon.loyalty ?? 2;
+                                    const isSelected = current === info.level;
                                     return (
                                         <button
                                             key={info.level}
                                             onClick={() => updatePokemon({ loyalty: info.level })}
                                             title={info.desc}
+                                            className="detail-tile"
                                             style={{
-                                                padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
-                                                background: current === info.level ? info.color : 'var(--input-bg)',
-                                                color: current === info.level ? 'white' : 'var(--text-muted)',
-                                                border: current === info.level ? `2px solid ${info.color}` : '1px solid var(--border-medium)'
+                                                cursor: 'pointer',
+                                                border: isSelected ? `2px solid ${info.color}` : undefined,
+                                                borderTop: `3px solid ${info.color}`,
+                                                boxShadow: isSelected ? `0 4px 14px ${info.color}66` : undefined,
+                                                color: isSelected ? info.color : undefined
                                             }}
                                         >
-                                            {info.icon} {info.level} – {info.label}
+                                            <span style={{ fontSize: '20px' }}>{info.icon}</span>
+                                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{info.level} – {info.label}</span>
                                         </button>
                                     );
                                 })}
@@ -1360,7 +1360,7 @@ const PokemonCard = ({
                         {/* Special Form (Alpha / Totem / Titan) */}
                         <div style={{ marginBottom: '15px' }}>
                             <label style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '6px', display: 'block' }}>Special Form</label>
-                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                            <div className="detail-tile-grid">
                                 {[{ id: null, label: 'Normal', icon: '—', color: '#607d8b', desc: 'Standard Pokémon encounter.' },
                                   { id: 'alpha',    ...SPECIAL_FORM_INFO.alpha },
                                   { id: 'totem',    ...SPECIAL_FORM_INFO.totem },
@@ -1368,19 +1368,23 @@ const PokemonCard = ({
                                   { id: 'shadow',   ...SPECIAL_FORM_INFO.shadow },
                                   { id: 'purified', ...SPECIAL_FORM_INFO.purified }].map(opt => {
                                     const current = pokemon.specialForm || null;
+                                    const isSelected = current === opt.id;
                                     return (
                                         <button
                                             key={String(opt.id)}
                                             onClick={() => updatePokemon({ specialForm: opt.id })}
                                             title={opt.desc}
+                                            className="detail-tile"
                                             style={{
-                                                padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
-                                                background: current === opt.id ? opt.color : 'var(--input-bg)',
-                                                color: current === opt.id ? 'white' : 'var(--text-muted)',
-                                                border: current === opt.id ? `2px solid ${opt.color}` : '1px solid var(--border-medium)'
+                                                cursor: 'pointer',
+                                                border: isSelected ? `2px solid ${opt.color}` : undefined,
+                                                borderTop: `3px solid ${opt.color}`,
+                                                boxShadow: isSelected ? `0 4px 14px ${opt.color}66` : undefined,
+                                                color: isSelected ? opt.color : undefined
                                             }}
                                         >
-                                            {opt.icon} {opt.label}
+                                            <span style={{ fontSize: '20px' }}>{opt.icon}</span>
+                                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{opt.label}</span>
                                         </button>
                                     );
                                 })}

@@ -2999,7 +2999,8 @@
             border-radius: 12px;
             padding: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--border-light, #e0e0e0);
+            font-family: inherit;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -3014,9 +3015,11 @@
             transform: translateY(-2px);
         }
 
+        /* Border color comes from the var() above so themed borders stay correct;
+           only background needs a dark-mode override (and must not use !important
+           on border, which would clobber the per-tile accent colors set inline). */
         [data-theme="dark"] .detail-tile {
             background: var(--poke-white) !important;
-            border-color: var(--border-light) !important;
         }
 
         .detail-tile-remove {
