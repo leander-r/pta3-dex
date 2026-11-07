@@ -9,7 +9,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTrainerContext, useData, useUI, useModal } from '../../contexts/index.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import toast from '../../utils/toast.js';
-import { IconSave, IconPerson } from './NavIcons.jsx';
+import { IconSave, IconPerson, IconPokeball } from './NavIcons.jsx';
 
 const MenuItem = ({ id, icon, label, subtitle, onClick, danger, disabled, disabledReason, hoveredItem, setHoveredItem, title }) => {
     // When disabled, the reason is always shown as visible subtext — a title
@@ -159,7 +159,7 @@ const Header = () => {
         setEditingPokemon(null);
     };
 
-    // Only one of the two menus can be open at a time: null | 'data' | 'account'
+    // Only one of the three menus can be open at a time: null | 'data' | 'account' | 'trainer'
     const [openMenu, setOpenMenu] = useState(null);
     const [showArchivedSection, setShowArchivedSection] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
@@ -168,8 +168,18 @@ const Header = () => {
     const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 360);
     const dataButtonRef = useRef(null);
     const accountButtonRef = useRef(null);
+    const trainerButtonRef = useRef(null);
     const dataDropdownRef = useRef(null);
     const accountDropdownRef = useRef(null);
+    const trainerDropdownRef = useRef(null);
+
+    // Lookup used by the shared focus/click-outside/keyboard-nav effects below,
+    // so adding a third (or fourth) menu doesn't mean touching that logic again.
+    const menuRefs = {
+        data: { button: dataButtonRef, dropdown: dataDropdownRef },
+        account: { button: accountButtonRef, dropdown: accountDropdownRef },
+        trainer: { button: trainerButtonRef, dropdown: trainerDropdownRef }
+    };
 
     const toggleTheme = () => {
         setTheme(theme === 'light' ? 'dark' : 'light');
@@ -210,7 +220,7 @@ const Header = () => {
 
     // Move focus to the first menu item when a dropdown opens (H3)
     useEffect(() => {
-        const dropdownRef = openMenu === 'data' ? dataDropdownRef : openMenu === 'account' ? accountDropdownRef : null;
+        const dropdownRef = menuRefs[openMenu]?.dropdown;
         if (dropdownRef?.current) {
             const firstBtn = dropdownRef.current.querySelector('button:not([disabled])');
             if (firstBtn) setTimeout(() => firstBtn.focus(), 50);
@@ -220,8 +230,8 @@ const Header = () => {
     // Close menu when clicking/touching outside, or pressing Escape
     useEffect(() => {
         if (!openMenu) return;
-        const buttonRef = openMenu === 'data' ? dataButtonRef : accountButtonRef;
-        const dropdownRef = openMenu === 'data' ? dataDropdownRef : accountDropdownRef;
+        const buttonRef = menuRefs[openMenu].button;
+        const dropdownRef = menuRefs[openMenu].dropdown;
 
         const handleClickOutside = (event) => {
             if (
@@ -339,7 +349,12 @@ const Header = () => {
                     <span>{(trainer.money || 0).toLocaleString()}</span>
                 </div>
 
-                {/* Trainer Selector */}
+                {/* Trainer Selector — a button + dropdown panel rather than a native
+                    <select>, because a native select has no room to show a full
+                    trainer name once squeezed into the mobile header strip (and
+                    many mobile browsers clip the closed value without an ellipsis
+                    at all). The collapsed button only needs the level — the panel
+                    it opens shows every trainer's full, untruncated name. */}
                 <div
                     className="header-trainer-selector"
                     style={{
@@ -349,45 +364,128 @@ const Header = () => {
                         alignItems: 'center',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                         transition: 'all 0.25s ease',
-                        flexShrink: 1,
-                        minWidth: 0,
-                        maxWidth: isMobile ? '150px' : 'none'
+                        flexShrink: 0,
+                        position: 'relative'
                     }}
                 >
-                    <select
-                        value={activeTrainerId || ''}
-                        onChange={(e) => handleTrainerChange(parseInt(e.target.value, 10))}
-                        title={trainer ? `${trainer.name || 'Unnamed'} (Lv.${trainer.level})` : undefined}
+                    <button
+                        ref={trainerButtonRef}
+                        onClick={() => setOpenMenu(p => p === 'trainer' ? null : 'trainer')}
+                        onTouchEnd={(e) => { e.preventDefault(); setOpenMenu(p => p === 'trainer' ? null : 'trainer'); }}
+                        aria-haspopup="true"
+                        aria-expanded={openMenu === 'trainer'}
+                        aria-label={trainer ? `Switch trainer — currently ${trainer.name || 'Unnamed'}, level ${trainer.level}` : 'Switch trainer'}
+                        title={trainer ? `${trainer.name || 'Unnamed'} (Lv.${trainer.level}) — tap to switch trainer` : undefined}
                         className="header-trainer-select"
                         style={{
                             paddingTop: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
                             paddingBottom: isMobile ? '5px' : (isScrolled ? '6px' : '8px'),
                             paddingLeft: isMobile ? '8px' : (isScrolled ? '10px' : '12px'),
-                            paddingRight: isMobile ? '24px' : '32px',
+                            paddingRight: isMobile ? '8px' : (isScrolled ? '10px' : '12px'),
                             borderRadius: '10px',
                             border: 'none',
                             background: 'transparent',
                             fontWeight: 700,
                             cursor: 'pointer',
                             fontSize: isMobile ? '12px' : (isScrolled ? '13px' : '14px'),
-                            minWidth: 0,
-                            width: '100%',
-                            appearance: 'none',
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23f5a623' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                            backgroundRepeat: 'no-repeat',
-                            backgroundPosition: isMobile ? 'right 6px center' : 'right 10px center',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
                             transition: 'all 0.25s ease',
-                            textOverflow: 'ellipsis',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap'
+                            WebkitTapHighlightColor: 'transparent',
+                            touchAction: 'manipulation'
                         }}
                     >
-                        {activeTrainers.map(t => (
-                            <option key={t.id} value={t.id}>
-                                {t.name || 'Unnamed'} (Lv.{t.level})
-                            </option>
-                        ))}
-                    </select>
+                        <IconPokeball size={isMobile ? 14 : 16} stroke={openMenu === 'trainer' ? '#e8941c' : '#f5a623'} strokeWidth={2.5} />
+                        <span>Lv.{trainer?.level ?? '-'}</span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
+                            style={{ opacity: 0.7, transform: openMenu === 'trainer' ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+
+                    {openMenu === 'trainer' && (
+                        <div ref={trainerDropdownRef} className="header-dropdown-menu menu-trainer" style={{
+                            position: 'absolute',
+                            // Centered under the button (rather than left/right-anchored like the
+                            // other two header menus) because this button sits mid-row, not flush
+                            // against a screen edge — anchoring to either side risks the panel
+                            // running off the opposite edge of a narrow phone screen.
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            top: 'calc(100% + 8px)',
+                            borderRadius: '16px',
+                            boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+                            minWidth: isMobile ? 'min(80vw, 240px)' : '240px',
+                            maxWidth: isMobile ? 'min(90vw, 300px)' : '320px',
+                            zIndex: 1000,
+                            overflow: 'hidden',
+                            animation: 'fadeIn 0.15s ease-out',
+                            border: '2px solid #ffc966'
+                        }}>
+                            <div style={{
+                                padding: '14px 18px',
+                                background: 'linear-gradient(135deg, #f5a623, #e8941c)',
+                                color: 'white',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                textShadow: '1px 1px 0 rgba(0,0,0,0.15)'
+                            }}>
+                                Switch Trainer
+                            </div>
+                            <div style={{ padding: '8px 0', maxHeight: '50vh', overflowY: 'auto' }}>
+                                {activeTrainers.map(t => {
+                                    const isActive = t.id === activeTrainerId;
+                                    const itemId = `trainer-${t.id}`;
+                                    return (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => { handleTrainerChange(t.id); closeMenus(); }}
+                                            onMouseEnter={() => setHoveredItem(itemId)}
+                                            onMouseLeave={() => setHoveredItem(null)}
+                                            onTouchStart={() => setHoveredItem(itemId)}
+                                            onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
+                                            className={`header-menu-item ${hoveredItem === itemId ? 'hovered' : ''}`}
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 18px',
+                                                border: 'none',
+                                                textAlign: 'left',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '10px',
+                                                transition: 'all 0.15s ease',
+                                                borderLeft: hoveredItem === itemId ? '3px solid #f5a623' : '3px solid transparent',
+                                                WebkitTapHighlightColor: 'transparent',
+                                                touchAction: 'manipulation'
+                                            }}
+                                        >
+                                            <span style={{
+                                                width: '10px',
+                                                height: '10px',
+                                                borderRadius: '50%',
+                                                flexShrink: 0,
+                                                background: isActive ? '#f5a623' : 'transparent',
+                                                border: isActive ? 'none' : '2px solid currentColor',
+                                                opacity: isActive ? 1 : 0.35
+                                            }} />
+                                            <span style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
+                                                <span style={{ fontSize: '14px', fontWeight: isActive ? 700 : 600, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                                    {t.name || 'Unnamed'}
+                                                </span>
+                                                <span style={{ fontSize: '11px', fontWeight: 500, opacity: 0.65 }}>
+                                                    Level {t.level}
+                                                </span>
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Menu Buttons — Data & Export + Character/Account, same size, side by side */}

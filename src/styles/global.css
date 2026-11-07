@@ -5303,11 +5303,6 @@
             color: var(--text-primary) !important;
         }
 
-        [data-theme="dark"] .header-trainer-select option {
-            background: var(--poke-cream);
-            color: var(--text-primary);
-        }
-
         /* --- Header Dropdown Menu --- */
         .header-dropdown-menu {
             background: white;
