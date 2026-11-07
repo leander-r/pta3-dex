@@ -86,6 +86,8 @@ const InventoryTab = () => {
     // Stat boost panel state
     const [statBoostPanel, setStatBoostPanel] = useState(null); // { itemName, isPermanent, stat, delta, cap? }
     const [boostTargetId, setBoostTargetId] = useState('');
+    // Which inventory tile is expanded into its full editor row (name, or null)
+    const [expandedItem, setExpandedItem] = useState(null);
 
     // Get unique item types from GAME_DATA dynamically
     const availableTypes = useMemo(() => {
@@ -266,6 +268,7 @@ const InventoryTab = () => {
             if (formula.type !== 'none') {
                 setHealPanel({ itemName });
                 setHealTargetId('');
+                setExpandedItem(itemName);
                 return;
             }
             // Status-only item (no HP formula) — may still be a stat berry, fall through
@@ -276,6 +279,7 @@ const InventoryTab = () => {
             const eff = permEffect || tempEffect;
             setStatBoostPanel({ itemName, isPermanent: !!permEffect, ...eff });
             setBoostTargetId('');
+            setExpandedItem(itemName);
             return;
         }
         setInventory(prev => {
@@ -843,21 +847,61 @@ const InventoryTab = () => {
                         )}
                     </div>
                 ) : (
-                    <div style={{ display: 'grid', gap: '8px' }}>
+                    <div className="detail-tile-grid">
                         {filteredInventory.slice(0, visibleInventoryCount).map((item, index) => {
                             const itemType = (item.type || 'misc').toLowerCase();
                             const showHealPanel = healPanel?.itemName === item.name;
+                            const qty = item.quantity || 1;
+                            const isLow = qty <= 2;
+                            const isEquippable = EQUIPPABLE_TYPES.includes(itemType);
+                            const isEquipped = isEquippable && equippedItems.includes(item.name);
+                            const typeColor = getTypeColor(itemType);
+
+                            // Collapsed tile — tap to expand into the full editor row below
+                            if (expandedItem !== item.name) {
+                                return (
+                                    <button
+                                        key={`${item.name}-${index}`}
+                                        className="detail-tile"
+                                        onClick={() => setExpandedItem(item.name)}
+                                        title={`${item.name} — tap to manage`}
+                                        style={{ cursor: 'pointer', borderTop: `3px solid ${typeColor}`, position: 'relative' }}
+                                    >
+                                        <span style={{
+                                            position: 'absolute', top: '6px', right: '6px',
+                                            padding: '1px 6px', borderRadius: '8px',
+                                            background: typeColor, color: 'white',
+                                            fontSize: '9px', fontWeight: 'bold', textTransform: 'capitalize'
+                                        }}>
+                                            {itemType}
+                                        </span>
+                                        <div style={{
+                                            fontWeight: 'bold', fontSize: '13px', marginTop: '8px', maxWidth: '100%',
+                                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                                        }}>
+                                            {item.name}
+                                        </div>
+                                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: isLow ? '#f44336' : 'inherit' }}>
+                                            {qty}×
+                                        </div>
+                                        {isEquipped && (
+                                            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#2e7d32' }}>✓ Equipped</span>
+                                        )}
+                                    </button>
+                                );
+                            }
+
+                            // Expanded tile — spans the full grid width, shows the full editor row
                             return (
                                 <div
                                     key={`${item.name}-${index}`}
-                                    className="inventory-item-card"
+                                    className="detail-tile inventory-item-card"
                                     style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
+                                        gridColumn: '1 / -1',
+                                        alignItems: 'stretch',
+                                        textAlign: 'left',
                                         gap: '8px',
-                                        padding: '12px',
-                                        borderRadius: '8px',
-                                        borderLeft: `4px solid ${getTypeColor(itemType)}`
+                                        borderTop: `3px solid ${typeColor}`
                                     }}
                                 >
                                     {/* Main row: item info + quantity controls */}
@@ -868,7 +912,7 @@ const InventoryTab = () => {
                                             {item.name}
                                             <span style={{
                                                 padding: '2px 6px',
-                                                background: getTypeColor(itemType),
+                                                background: typeColor,
                                                 color: 'white',
                                                 borderRadius: '10px',
                                                 fontSize: '10px',
@@ -884,9 +928,15 @@ const InventoryTab = () => {
                                             >ℹ</button>
                                         </div>
                                     </div>
+                                    <button
+                                        onClick={() => setExpandedItem(null)}
+                                        title="Collapse"
+                                        aria-label={`Collapse ${item.name}`}
+                                        style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '50%', width: '24px', height: '24px', fontSize: '11px', cursor: 'pointer', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}
+                                    >▲</button>
 
                                     {/* Quantity Controls */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, flexWrap: 'wrap' }}>
                                         <button
                                             onClick={() => handleRemoveItem(item.name)}
                                             className="quantity-btn"

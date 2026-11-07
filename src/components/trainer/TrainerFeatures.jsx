@@ -195,41 +195,36 @@ const TrainerFeatures = () => {
                             : 'No features yet — level up to gain features.'}
                     </p>
                 ) : (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
+                    <div className="detail-tile-grid" style={{ marginBottom: '15px' }}>
                         {currentFeatures.map((feature, index) => {
                             const featureName = typeof feature === 'object' ? feature.name : feature;
                             const featureData = GAME_DATA.features?.[featureName];
                             const isClass = !isCustomFeature(featureName);
+                            const accentColor = isClass ? '#667eea' : '#f5a623';
 
                             return (
                                 <div
                                     key={index}
+                                    className="detail-tile-filled"
                                     style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        padding: '6px 10px',
+                                        borderTop: `3px solid ${accentColor}`,
                                         background: isClass
                                             ? 'linear-gradient(135deg, #667eea, #764ba2)'
                                             : 'linear-gradient(135deg, var(--poke-orange, #f5a623), var(--poke-orange-dark, #e8941c))',
-                                        borderRadius: '15px',
                                         color: 'white',
-                                        fontSize: '12px',
                                         cursor: featureData ? 'pointer' : 'default'
                                     }}
                                     onClick={() => featureData && showDetail && showDetail('feature', featureName, featureData)}
                                 >
-                                    <span>{featureName}</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{featureName}</span>
+                                    <span style={{ fontSize: '10px', opacity: 0.85 }}>{isClass ? 'Class' : 'Custom'}</span>
                                     {/* Only custom features can be manually removed */}
                                     {isCustomFeature(featureName) && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleRemoveCustomFeature(featureName); }}
                                             title="Remove custom feature"
-                                            style={{
-                                                background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%',
-                                                width: '16px', height: '16px', color: 'white', cursor: 'pointer',
-                                                fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                            }}
+                                            className="detail-tile-remove"
+                                            style={{ background: 'rgba(255,255,255,0.25)', color: 'white' }}
                                         >×</button>
                                     )}
                                 </div>

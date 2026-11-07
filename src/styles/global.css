@@ -3022,6 +3022,28 @@
             background: var(--poke-white) !important;
         }
 
+        /* Same shape as .detail-tile, minus the background + light border — for tiles
+           that fill their own color (trained skills, class/feature/equipment chips)
+           where the inline background must win in both themes, not just light mode. */
+        .detail-tile-filled {
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-family: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 4px;
+            position: relative;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .detail-tile-filled:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
         .detail-tile-remove {
             position: absolute;
             top: 4px;

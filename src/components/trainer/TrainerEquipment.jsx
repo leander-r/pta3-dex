@@ -17,23 +17,6 @@ const TYPE_COLORS = {
 
 const EQUIPPABLE_TYPES = ['armor', 'weapon', 'clothing', 'accessory'];
 
-const TypeBadge = ({ type }) => (
-    <span style={{
-        display: 'inline-block',
-        padding: '1px 7px',
-        borderRadius: '8px',
-        background: TYPE_COLORS[type] || '#555',
-        color: 'white',
-        fontSize: '10px',
-        fontWeight: 'bold',
-        textTransform: 'capitalize',
-        marginRight: '6px',
-        flexShrink: 0,
-    }}>
-        {type}
-    </span>
-);
-
 const ARMOR_CHIP = {
     'Chainmail':        'DEF +1',
     'Full Plate Armor': 'DEF +2',
@@ -167,49 +150,54 @@ const TrainerEquipment = () => {
                                         <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
                                             {groupType === 'clothing' ? 'Clothing & Accessories' : groupType.charAt(0).toUpperCase() + groupType.slice(1)}
                                         </div>
-                                        {items.map(({ name, data }) => {
-                                            const armorChip = groupType === 'armor' ? ARMOR_CHIP[name] : null;
-                                            const isSkillItem = groupType === 'clothing' || groupType === 'accessory';
-                                            const bonusUsed = dailyBonusUsed === name;
-                                            const canMarkBonus = isSkillItem && !bonusUsed && !dailyBonusUsed;
-                                            return (
-                                                <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.08)', marginBottom: '4px', flexWrap: 'wrap' }}>
-                                                    <TypeBadge type={groupType} />
-                                                    <span
-                                                        style={{ flex: 1, fontSize: '13px', color: 'white', fontWeight: 'bold', minWidth: '100px', cursor: 'pointer', textDecoration: 'underline dotted rgba(255,255,255,0.5)' }}
-                                                        onClick={() => showDetail('item', name, { ...data, type: groupType })}
-                                                        title="View item details"
+                                        <div className="detail-tile-grid">
+                                            {items.map(({ name, data }) => {
+                                                const armorChip = groupType === 'armor' ? ARMOR_CHIP[name] : null;
+                                                const isSkillItem = groupType === 'clothing' || groupType === 'accessory';
+                                                const bonusUsed = dailyBonusUsed === name;
+                                                const canMarkBonus = isSkillItem && !bonusUsed && !dailyBonusUsed;
+                                                return (
+                                                    <div
+                                                        key={name}
+                                                        className="detail-tile-filled"
+                                                        style={{ borderTop: `3px solid ${TYPE_COLORS[groupType] || '#555'}`, background: 'rgba(255,255,255,0.08)', color: 'white' }}
                                                     >
-                                                        {name}
-                                                    </span>
-                                                    {armorChip && (
-                                                        <span style={{ padding: '2px 7px', borderRadius: '8px', background: '#546e7a', color: 'white', fontSize: '10px', fontWeight: 'bold' }}>
-                                                            {armorChip}
-                                                        </span>
-                                                    )}
-                                                    {isSkillItem && bonusUsed && (
-                                                        <span style={{ padding: '2px 7px', borderRadius: '8px', background: '#2e7d32', color: 'white', fontSize: '10px', fontWeight: 'bold' }}>
-                                                            ✓ Used
-                                                        </span>
-                                                    )}
-                                                    {canMarkBonus && (
                                                         <button
-                                                            onClick={() => markBonusUsed(name)}
-                                                            style={{ padding: '2px 8px', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                                            onClick={() => unequipItem(name)}
+                                                            title={`Unequip ${name}`}
+                                                            aria-label={`Unequip ${name}`}
+                                                            className="detail-tile-remove"
+                                                            style={{ background: 'rgba(255,100,100,0.3)', color: 'white' }}
+                                                        >✕</button>
+                                                        <span
+                                                            style={{ fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline dotted rgba(255,255,255,0.5)' }}
+                                                            onClick={() => showDetail('item', name, { ...data, type: groupType })}
+                                                            title="View item details"
                                                         >
-                                                            Mark used
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => unequipItem(name)}
-                                                        title={`Unequip ${name}`}
-                                                        style={{ padding: '2px 6px', background: 'rgba(255,100,100,0.3)', color: 'white', border: '1px solid rgba(255,100,100,0.4)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', lineHeight: 1 }}
-                                                    >
-                                                        ✕
-                                                    </button>
-                                                </div>
-                                            );
-                                        })}
+                                                            {name}
+                                                        </span>
+                                                        {armorChip && (
+                                                            <span style={{ padding: '2px 7px', borderRadius: '8px', background: '#546e7a', color: 'white', fontSize: '10px', fontWeight: 'bold' }}>
+                                                                {armorChip}
+                                                            </span>
+                                                        )}
+                                                        {isSkillItem && bonusUsed && (
+                                                            <span style={{ padding: '2px 7px', borderRadius: '8px', background: '#2e7d32', color: 'white', fontSize: '10px', fontWeight: 'bold' }}>
+                                                                ✓ Used
+                                                            </span>
+                                                        )}
+                                                        {canMarkBonus && (
+                                                            <button
+                                                                onClick={() => markBonusUsed(name)}
+                                                                style={{ padding: '2px 8px', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                                            >
+                                                                Mark used
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
                                 );
                             })}

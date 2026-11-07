@@ -272,49 +272,37 @@ const TrainerClasses = () => {
 
             {/* Current Classes */}
             {currentClasses.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '15px' }}>
+                <div className="detail-tile-grid" style={{ marginBottom: '15px' }}>
                     {currentClasses.map((cls, index) => {
                         const clsLevel = classLevels[cls] ?? trainer.level;
                         const isPrimary = cls === (trainer.primaryBaseClass || currentClasses[0]);
                         const isSecondary = (trainer.secondaryBaseClasses || []).includes(cls);
                         const isBase = GAME_DATA.trainerClasses?.[cls]?.type === 'base';
                         const badgeLabel = isPrimary ? 'Primary' : isSecondary ? 'Secondary' : 'Adv';
+                        const accentColor = isPrimary ? '#f5a623' : isSecondary ? '#4caf50' : '#667eea';
                         const bg = isPrimary
                             ? 'linear-gradient(135deg, #f5a623, #e8941c)'
                             : isSecondary
                                 ? 'linear-gradient(135deg, #4caf50, #388e3c)'
                                 : 'linear-gradient(135deg, #667eea, #764ba2)';
                         return (
-                            <div key={index} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                padding: '8px 12px',
-                                background: bg,
-                                borderRadius: '20px',
-                                color: 'white'
-                            }}
-                            title={isPrimary ? 'Primary base class — grants Level 15 capstone feature' : isSecondary ? 'Secondary base class — 1 talent, no Level 15 feature' : 'Advanced class'}
+                            <div
+                                key={index}
+                                className="detail-tile-filled"
+                                style={{ borderTop: `3px solid ${accentColor}`, background: bg, color: 'white' }}
+                                title={isPrimary ? 'Primary base class — grants Level 15 capstone feature' : isSecondary ? 'Secondary base class — 1 talent, no Level 15 feature' : 'Advanced class'}
                             >
-                                <span className="font-bold">{cls}</span>
+                                <button
+                                    onClick={() => handleRemoveClass(cls)}
+                                    title={`Remove ${cls}`}
+                                    aria-label={`Remove ${cls}`}
+                                    className="detail-tile-remove"
+                                    style={{ background: 'rgba(255,255,255,0.25)', color: 'white' }}
+                                >×</button>
+                                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{cls}</span>
                                 <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '10px', fontSize: '10px' }}>
                                     {badgeLabel} · Lv {clsLevel}
                                 </span>
-                                <button
-                                    onClick={() => handleRemoveClass(cls)}
-                                    style={{
-                                        background: 'rgba(255,255,255,0.2)',
-                                        border: 'none',
-                                        borderRadius: '50%',
-                                        width: '20px',
-                                        height: '20px',
-                                        color: 'white',
-                                        cursor: 'pointer',
-                                        fontSize: '12px'
-                                    }}
-                                >
-                                    ×
-                                </button>
                             </div>
                         );
                     })}

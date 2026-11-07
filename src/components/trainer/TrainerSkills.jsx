@@ -157,101 +157,97 @@ const TrainerSkills = () => {
                                         <span style={{ fontSize: '11px', opacity: 0.7 }}>mod +{Math.floor(statValue / 2)}</span>
                                     </div>
 
-                                    {(skillsByStat[stat] || []).map(skill => {
-                                        const talents = getSkillTalents(currentSkills, skill.name);
-                                        const isTrained = talents > 0;
-                                        const isPassive = skill.type === 'passive';
-                                        const bonus = getSkillCheckBonus(statValue, talents);
-                                        const inClassPool = classPoolSkills.size > 0 && classPoolSkills.has(skill.name);
+                                    <div className="detail-tile-grid">
+                                        {(skillsByStat[stat] || []).map(skill => {
+                                            const talents = getSkillTalents(currentSkills, skill.name);
+                                            const isTrained = talents > 0;
+                                            const isPassive = skill.type === 'passive';
+                                            const bonus = getSkillCheckBonus(statValue, talents);
+                                            const inClassPool = classPoolSkills.size > 0 && classPoolSkills.has(skill.name);
 
-                                        return (
-                                            <div
-                                                key={skill.name}
-                                                onClick={() => handleCycleTalents(skill.name)}
-                                                className={!isTrained ? 'skill-list-item' : ''}
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    padding: '6px 8px',
-                                                    marginBottom: '4px',
-                                                    background: isTrained
-                                                        ? talents === 2
-                                                            ? 'linear-gradient(135deg, #ff6b6b, #ee5a24)'
-                                                            : 'linear-gradient(135deg, #667eea, #764ba2)'
-                                                        : undefined,
-                                                    color: isTrained ? 'white' : undefined,
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '12px',
-                                                    transition: 'all 0.2s ease'
-                                                }}
-                                                title={`${skill.description}\n\nRoll: 1d20 + ${Math.floor(statValue / 2)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}${isPassive ? '\n\nPassive — invoked by the GM, not rolled by the player.' : ''}\n\nClick to cycle talents (${talents}/2)`}
-                                            >
-                                                {/* Talent indicator */}
-                                                <span style={{ display: 'flex', gap: '2px', minWidth: '30px' }}>
-                                                    {[...Array(2)].map((_, i) => (
-                                                        <span
-                                                            key={i}
-                                                            style={{
-                                                                width: '13px',
-                                                                height: '13px',
-                                                                borderRadius: '50%',
-                                                                border: isTrained ? 'none' : '2px solid var(--border-medium, #ddd)',
-                                                                background: i < talents
-                                                                    ? 'rgba(255,255,255,0.9)'
-                                                                    : isTrained
-                                                                        ? 'rgba(255,255,255,0.3)'
-                                                                        : 'transparent'
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </span>
-
-                                                <span style={{ fontWeight: isTrained ? 'bold' : 'normal', flex: 1 }}>
-                                                    {skill.name}
-                                                    {isPassive && (
-                                                        <span style={{ marginLeft: '4px', fontSize: '10px', opacity: 0.8 }} title="Passive: the GM calls for this check, not the player.">(Passive)</span>
-                                                    )}
-                                                </span>
-
-                                                {!isTrained && inClassPool && (
-                                                    <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: '8px', background: '#667eea22', color: '#667eea', border: '1px solid #667eea44', flexShrink: 0 }} title="In your class skill pool — can be taken when adding a class">
-                                                        pool
-                                                    </span>
-                                                )}
-                                                {isTrained && (
-                                                    <span style={{
-                                                        fontSize: '12px',
-                                                        opacity: 0.9,
-                                                        background: 'rgba(255,255,255,0.2)',
-                                                        padding: '2px 6px',
-                                                        borderRadius: '4px'
-                                                    }}>
-                                                        +{bonus}
-                                                    </span>
-                                                )}
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        showDetail && showDetail('skill', skill.name, GAME_DATA.skills?.[skill.name]);
-                                                    }}
-                                                    title={`View ${skill.name} details`}
+                                            return (
+                                                <div
+                                                    key={skill.name}
+                                                    onClick={() => handleCycleTalents(skill.name)}
+                                                    className={isTrained ? 'detail-tile-filled' : 'detail-tile'}
                                                     style={{
-                                                        background: 'transparent',
-                                                        border: 'none',
                                                         cursor: 'pointer',
-                                                        fontSize: '13px',
-                                                        opacity: 0.7,
-                                                        padding: '0 2px',
-                                                        color: isTrained ? 'white' : 'var(--text-muted)'
+                                                        borderTop: `3px solid ${color}`,
+                                                        background: isTrained
+                                                            ? talents === 2
+                                                                ? 'linear-gradient(135deg, #ff6b6b, #ee5a24)'
+                                                                : 'linear-gradient(135deg, #667eea, #764ba2)'
+                                                            : undefined,
+                                                        color: isTrained ? 'white' : undefined
                                                     }}
+                                                    title={`${skill.description}\n\nRoll: 1d20 + ${Math.floor(statValue / 2)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}${isPassive ? '\n\nPassive — invoked by the GM, not rolled by the player.' : ''}\n\nClick to cycle talents (${talents}/2)`}
                                                 >
-                                                    ℹ
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            showDetail && showDetail('skill', skill.name, GAME_DATA.skills?.[skill.name]);
+                                                        }}
+                                                        title={`View ${skill.name} details`}
+                                                        aria-label={`View ${skill.name} details`}
+                                                        style={{
+                                                            position: 'absolute', top: '4px', right: '4px',
+                                                            width: '18px', height: '18px', borderRadius: '50%',
+                                                            background: isTrained ? 'rgba(255,255,255,0.2)' : 'var(--collapsed-btn-bg)',
+                                                            color: isTrained ? 'white' : 'var(--collapsed-btn-text)',
+                                                            border: 'none', cursor: 'pointer', fontSize: '11px',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0
+                                                        }}
+                                                    >
+                                                        ℹ
+                                                    </button>
+
+                                                    {/* Talent indicator */}
+                                                    <span style={{ display: 'flex', gap: '3px' }}>
+                                                        {[...Array(2)].map((_, i) => (
+                                                            <span
+                                                                key={i}
+                                                                style={{
+                                                                    width: '10px',
+                                                                    height: '10px',
+                                                                    borderRadius: '50%',
+                                                                    border: isTrained ? 'none' : '2px solid var(--border-medium, #ddd)',
+                                                                    background: i < talents
+                                                                        ? 'rgba(255,255,255,0.9)'
+                                                                        : isTrained
+                                                                            ? 'rgba(255,255,255,0.3)'
+                                                                            : 'transparent'
+                                                                }}
+                                                            />
+                                                        ))}
+                                                    </span>
+
+                                                    <div style={{ fontWeight: isTrained ? 'bold' : 'normal', fontSize: '12px' }}>
+                                                        {skill.name}
+                                                    </div>
+                                                    {isPassive && (
+                                                        <span style={{ fontSize: '10px', opacity: 0.8 }} title="Passive: the GM calls for this check, not the player.">(Passive)</span>
+                                                    )}
+
+                                                    {!isTrained && inClassPool && (
+                                                        <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: '8px', background: '#667eea22', color: '#667eea', border: '1px solid #667eea44' }} title="In your class skill pool — can be taken when adding a class">
+                                                            pool
+                                                        </span>
+                                                    )}
+                                                    {isTrained && (
+                                                        <span style={{
+                                                            fontSize: '12px',
+                                                            opacity: 0.9,
+                                                            background: 'rgba(255,255,255,0.2)',
+                                                            padding: '2px 6px',
+                                                            borderRadius: '4px'
+                                                        }}>
+                                                            +{bonus}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             );
                         })}
