@@ -9,7 +9,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTrainerContext, useData, useUI, useModal } from '../../contexts/index.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import toast from '../../utils/toast.js';
-import { IconSave, IconPerson, IconPokeball } from './NavIcons.jsx';
+import { IconSave, IconPerson, IconPokeball, IconKebab } from './NavIcons.jsx';
 
 const MenuItem = ({ id, icon, label, subtitle, onClick, danger, disabled, disabledReason, hoveredItem, setHoveredItem, title }) => {
     // When disabled, the reason is always shown as visible subtext — a title
@@ -159,37 +159,48 @@ const Header = () => {
         setEditingPokemon(null);
     };
 
-    // Only one of the three menus can be open at a time: null | 'data' | 'account' | 'trainer'
+    // Only one menu is open at a time: null | 'data' | 'account' | 'trainer' | 'app'.
+    // 'data'/'account' are the two separate desktop menu buttons; 'app' is the single
+    // combined button mobile uses instead (see isMobile branch below) — the two never
+    // coexist, since which button renders depends on the same isMobile flag.
     const [openMenu, setOpenMenu] = useState(null);
     const [showArchivedSection, setShowArchivedSection] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
-    const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 360);
     const dataButtonRef = useRef(null);
     const accountButtonRef = useRef(null);
     const trainerButtonRef = useRef(null);
+    const appButtonRef = useRef(null);
     const dataDropdownRef = useRef(null);
     const accountDropdownRef = useRef(null);
     const trainerDropdownRef = useRef(null);
+    const appDropdownRef = useRef(null);
 
     // Lookup used by the shared focus/click-outside/keyboard-nav effects below,
-    // so adding a third (or fourth) menu doesn't mean touching that logic again.
+    // so adding another menu doesn't mean touching that logic again.
     const menuRefs = {
         data: { button: dataButtonRef, dropdown: dataDropdownRef },
         account: { button: accountButtonRef, dropdown: accountDropdownRef },
-        trainer: { button: trainerButtonRef, dropdown: trainerDropdownRef }
+        trainer: { button: trainerButtonRef, dropdown: trainerDropdownRef },
+        app: { button: appButtonRef, dropdown: appDropdownRef }
     };
 
     const toggleTheme = () => {
         setTheme(theme === 'light' ? 'dark' : 'light');
     };
 
-    // Track window size for responsive layout
+    // Track window size for responsive layout. Resetting openMenu here (rather than
+    // leaving it on a stale value) matters because 'app' only exists on mobile and
+    // 'data'/'account' only exist on desktop — resizing across the breakpoint while
+    // one is open would otherwise point at a button that no longer renders.
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 480);
-            setIsSmallMobile(window.innerWidth < 360);
+            setIsMobile(prev => {
+                const next = window.innerWidth < 480;
+                if (next !== prev) setOpenMenu(null);
+                return next;
+            });
         };
 
         window.addEventListener('resize', handleResize, { passive: true });
@@ -269,6 +280,419 @@ const Header = () => {
     const menuItemProps = { hoveredItem, setHoveredItem };
     const closeMenus = () => setOpenMenu(null);
 
+    // Content of the two menus, factored out so mobile can render them stacked in one
+    // combined dropdown (single button, less header chrome) while desktop keeps them
+    // as two separate buttons/panels (there's room, and separate icons aid discovery).
+    const dataMenuBody = (
+        <>
+            {/* Header band */}
+            <div style={{
+                padding: '14px 18px',
+                background: 'linear-gradient(135deg, #f5a623, #e8941c)',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                textShadow: '1px 1px 0 rgba(0,0,0,0.15)'
+            }}>
+                Data &amp; Export
+            </div>
+
+            {/* Save / Load snapshot */}
+            <div style={{ padding: '8px 0' }}>
+                <MenuItem {...menuItemProps}
+                    id="save-load"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                    }
+                    label="Save / Load"
+                    subtitle="Open the snapshot save/load menu"
+                    onClick={() => { openSaveLoadModal(); closeMenus(); }}
+                />
+            </div>
+
+            <MenuDivider />
+
+            {/* Export Section */}
+            <div style={{ padding: '8px 0' }}>
+                <GroupLabel>Export</GroupLabel>
+                <MenuItem {...menuItemProps}
+                    id="export-one"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    }
+                    label="Export Trainer JSON"
+                    subtitle="Back up just this trainer, their Pokémon, and the shared inventory"
+                    onClick={() => { exportSingleTrainer(trainer); closeMenus(); }}
+                />
+                <MenuItem {...menuItemProps}
+                    id="export-all"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    }
+                    label="Export All Data"
+                    subtitle="Back up every trainer you have, in one file"
+                    onClick={() => { exportAllData(); closeMenus(); }}
+                />
+                <MenuItem {...menuItemProps}
+                    id="export-cards"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                            <line x1="2" y1="9" x2="22" y2="9"></line>
+                        </svg>
+                    }
+                    label="Export Cards"
+                    subtitle={`Export trainer and Pokémon cards for ${trainer?.name || 'trainer'}`}
+                    onClick={() => { setShowCardModal(true); closeMenus(); }}
+                />
+                <MenuItem {...menuItemProps}
+                    id="print-sheet"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                    }
+                    label="Print Sheet"
+                    subtitle="Print or save a character sheet as PDF"
+                    onClick={() => { openPrintSheet(); closeMenus(); }}
+                />
+                <label
+                    onMouseEnter={() => setHoveredItem('import')}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    onTouchStart={() => setHoveredItem('import')}
+                    onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
+                    className={`header-menu-item ${hoveredItem === 'import' ? 'hovered' : ''}`}
+                    style={{
+                        width: '100%',
+                        padding: '10px 18px',
+                        border: 'none',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        transition: 'all 0.15s ease',
+                        boxSizing: 'border-box',
+                        borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent',
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                    }}
+                >
+                    <span style={{
+                        width: '20px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        marginTop: '2px',
+                        flexShrink: 0,
+                        color: hoveredItem === 'import' ? '#f5a623' : 'inherit'
+                    }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </span>
+                    <span style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                        <span>Import Data</span>
+                        <span style={{ fontSize: '11px', fontWeight: 500, opacity: 0.65, lineHeight: 1.3 }}>
+                            Load a .json file exported from this app — trainer or full backup
+                        </span>
+                    </span>
+                    <input
+                        type="file"
+                        accept=".json"
+                        onChange={(e) => {
+                            if (e.target.files[0]) {
+                                importData(e.target.files[0]);
+                                closeMenus();
+                            }
+                        }}
+                        style={{ display: 'none' }}
+                    />
+                </label>
+            </div>
+
+            <MenuDivider />
+
+            {/* Backup & Sharing */}
+            <div style={{ padding: '8px 0' }}>
+                <GroupLabel>Backup &amp; Sharing</GroupLabel>
+                <MenuItem {...menuItemProps}
+                    id="restore-backup"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+                        </svg>
+                    }
+                    label="Restore Auto-Backup"
+                    subtitle="Revert to the snapshot taken right before your last save"
+                    onClick={() => { restoreAutoBackup(); closeMenus(); }}
+                />
+                <MenuItem {...menuItemProps}
+                    id="demo"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    }
+                    label="Load Example Trainer"
+                    subtitle="Add a pre-built trainer & team to explore the app"
+                    onClick={() => { loadDemoTrainer(); closeMenus(); }}
+                />
+            </div>
+        </>
+    );
+
+    const accountMenuBody = (
+        <>
+            {/* Header band */}
+            <div style={{
+                padding: '14px 18px',
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                textShadow: '1px 1px 0 rgba(0,0,0,0.15)'
+            }}>
+                Character &amp; Account
+            </div>
+
+            {/* Getting Started / Help — reachable on every screen size, unlike
+                the sidebar checklist which is hidden on mobile */}
+            <div style={{ padding: '8px 0' }}>
+                {!onboardingDismissed && (
+                    <MenuItem {...menuItemProps}
+                        id="getting-started"
+                        icon={
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        }
+                        label="Getting Started"
+                        onClick={() => { openGettingStarted(); closeMenus(); }}
+                    />
+                )}
+                <MenuItem {...menuItemProps}
+                    id="help-hub"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    }
+                    label="Help Topics"
+                    onClick={() => { openHelpHub(); closeMenus(); }}
+                />
+            </div>
+
+            <MenuDivider />
+
+            {/* Trainer Section */}
+            <div style={{ padding: '8px 0' }}>
+                <GroupLabel>Trainer</GroupLabel>
+                <MenuItem {...menuItemProps}
+                    id="new"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    }
+                    label="New Trainer"
+                    onClick={() => { addNewTrainer(); closeMenus(); }}
+                />
+                <MenuItem {...menuItemProps}
+                    id="clone"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    }
+                    label="Clone Trainer"
+                    onClick={() => { duplicateTrainer(activeTrainerId); closeMenus(); }}
+                />
+            </div>
+
+            <MenuDivider />
+
+            {/* Preferences */}
+            <div style={{ padding: '8px 0' }}>
+                <GroupLabel>Appearance</GroupLabel>
+                <MenuItem {...menuItemProps}
+                    id="theme"
+                    icon={theme === 'light' ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    )}
+                    label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+                    onClick={() => { toggleTheme(); closeMenus(); }}
+                />
+                <MenuItem {...menuItemProps}
+                    id="compact"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <line x1="3" y1="14" x2="21" y2="14"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    }
+                    label={compactMode ? 'Comfortable View' : 'Compact View'}
+                    onClick={() => { setCompactMode(m => !m); closeMenus(); }}
+                />
+            </div>
+
+            <MenuDivider />
+
+            {/* Danger Zone */}
+            <div style={{ padding: '8px 0' }}>
+                <GroupLabel>Danger Zone</GroupLabel>
+                <MenuItem {...menuItemProps}
+                    id="archive"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                            <rect x="1" y="3" width="22" height="5"></rect>
+                            <line x1="10" y1="12" x2="14" y2="12"></line>
+                        </svg>
+                    }
+                    label="Archive Trainer"
+                    disabled={activeTrainers.length <= 1}
+                    disabledReason="Need at least 2 active trainers to archive one"
+                    onClick={() => {
+                        showConfirm({
+                            title: 'Archive Trainer?',
+                            message: `Archive "${trainer.name || 'Unnamed'}"? They'll move to the Archived section and can be restored later.`,
+                            confirmLabel: 'Archive',
+                            onConfirm: () => {
+                                archiveTrainer(activeTrainerId);
+                                closeMenus();
+                            }
+                        });
+                    }}
+                />
+                <MenuItem {...menuItemProps}
+                    id="delete"
+                    icon={
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    }
+                    label="Delete Trainer"
+                    danger
+                    disabled={activeTrainers.length <= 1 && archivedTrainers.length === 0}
+                    disabledReason="Cannot delete the only trainer"
+                    onClick={() => {
+                        deleteTrainer(activeTrainerId);
+                        closeMenus();
+                    }}
+                />
+            </div>
+
+            {/* Archived Trainers Section */}
+            {archivedTrainers.length > 0 && (
+                <>
+                    <MenuDivider />
+                    <div style={{ padding: '4px 0' }}>
+                        <button
+                            onClick={() => setShowArchivedSection(p => !p)}
+                            style={{
+                                width: '100%',
+                                padding: '10px 18px',
+                                border: 'none',
+                                background: 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                color: '#888',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
+                            }}
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: showArchivedSection ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                            Archived ({archivedTrainers.length})
+                        </button>
+                        {showArchivedSection && archivedTrainers.map(t => (
+                            <div key={t.id} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '6px 18px',
+                                gap: '8px'
+                            }}>
+                                <span style={{ fontSize: '13px', color: '#888', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {t.name || 'Unnamed'} (Lv.{t.level})
+                                </span>
+                                <button
+                                    onClick={() => {
+                                        unarchiveTrainer(t.id);
+                                        closeMenus();
+                                    }}
+                                    style={{
+                                        padding: '3px 10px',
+                                        fontSize: '11px',
+                                        fontWeight: 700,
+                                        background: '#667eea',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    Restore
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </>
+    );
+
     return (
         <header style={{
             background: isScrolled
@@ -317,7 +741,7 @@ const Header = () => {
                     <line x1="2" y1="12" x2="8" y2="12" stroke="white" strokeWidth="2.5"/>
                     <line x1="16" y1="12" x2="22" y2="12" stroke="white" strokeWidth="2.5"/>
                 </svg>
-                {!isSmallMobile && <span>PTA3 Dex</span>}
+                {!isMobile && <span>PTA3 Dex</span>}
             </h1>
 
             {/* Right Section */}
@@ -488,470 +912,111 @@ const Header = () => {
                     )}
                 </div>
 
-                {/* Menu Buttons — Data & Export + Character/Account, same size, side by side */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '8px', flexShrink: 0 }}>
+                {/* Menu Buttons — desktop keeps "Data & Export" and "Character & Account"
+                    as two separate buttons (there's room, and separate icons aid
+                    discovery); mobile collapses both into one combined menu button so
+                    the header row has one fewer fixed-width element to fit. */}
+                {isMobile ? (
                     <div style={{ position: 'relative', zIndex: 101 }}>
                         <HeaderMenuButton
-                            icon={IconSave}
-                            isOpen={openMenu === 'data'}
-                            onClick={() => setOpenMenu(p => p === 'data' ? null : 'data')}
-                            ariaLabel={openMenu === 'data' ? 'Close Data & Export menu' : 'Open Data & Export menu'}
+                            icon={IconKebab}
+                            isOpen={openMenu === 'app'}
+                            onClick={() => setOpenMenu(p => p === 'app' ? null : 'app')}
+                            ariaLabel={openMenu === 'app' ? 'Close menu' : 'Open menu'}
                             isMobile={isMobile}
                             isScrolled={isScrolled}
                             idleColor="#f5a623"
                             activeColor="#e8941c"
-                            buttonRef={dataButtonRef}
+                            buttonRef={appButtonRef}
                         />
 
-                        {openMenu === 'data' && (
-                            <div ref={dataDropdownRef} className="header-dropdown-menu menu-data" style={{
+                        {openMenu === 'app' && (
+                            <div ref={appDropdownRef} className="header-dropdown-menu menu-data" style={{
                                 position: 'absolute',
                                 right: 0,
                                 top: 'calc(100% + 8px)',
                                 borderRadius: '16px',
                                 boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
-                                minWidth: isMobile ? 'min(85vw, 240px)' : '240px',
-                                maxWidth: isMobile ? 'min(95vw, 300px)' : '300px',
+                                minWidth: 'min(85vw, 240px)',
+                                maxWidth: 'min(95vw, 300px)',
+                                maxHeight: '75vh',
+                                overflowY: 'auto',
                                 zIndex: 1000,
-                                overflow: 'hidden',
                                 animation: 'fadeIn 0.15s ease-out',
                                 border: '2px solid #ffc966'
                             }}>
-                                {/* Header band */}
-                                <div style={{
-                                    padding: '14px 18px',
-                                    background: 'linear-gradient(135deg, #f5a623, #e8941c)',
-                                    color: 'white',
-                                    fontSize: '12px',
-                                    fontWeight: 700,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px',
-                                    textShadow: '1px 1px 0 rgba(0,0,0,0.15)'
-                                }}>
-                                    Data &amp; Export
-                                </div>
-
-                                {/* Save / Load snapshot */}
-                                <div style={{ padding: '8px 0' }}>
-                                    <MenuItem {...menuItemProps}
-                                        id="save-load"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                                                <polyline points="7 3 7 8 15 8"></polyline>
-                                            </svg>
-                                        }
-                                        label="Save / Load"
-                                        subtitle="Open the snapshot save/load menu"
-                                        onClick={() => { openSaveLoadModal(); closeMenus(); }}
-                                    />
-                                </div>
-
-                                <MenuDivider />
-
-                                {/* Export Section */}
-                                <div style={{ padding: '8px 0' }}>
-                                    <GroupLabel>Export</GroupLabel>
-                                    <MenuItem {...menuItemProps}
-                                        id="export-one"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                <polyline points="7 10 12 15 17 10"></polyline>
-                                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                                            </svg>
-                                        }
-                                        label="Export Trainer JSON"
-                                        subtitle="Back up just this trainer, their Pokémon, and the shared inventory"
-                                        onClick={() => { exportSingleTrainer(trainer); closeMenus(); }}
-                                    />
-                                    <MenuItem {...menuItemProps}
-                                        id="export-all"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                <polyline points="7 10 12 15 17 10"></polyline>
-                                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                                            </svg>
-                                        }
-                                        label="Export All Data"
-                                        subtitle="Back up every trainer you have, in one file"
-                                        onClick={() => { exportAllData(); closeMenus(); }}
-                                    />
-                                    <MenuItem {...menuItemProps}
-                                        id="export-cards"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                                                <line x1="2" y1="9" x2="22" y2="9"></line>
-                                            </svg>
-                                        }
-                                        label="Export Cards"
-                                        subtitle={`Export trainer and Pokémon cards for ${trainer?.name || 'trainer'}`}
-                                        onClick={() => { setShowCardModal(true); closeMenus(); }}
-                                    />
-                                    <MenuItem {...menuItemProps}
-                                        id="print-sheet"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                                <rect x="6" y="14" width="12" height="8"></rect>
-                                            </svg>
-                                        }
-                                        label="Print Sheet"
-                                        subtitle="Print or save a character sheet as PDF"
-                                        onClick={() => { openPrintSheet(); closeMenus(); }}
-                                    />
-                                    <label
-                                        onMouseEnter={() => setHoveredItem('import')}
-                                        onMouseLeave={() => setHoveredItem(null)}
-                                        onTouchStart={() => setHoveredItem('import')}
-                                        onTouchEnd={() => setTimeout(() => setHoveredItem(null), 150)}
-                                        className={`header-menu-item ${hoveredItem === 'import' ? 'hovered' : ''}`}
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 18px',
-                                            border: 'none',
-                                            textAlign: 'left',
-                                            cursor: 'pointer',
-                                            fontSize: '14px',
-                                            fontWeight: 600,
-                                            display: 'flex',
-                                            alignItems: 'flex-start',
-                                            gap: '12px',
-                                            transition: 'all 0.15s ease',
-                                            boxSizing: 'border-box',
-                                            borderLeft: hoveredItem === 'import' ? '3px solid #f5a623' : '3px solid transparent',
-                                            WebkitTapHighlightColor: 'transparent',
-                                            touchAction: 'manipulation'
-                                        }}
-                                    >
-                                        <span style={{
-                                            width: '20px',
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            marginTop: '2px',
-                                            flexShrink: 0,
-                                            color: hoveredItem === 'import' ? '#f5a623' : 'inherit'
-                                        }}>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                <polyline points="17 8 12 3 7 8"></polyline>
-                                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                                            </svg>
-                                        </span>
-                                        <span style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
-                                            <span>Import Data</span>
-                                            <span style={{ fontSize: '11px', fontWeight: 500, opacity: 0.65, lineHeight: 1.3 }}>
-                                                Load a .json file exported from this app — trainer or full backup
-                                            </span>
-                                        </span>
-                                        <input
-                                            type="file"
-                                            accept=".json"
-                                            onChange={(e) => {
-                                                if (e.target.files[0]) {
-                                                    importData(e.target.files[0]);
-                                                    closeMenus();
-                                                }
-                                            }}
-                                            style={{ display: 'none' }}
-                                        />
-                                    </label>
-                                </div>
-
-                                <MenuDivider />
-
-                                {/* Backup & Sharing */}
-                                <div style={{ padding: '8px 0' }}>
-                                    <GroupLabel>Backup &amp; Sharing</GroupLabel>
-                                    <MenuItem {...menuItemProps}
-                                        id="restore-backup"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <polyline points="1 4 1 10 7 10"></polyline>
-                                                <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
-                                            </svg>
-                                        }
-                                        label="Restore Auto-Backup"
-                                        subtitle="Revert to the snapshot taken right before your last save"
-                                        onClick={() => { restoreAutoBackup(); closeMenus(); }}
-                                    />
-                                    <MenuItem {...menuItemProps}
-                                        id="demo"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                            </svg>
-                                        }
-                                        label="Load Example Trainer"
-                                        subtitle="Add a pre-built trainer & team to explore the app"
-                                        onClick={() => { loadDemoTrainer(); closeMenus(); }}
-                                    />
-                                </div>
+                                {dataMenuBody}
+                                {accountMenuBody}
                             </div>
                         )}
                     </div>
+                ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                        <div style={{ position: 'relative', zIndex: 101 }}>
+                            <HeaderMenuButton
+                                icon={IconSave}
+                                isOpen={openMenu === 'data'}
+                                onClick={() => setOpenMenu(p => p === 'data' ? null : 'data')}
+                                ariaLabel={openMenu === 'data' ? 'Close Data & Export menu' : 'Open Data & Export menu'}
+                                isMobile={isMobile}
+                                isScrolled={isScrolled}
+                                idleColor="#f5a623"
+                                activeColor="#e8941c"
+                                buttonRef={dataButtonRef}
+                            />
 
-                    <div style={{ position: 'relative', zIndex: 101 }}>
-                        <HeaderMenuButton
-                            icon={IconPerson}
-                            isOpen={openMenu === 'account'}
-                            onClick={() => setOpenMenu(p => p === 'account' ? null : 'account')}
-                            ariaLabel={openMenu === 'account' ? 'Close Character & Account menu' : 'Open Character & Account menu'}
-                            isMobile={isMobile}
-                            isScrolled={isScrolled}
-                            idleColor="#667eea"
-                            activeColor="#764ba2"
-                            buttonRef={accountButtonRef}
-                        />
-
-                        {openMenu === 'account' && (
-                            <div ref={accountDropdownRef} className="header-dropdown-menu menu-account" style={{
-                                position: 'absolute',
-                                right: 0,
-                                top: 'calc(100% + 8px)',
-                                borderRadius: '16px',
-                                boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
-                                minWidth: isMobile ? 'min(85vw, 230px)' : '230px',
-                                maxWidth: isMobile ? 'min(95vw, 280px)' : '280px',
-                                zIndex: 1000,
-                                overflow: 'hidden',
-                                animation: 'fadeIn 0.15s ease-out',
-                                border: '2px solid #c3cdf7'
-                            }}>
-                                {/* Header band */}
-                                <div style={{
-                                    padding: '14px 18px',
-                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                                    color: 'white',
-                                    fontSize: '12px',
-                                    fontWeight: 700,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px',
-                                    textShadow: '1px 1px 0 rgba(0,0,0,0.15)'
+                            {openMenu === 'data' && (
+                                <div ref={dataDropdownRef} className="header-dropdown-menu menu-data" style={{
+                                    position: 'absolute',
+                                    right: 0,
+                                    top: 'calc(100% + 8px)',
+                                    borderRadius: '16px',
+                                    boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+                                    minWidth: '240px',
+                                    maxWidth: '300px',
+                                    zIndex: 1000,
+                                    overflow: 'hidden',
+                                    animation: 'fadeIn 0.15s ease-out',
+                                    border: '2px solid #ffc966'
                                 }}>
-                                    Character &amp; Account
+                                    {dataMenuBody}
                                 </div>
+                            )}
+                        </div>
 
-                                {/* Getting Started / Help — reachable on every screen size, unlike
-                                    the sidebar checklist which is hidden on mobile */}
-                                <div style={{ padding: '8px 0' }}>
-                                    {!onboardingDismissed && (
-                                        <MenuItem {...menuItemProps}
-                                            id="getting-started"
-                                            icon={
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                                </svg>
-                                            }
-                                            label="Getting Started"
-                                            onClick={() => { openGettingStarted(); closeMenus(); }}
-                                        />
-                                    )}
-                                    <MenuItem {...menuItemProps}
-                                        id="help-hub"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                            </svg>
-                                        }
-                                        label="Help Topics"
-                                        onClick={() => { openHelpHub(); closeMenus(); }}
-                                    />
+                        <div style={{ position: 'relative', zIndex: 101 }}>
+                            <HeaderMenuButton
+                                icon={IconPerson}
+                                isOpen={openMenu === 'account'}
+                                onClick={() => setOpenMenu(p => p === 'account' ? null : 'account')}
+                                ariaLabel={openMenu === 'account' ? 'Close Character & Account menu' : 'Open Character & Account menu'}
+                                isMobile={isMobile}
+                                isScrolled={isScrolled}
+                                idleColor="#667eea"
+                                activeColor="#764ba2"
+                                buttonRef={accountButtonRef}
+                            />
+
+                            {openMenu === 'account' && (
+                                <div ref={accountDropdownRef} className="header-dropdown-menu menu-account" style={{
+                                    position: 'absolute',
+                                    right: 0,
+                                    top: 'calc(100% + 8px)',
+                                    borderRadius: '16px',
+                                    boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+                                    minWidth: '230px',
+                                    maxWidth: '280px',
+                                    zIndex: 1000,
+                                    overflow: 'hidden',
+                                    animation: 'fadeIn 0.15s ease-out',
+                                    border: '2px solid #c3cdf7'
+                                }}>
+                                    {accountMenuBody}
                                 </div>
-
-                                <MenuDivider />
-
-                                {/* Trainer Section */}
-                                <div style={{ padding: '8px 0' }}>
-                                    <GroupLabel>Trainer</GroupLabel>
-                                    <MenuItem {...menuItemProps}
-                                        id="new"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                            </svg>
-                                        }
-                                        label="New Trainer"
-                                        onClick={() => { addNewTrainer(); closeMenus(); }}
-                                    />
-                                    <MenuItem {...menuItemProps}
-                                        id="clone"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                            </svg>
-                                        }
-                                        label="Clone Trainer"
-                                        onClick={() => { duplicateTrainer(activeTrainerId); closeMenus(); }}
-                                    />
-                                </div>
-
-                                <MenuDivider />
-
-                                {/* Preferences */}
-                                <div style={{ padding: '8px 0' }}>
-                                    <GroupLabel>Appearance</GroupLabel>
-                                    <MenuItem {...menuItemProps}
-                                        id="theme"
-                                        icon={theme === 'light' ? (
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                                            </svg>
-                                        ) : (
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <circle cx="12" cy="12" r="5"></circle>
-                                                <line x1="12" y1="1" x2="12" y2="3"></line>
-                                                <line x1="12" y1="21" x2="12" y2="23"></line>
-                                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                                <line x1="1" y1="12" x2="3" y2="12"></line>
-                                                <line x1="21" y1="12" x2="23" y2="12"></line>
-                                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                                            </svg>
-                                        )}
-                                        label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
-                                        onClick={() => { toggleTheme(); closeMenus(); }}
-                                    />
-                                    <MenuItem {...menuItemProps}
-                                        id="compact"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                                <line x1="3" y1="6" x2="21" y2="6"/>
-                                                <line x1="3" y1="10" x2="21" y2="10"/>
-                                                <line x1="3" y1="14" x2="21" y2="14"/>
-                                                <line x1="3" y1="18" x2="21" y2="18"/>
-                                            </svg>
-                                        }
-                                        label={compactMode ? 'Comfortable View' : 'Compact View'}
-                                        onClick={() => { setCompactMode(m => !m); closeMenus(); }}
-                                    />
-                                </div>
-
-                                <MenuDivider />
-
-                                {/* Danger Zone */}
-                                <div style={{ padding: '8px 0' }}>
-                                    <GroupLabel>Danger Zone</GroupLabel>
-                                    <MenuItem {...menuItemProps}
-                                        id="archive"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <polyline points="21 8 21 21 3 21 3 8"></polyline>
-                                                <rect x="1" y="3" width="22" height="5"></rect>
-                                                <line x1="10" y1="12" x2="14" y2="12"></line>
-                                            </svg>
-                                        }
-                                        label="Archive Trainer"
-                                        disabled={activeTrainers.length <= 1}
-                                        disabledReason="Need at least 2 active trainers to archive one"
-                                        onClick={() => {
-                                            showConfirm({
-                                                title: 'Archive Trainer?',
-                                                message: `Archive "${trainer.name || 'Unnamed'}"? They'll move to the Archived section and can be restored later.`,
-                                                confirmLabel: 'Archive',
-                                                onConfirm: () => {
-                                                    archiveTrainer(activeTrainerId);
-                                                    closeMenus();
-                                                }
-                                            });
-                                        }}
-                                    />
-                                    <MenuItem {...menuItemProps}
-                                        id="delete"
-                                        icon={
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <polyline points="3 6 5 6 21 6"></polyline>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                            </svg>
-                                        }
-                                        label="Delete Trainer"
-                                        danger
-                                        disabled={activeTrainers.length <= 1 && archivedTrainers.length === 0}
-                                        disabledReason="Cannot delete the only trainer"
-                                        onClick={() => {
-                                            deleteTrainer(activeTrainerId);
-                                            closeMenus();
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Archived Trainers Section */}
-                                {archivedTrainers.length > 0 && (
-                                    <>
-                                        <MenuDivider />
-                                        <div style={{ padding: '4px 0' }}>
-                                            <button
-                                                onClick={() => setShowArchivedSection(p => !p)}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px 18px',
-                                                    border: 'none',
-                                                    background: 'none',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    fontSize: '12px',
-                                                    fontWeight: 700,
-                                                    color: '#888',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: '0.5px'
-                                                }}
-                                            >
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                                                    style={{ transform: showArchivedSection ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>
-                                                    <polyline points="9 18 15 12 9 6"></polyline>
-                                                </svg>
-                                                Archived ({archivedTrainers.length})
-                                            </button>
-                                            {showArchivedSection && archivedTrainers.map(t => (
-                                                <div key={t.id} style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    padding: '6px 18px',
-                                                    gap: '8px'
-                                                }}>
-                                                    <span style={{ fontSize: '13px', color: '#888', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                        {t.name || 'Unnamed'} (Lv.{t.level})
-                                                    </span>
-                                                    <button
-                                                        onClick={() => {
-                                                            unarchiveTrainer(t.id);
-                                                            closeMenus();
-                                                        }}
-                                                        style={{
-                                                            padding: '3px 10px',
-                                                            fontSize: '11px',
-                                                            fontWeight: 700,
-                                                            background: '#667eea',
-                                                            color: 'white',
-                                                            border: 'none',
-                                                            borderRadius: '4px',
-                                                            cursor: 'pointer',
-                                                            flexShrink: 0
-                                                        }}
-                                                    >
-                                                        Restore
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </header>
     );
