@@ -106,35 +106,30 @@ const AbilitiesSection = () => {
                 Showing {filteredAbilities.length} of {totalAbilities} abilities
             </div>
 
-            {/* Abilities List */}
+            {/* Abilities Grid */}
             <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
                 {filteredAbilities.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px', color: 'var(--abilities-empty-text)' }}>
                         No abilities found matching your search.
                     </div>
                 ) : (
-                    filteredAbilities.slice(0, visibleCount).map(([name, desc]) => (
-                        <div
-                            key={name}
-                            style={{
-                                marginBottom: '8px',
-                                padding: '12px',
-                                background: 'var(--abilities-card-bg)',
-                                borderRadius: '8px',
-                                borderLeft: '4px solid var(--abilities-card-border)',
-                                boxShadow: '0 1px 3px var(--abilities-card-shadow)',
-                                cursor: showDetail ? 'pointer' : 'default'
-                            }}
-                            onClick={() => showDetail && showDetail('ability', name, desc)}
-                        >
-                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', color: 'var(--abilities-name-text)' }}>
-                                {name}
+                    <div className="detail-tile-grid">
+                        {filteredAbilities.slice(0, visibleCount).map(([name, desc]) => (
+                            <div
+                                key={name}
+                                className="detail-tile"
+                                style={{ borderTop: '3px solid var(--abilities-card-border, #667eea)', cursor: showDetail ? 'pointer' : 'default' }}
+                                onClick={() => showDetail && showDetail('ability', name, desc)}
+                            >
+                                <div style={{ fontWeight: 'bold', fontSize: '13px', color: 'var(--abilities-name-text)' }}>
+                                    {name}
+                                </div>
+                                <div style={{ fontSize: '11px', color: 'var(--abilities-desc-text)', lineHeight: '1.4' }}>
+                                    {desc.length > 80 ? desc.substring(0, 80) + '…' : desc}
+                                </div>
                             </div>
-                            <div style={{ fontSize: '13px', color: 'var(--abilities-desc-text)', lineHeight: '1.4' }}>
-                                {desc}
-                            </div>
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
             </div>
 

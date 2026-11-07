@@ -231,32 +231,23 @@ const CustomContentSection = () => {
             {customSpecies.length === 0 ? (
                 <EmptyRow>No custom species yet.</EmptyRow>
             ) : (
-                <div style={{ display: 'grid', gap: '8px' }}>
+                <div className="detail-tile-grid">
                     {customSpecies.map(sp => {
                         const bst = Object.values(sp.baseStats || {}).reduce((a, b) => a + (b || 0), 0);
                         return (
                             <div
                                 key={sp.id}
-                                style={{
-                                    padding: '10px 12px',
-                                    background: 'var(--moves-card-bg, var(--bg-secondary))',
-                                    borderRadius: '8px',
-                                    borderLeft: `4px solid ${getTypeColor(sp.types?.[0])}`,
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    flexWrap: 'wrap'
-                                }}
+                                className="detail-tile"
+                                style={{ borderTop: `3px solid ${getTypeColor(sp.types?.[0])}` }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                    <strong style={{ fontSize: '14px' }}>{sp.species}</strong>
+                                <strong style={{ fontSize: '13px' }}>{sp.species}</strong>
+                                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
                                     {(sp.types || []).map(t => (
-                                        <span key={t} style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', background: getTypeColor(t), color: 'white' }}>{t}</span>
+                                        <span key={t} style={{ padding: '1px 7px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', background: getTypeColor(t), color: 'white' }}>{t}</span>
                                     ))}
-                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>HP {sp.baseStats?.hp ?? '?'} · BST {bst}</span>
                                 </div>
-                                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>HP {sp.baseStats?.hp ?? '?'} · BST {bst}</span>
+                                <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                                     <button style={{ ...ACTION_BTN, background: '#667eea' }} onClick={() => handleEditSpecies(sp)}>Edit</button>
                                     <button style={{ ...ACTION_BTN, background: '#f44336' }} onClick={() => handleDeleteSpecies(sp)}>Delete</button>
                                 </div>
@@ -271,35 +262,18 @@ const CustomContentSection = () => {
             {customItems.length === 0 ? (
                 <EmptyRow>No custom items yet.</EmptyRow>
             ) : (
-                <div style={{ display: 'grid', gap: '8px' }}>
+                <div className="detail-tile-grid">
                     {customItems.map(item => (
-                        <div
-                            key={item.name}
-                            style={{
-                                padding: '10px 12px',
-                                background: 'var(--moves-card-bg, var(--bg-secondary))',
-                                borderRadius: '8px',
-                                borderLeft: '4px solid #667eea',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                gap: '10px',
-                                flexWrap: 'wrap'
-                            }}
-                        >
-                            <div style={{ minWidth: 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                    <strong style={{ fontSize: '14px' }}>{item.name}</strong>
-                                    <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', background: '#667eea', color: 'white', textTransform: 'capitalize' }}>
-                                        {item.type || 'misc'}
-                                    </span>
-                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>×{item.quantity || 1}{item.price ? ` · ₽${item.price}` : ''}</span>
-                                </div>
-                                {item.effect && (
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>{item.effect}</div>
-                                )}
-                            </div>
-                            <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                        <div key={item.name} className="detail-tile" style={{ borderTop: '3px solid #667eea' }}>
+                            <strong style={{ fontSize: '13px' }}>{item.name}</strong>
+                            <span style={{ padding: '1px 7px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', background: '#667eea', color: 'white', textTransform: 'capitalize' }}>
+                                {item.type || 'misc'}
+                            </span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>×{item.quantity || 1}{item.price ? ` · ₽${item.price}` : ''}</span>
+                            {item.effect && (
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{item.effect.length > 60 ? item.effect.substring(0, 60) + '…' : item.effect}</div>
+                            )}
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                                 <button style={{ ...ACTION_BTN, background: '#667eea' }} onClick={() => setActiveTab('inventory')}>Inventory →</button>
                                 <button style={{ ...ACTION_BTN, background: '#f44336' }} onClick={() => handleDeleteItem(item.name)}>Delete</button>
                             </div>
@@ -324,37 +298,20 @@ const CustomContentSection = () => {
             {customMoves.length === 0 ? (
                 <EmptyRow>No custom moves yet — any move you create can be taught to other Pokémon too, not just the one it was made for.</EmptyRow>
             ) : (
-                <div style={{ display: 'grid', gap: '8px' }}>
+                <div className="detail-tile-grid">
                     {customMoves.map(move => {
                         const knowers = knownBy(move.name);
                         return (
-                            <div
-                                key={move.id}
-                                style={{
-                                    padding: '10px 12px',
-                                    background: 'var(--moves-card-bg, var(--bg-secondary))',
-                                    borderRadius: '8px',
-                                    borderLeft: `4px solid ${getTypeColor(move.type)}`,
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    flexWrap: 'wrap'
-                                }}
-                            >
-                                <div style={{ minWidth: 0 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <strong style={{ fontSize: '14px' }}>{move.name}</strong>
-                                        <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', background: getTypeColor(move.type), color: 'white' }}>{move.type}</span>
-                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{move.category} · {move.damage || 'Status'} · {move.frequency}</span>
-                                    </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                                        {knowers.length === 0
-                                            ? 'Not learned by any Pokémon yet'
-                                            : `Known by: ${knowers.slice(0, 3).map(({ pokemon }) => pokemon.name || pokemon.species).join(', ')}${knowers.length > 3 ? ` +${knowers.length - 3} more` : ''}`}
-                                    </div>
+                            <div key={move.id} className="detail-tile" style={{ borderTop: `3px solid ${getTypeColor(move.type)}` }}>
+                                <strong style={{ fontSize: '13px' }}>{move.name}</strong>
+                                <span style={{ padding: '1px 7px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', background: getTypeColor(move.type), color: 'white' }}>{move.type}</span>
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{move.category} · {move.damage || 'Status'} · {move.frequency}</span>
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                                    {knowers.length === 0
+                                        ? 'Not learned yet'
+                                        : `Known by: ${knowers.slice(0, 2).map(({ pokemon }) => pokemon.name || pokemon.species).join(', ')}${knowers.length > 2 ? ` +${knowers.length - 2}` : ''}`}
                                 </div>
-                                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                                <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                                     {knowers.length > 0 && (
                                         <button style={{ ...ACTION_BTN, background: '#667eea' }} onClick={() => jumpToPokemon(knowers[0].trainer.id, knowers[0].pokemon.id)}>
                                             View →
@@ -373,39 +330,22 @@ const CustomContentSection = () => {
             {customOrigins.length === 0 ? (
                 <EmptyRow>No custom Origins yet.</EmptyRow>
             ) : (
-                <div style={{ display: 'grid', gap: '8px' }}>
+                <div className="detail-tile-grid">
                     {customOrigins.map(origin => {
                         const users = trainersUsingOrigin(origin.name);
                         const skillCount = (origin.skillTalents || []).reduce((sum, g) => sum + (g.fixed?.length || g.chooseN || 0), 0);
                         return (
-                            <div
-                                key={origin.id}
-                                style={{
-                                    padding: '10px 12px',
-                                    background: 'var(--moves-card-bg, var(--bg-secondary))',
-                                    borderRadius: '8px',
-                                    borderLeft: '4px solid #667eea',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    flexWrap: 'wrap'
-                                }}
-                            >
-                                <div style={{ minWidth: 0 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <strong style={{ fontSize: '14px' }}>{origin.name}</strong>
-                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                                            {skillCount} skill talent{skillCount !== 1 ? 's' : ''}{origin.feature ? ` · ${origin.feature.name}` : ''}
-                                        </span>
-                                    </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                                        {users.length === 0
-                                            ? 'Not selected by any trainer yet'
-                                            : `Selected by: ${users.slice(0, 3).map(t => t.name || 'Unnamed').join(', ')}${users.length > 3 ? ` +${users.length - 3} more` : ''}`}
-                                    </div>
+                            <div key={origin.id} className="detail-tile" style={{ borderTop: '3px solid #667eea' }}>
+                                <strong style={{ fontSize: '13px' }}>{origin.name}</strong>
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                    {skillCount} talent{skillCount !== 1 ? 's' : ''}{origin.feature ? ` · ${origin.feature.name}` : ''}
+                                </span>
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                                    {users.length === 0
+                                        ? 'Not selected yet'
+                                        : `Selected by: ${users.slice(0, 2).map(t => t.name || 'Unnamed').join(', ')}${users.length > 2 ? ` +${users.length - 2}` : ''}`}
                                 </div>
-                                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                                <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
                                     {users.length > 0 && (
                                         <button style={{ ...ACTION_BTN, background: '#667eea' }} onClick={() => jumpToTrainer(users[0].id)}>
                                             View →

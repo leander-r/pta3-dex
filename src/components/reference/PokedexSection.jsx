@@ -372,7 +372,6 @@ const PokedexSection = () => {
     const [search, setSearch]         = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [expandedId, setExpandedId] = useState(null);
-    const [hoveredId, setHoveredId]   = useState(null);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
     const allSpecies = useMemo(() =>
@@ -459,93 +458,82 @@ const PokedexSection = () => {
                     : `${filtered.length} of ${allSpecies.length} species`}
             </div>
 
-            {/* Species List */}
-            <div style={{
-                border: '1px solid var(--border-light)', borderRadius: '10px',
-                overflow: 'hidden', background: 'var(--poke-white)'
-            }}>
-                {filtered.length === 0 ? (
-                    <div style={{
-                        padding: '40px', textAlign: 'center',
-                        color: 'var(--text-muted)', fontSize: '14px'
-                    }}>
-                        No species found.
-                    </div>
-                ) : (
-                    filtered.slice(0, visibleCount).map((s, idx) => {
+            {/* Species Grid */}
+            {filtered.length === 0 ? (
+                <div style={{
+                    padding: '40px', textAlign: 'center',
+                    color: 'var(--text-muted)', fontSize: '14px',
+                    border: '1px solid var(--border-light)', borderRadius: '10px'
+                }}>
+                    No species found.
+                </div>
+            ) : (
+                <div className="detail-tile-grid">
+                    {filtered.slice(0, visibleCount).map((s) => {
                         const rowId      = s.id ?? s.species;
                         const isExpanded = expandedId === rowId;
-                        const isHovered  = hoveredId === rowId && !isExpanded;
                         const spriteUrl  = getPokemonDisplayImage(s);
 
-                        return (
-                            <div
-                                key={rowId}
-                                style={{ borderTop: idx === 0 ? 'none' : '1px solid var(--border-light)' }}
-                            >
-                                {/* Collapsed row */}
-                                <button
-                                    onClick={() => handleRowClick(rowId)}
-                                    onMouseEnter={() => setHoveredId(rowId)}
-                                    onMouseLeave={() => setHoveredId(null)}
-                                    style={{
-                                        width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
-                                        padding: '7px 12px', border: 'none', cursor: 'pointer',
-                                        textAlign: 'left', color: 'var(--text-primary)',
-                                        transition: 'background 0.12s',
-                                        background: isExpanded
-                                            ? 'var(--bg-section)'
-                                            : isHovered
-                                                ? 'var(--hover-bg)'
-                                                : 'transparent'
-                                    }}
-                                >
-                                    {/* Sprite */}
-                                    <div style={{ width: '40px', height: '40px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {spriteUrl ? (
-                                            <img
-                                                src={spriteUrl}
-                                                alt={s.species}
-                                                style={{ width: '40px', height: '40px', imageRendering: 'pixelated' }}
-                                                onError={e => { e.target.style.display = 'none'; }}
-                                            />
-                                        ) : null}
-                                    </div>
-                                    {/* Dex # */}
-                                    <span style={{
-                                        fontSize: '11px', color: 'var(--text-muted)',
-                                        fontWeight: 600, width: '34px', flexShrink: 0, textAlign: 'right'
-                                    }}>#{s.id || '?'}</span>
-                                    {/* Name */}
-                                    <span style={{ fontWeight: 700, fontSize: '14px', flex: 1, display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        {s.species}
-                                        {s.legendary && <span title="Legendary Pokémon" style={{ color: '#f9a825', fontSize: '13px' }}>⭐</span>}
-                                    </span>
-                                    {/* Types */}
-                                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                                        {(s.types || []).map(t => <TypeChip key={t} type={t} />)}
-                                    </div>
-                                    {/* Chevron */}
-                                    <svg
-                                        width="13" height="13" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" strokeWidth="2.5"
+                        if (isExpanded) {
+                            return (
+                                <div key={rowId} className="detail-tile" style={{ gridColumn: '1 / -1', alignItems: 'stretch', textAlign: 'left', padding: 0, overflow: 'hidden' }}>
+                                    {/* Header row */}
+                                    <button
+                                        onClick={() => handleRowClick(rowId)}
                                         style={{
-                                            flexShrink: 0, color: 'var(--text-muted)',
-                                            transform: isExpanded ? 'rotate(90deg)' : 'none',
-                                            transition: 'transform 0.2s'
+                                            width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                                            padding: '10px 12px', border: 'none', cursor: 'pointer',
+                                            textAlign: 'left', color: 'var(--text-primary)', background: 'var(--bg-section)',
+                                            borderRadius: '12px 12px 0 0'
                                         }}
                                     >
-                                        <polyline points="9 18 15 12 9 6" />
-                                    </svg>
-                                </button>
+                                        <div style={{ width: '40px', height: '40px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {spriteUrl ? (
+                                                <img src={spriteUrl} alt={s.species} style={{ width: '40px', height: '40px', imageRendering: 'pixelated' }} onError={e => { e.target.style.display = 'none'; }} />
+                                            ) : null}
+                                        </div>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, width: '34px', flexShrink: 0, textAlign: 'right' }}>#{s.id || '?'}</span>
+                                        <span style={{ fontWeight: 700, fontSize: '14px', flex: 1, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            {s.species}
+                                            {s.legendary && <span title="Legendary Pokémon" style={{ color: '#f9a825', fontSize: '13px' }}>⭐</span>}
+                                        </span>
+                                        <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                                            {(s.types || []).map(t => <TypeChip key={t} type={t} />)}
+                                        </div>
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0, color: 'var(--text-muted)', transform: 'rotate(90deg)' }}>
+                                            <polyline points="9 18 15 12 9 6" />
+                                        </svg>
+                                    </button>
+                                    <SpeciesDetail species={s} />
+                                </div>
+                            );
+                        }
 
-                                {/* Expanded panel */}
-                                {isExpanded && <SpeciesDetail species={s} />}
-                            </div>
+                        return (
+                            <button
+                                key={rowId}
+                                onClick={() => handleRowClick(rowId)}
+                                className="detail-tile"
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {spriteUrl ? (
+                                        <img src={spriteUrl} alt={s.species} style={{ width: '40px', height: '40px', imageRendering: 'pixelated' }} onError={e => { e.target.style.display = 'none'; }} />
+                                    ) : null}
+                                </div>
+                                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600 }}>#{s.id || '?'}</span>
+                                <div style={{ fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    {s.species}
+                                    {s.legendary && <span title="Legendary Pokémon" style={{ color: '#f9a825', fontSize: '12px' }}>⭐</span>}
+                                </div>
+                                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                    {(s.types || []).map(t => <TypeChip key={t} type={t} />)}
+                                </div>
+                            </button>
                         );
-                    })
-                )}
-            </div>
+                    })}
+                </div>
+            )}
 
             {visibleCount < filtered.length && (
                 <button

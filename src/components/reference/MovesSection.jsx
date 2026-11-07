@@ -183,71 +183,49 @@ const MovesSection = () => {
                 Showing {filteredMoves.length} of {totalMoves} moves
             </div>
 
-            {/* Moves List */}
+            {/* Moves Grid */}
             <div style={{ maxHeight: '550px', overflowY: 'auto' }}>
                 {filteredMoves.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px', color: 'var(--moves-empty-text)' }}>
                         No moves found matching your filters.
                     </div>
                 ) : (
-                    filteredMoves.slice(0, visibleCount).map(([move, data]) => (
-                        <div
-                            key={move}
-                            style={{
-                                marginBottom: '10px',
-                                padding: '12px',
-                                background: 'var(--moves-card-bg)',
-                                borderRadius: '8px',
-                                borderLeft: `4px solid ${getTypeColor(data.type)}`,
-                                boxShadow: '0 1px 3px var(--moves-card-shadow)',
-                                cursor: 'pointer'
-                            }}
-                            onClick={() => showDetail && showDetail('move', move, data)}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                    <strong style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{move}</strong>
-                                    <span style={{
-                                        padding: '2px 8px',
-                                        borderRadius: '4px',
-                                        fontSize: '10px',
-                                        fontWeight: 'bold',
-                                        background: getTypeColor(data.type),
-                                        color: ['Electric', 'Ice', 'Ground', 'Steel'].includes(data.type) ? '#333' : 'white'
-                                    }}>
-                                        {data.type}
-                                    </span>
-                                    <span style={{
-                                        padding: '2px 8px',
-                                        borderRadius: '4px',
-                                        fontSize: '10px',
-                                        background: data.category === 'Physical' ? 'var(--moves-category-physical-bg)' : data.category === 'Special' ? 'var(--moves-category-special-bg)' : 'var(--moves-category-status-bg)',
-                                        color: data.category === 'Physical' ? 'var(--moves-category-physical-text)' : data.category === 'Special' ? 'var(--moves-category-special-text)' : 'var(--moves-category-status-text)'
-                                    }}>
-                                        {data.category}
-                                    </span>
-                                </div>
-                                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                    {data.damage && (
-                                        <span style={{ fontWeight: 'bold', color: 'var(--moves-damage-text)' }}>
-                                            {data.damage}
-                                        </span>
-                                    )}
+                    <div className="detail-tile-grid">
+                        {filteredMoves.slice(0, visibleCount).map(([move, data]) => (
+                            <div
+                                key={move}
+                                className="detail-tile"
+                                style={{ borderTop: `3px solid ${getTypeColor(data.type)}`, cursor: 'pointer' }}
+                                onClick={() => showDetail && showDetail('move', move, data)}
+                            >
+                                <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{move}</div>
+                                <span style={{
+                                    padding: '1px 8px',
+                                    borderRadius: '8px',
+                                    fontSize: '10px',
+                                    fontWeight: 'bold',
+                                    background: getTypeColor(data.type),
+                                    color: ['Electric', 'Ice', 'Ground', 'Steel'].includes(data.type) ? '#333' : 'white'
+                                }}>
+                                    {data.type}
+                                </span>
+                                <span style={{
+                                    padding: '1px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '10px',
+                                    background: data.category === 'Physical' ? 'var(--moves-category-physical-bg)' : data.category === 'Special' ? 'var(--moves-category-special-bg)' : 'var(--moves-category-status-bg)',
+                                    color: data.category === 'Physical' ? 'var(--moves-category-physical-text)' : data.category === 'Special' ? 'var(--moves-category-special-text)' : 'var(--moves-category-status-text)'
+                                }}>
+                                    {data.category}
+                                </span>
+                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                    {data.damage && <strong style={{ color: 'var(--moves-damage-text)' }}>{data.damage}</strong>}
+                                    {data.damage && data.frequency && ' · '}
                                     <span style={{ color: 'var(--moves-frequency-text)' }}>{data.frequency}</span>
                                 </div>
                             </div>
-                            {data.range && (
-                                <div style={{ fontSize: '11px', color: 'var(--moves-range-text)', marginTop: '4px' }}>
-                                    {data.range}
-                                </div>
-                            )}
-                            {data.effect && (
-                                <div style={{ fontSize: '12px', color: 'var(--moves-effect-text)', marginTop: '6px', lineHeight: '1.4' }}>
-                                    {data.effect.length > 150 ? data.effect.substring(0, 150) + '...' : data.effect}
-                                </div>
-                            )}
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
             </div>
 
