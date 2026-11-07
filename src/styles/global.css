@@ -2986,6 +2986,63 @@
             display: none;
         }
 
+        /* Generic compact tile grid — same Android-icon density as the roster,
+           reused for moves/skills/evolution inside the expanded Pokémon card */
+        .detail-tile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .detail-tile {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 4px;
+            position: relative;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .detail-tile:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="dark"] .detail-tile {
+            background: var(--poke-white) !important;
+            border-color: var(--border-light) !important;
+        }
+
+        .detail-tile-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: var(--collapsed-btn-bg);
+            color: var(--collapsed-btn-text);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .detail-tile-remove:hover {
+            background: #f44336;
+            color: white;
+        }
+
         /* Trainer stats grid - 2 columns on mobile */
         .trainer-stats-grid {
             gap: 10px;
@@ -3464,6 +3521,11 @@
                 gap: 10px;
             }
 
+            .detail-tile-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 8px;
+            }
+
             .pokemon-name {
                 font-size: 16px;
             }
@@ -3597,6 +3659,11 @@
 
             /* 2-column floor so the roster keeps an app-icon grid feel on phones */
             .pokemon-roster-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px;
+            }
+
+            .detail-tile-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 8px;
             }
@@ -3739,6 +3806,11 @@
             }
 
             .pokemon-roster-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 6px;
+            }
+
+            .detail-tile-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 6px;
             }
