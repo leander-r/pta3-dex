@@ -26,32 +26,27 @@ const HealModePanel = ({ selectedPokemonId, setSelectedPokemonId, party, healing
                 No healing items in inventory.
             </div>
         ) : (
-            <div style={{ display: 'grid', gap: '6px' }}>
+            <div className="detail-tile-grid">
                 {healingInventory.map(item => {
                     const formula = parseHealFormula(item.effect || '');
                     const formulaLabel = formula.type === 'dice' ? `🎲 ${formula.formula}`
                         : formula.type === 'fraction' ? `📊 ${formula.num}/${formula.denom} Max HP`
                         : '✨ Status';
                     return (
-                        <div
-                            key={item.name}
-                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '6px', background: 'var(--input-bg)', border: '1px solid var(--border-medium)' }}
-                        >
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{item.name}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                                    {formulaLabel} · ×{item.quantity || 1}
-                                </div>
+                        <div key={item.name} className="detail-tile" style={{ borderTop: '3px solid #4caf50' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{item.name}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                {formulaLabel} · ×{item.quantity || 1}
                             </div>
                             <button
                                 onClick={() => onUseItem(item.name)}
                                 disabled={!selectedPokemonId}
                                 style={{
-                                    padding: '6px 14px',
+                                    marginTop: '4px', padding: '5px 14px',
                                     background: selectedPokemonId ? '#4caf50' : '#ccc',
                                     color: 'white', border: 'none', borderRadius: '4px',
                                     cursor: selectedPokemonId ? 'pointer' : 'not-allowed',
-                                    fontSize: '13px', fontWeight: 'bold', whiteSpace: 'nowrap'
+                                    fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap'
                                 }}
                             >
                                 Use

@@ -1,10 +1,6 @@
 import React from 'react';
 import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
 
-// PTA3: accuracy is checked against the target's stat value (DEF/SDEF/SPD), not a fixed AC.
-const accTargetLabel = (category) =>
-    category === 'Physical' ? 'vs DEF' : category === 'Status' ? 'vs SPD' : 'vs SDEF';
-
 const HelpBtn = ({ onClick, color = 'rgba(255,255,255,0.6)', hoverTitle }) => (
     <button
         onClick={onClick}
@@ -221,8 +217,7 @@ const MoveSelector = ({
             )}
 
             {/* ── Move list ──────────────────────────────────────────── */}
-            <div style={{
-                display: 'grid', gap: '6px',
+            <div className="detail-tile-grid" style={{
                 border: activeMode === 'dynamax' ? '2px solid #9b27af'
                     : activeMode === 'zmove' ? '2px solid #e53935'
                     : activeMode === 'tera' ? `2px solid ${teraColor}`
@@ -236,7 +231,7 @@ const MoveSelector = ({
                     : undefined,
             }}>
                 {displayMoves.length === 0 && (
-                    <div className="text-muted" style={{ textAlign: 'center', padding: '12px', fontSize: '13px' }}>
+                    <div className="text-muted" style={{ textAlign: 'center', padding: '12px', fontSize: '13px', gridColumn: '1 / -1' }}>
                         No moves learned yet
                     </div>
                 )}
@@ -302,10 +297,19 @@ const MoveSelector = ({
                     return (
                         <div
                             key={idx}
+                            onClick={() => {
+                                if (move.isMaxMove || move.isGMaxMove || move.isZMove || move.isTeraMove) { onSelectMove(move); return; }
+                                const gd = gameData?.moves?.[move.name] || {};
+                                const full = { ...gd };
+                                Object.entries(move).forEach(([k, v]) => { if (v !== '' && v != null) full[k] = v; });
+                                onSelectMove(full);
+                            }}
+                            className={isSelected ? 'detail-tile-filled' : 'detail-tile'}
                             style={{
-                                display: 'flex', alignItems: 'stretch',
-                                border: `2px solid ${borderColor}`,
-                                borderRadius: '6px', overflow: 'hidden',
+                                cursor: 'pointer',
+                                borderTop: `3px solid ${borderColor}`,
+                                background: isSelected ? selectedBg : undefined,
+                                color: isSelected ? selectedFg : undefined,
                                 boxShadow: isGMax && !isGMaxUsed ? `0 0 8px #ffd70066`
                                     : isZMove && !isZMoveUsed ? `0 0 6px #ef535044`
                                     : isTeraMove && !isTeraBlastExhausted ? `0 0 6px ${teraColor}44`
@@ -313,60 +317,30 @@ const MoveSelector = ({
                                     : undefined,
                             }}
                         >
-                            <button
-                                onClick={() => {
-                                    if (move.isMaxMove || move.isGMaxMove || move.isZMove || move.isTeraMove) { onSelectMove(move); return; }
-                                    const gd = gameData?.moves?.[move.name] || {};
-                                    const full = { ...gd };
-                                    Object.entries(move).forEach(([k, v]) => { if (v !== '' && v != null) full[k] = v; });
-                                    onSelectMove(full);
-                                }}
-                                className={!isSelected ? 'move-select-btn' : ''}
-                                style={{
-                                    flex: 1, padding: '10px',
-                                    background: isSelected ? selectedBg : undefined,
-                                    color: isSelected ? selectedFg : undefined,
-                                    border: 'none', cursor: 'pointer', textAlign: 'left'
-                                }}
-                            >
-                                <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    {move.name}
-                                    {badge}
-                                </div>
-                                <div style={{ fontSize: '12px', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
-                                    <span>{move.type}</span>
-                                    {category && (
-                                        <span style={{
-                                            padding: '1px 6px',
-                                            borderRadius: '4px',
-                                            fontSize: '10px',
-                                            fontWeight: 'bold',
-                                            background: category === 'Physical' ? 'var(--moves-category-physical-bg)' : category === 'Special' ? 'var(--moves-category-special-bg)' : 'var(--moves-category-status-bg)',
-                                            color: category === 'Physical' ? 'var(--moves-category-physical-text)' : category === 'Special' ? 'var(--moves-category-special-text)' : 'var(--moves-category-status-text)'
-                                        }}>
-                                            {category}
-                                        </span>
-                                    )}
-                                    <span>| {move.isMaxGuard ? 'No Damage' : (damage || 'Status')}</span>
-                                    {!move.isMaxGuard && (
-                                        <span title="PTA3: Roll 1d20 + accuracy bonus against the target's stat value.">
-                                            | {accTargetLabel(category)}
-                                        </span>
-                                    )}
-                                    {frequency && (
-                                        <span style={{ opacity: 0.7 }}>| {frequency}</span>
-                                    )}
-                                </div>
-                            </button>
                             {!move.isMaxMove && !isGMax && !isZMove && !isTeraMove && (
                                 <button
-                                    onClick={() => showDetail && showDetail('move', move.name, { ...gameData?.moves?.[move.name], ...move })}
-                                    style={{ padding: '0 12px', background: typeColor, color: getContrastTextColor(typeColor), border: 'none', cursor: 'pointer', fontSize: '14px' }}
+                                    onClick={(e) => { e.stopPropagation(); showDetail && showDetail('move', move.name, { ...gameData?.moves?.[move.name], ...move }); }}
+                                    className="detail-tile-remove"
+                                    style={isSelected ? { background: 'rgba(255,255,255,0.25)', color: selectedFg } : undefined}
                                     title="View move details"
                                     aria-label={`View details for ${move.name}`}
-                                >
-                                    ℹ
-                                </button>
+                                >ℹ</button>
+                            )}
+                            <div style={{ fontWeight: 'bold', fontSize: '12px' }}>
+                                {move.name}
+                            </div>
+                            {badge}
+                            <span style={{
+                                padding: '1px 8px', background: typeColor, color: getContrastTextColor(typeColor),
+                                borderRadius: '8px', fontSize: '10px', fontWeight: 'bold'
+                            }}>
+                                {move.type}
+                            </span>
+                            <div style={{ fontSize: '11px', opacity: 0.85 }}>
+                                {category && <>{category} · </>}{move.isMaxGuard ? 'No Damage' : (damage || 'Status')}
+                            </div>
+                            {frequency && (
+                                <div style={{ fontSize: '10px', opacity: 0.7 }}>{frequency}</div>
                             )}
                         </div>
                     );

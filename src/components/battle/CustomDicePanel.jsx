@@ -15,13 +15,13 @@ const CustomDicePanel = ({ customDice, setCustomDice, onRoll }) => (
             placeholder="2d6+5"
             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-medium)', marginBottom: '12px' }}
         />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+        <div className="detail-tile-grid" style={{ marginBottom: '12px' }}>
             {QUICK_DICE.map(dice => (
                 <button
                     key={dice}
                     onClick={() => setCustomDice(dice)}
-                    className={`dice-quick-btn ${customDice === dice ? 'selected' : ''}`}
-                    style={{ padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                    className={`detail-tile dice-quick-btn ${customDice === dice ? 'selected' : ''}`}
+                    style={{ cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
                 >
                     {dice}
                 </button>

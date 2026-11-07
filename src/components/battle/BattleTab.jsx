@@ -43,36 +43,26 @@ const hexToDiscordColor = (hex) => parseInt((hex || '#667eea').replace('#', ''),
 const TrainerAttackCard = ({ moveName, moveType, damage, frequency, isSelected, onSelect, subtitle }) => {
     const typeColor = getTypeColor(moveType);
     return (
-        <div style={{
-            display: 'flex', alignItems: 'stretch',
-            border: `2px solid ${typeColor}`,
-            borderRadius: '6px', overflow: 'hidden', marginBottom: '8px',
-        }}>
-            <button
-                onClick={onSelect}
-                className={onSelect && !isSelected ? 'move-select-btn' : ''}
-                style={{
-                    flex: 1, padding: '10px',
-                    background: isSelected ? typeColor : undefined,
-                    color: isSelected ? getContrastTextColor(typeColor) : undefined,
-                    border: 'none', cursor: onSelect ? 'pointer' : 'default', textAlign: 'left'
-                }}
-            >
-                <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {moveName}
-                    {subtitle && <span style={{ fontWeight: 'normal', fontSize: '11px', opacity: 0.8 }}>· {subtitle}</span>}
-                </div>
-                <div style={{ fontSize: '12px', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
-                    <span>{moveType}</span>
-                    <span style={{
-                        padding: '1px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold',
-                        background: 'var(--moves-category-physical-bg)', color: 'var(--moves-category-physical-text)'
-                    }}>Physical</span>
-                    <span>| {damage}</span>
-                    <span title="PTA3: Roll 1d20 + accuracy bonus against the target's stat value.">| vs DEF</span>
-                    {frequency && <span style={{ opacity: 0.7 }}>| {frequency}</span>}
-                </div>
-            </button>
+        <div
+            onClick={onSelect}
+            className={isSelected ? 'detail-tile-filled' : 'detail-tile'}
+            style={{
+                borderTop: `3px solid ${typeColor}`,
+                background: isSelected ? typeColor : undefined,
+                color: isSelected ? getContrastTextColor(typeColor) : undefined,
+                cursor: onSelect ? 'pointer' : 'default',
+            }}
+        >
+            <div style={{ fontWeight: 'bold', fontSize: '12px' }}>
+                {moveName}
+            </div>
+            {subtitle && <span style={{ fontSize: '10px', opacity: 0.8 }}>{subtitle}</span>}
+            <span style={{
+                padding: '1px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold',
+                background: 'var(--moves-category-physical-bg)', color: 'var(--moves-category-physical-text)'
+            }}>Physical</span>
+            <div style={{ fontSize: '11px', opacity: 0.85 }}>{damage}</div>
+            {frequency && <div style={{ fontSize: '10px', opacity: 0.7 }}>{frequency}</div>}
         </div>
     );
 };
@@ -884,28 +874,38 @@ const BattleTab = () => {
                         </button>
                     </div>
                     {actorSource === 'npc' && (
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px' }}>
-                            {npcs.length === 0 && (
+                        npcs.length === 0 ? (
+                            <div style={{ marginTop: '10px' }}>
                                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                                     No NPCs yet — create one in GM Tools → NPC Roster.
                                 </span>
-                            )}
-                            {npcs.map(n => (
-                                <button
-                                    key={n.id}
-                                    onClick={() => setSelectedNpcId(n.id)}
-                                    aria-pressed={selectedNpcId === n.id}
-                                    style={{
-                                        padding: '5px 10px', borderRadius: '14px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
-                                        border: selectedNpcId === n.id ? '2px solid #667eea' : '1px solid var(--border-medium)',
-                                        background: selectedNpcId === n.id ? 'rgba(102,126,234,0.15)' : 'var(--input-bg)',
-                                        color: 'var(--text-primary)',
-                                    }}
-                                >
-                                    {n.name}{n.level != null && <span style={{ fontWeight: 'normal', color: 'var(--text-muted)' }}> · Lv {n.level}</span>}
-                                </button>
-                            ))}
-                        </div>
+                            </div>
+                        ) : (
+                            <div className="detail-tile-grid" style={{ marginTop: '10px' }}>
+                                {npcs.map(n => {
+                                    const isSelected = selectedNpcId === n.id;
+                                    return (
+                                        <button
+                                            key={n.id}
+                                            onClick={() => setSelectedNpcId(n.id)}
+                                            aria-pressed={isSelected}
+                                            className={isSelected ? 'detail-tile-filled' : 'detail-tile'}
+                                            style={{
+                                                cursor: 'pointer',
+                                                borderTop: '3px solid #667eea',
+                                                background: isSelected ? 'rgba(102,126,234,0.15)' : undefined,
+                                                border: isSelected ? '2px solid #667eea' : undefined,
+                                            }}
+                                        >
+                                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{n.name}</span>
+                                            {n.level != null && (
+                                                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Lv {n.level}</span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )
                     )}
                 </div>
             )}
@@ -1376,11 +1376,13 @@ const BattleTab = () => {
                                 const atkMod = Math.floor(atkVal / 2);
                                 return (
                                     <>
-                                        <TrainerAttackCard
-                                            moveName="Unarmed Strike" moveType="Normal"
-                                            damage={`2d6 +${atkMod} (ATK)`} frequency="At-Will"
-                                            isSelected
-                                        />
+                                        <div className="detail-tile-grid" style={{ marginBottom: '8px' }}>
+                                            <TrainerAttackCard
+                                                moveName="Unarmed Strike" moveType="Normal"
+                                                damage={`2d6 +${atkMod} (ATK)`} frequency="At-Will"
+                                                isSelected
+                                            />
+                                        </div>
 
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                             <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#667eea', whiteSpace: 'nowrap' }}>vs DEF:</label>
@@ -1428,7 +1430,7 @@ const BattleTab = () => {
                                                 <button onClick={() => setActiveTab('inventory')} style={{ background: 'none', border: 'none', color: 'var(--color-purple, #667eea)', cursor: 'pointer', padding: 0, fontSize: '13px', textDecoration: 'underline' }}>Go to Inventory →</button>
                                             </div>
                                         ) : (
-                                            <div style={{ marginBottom: '4px' }}>
+                                            <div className="detail-tile-grid" style={{ marginBottom: '8px' }}>
                                                 {equippedWeapons.map(name => {
                                                     const info = getWeaponInfo(name);
                                                     return (
