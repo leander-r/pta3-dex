@@ -4,7 +4,7 @@
 // Dice roller state and functions for PTA combat
 
 import { useState, useCallback } from 'react';
-import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, parseCritThreshold, applyCombatStage } from '../utils/dataUtils.js';
+import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, parseCritThreshold, applyCombatStage, calcModifier } from '../utils/dataUtils.js';
 import { GAME_DATA } from '../data/configs.js';
 
 /**
@@ -201,7 +201,7 @@ export const useDiceRoller = (sendToDiscord = null) => {
         const baseStat = trainer.stats?.[statKey] || 3;
 
         // PTA3: modifier = ⌊stat / 2⌋
-        const modifier = Math.floor(baseStat / 2);
+        const modifier = calcModifier(baseStat);
 
         // Check talent level (handles both object and legacy array format)
         const skills = trainer.skills || {};

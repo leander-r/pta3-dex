@@ -4,7 +4,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { getTypeColor, getContrastTextColor } from '../../utils/typeUtils.js';
-import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold } from '../../utils/dataUtils.js';
+import { calculateSTAB, getActualStats, calculatePokemonHP, parseDice, applyCombatStage, parseHealFormula, parseCritThreshold, calcModifier } from '../../utils/dataUtils.js';
 import toast from '../../utils/toast.js';
 import { useGameData, useModal, useTrainerContext, usePokemonContext, useData, useUI } from '../../contexts/index.js';
 import { MAX_ROLL_HISTORY, MAX_MOVE_TABLE, Z_MOVE_TABLE, TERA_CROWN_TABLE } from '../../data/constants.js';
@@ -460,7 +460,7 @@ const BattleTab = () => {
             statKey = atkAdj >= satkAdj ? 'atk' : 'satk';
         }
         const adjustedStat = applyCombatStage(actualStats[statKey] || 0, combatStages[statKey] || 0);
-        const statMod = Math.floor(adjustedStat / 2);
+        const statMod = calcModifier(adjustedStat);
         const stabBonus = (applyStab && (forceStab || selectedPokemon.types?.includes(moveType))) ? calculateSTAB() : 0;
 
         const rolls = rollDice(diceData.count, diceData.sides);
@@ -594,7 +594,7 @@ const BattleTab = () => {
         const accModKey = isPhysical ? 'atk' : category === 'Status' ? 'eff' : 'satk';
         // PTA3: combat stages adjust the full stat; damage modifier = ⌊adjusted_stat/2⌋
         const adjustedStat = applyCombatStage(actualStats[statKey] || 0, combatStages[statKey] || 0);
-        const statMod = Math.floor(adjustedStat / 2);
+        const statMod = calcModifier(adjustedStat);
 
         // PTA3: accuracy = 1d20 + acc combat stages + Pokémon's accuracy bonus (from Pokédex)
         const accStageMod = combatStages.acc || 0;
@@ -674,7 +674,7 @@ const BattleTab = () => {
 
         const statKey = skillData.stat?.toLowerCase();
         const baseStat = actor.stats?.[statKey] || 3;
-        const modifier = Math.floor(baseStat / 2);
+        const modifier = calcModifier(baseStat);
 
         const skills = actor.skills || {};
         const skillRank = Array.isArray(skills)
@@ -695,7 +695,7 @@ const BattleTab = () => {
         if (!selectedPokemon || !selectedPokemonSkill) return;
         const statKey = getPokemonCapabilityStat(selectedPokemonSkill);
         const baseStat = (selectedPokemon.baseStats || selectedPokemon.stats)?.[statKey] || 0;
-        const modifier = Math.floor(baseStat / 2);
+        const modifier = calcModifier(baseStat);
         const rolls = rollDice(1, 20);
         const total = rolls[0] + modifier;
         const hp = getPokemonHP(selectedPokemon);
@@ -731,7 +731,7 @@ const BattleTab = () => {
     const rollTrainerAttack = () => {
         const isWeapon = trainerSubmode === 'weapon';
         const atkStat = actor.stats?.atk || 3;
-        const atkMod = Math.floor(atkStat / 2);
+        const atkMod = calcModifier(atkStat);
         const moveAC = trainerAcOverride !== '' ? (parseInt(trainerAcOverride) || null) : null;
         const accRoll = Math.floor(Math.random() * 20) + 1;
         const isCrit = accRoll === 20;
@@ -786,7 +786,7 @@ const BattleTab = () => {
     };
 
     const rollHealItem = (itemName) => {
-        const target = party.find(p => p.id === selectedPokemonId);
+        const target = actorParty.find(p => p.id === selectedPokemonId);
         if (!target) { toast.warning('Select a Pokémon first.'); return; }
         const invItem = inventory.find(i => i.name.toLowerCase() === itemName.toLowerCase());
         if (!invItem) return;
@@ -1233,7 +1233,7 @@ const BattleTab = () => {
                                     {selectedPokemonSkill && (() => {
                                         const statKey = getPokemonCapabilityStat(selectedPokemonSkill);
                                         const baseStat = (selectedPokemon?.baseStats || selectedPokemon?.stats)?.[statKey] || 0;
-                                        const mod = Math.floor(baseStat / 2);
+                                        const mod = calcModifier(baseStat);
                                         return (
                                             <div style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '6px 0' }}>
                                                 1d20 + ⌊{statKey.toUpperCase()} {baseStat}/2⌋ = 1d20 +{mod}
@@ -1271,7 +1271,7 @@ const BattleTab = () => {
                                         { key: 'spd',  label: 'SPD',  color: '#00bcd4' },
                                     ].map(stat => {
                                         const value = actor.stats?.[stat.key] || 3;
-                                        const mod = Math.floor(value / 2);
+                                        const mod = calcModifier(value);
                                         return (
                                             <div key={stat.key} className="trainer-stat-mini-box" style={{ textAlign: 'center', padding: '4px', borderRadius: '4px' }}>
                                                 <div style={{ fontSize: '12px', fontWeight: 'bold', color: stat.color }}>{stat.label}</div>
@@ -1345,7 +1345,7 @@ const BattleTab = () => {
                                         const skillData = GAME_DATA.skills[selectedSkill];
                                         const statKey = skillData.stat?.toLowerCase();
                                         const baseStat = actor.stats?.[statKey] || 3;
-                                        const modifier = Math.floor(baseStat / 2);
+                                        const modifier = calcModifier(baseStat);
                                         const skills = actor.skills || {};
                                         const skillRank = Array.isArray(skills) ? (skills.includes(selectedSkill) ? 1 : 0) : (skills[selectedSkill] || 0);
                                         const talentBonus = skillRank === 2 ? 5 : skillRank === 1 ? 2 : 0;
@@ -1373,7 +1373,7 @@ const BattleTab = () => {
                             {/* ── Unarmed Attack ── */}
                             {trainerSubmode === 'attack' && (() => {
                                 const atkVal = actor.stats?.atk || 3;
-                                const atkMod = Math.floor(atkVal / 2);
+                                const atkMod = calcModifier(atkVal);
                                 return (
                                     <>
                                         <div className="detail-tile-grid" style={{ marginBottom: '8px' }}>
@@ -1412,7 +1412,7 @@ const BattleTab = () => {
                             {/* ── Weapon Attack ── */}
                             {trainerSubmode === 'weapon' && (() => {
                                 const atkVal = trainer.stats?.atk || 3;
-                                const atkMod = Math.floor(atkVal / 2);
+                                const atkMod = calcModifier(atkVal);
                                 // Rules: "If you are holding a weapon" — only equipped weapons are usable.
                                 // Check the official catalog first, then fall back to the inventory item's
                                 // own `type` field so custom/homebrew weapons (never in GAME_DATA.items)

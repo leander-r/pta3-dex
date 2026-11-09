@@ -5,6 +5,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTrainerContext, useGameData, useModal, useUI } from '../../contexts/index.js';
 import { HELP_BTN_STYLE } from '../common/helpBtnStyle.js';
+import { calcModifier } from '../../utils/dataUtils.js';
 
 const SKILL_STATS = ['ATK', 'DEF', 'SATK', 'SDEF', 'SPD'];
 
@@ -35,10 +36,7 @@ const getTrainedSkillsList = (skills) => {
  * Calculate PTA3 skill check total for display:
  * 1d20 + ⌊stat/2⌋ + talent bonus
  */
-const getSkillCheckBonus = (statValue, talents) => {
-    const mod = Math.floor((statValue || 0) / 2);
-    return mod + (TALENT_BONUS[talents] || 0);
-};
+const getSkillCheckBonus = (statValue, talents) => calcModifier(statValue) + (TALENT_BONUS[talents] || 0);
 
 /**
  * TrainerSkills - Manage trainer skills (PTA3: 18 skills, talent system)
@@ -154,7 +152,7 @@ const TrainerSkills = () => {
                                         alignItems: 'center'
                                     }}>
                                         <span>{stat} Skills</span>
-                                        <span style={{ fontSize: '11px', opacity: 0.7 }}>mod +{Math.floor(statValue / 2)}</span>
+                                        <span style={{ fontSize: '11px', opacity: 0.7 }}>mod +{calcModifier(statValue)}</span>
                                     </div>
 
                                     <div className="detail-tile-grid">
@@ -180,7 +178,7 @@ const TrainerSkills = () => {
                                                             : undefined,
                                                         color: isTrained ? 'white' : undefined
                                                     }}
-                                                    title={`${skill.description}\n\nRoll: 1d20 + ${Math.floor(statValue / 2)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}${isPassive ? '\n\nPassive — invoked by the GM, not rolled by the player.' : ''}\n\nClick to cycle talents (${talents}/2)`}
+                                                    title={`${skill.description}\n\nRoll: 1d20 + ${calcModifier(statValue)}${talents > 0 ? ' + ' + TALENT_BONUS[talents] : ''}${isPassive ? '\n\nPassive — invoked by the GM, not rolled by the player.' : ''}\n\nClick to cycle talents (${talents}/2)`}
                                                 >
                                                     <button
                                                         onClick={(e) => {

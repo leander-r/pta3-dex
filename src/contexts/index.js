@@ -3,9 +3,6 @@
 // ============================================================
 // Re-export all context providers and hooks
 
-// AppContext
-export { AppContext, useAppContext } from './AppContext.js';
-
 // GameDataContext
 import GameDataContext, { GameDataProvider, useGameData } from './GameDataContext.jsx';
 export { GameDataContext, GameDataProvider, useGameData };

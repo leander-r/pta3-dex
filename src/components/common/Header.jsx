@@ -424,6 +424,9 @@ const Header = () => {
                                 importData(e.target.files[0]);
                                 closeMenus();
                             }
+                            // Reset so re-selecting the same filename (e.g. retrying a
+                            // failed import) still fires a change event next time.
+                            e.target.value = '';
                         }}
                         style={{ display: 'none' }}
                     />

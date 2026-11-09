@@ -137,16 +137,6 @@ export const ModalProvider = ({ children }) => {
         setComparisonIds([]);
     }, []);
 
-    // Skill Picker Modal
-    const [skillPickerModal, setSkillPickerModal] = useState({
-        show: false,
-        className: '',
-        skillPool: [],
-        skillCount: 0,
-        selectedSkills: [],
-        pendingClassData: null
-    });
-
     // Save/Load Modal
     const [showSaveLoadModal, setShowSaveLoadModal] = useState(false);
     const openSaveLoadModal  = useCallback(() => setShowSaveLoadModal(true),  []);
@@ -240,10 +230,6 @@ export const ModalProvider = ({ children }) => {
         setComparisonIds,
         openComparison,
         closeComparison,
-
-        // Skill Picker Modal
-        skillPickerModal,
-        setSkillPickerModal,
 
         // Save/Load Modal
         showSaveLoadModal,

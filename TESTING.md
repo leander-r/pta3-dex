@@ -171,3 +171,31 @@ bugs — each now fixed with a regression test pinning the correct behavior:
    dropdown actually uses), so picking a species from this specific dropdown silently
    left the ability blank. Fixed by delegating to the context function instead of
    reimplementing it. See `PokemonCard.test.jsx` → "species selection (Info tab)".
+
+## Low-severity cleanups from the same review pass
+
+Fixed alongside the bugs above (no behavior change intended, verified against the full
+suite + a manual Playwright-driven click-through of the Dice Roller tab for the
+`calcModifier` consolidation):
+
+- **`Header.jsx`** import file input never reset `e.target.value`, so re-selecting the
+  same filename after a failed/cancelled import silently did nothing. Now resets on
+  every change.
+- **`BattleTab.jsx`** `rollHealItem` read `party` instead of `actorParty` — harmless
+  today only because Heal mode forces `actorSource` back to `'player'`, but a latent
+  bug if that invariant is ever relaxed. Fixed to match every other actor-aware lookup
+  in the file.
+- **Dead code removed**: `SkillPickerModal.jsx` (+ its `ModalContext` state and
+  `ModalsContainer`/`modals/index.js` wiring — nothing ever set `show: true`),
+  `AppContext.js`/`useAppContext` (no `AppContext.Provider` exists anywhere in the
+  tree — calling it would always throw), `useLocalStorage.js`/`usePersistentStorage`
+  (zero consumers; `DataContext.jsx` reimplements the same debounced-save pattern
+  independently), and `UIComponents.jsx` in its entirety (zero files import from it —
+  every apparent "usage" found by name-grep was an unrelated same-named local
+  component or plain text elsewhere, e.g. `TypeChartSection.jsx`'s own local
+  `TypeBadge`).
+- **Stat-modifier formula consolidation**: `⌊stat/2⌋` was independently reimplemented
+  as inline `Math.floor(x / 2)` in `TrainerSkills.jsx` (2 sites) and, once audited
+  further, 10 more sites across `BattleTab.jsx` plus 1 in `useDiceRoller.js` — all now
+  call the single tested `dataUtils.calcModifier`. This is the same duplication
+  pattern that caused bug #1 above (one copy was wrong, the others masked it).

@@ -3,7 +3,6 @@
 // ============================================================
 // Re-export all custom hooks for easy importing
 
-export { useLocalStorage, usePersistentStorage } from './useLocalStorage.js';
 export { useDiscordWebhook } from './useDiscordWebhook.js';
 export { useDiceRoller } from './useDiceRoller.js';
 export { useInventory, ITEM_CATEGORIES } from './useInventory.js';
