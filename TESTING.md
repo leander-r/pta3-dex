@@ -98,33 +98,36 @@ instead.
 
 ## Current coverage snapshot
 
-Run `npm run test:coverage` for exact numbers. As of this pass (328 unit tests / 20
+Run `npm run test:coverage` for exact numbers. As of this pass (347 unit tests / 21
 files, 37 e2e tests / 6 files):
 
-- **Well covered (logic):** `utils/dataUtils.js`, `utils/dataMigration.js`,
-  `utils/inventoryUtils.js`, `utils/exportUtils.js`, `utils/discordEmbeds.js`,
-  `utils/typeUtils.js`, `utils/storageUtils.js`, `hooks/useInventory.js`,
-  `hooks/useDiceRoller.js`, `contexts/TrainerContext.jsx`, `contexts/PokemonContext.jsx`.
+- **Well covered (logic):** `utils/dataUtils.js`, `utils/dataMigration.js` (incl.
+  `capImportedPayloadSizes`), `utils/inventoryUtils.js`, `utils/exportUtils.js`,
+  `utils/discordEmbeds.js`, `utils/typeUtils.js`, `utils/storageUtils.js`,
+  `hooks/useInventory.js`, `hooks/useDiceRoller.js`, `contexts/TrainerContext.jsx`,
+  `contexts/PokemonContext.jsx`.
 - **Covered (components):** `ConfirmModal`, `ErrorBoundary`, `CombatStagesPanel`,
   `TypeMatchupDisplay`, `TrainerStats`, `TrainerSkills`, `TrainerClasses`,
-  `MoveLearnModal`, `PokemonCard` (focused subset — it's ~2500 lines; the info/skills/
-  evolution edit panels and species/move browsers are not unit-tested, only smoke-checked
-  via `e2e/pokemon.spec.js`).
+  `MoveLearnModal`, `CustomFeatureModal`, `PokemonCard` (focused subset — it's ~2500
+  lines; the evolution edit panel and move/held-item browsers are not unit-tested, only
+  smoke-checked via `e2e/pokemon.spec.js`).
 - **Covered (e2e):** app shell navigation (`smoke.spec.js`), Trainer and Pokémon Team
   flows, Inventory (add/expand/remove an item), GM Tools (all 8 sub-sections navigate +
   Capture Calculator computes), Quick Reference (all 8 sub-sections navigate).
 - **Known gap:** `DataContext.jsx`, `GameDataContext.jsx`, `UIContext.jsx`,
   `ModalContext.jsx` have no dedicated unit tests of their own (only exercised indirectly
-  via mocking in other tests). Most components under `src/components/battle/`,
-  `src/components/gm/`, `src/components/reference/`, `src/components/inventory/`, and
-  `src/components/notes/` have no unit tests — e2e smoke coverage only. Treat these as
-  the next places to add coverage, not as acceptable blind spots.
+  via mocking in other tests) — notably the two `DataContext.jsx` migration-pipeline
+  fixes below have no direct unit test, only the manual full-suite verification done when
+  they were fixed. Most components under `src/components/battle/`, `src/components/gm/`,
+  `src/components/reference/`, `src/components/inventory/`, and `src/components/notes/`
+  have no unit tests — e2e smoke coverage only. Treat these as the next places to add
+  coverage, not as acceptable blind spots.
 
 ## Bugs found and fixed via this test pass
 
-Writing tests against actual behavior (rather than assuming the code is correct) surfaced
-two real production bugs, both now fixed with regression tests pinning the correct
-behavior:
+Writing tests against actual behavior (rather than assuming the code is correct), plus a
+broad 5-way parallel code review across the whole `src/` tree, surfaced real production
+bugs — each now fixed with a regression test pinning the correct behavior:
 
 1. **`TrainerContext.calculateModifier`** did an internal `trainer.stats[key]` lookup, but
    its only real caller (`TrainerStats.jsx`) always passed the raw stat *value* — so every
@@ -138,3 +141,33 @@ behavior:
    ×) called it with *two* arguments, silently dropping the real update. Fixed to call
    with one argument, matching every other call site in the file. See
    `PokemonCard.test.jsx` → "Current HP controls".
+3. **`TrainerClasses.doRemoveClass`** never cleared `trainer.primaryBaseClass` when the
+   removed class *was* the primary base class. Since the only place that reassigns it only
+   fires when falsy, this permanently blocked the Level 15 capstone feature. Fixed to
+   promote the oldest remaining secondary base class (or clear to `''` if none). See
+   `TrainerClasses.test.jsx` → "removing a class".
+4. **`CustomFeatureModal.jsx`** never reset the shared `customFeature` context state on
+   close or after adding, so reopening the modal silently pre-filled the previous
+   feature's values. Fixed to reset to a blank shape on both paths. See
+   `CustomFeatureModal.test.jsx`.
+5. **`DataContext.jsx` migration gaps**: `restoreAutoBackup` and the single-trainer
+   branch of `importData` both skipped the PTA3 migration pipeline
+   (`migrateSaveData`/`cleanupLegacyFeatures`/`fixStatPointAccounting`) that `loadData`
+   and the multi-trainer import branch already ran — restoring an old auto-backup or
+   importing an old single-trainer export file would silently load unconverted
+   pre-PTA3 data. Fixed both to run the same pipeline.
+6. **Unvalidated bulk import size** (security hardening, not a functional bug): the
+   multi-trainer/single-trainer import path had no size caps on arrays/strings, unlike
+   `exportUtils.importSinglePokemon`. Added `dataMigration.capImportedPayloadSizes`
+   (caps trainers/party/reserve/moves/inventory/notes/etc. to generous-but-bounded
+   limits) and wired it into `importData` right after parsing, before anything else
+   touches the file's contents. See `dataMigration.test.js` →
+   `capImportedPayloadSizes`.
+7. **`PokemonCard.jsx` species dropdown**: the Info tab's inline species-search
+   dropdown reimplemented species/ability/move application independently of
+   `PokemonContext.applySpeciesToPokemon` (the function `RegionalFormModal` uses), and
+   had diverged — it wrote an `abilities`/`availableAbilities` shape nothing in the
+   file ever reads, and never set `pokemon.ability` (the field the Info tab's ability
+   dropdown actually uses), so picking a species from this specific dropdown silently
+   left the ability blank. Fixed by delegating to the context function instead of
+   reimplementing it. See `PokemonCard.test.jsx` → "species selection (Info tab)".

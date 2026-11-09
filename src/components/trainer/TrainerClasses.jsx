@@ -118,6 +118,22 @@ const TrainerClasses = () => {
             const newClassLevels = { ...(prev.classLevels || {}) };
             delete newClassLevels[cls];
 
+            // If the removed class was the primary base class, promote the oldest
+            // remaining secondary base class (if any) so someone can still reach the
+            // Level 15 capstone — otherwise primaryBaseClass would keep pointing at a
+            // class the trainer no longer has, permanently blocking that capstone.
+            const remainingSecondaryBase = (prev.secondaryBaseClasses || []).filter(c => c !== cls);
+            let newPrimaryBaseClass = prev.primaryBaseClass;
+            let newSecondaryBaseClasses = remainingSecondaryBase;
+            if (prev.primaryBaseClass === cls) {
+                if (remainingSecondaryBase.length > 0) {
+                    newPrimaryBaseClass = remainingSecondaryBase[0];
+                    newSecondaryBaseClasses = remainingSecondaryBase.slice(1);
+                } else {
+                    newPrimaryBaseClass = '';
+                }
+            }
+
             return {
                 ...prev,
                 classes: (prev.classes || []).filter(c => c !== cls),
@@ -128,7 +144,8 @@ const TrainerClasses = () => {
                 skills: updatedSkills,
                 classSkills: newClassSkills,
                 classLevels: newClassLevels,
-                secondaryBaseClasses: (prev.secondaryBaseClasses || []).filter(c => c !== cls)
+                primaryBaseClass: newPrimaryBaseClass,
+                secondaryBaseClasses: newSecondaryBaseClasses
             };
         });
     };

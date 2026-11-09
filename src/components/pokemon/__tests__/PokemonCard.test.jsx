@@ -35,18 +35,22 @@ const BASE_POKEMON = {
     currentDamage: 0,
 };
 
-let updatePokemon, restorePokemon, deletePokemon, setEditing;
+let updatePokemon, restorePokemon, deletePokemon, setEditing, applySpeciesToPokemon;
 
-function renderCard(props = {}) {
+function renderCard({ pokedex = [], ...props } = {}) {
     useGameData.mockReturnValue({
-        pokedex: [], pokedexLoading: false, GAME_DATA,
+        pokedex, pokedexLoading: false, GAME_DATA,
         customSpecies: [], setCustomSpecies: vi.fn(), customMoves: [],
     });
     useModal.mockReturnValue({
         showDetail: vi.fn(), setShowCustomSpeciesModal: vi.fn(), setEditingCustomSpeciesId: vi.fn(),
         setShowMoveLearnModal: vi.fn(), setMoveLearnData: vi.fn(), showConfirm: vi.fn(), openCustomMoveModal: vi.fn(),
     });
-    usePokemonContext.mockReturnValue({ getEvolutionOptions: () => ({ canEvolve: [], canDevolve: null }) });
+    applySpeciesToPokemon = vi.fn();
+    usePokemonContext.mockReturnValue({
+        getEvolutionOptions: () => ({ canEvolve: [], canDevolve: null }),
+        applySpeciesToPokemon,
+    });
     useUI.mockReturnValue({ showHelp: vi.fn() });
 
     updatePokemon = vi.fn();
@@ -131,6 +135,42 @@ describe('expanded / editing view', () => {
         renderEditing();
         fireEvent.click(screen.getByRole('button', { name: 'moves' }));
         expect(screen.getByText(`Moves: 2/${MAX_TOTAL_MOVES} (single pool)`)).toBeInTheDocument();
+    });
+
+    // Regression test: the Info tab's inline species-search dropdown used to
+    // reimplement species/ability/move application itself instead of delegating to
+    // PokemonContext.applySpeciesToPokemon (the function RegionalFormModal uses) — and
+    // had diverged: it never set pokemon.ability (the field actually rendered
+    // elsewhere), only an unused pokemon.abilities/availableAbilities shape. Pin that
+    // picking a species from this dropdown now goes through the one real code path.
+    describe('species selection (Info tab)', () => {
+        const IVYSAUR = {
+            id: 2, species: 'Ivysaur', types: ['Grass', 'Poison'],
+            baseStats: { hp: 45, atk: 7, def: 8, satk: 9, sdef: 9, spd: 6 },
+            abilities: { basic: ['Overgrow'], adv: [], high: [] },
+            skills: ['Sprouter'],
+        };
+
+        it('delegates to applySpeciesToPokemon when a species with no regional forms is picked', () => {
+            renderEditing({ pokedex: [IVYSAUR] });
+            fireEvent.focus(screen.getByPlaceholderText('Search species by name...'));
+            fireEvent.click(screen.getByText('Ivysaur'));
+            expect(applySpeciesToPokemon).toHaveBeenCalledWith(BASE_POKEMON.id, IVYSAUR, null);
+        });
+
+        it('auto-names a still-default-named Pokemon to the picked species', () => {
+            renderEditing({ pokedex: [IVYSAUR], pokemon: { ...BASE_POKEMON, name: 'New Pokémon' } });
+            fireEvent.focus(screen.getByPlaceholderText('Search species by name...'));
+            fireEvent.click(screen.getByText('Ivysaur'));
+            expect(updatePokemon).toHaveBeenCalledWith({ name: 'Ivysaur' });
+        });
+
+        it('does not rename a Pokemon that already has a custom name', () => {
+            renderEditing({ pokedex: [IVYSAUR] }); // BASE_POKEMON.name = 'Sparky'
+            fireEvent.focus(screen.getByPlaceholderText('Search species by name...'));
+            fireEvent.click(screen.getByText('Ivysaur'));
+            expect(updatePokemon).not.toHaveBeenCalledWith({ name: 'Ivysaur' });
+        });
     });
 
     // Regression test: PokemonTab.jsx binds `updatePokemon` to this card as a

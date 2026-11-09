@@ -8,6 +8,7 @@ import {
     migrateSaveData,
     cleanupLegacyFeatures,
     fixStatPointAccounting,
+    capImportedPayloadSizes,
 } from '../dataMigration.js';
 
 // ── isOldSaveFormat ──────────────────────────────────────────
@@ -281,5 +282,79 @@ describe('fixStatPointAccounting', () => {
         // 5 * 11 = 55 cost, far over the 25-pt budget
         const result = fixStatPointAccounting(data);
         expect(result.data.trainers[0].statPoints).toBe(0);
+    });
+});
+
+// ── capImportedPayloadSizes ──────────────────────────────────
+
+describe('capImportedPayloadSizes', () => {
+    it('caps an oversized trainers array down to the max', () => {
+        const data = { trainers: Array.from({ length: 60 }, (_, i) => ({ name: `T${i}` })) };
+        const result = capImportedPayloadSizes(data);
+        expect(result.trainers).toHaveLength(50);
+    });
+
+    it('caps a trainer party to MAX_PARTY_SIZE and reserve to the reserve cap', () => {
+        const data = {
+            trainers: [{
+                name: 'Ash',
+                party: Array.from({ length: 20 }, (_, i) => ({ id: i, species: 'Rattata' })),
+                reserve: Array.from({ length: 600 }, (_, i) => ({ id: i, species: 'Rattata' })),
+            }],
+        };
+        const result = capImportedPayloadSizes(data);
+        expect(result.trainers[0].party).toHaveLength(6);
+        expect(result.trainers[0].reserve).toHaveLength(500);
+    });
+
+    it('caps a Pokemon\'s moves array to the 6-move cap', () => {
+        const data = {
+            trainers: [{
+                name: 'Ash',
+                party: [{ id: 1, species: 'Pikachu', moves: Array.from({ length: 50 }, (_, i) => ({ name: `Move${i}` })) }],
+            }],
+        };
+        const result = capImportedPayloadSizes(data);
+        expect(result.trainers[0].party[0].moves).toHaveLength(6);
+    });
+
+    it('caps pathologically long name/notes strings', () => {
+        const data = { trainers: [{ name: 'A'.repeat(5000), notes: 'B'.repeat(50000) }] };
+        const result = capImportedPayloadSizes(data);
+        expect(result.trainers[0].name.length).toBe(200);
+        expect(result.trainers[0].notes.length).toBe(10000);
+    });
+
+    it('caps top-level catalog arrays (inventory, customSpecies, etc.)', () => {
+        const data = {
+            inventory: Array.from({ length: 5000 }, (_, i) => ({ name: `Item${i}`, quantity: 1 })),
+            customSpecies: Array.from({ length: 5000 }, (_, i) => ({ species: `Mon${i}` })),
+        };
+        const result = capImportedPayloadSizes(data);
+        expect(result.inventory).toHaveLength(2000);
+        expect(result.customSpecies).toHaveLength(2000);
+    });
+
+    it('caps the singular `trainer` field used by single-trainer import files', () => {
+        const data = { trainer: { name: 'A'.repeat(5000), party: Array.from({ length: 20 }, (_, i) => ({ id: i })) } };
+        const result = capImportedPayloadSizes(data);
+        expect(result.trainer.name.length).toBe(200);
+        expect(result.trainer.party).toHaveLength(6);
+    });
+
+    it('leaves a normal, well-formed payload untouched in shape', () => {
+        const data = {
+            app: 'pta3',
+            trainers: [{ name: 'Ash', party: [{ id: 1, species: 'Pikachu', moves: [{ name: 'Tackle' }] }], reserve: [] }],
+        };
+        const result = capImportedPayloadSizes(data);
+        expect(result.app).toBe('pta3');
+        expect(result.trainers[0].name).toBe('Ash');
+        expect(result.trainers[0].party[0].moves).toEqual([{ name: 'Tackle' }]);
+    });
+
+    it('handles missing/malformed data gracefully', () => {
+        expect(capImportedPayloadSizes(null)).toBe(null);
+        expect(capImportedPayloadSizes({})).toEqual({ trainers: undefined, trainer: undefined, inventory: undefined, customSpecies: undefined, customMoves: undefined, customOrigins: undefined, npcs: undefined });
     });
 });

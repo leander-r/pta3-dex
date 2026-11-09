@@ -7,6 +7,13 @@ import React from 'react';
 import useModalKeyboard from '../../hooks/useModalKeyboard.js';
 import { useModal, useTrainerContext } from '../../contexts/index.js';
 
+// Matches ModalContext's initial customFeature shape — resetting to this on
+// close/add prevents the next time the modal opens from pre-filling stale
+// values left over from the last feature created (shared context state).
+const BLANK_CUSTOM_FEATURE = {
+    name: '', category: 'Custom', prerequisites: '', frequency: '', trigger: '', target: '', effect: ''
+};
+
 /**
  * CustomFeatureModal - Modal for creating custom trainer features
  * Uses UIContext for modal state, TrainerContext for updating trainer
@@ -16,7 +23,10 @@ const CustomFeatureModal = () => {
     const { showCustomFeatureModal, setShowCustomFeatureModal, customFeature, setCustomFeature } = useModal();
     const { setTrainer } = useTrainerContext();
 
-    const handleClose = () => setShowCustomFeatureModal(false);
+    const handleClose = () => {
+        setShowCustomFeatureModal(false);
+        setCustomFeature(BLANK_CUSTOM_FEATURE);
+    };
 
     const { modalRef } = useModalKeyboard(showCustomFeatureModal, handleClose);
 
@@ -29,6 +39,7 @@ const CustomFeatureModal = () => {
                 features: [...prev.features, { ...customFeature }]
             }));
             setShowCustomFeatureModal(false);
+            setCustomFeature(BLANK_CUSTOM_FEATURE);
         }
     };
 

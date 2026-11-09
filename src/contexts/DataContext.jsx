@@ -7,7 +7,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/storageUtils.js';
 import { getActualStats, calculatePokemonHP } from '../utils/dataUtils.js';
 import { getPokemonBadges } from '../utils/exportUtils.js';
-import { migrateSaveData, cleanupLegacyFeatures, fixStatPointAccounting } from '../utils/dataMigration.js';
+import { migrateSaveData, cleanupLegacyFeatures, fixStatPointAccounting, capImportedPayloadSizes } from '../utils/dataMigration.js';
 import { gameDataLoadPromise } from '../data/gameDataLoader.js';
 import { buildEmbed } from '../utils/discordEmbeds.js';
 import toast from '../utils/toast.js';
@@ -350,7 +350,17 @@ export const DataProvider = ({ children }) => {
                         return;
                     }
                     const parsed = JSON.parse(backup);
-                    const migrated = migrateOldData(parsed);
+                    // Run the same migration pipeline as loadData (structural → PTA3 rules →
+                    // legacy feature cleanup → stat-point accounting fix) — an auto-backup
+                    // taken before a migration shipped would otherwise be restored unconverted.
+                    let migrated = migrateOldData(parsed);
+                    const { data: pta3Data } = migrateSaveData(migrated);
+                    migrated = pta3Data;
+                    const { data: cleanedData } = cleanupLegacyFeatures(migrated, GAME_DATA?.features || {});
+                    migrated = cleanedData;
+                    const { data: statFixedData } = fixStatPointAccounting(migrated);
+                    migrated = statFixedData;
+
                     if (migrated.trainers && Array.isArray(migrated.trainers) && migrated.trainers.length > 0) {
                         const validActiveId = migrated.trainers.some(t => t.id === migrated.activeTrainerId)
                             ? migrated.activeTrainerId
@@ -370,7 +380,7 @@ export const DataProvider = ({ children }) => {
                 }
             }
         });
-    }, [showConfirm, migrateOldData, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setNpcs]);
+    }, [showConfirm, migrateOldData, GAME_DATA, setTrainers, setActiveTrainerId, setInventory, setCustomSpecies, setCustomMoves, setCustomOrigins, setNpcs]);
 
     const loadDemoTrainer = useCallback(() => {
         showConfirm({
@@ -600,7 +610,12 @@ export const DataProvider = ({ children }) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const data = JSON.parse(e.target.result);
+                const rawData = JSON.parse(e.target.result);
+                // Cap array/string sizes before anything else touches this data — it's
+                // crossing a trust boundary (an arbitrary file the user picked), and a
+                // corrupt or malicious save could otherwise inject unbounded
+                // strings/arrays that get merged straight into persisted state.
+                const data = capImportedPayloadSizes(rawData);
 
                 // Reject saves explicitly marked for a different app
                 if (data.app && data.app !== 'pta3') {
@@ -686,6 +701,20 @@ export const DataProvider = ({ children }) => {
                         reserve: trainerData.reserve || data.pokemon?.slice(6) || trainerData.pokemon?.slice(6) || [],
                         skills: migrateSkills(trainerData.skills)
                     };
+
+                    // Run the same PTA3 migration pipeline as the multi-trainer import branch
+                    // above — exportSingleTrainer still writes old-format (pre-PTA3) files, so a
+                    // single-trainer import can just as easily predate a schema change.
+                    let wasMigrated = false;
+                    {
+                        const { data: pta3Data, migrated } = migrateSaveData({ trainers: [trainerData] });
+                        if (migrated) { trainerData = pta3Data.trainers[0]; wasMigrated = true; }
+                        const { data: cleanedData, cleaned } = cleanupLegacyFeatures({ trainers: [trainerData] }, GAME_DATA?.features || {});
+                        if (cleaned) trainerData = cleanedData.trainers[0];
+                        const { data: statFixedData, fixed } = fixStatPointAccounting({ trainers: [trainerData] });
+                        if (fixed) trainerData = statFixedData.trainers[0];
+                    }
+                    if (wasMigrated) toast.info('This trainer was migrated to PTA3 format. Please review their stats.');
 
                     const doInventoryImport = () => {
                         if (data.inventory && data.inventory.length > 0) {

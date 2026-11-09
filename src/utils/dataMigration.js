@@ -3,7 +3,91 @@
 // ============================================================
 
 import { getPointBuyCost } from './dataUtils.js';
-import { CREATION_STAT_POINTS } from '../data/constants.js';
+import { CREATION_STAT_POINTS, MAX_PARTY_SIZE, MAX_TOTAL_MOVES } from '../data/constants.js';
+
+/**
+ * Size caps applied to a save payload crossing a trust boundary (file import).
+ * These exist purely to stop a corrupt or malicious save file from injecting
+ * unbounded strings/arrays into persisted state (localStorage quota exhaustion,
+ * a hung render over a 100k-entry array, etc.) — NOT a full field-shape
+ * validator. Values are intentionally generous; legitimate saves never get close.
+ */
+const IMPORT_SIZE_CAPS = {
+    MAX_TRAINERS: 50,
+    MAX_RESERVE: 500,
+    MAX_INVENTORY: 2000,
+    MAX_FEATURES: 200,
+    MAX_SKILLS_KEYS: 100,
+    MAX_NAME_LENGTH: 200,
+    MAX_NOTES_LENGTH: 10000,
+    MAX_CATALOG_ARRAY: 2000, // customSpecies / customMoves / customOrigins / npcs
+};
+
+const capString = (value, maxLength) =>
+    typeof value === 'string' ? value.slice(0, maxLength) : value;
+
+const capArray = (value, maxLength) =>
+    Array.isArray(value) ? value.slice(0, maxLength) : value;
+
+const capObjectKeys = (value, maxKeys) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+    const keys = Object.keys(value);
+    if (keys.length <= maxKeys) return value;
+    const capped = {};
+    keys.slice(0, maxKeys).forEach(k => { capped[k] = value[k]; });
+    return capped;
+};
+
+const capPokemon = (pokemon) => {
+    if (!pokemon || typeof pokemon !== 'object') return pokemon;
+    return {
+        ...pokemon,
+        name: capString(pokemon.name, IMPORT_SIZE_CAPS.MAX_NAME_LENGTH),
+        species: capString(pokemon.species, IMPORT_SIZE_CAPS.MAX_NAME_LENGTH),
+        notes: capString(pokemon.notes, IMPORT_SIZE_CAPS.MAX_NOTES_LENGTH),
+        moves: capArray(pokemon.moves, MAX_TOTAL_MOVES),
+        skills: capArray(pokemon.skills, IMPORT_SIZE_CAPS.MAX_SKILLS_KEYS),
+    };
+};
+
+const capPokemonArray = (arr, maxLength) =>
+    Array.isArray(arr) ? arr.slice(0, maxLength).map(capPokemon) : arr;
+
+const capTrainer = (trainer) => {
+    if (!trainer || typeof trainer !== 'object') return trainer;
+    return {
+        ...trainer,
+        name: capString(trainer.name, IMPORT_SIZE_CAPS.MAX_NAME_LENGTH),
+        notes: capString(trainer.notes, IMPORT_SIZE_CAPS.MAX_NOTES_LENGTH),
+        party: capPokemonArray(trainer.party, MAX_PARTY_SIZE),
+        reserve: capPokemonArray(trainer.reserve, IMPORT_SIZE_CAPS.MAX_RESERVE),
+        features: capArray(trainer.features, IMPORT_SIZE_CAPS.MAX_FEATURES),
+        skills: capObjectKeys(trainer.skills, IMPORT_SIZE_CAPS.MAX_SKILLS_KEYS),
+        badges: capArray(trainer.badges, IMPORT_SIZE_CAPS.MAX_FEATURES),
+    };
+};
+
+/**
+ * Cap array/string sizes on a full save payload coming from a file import
+ * (bulk multi-trainer or single-trainer). Safe to call on any format — this
+ * runs independently of (and in addition to) the PTA3 rules migration.
+ */
+export const capImportedPayloadSizes = (data) => {
+    if (!data || typeof data !== 'object') return data;
+    return {
+        ...data,
+        trainers: Array.isArray(data.trainers)
+            ? capArray(data.trainers, IMPORT_SIZE_CAPS.MAX_TRAINERS).map(capTrainer)
+            : data.trainers,
+        // Single-trainer export/import files use `trainer` (singular), not `trainers`.
+        trainer: data.trainer ? capTrainer(data.trainer) : data.trainer,
+        inventory: capArray(data.inventory, IMPORT_SIZE_CAPS.MAX_INVENTORY),
+        customSpecies: capArray(data.customSpecies, IMPORT_SIZE_CAPS.MAX_CATALOG_ARRAY),
+        customMoves: capArray(data.customMoves, IMPORT_SIZE_CAPS.MAX_CATALOG_ARRAY),
+        customOrigins: capArray(data.customOrigins, IMPORT_SIZE_CAPS.MAX_CATALOG_ARRAY),
+        npcs: capArray(data.npcs, IMPORT_SIZE_CAPS.MAX_CATALOG_ARRAY),
+    };
+};
 
 /**
  * Detect if a save contains old-format trainer data (pre-PTA3).

@@ -152,4 +152,63 @@ describe('removing a class', () => {
         expect(result.features).toEqual([]);
         expect(result.skills).toEqual({});
     });
+
+    // Regression: doRemoveClass used to never clear primaryBaseClass. Since the only
+    // place that assigns it only fires when it's falsy, a stale value left pointing at
+    // a class the trainer no longer has would permanently block any class from ever
+    // reaching the Level 15 capstone again.
+    it('promotes the oldest remaining secondary base class to primary when the primary is removed', () => {
+        setup({
+            level: 7,
+            classes: ['Ace Trainer', 'Breeder'],
+            primaryBaseClass: 'Ace Trainer',
+            secondaryBaseClasses: ['Breeder'],
+        });
+        fireEvent.click(screen.getByRole('button', { name: 'Remove Ace Trainer' }));
+
+        const updater = setTrainer.mock.calls[0][0];
+        const result = updater({
+            classes: ['Ace Trainer', 'Breeder'], features: [], skills: {},
+            classSkills: {}, classLevels: {},
+            primaryBaseClass: 'Ace Trainer', secondaryBaseClasses: ['Breeder'],
+        });
+        expect(result.primaryBaseClass).toBe('Breeder');
+        expect(result.secondaryBaseClasses).toEqual([]);
+    });
+
+    it('clears primaryBaseClass when the primary is removed and no secondary base class remains', () => {
+        setup({
+            level: 0,
+            classes: ['Ace Trainer'],
+            primaryBaseClass: 'Ace Trainer',
+            secondaryBaseClasses: [],
+        });
+        fireEvent.click(screen.getByRole('button', { name: 'Remove Ace Trainer' }));
+
+        const updater = setTrainer.mock.calls[0][0];
+        const result = updater({
+            classes: ['Ace Trainer'], features: [], skills: {},
+            classSkills: {}, classLevels: {},
+            primaryBaseClass: 'Ace Trainer', secondaryBaseClasses: [],
+        });
+        expect(result.primaryBaseClass).toBe('');
+    });
+
+    it('leaves primaryBaseClass untouched when removing a different (non-primary) class', () => {
+        setup({
+            level: 7,
+            classes: ['Ace Trainer', 'Stat Ace'],
+            primaryBaseClass: 'Ace Trainer',
+            secondaryBaseClasses: [],
+        });
+        fireEvent.click(screen.getByRole('button', { name: 'Remove Stat Ace' }));
+
+        const updater = setTrainer.mock.calls[0][0];
+        const result = updater({
+            classes: ['Ace Trainer', 'Stat Ace'], features: [], skills: {},
+            classSkills: {}, classLevels: {},
+            primaryBaseClass: 'Ace Trainer', secondaryBaseClasses: [],
+        });
+        expect(result.primaryBaseClass).toBe('Ace Trainer');
+    });
 });

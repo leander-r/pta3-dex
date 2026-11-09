@@ -58,7 +58,7 @@ const PokemonCard = ({
     // Get shared state from contexts
     const { pokedex, pokedexLoading, GAME_DATA, customSpecies, setCustomSpecies, customMoves } = useGameData();
     const { showDetail, setShowCustomSpeciesModal, setEditingCustomSpeciesId, setShowMoveLearnModal, setMoveLearnData, showConfirm, openCustomMoveModal } = useModal();
-    const { getEvolutionOptions } = usePokemonContext();
+    const { getEvolutionOptions, applySpeciesToPokemon } = usePokemonContext();
     const { showHelp } = useUI();
     const [editTab, setEditTab] = useState('info');
     const [speciesSearch, setSpeciesSearch] = useState('');
@@ -317,37 +317,6 @@ const PokemonCard = ({
         setMoveCategoryFilter('all');
     };
 
-    // Get all available abilities from species data
-    const getAvailableAbilities = (speciesData) => {
-        const abilities = [];
-        if (speciesData?.abilities) {
-            if (speciesData.abilities.basic) {
-                speciesData.abilities.basic.forEach(a => abilities.push({ name: a, type: 'Basic' }));
-            }
-            if (speciesData.abilities.adv) {
-                speciesData.abilities.adv.forEach(a => abilities.push({ name: a, type: 'Advanced' }));
-            }
-            if (speciesData.abilities.high) {
-                speciesData.abilities.high.forEach(a => abilities.push({ name: a, type: 'High' }));
-            }
-        }
-        return abilities;
-    };
-
-    // Derive available abilities from pokedex if not stored on pokemon
-    const derivedAbilities = useMemo(() => {
-        if (pokemon.availableAbilities && pokemon.availableAbilities.length > 0) {
-            return pokemon.availableAbilities;
-        }
-        if (pokedex && pokemon.species) {
-            const speciesData = pokedex.find(p => p.species === pokemon.species);
-            if (speciesData) {
-                return getAvailableAbilities(speciesData);
-            }
-        }
-        return [];
-    }, [pokemon.availableAbilities, pokemon.species, pokedex]);
-
     const handleSelectSpecies = (speciesData) => {
         // Check if species has regional forms - let user choose
         if (speciesData.regionalForms && speciesData.regionalForms.length > 0) {
@@ -361,58 +330,16 @@ const PokemonCard = ({
         applySpeciesForm(speciesData, null);
     };
 
+    // Delegates to PokemonContext.applySpeciesToPokemon — the same function used by
+    // RegionalFormModal — instead of reimplementing species/ability/move application
+    // inline. The two used to diverge (this used to write pokemon.abilities/
+    // availableAbilities as a flat array that nothing in this file ever read, and never
+    // set pokemon.ability — the field the Info tab's ability dropdown actually uses).
     const applySpeciesForm = (speciesData, regionalForm) => {
-        const isRegional = regionalForm && !regionalForm.isBase;
-        const formData = isRegional ? regionalForm : null;
-
-        // Use form-specific data if regional, otherwise use base species data
-        const types = formData?.types || speciesData.types || [];
-        const baseStats = formData?.baseStats || speciesData.baseStats || { hp: 10, atk: 10, def: 10, satk: 10, sdef: 10, spd: 10 };
-        const abilities = formData?.abilities || speciesData.abilities;
-        const levelUpMoves = formData?.levelUpMoves || speciesData.levelUpMoves || [];
-
-        // Build available abilities from the correct form
-        const availableAbilities = [];
-        if (abilities) {
-            if (abilities.basic) abilities.basic.forEach(a => availableAbilities.push({ name: a, tier: 'Basic' }));
-            if (abilities.adv) abilities.adv.forEach(a => availableAbilities.push({ name: a, tier: 'Advanced' }));
-            if (abilities.high) abilities.high.forEach(a => availableAbilities.push({ name: a, tier: 'High' }));
+        applySpeciesToPokemon(pokemon.id, speciesData, regionalForm);
+        if (!pokemon.name || pokemon.name === 'New Pokémon') {
+            updatePokemon({ name: speciesData.species });
         }
-
-        const initialAbilities = availableAbilities.length > 0 ? [availableAbilities[0].name] : [];
-
-        // Auto-add starting moves (PTA3: all moves available, no level gate)
-        const startingMoves = levelUpMoves
-            .slice(0, MAX_TOTAL_MOVES)
-            .map(m => ({
-                name: m.name || m.move,
-                source: 'natural',
-                learnedAtLevel: m.level,
-                type: m.type || 'Normal',
-                category: m.category || 'Physical',
-                frequency: m.frequency || 'At-Will',
-                damage: m.damage || '',
-                range: m.range || 'Melee',
-                effect: m.effect || ''
-            }));
-
-        updatePokemon({
-            species: speciesData.species,
-            name: pokemon.name === 'New Pokemon' || !pokemon.name ? speciesData.species : pokemon.name,
-            types: types,
-            baseStats: baseStats,
-            abilities: initialAbilities,
-            availableAbilities: availableAbilities,
-            availableLevelUpMoves: levelUpMoves,
-            moves: startingMoves,
-            passives: formData?.passives || speciesData.passives || [],
-            regionalForm: isRegional ? regionalForm.name : null,
-            pokemonSkills: Array.isArray(speciesData.skills)
-                ? speciesData.skills.filter(Boolean).map(s => ({ name: s }))
-                : speciesData.skills
-                    ? Object.entries(speciesData.skills).map(([name, value]) => ({ name, value }))
-                    : []
-        });
         setSpeciesSearch('');
         setShowSpeciesDropdown(false);
         setShowRegionalFormSelect(false);
