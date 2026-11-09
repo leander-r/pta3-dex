@@ -19,7 +19,7 @@ import {
     HONOR_THRESHOLDS,
     HP_MILESTONE_LEVELS
 } from '../data/constants.js';
-import { getPointBuyCost } from '../utils/dataUtils.js';
+import { getPointBuyCost, calcModifier } from '../utils/dataUtils.js';
 import toast from '../utils/toast.js';
 import { useUI } from './UIContext.jsx';
 import { useModal } from './ModalContext.jsx';
@@ -241,11 +241,10 @@ export const TrainerProvider = ({ children }) => {
         }
     }, [trainers, setTrainers]);
 
-    // Calculate trainer stat modifier (PTA3: ⌊stat / 2⌋)
-    const calculateModifier = useCallback((stat) => {
-        const value = trainer.stats[stat] || BASE_STAT_VALUE;
-        return Math.floor(value / 2);
-    }, [trainer.stats]);
+    // Calculate trainer stat modifier (PTA3/HB1: ⌊stat value / 2⌋, rounding down).
+    // Takes the raw stat VALUE (not a stats key) — matches dataUtils.calcModifier,
+    // which is how every caller (TrainerStats.jsx) actually invokes it.
+    const calculateModifier = useCallback((statValue) => calcModifier(statValue), []);
 
     // Calculate trainer max HP (PTA3: 20 base + sum of hpRolls)
     const calculateMaxHP = useCallback(() => {

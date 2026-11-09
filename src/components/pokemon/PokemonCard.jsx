@@ -1827,7 +1827,7 @@ const PokemonCard = ({
                         {hasAnyTempBoost && (
                             <div style={{ marginBottom: '8px' }}>
                                 <button
-                                    onClick={() => updatePokemon(pokemon.id, { tempStatBoosts: {} })}
+                                    onClick={() => updatePokemon({ tempStatBoosts: {} })}
                                     style={{
                                         padding: '4px 10px',
                                         background: '#ef5350',
@@ -1876,7 +1876,7 @@ const PokemonCard = ({
                                             >
                                                 +{tempBoost}
                                                 <button
-                                                    onClick={() => updatePokemon(pokemon.id, { tempStatBoosts: { ...tempBoosts, [stat]: 0 } })}
+                                                    onClick={() => updatePokemon({ tempStatBoosts: { ...tempBoosts, [stat]: 0 } })}
                                                     style={{
                                                         background: 'none', border: 'none', cursor: 'pointer',
                                                         color: '#2e7d32', padding: '0 1px', fontSize: '11px', lineHeight: 1
@@ -1945,20 +1945,20 @@ const PokemonCard = ({
                                 <div style={{ fontSize: '20px', fontWeight: 'bold' }}>{currentHP}/{maxHP}</div>
                                 <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
                                     <button
-                                        onClick={() => updatePokemon(pokemon.id, { currentDamage: Math.min(maxHP, (pokemon.currentDamage || 0) + 1) })}
+                                        onClick={() => updatePokemon({ currentDamage: Math.min(maxHP, (pokemon.currentDamage || 0) + 1) })}
                                         disabled={(pokemon.currentDamage || 0) >= maxHP}
                                         style={{ padding: '1px 7px', fontSize: '11px', fontWeight: 'bold', background: '#f4433618', color: '#f44336', border: '1px solid #f4433644', borderRadius: '4px', cursor: 'pointer', opacity: (pokemon.currentDamage || 0) >= maxHP ? 0.4 : 1 }}
                                         title="Take 1 damage"
                                     >−1</button>
                                     <button
-                                        onClick={() => updatePokemon(pokemon.id, { currentDamage: Math.max(0, (pokemon.currentDamage || 0) - 1) })}
+                                        onClick={() => updatePokemon({ currentDamage: Math.max(0, (pokemon.currentDamage || 0) - 1) })}
                                         disabled={!(pokemon.currentDamage || 0)}
                                         style={{ padding: '1px 7px', fontSize: '11px', fontWeight: 'bold', background: '#4caf5018', color: '#4caf50', border: '1px solid #4caf5044', borderRadius: '4px', cursor: 'pointer', opacity: !(pokemon.currentDamage || 0) ? 0.4 : 1 }}
                                         title="Heal 1 HP"
                                     >+1</button>
                                     {(pokemon.currentDamage || 0) > 0 && (
                                         <button
-                                            onClick={() => updatePokemon(pokemon.id, { currentDamage: 0 })}
+                                            onClick={() => updatePokemon({ currentDamage: 0 })}
                                             style={{ padding: '1px 7px', fontSize: '11px', background: 'none', color: '#666', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}
                                             title="Full heal"
                                         >Full</button>

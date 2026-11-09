@@ -25,7 +25,7 @@ test.beforeEach(async ({ page }) => {
         { state: 'detached', timeout: 15_000 });
 });
 
-test('app shell renders header and navigation', async ({ page }) => {
+test('app shell renders header and navigation @smoke', async ({ page }) => {
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('[role="navigation"]')).toBeVisible();
     // 7 nav tabs + 1 mobile-only "More" overflow trigger. Actions (save/load,
@@ -33,37 +33,37 @@ test('app shell renders header and navigation', async ({ page }) => {
     await expect(page.locator('.nav-button')).toHaveCount(8);
 });
 
-test('trainer tab is active by default', async ({ page }) => {
+test('trainer tab is active by default @smoke', async ({ page }) => {
     await expect(page.locator('.nav-button[aria-current="page"]')).toContainText('Trainer');
     // Trainer tab uses a two-column layout (no h2.section-title); check for the profile card
     await expect(page.locator('.content-area > div:not([style*="none"]) .trainer-layout')).toBeVisible();
 });
 
-test('navigate to Pokémon Team tab', async ({ page }) => {
+test('navigate to Pokémon Team tab @smoke', async ({ page }) => {
     await page.locator('.nav-button', { hasText: 'Pokémon Team' }).click();
     await expect(page.locator('.nav-button[aria-current="page"]')).toContainText('Pokémon Team');
     await expect(page.locator(ACTIVE_H2)).toBeVisible({ timeout: 10_000 });
 });
 
-test('navigate to Inventory tab', async ({ page }) => {
+test('navigate to Inventory tab @smoke', async ({ page }) => {
     await page.locator('.nav-button', { hasText: 'Inventory' }).click();
     await expect(page.locator('.nav-button[aria-current="page"]')).toContainText('Inventory');
     await expect(page.locator(ACTIVE_H2)).toBeVisible({ timeout: 10_000 });
 });
 
-test('navigate to Dice Roller tab', async ({ page }) => {
+test('navigate to Dice Roller tab @smoke', async ({ page }) => {
     await page.locator('.nav-button', { hasText: 'Dice Roller' }).click();
     await expect(page.locator('.nav-button[aria-current="page"]')).toContainText('Dice Roller');
     await expect(page.locator(ACTIVE_H2)).toBeVisible({ timeout: 10_000 });
 });
 
-test('navigate to Campaign Notes tab', async ({ page }) => {
+test('navigate to Campaign Notes tab @smoke', async ({ page }) => {
     await page.locator('.nav-button', { hasText: 'Campaign Notes' }).click();
     await expect(page.locator('.nav-button[aria-current="page"]')).toContainText('Campaign Notes');
     await expect(page.locator(ACTIVE_H2)).toBeVisible({ timeout: 10_000 });
 });
 
-test('theme toggle switches between light and dark', async ({ page }) => {
+test('theme toggle switches between light and dark @smoke', async ({ page }) => {
     const html         = page.locator('html');
     const initialTheme = await html.getAttribute('data-theme');
 
